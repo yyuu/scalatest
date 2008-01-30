@@ -40,9 +40,10 @@
         </path>
 
         <path id="test.class.path">
-            <pathelement location="${dist}/lib/scalatest.jar"/>
-            <pathelement location="${dist}/lib/scalatest-wbt.jar"/>
+        	<pathelement location="${build}"/>
+        	<pathelement location="${build.tests}"/>
             <pathelement location="${lib}/scala-library.jar"/>
+        	<pathelement location="${lib}/testng-5.7-jdk15.jar"/>
         </path>
 
         <taskdef resource="scala/tools/ant/antlib.xml">
@@ -78,16 +79,16 @@
       <include name="org/scalatest/Ignore.java"/>
     </javac>
     <!-- Then compile the Scala code from ${src} into ${build} -->
-    <scalac srcdir="${src}" destdir="${build}" classpath="${build}:${lib}/scala-library.jar"/>
+    <scalac srcdir="${src}" destdir="${build}" classpath="${build}:${lib}/scala-library.jar:${lib}/testng-5.7-jdk15.jar"/>
 
     <!-- Compile EasySuite.scala from ${tests} into ${build.tests} -->
-    <scalac srcdir="${tests}" destdir="${build.tests}" classpath="${build}:${build.tests}:${lib}/scala-library.jar">
+    <scalac srcdir="${tests}" destdir="${build.tests}" classpathref="test.class.path">
       <include name="org/scalatest/EasySuite.scala"/>
     </scalac>
     <!-- Compile the Java code from ${tests} into ${build.tests} -->
     <javac srcdir="${tests}" destdir="${build.tests}" classpath="${build}:${lib}/scala-library.jar" debug="yes"/>
     <!-- Compile the rest of the Scala code from ${tests} into ${build.tests} -->
-    <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5" classpath="${build}:${build.tests}:${lib}/scala-library.jar"/>
+    <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="test.class.path"/>
     <copy file="${src}/org/scalatest/ScalaTestBundle.properties" todir="${build}/org/scalatest"/>
     <copy todir="${build}/images">
         <fileset dir="${src}/images"/>
@@ -134,14 +135,14 @@
 
     <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
     <jar jarfile="${dist}/lib/scalatest.jar" basedir="${build}"
-        includes="org/scalatest/*.class, org/scalatest/*.properties, images/*">
+        includes="org/scalatest/*.class, org/scalatest/testng/*.class, org/scalatest/*.properties, images/*">
         <manifest>
             <attribute name="Main-Class" value="org.scalatest.Runner"/>
         	<attribute name="Class-Path" value="junit-4.1.jar"/>
         </manifest>
      </jar>
      <jar jarfile="${dist}/lib/scalatest-wbt.jar" basedir="${build.tests}"
-        includes="org/scalatest/*.class"/>
+        includes="org/scalatest/*.class, org/scalatest/testng/*.class"/>
 
 	 <echo message="All finished building ${project.name}!"/>
   </target>
@@ -182,18 +183,17 @@
     <zip zipfile="scalatest-${release}.zip" basedir="${zipper}"/>
   </target>
 
+	
     <target name="test" depends="dist">
     <!-- Delete the ${build} and ${dist} directory trees -->
     <java classname="org.scalatest.Runner" classpathref="test.class.path" fork="true">
 
         <arg value="-p"/>
-        <arg value="build_tests"/>
+        <arg value="build_tests build"/>
 
        <arg value="-g"/>
        <arg value="-o"/>
 
-       <arg value="-s"/>
-       <arg value="org.scalatest.AllSuite"/>
     </java>
   </target>
 
