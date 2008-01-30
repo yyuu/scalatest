@@ -45,8 +45,8 @@ import java.util.ArrayList;
  * </pre>
  *
  * <p>
- * Specify a runpath using either a 'runpath' attribute or a nested
- * &lt;runpath&gt; element, using standard ant path notation, e.g.:
+ * Specify a runpath using either a 'runpath' attribute and/or nested
+ * &lt;runpath&gt; elements, using standard ant path notation, e.g.:
  * </p>
  *
  * <pre>
@@ -64,12 +64,22 @@ import java.util.ArrayList;
  * </pre>
  *
  * <p>
+ * To add a url to your runpath, use a &lt;runpathurl&gt; element
+ * (since ant paths don't support url's), e.g.:
+ * </p>
+ *
+ * <pre>
+ *   &lt;scalatest&gt;
+ *     &lt;runpathurl url="http://foo.com/bar.jar"/&gt;
+ * </pre>
+ *
+ * <p>
  * Specify reporters using nested &lt;reporter&gt; elements, where the 'type'
  * attribute must be one of the following:
  * </p>
  *
  * <ul>
- *   <li>  gui              </li>
+ *   <li>  graphic          </li>
  *   <li>  file             </li>
  *   <li>  stdout           </li>
  *   <li>  stderr           </li>
@@ -154,10 +164,10 @@ import java.util.ArrayList;
  * </pre>
  */
 public class ScalaTestTask extends Task {
-    private Path   runpath;
     private String includes;
     private String excludes;
     private boolean concurrent;
+    private ArrayList<String> runpath = new ArrayList<String>();
     private ArrayList<String> suites = new ArrayList<String>();
     private ArrayList<String> membersonlys = new ArrayList<String>();
     private ArrayList<String> wildcards = new ArrayList<String>();
@@ -171,6 +181,8 @@ public class ScalaTestTask extends Task {
     //
     public void execute() throws BuildException {
         ArrayList<String> args = new ArrayList<String>();
+
+        System.out.println("gcb runpath [" + runpath + "]");
 
         addSuiteArgs(args);
         addReporterArgs(args);
@@ -206,7 +218,7 @@ public class ScalaTestTask extends Task {
     // element or attribute was specified for task.
     //
     private void addRunpathArgs(ArrayList<String> args) {
-        if (runpath != null) {
+        if (runpath.size() > 0) {
             args.add("-p");
             args.add(getSpacedOutPathStr(runpath));
         }
@@ -315,7 +327,7 @@ public class ScalaTestTask extends Task {
             else if (type.equals("stderr")) {
                 addReporterOption(args, reporter, "-e");
             }
-            else if (type.equals("gui")) {
+            else if (type.equals("graphic")) {
                 addReporterOption(args, reporter, "-g");
             }
             else if (type.equals("file")) {
@@ -388,7 +400,9 @@ public class ScalaTestTask extends Task {
     // Sets value of 'runpath' attribute.
     //
     public void setRunpath(Path runpath) {
-        this.runpath = runpath;
+        for (String element: runpath.list()) {
+            this.runpath.add(element);
+        }
     }
 
     //
@@ -402,7 +416,16 @@ public class ScalaTestTask extends Task {
     // Sets value from nested element 'runpath'.
     //
     public void addConfiguredRunpath(Path runpath) {
-        this.runpath = runpath;
+        for (String element: runpath.list()) {
+            this.runpath.add(element);
+        }
+    }
+
+    //
+    // Sets value from nested element 'runpathurl'.
+    //
+    public void addConfiguredRunpathUrl(RunpathUrl runpathurl) {
+            runpath.add(runpathurl.getUrl());
     }
 
     //
@@ -476,16 +499,19 @@ public class ScalaTestTask extends Task {
     }
 
     //
-    // Translates a colon-delimited Path into a string of
-    // space-delimited elements.  Returns null if Path is null.
+    // Translates a list of strings making up a path into a
+    // single space-delimited string.
     //
-    private String getSpacedOutPathStr(Path path) {
-        String pathStr = null;
+    private String getSpacedOutPathStr(ArrayList<String> path) {
+        StringBuffer buf = new StringBuffer();
 
-        if (path != null) {
-            pathStr = path.toString().replace(':', ' ');
+        String prefix = "";
+        for (String elem: path) {
+            buf.append(prefix);
+            buf.append(elem);
+            prefix = " ";
         }
-        return pathStr;
+        return buf.toString();
     }
 
     //
@@ -569,5 +595,15 @@ public class ScalaTestTask extends Task {
 
         public String getName()  { return name; }
         public String getValue() { return value; }
+    }
+
+    //
+    // Class to hold data from <runpathurl> elements.
+    //
+    public static class RunpathUrl {
+        private String url;
+
+        public void   setUrl(String url) { this.url = url; }
+        public String getUrl()           { return url;     }
     }
 }

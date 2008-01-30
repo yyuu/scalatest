@@ -105,7 +105,7 @@
   <target name="doc" depends="compile">
       <javadoc sourcepath="${src}"
         destdir="${jdoc}"
-        packagenames="org.scalatest"
+        packagenames="org.scalatest,org.scalatest.tools"
         classpath="${build}"
         windowtitle="ScalaTest ${release}"
         doctitle="ScalaTest ${release}"
@@ -219,7 +219,12 @@
       </classpath>
     </taskdef>
 
-    <scalatest runpath="build_tests:build">
+    <scalatest runpath="build_tests;build">
+      <runpath>
+        <pathelement location="dist"/>
+      </runpath>
+      <runpathurl url="http://foo.com/bar.jar"/>
+        
       <reporter type="stdout"/>
       <reporter type="graphic"/>
     </scalatest>
