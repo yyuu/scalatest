@@ -204,6 +204,27 @@
     </java>
   </target>
 
+  <target name="acompile" depends="init">
+    <javac srcdir="${src}" destdir="${build}" classpath="${build}" debug="yes">
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <target name="atest" depends="acompile">
+    <taskdef name="scalatest"
+     classname="org.scalatest.tools.ScalaTestTask">
+      <classpath>
+        <pathelement location="${build}"/>
+        <pathelement location="${lib}/scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
+    <scalatest runpath="build_tests:build">
+      <reporter type="stdout"/>
+      <reporter type="graphic"/>
+    </scalatest>
+  </target>
+
   <target name="allfiles" depends="dist, doc, demo"/>
 
 </project>
