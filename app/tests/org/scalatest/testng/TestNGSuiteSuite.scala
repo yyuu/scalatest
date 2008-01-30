@@ -13,61 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest.testng
+package org.scalatest.testng {
 
-import org.scalatest.Suite
-import org.testng.annotations.Test
+   import org.scalatest.Suite
+   import org.scalatest.fun.FunSuite
+   import org.testng.annotations.Test
 
-//execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
-class TestNGSuiteSuite extends Suite {
+   //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
+   class TestNGSuiteSuite extends FunSuite {
 
-  def testReporterShouldBeNotifiedWhenTestPasses() {
+     test( "Reporter Should Be Notified When Test Passes" ){
     
-    // given
-    class MyTestNGSuite extends TestNGSuite {
-      @Test def testThatPasses() {}
-    }
-    
-    val testReporter = new TestReporter
-    
-    // when
-    new MyTestNGSuite().runTestNG(testReporter)
-    
-    // then
-    assert( testReporter.successCount === 1 )
-  }
+       val testReporter = new TestReporter
 
-  def testReporterShouldBeNotifiedWhenTestFails() {
+       // when
+       new testng.test.SuccessTestNGSuite().runTestNG(testReporter)
+
+       // then
+       assert( testReporter.successCount === 1 )
+     }
+  
+
+     test( "Reporter Should Be Notified When Test Fails" ){
     
-    // given
-    class MyTestNGSuite extends TestNGSuite {
-      @Test def testThatFails() { throw new Exception }
-    }
-    
-    val testReporter = new TestReporter
-    
-    // when
-    new MyTestNGSuite().runTestNG(testReporter)
-    
-    // then
-    assert( testReporter.failureCount === 1 )
-  }
+       val testReporter = new TestReporter
+
+       // when
+       new testng.test.FailureTestNGSuite().runTestNG(testReporter)
+
+       // then
+       assert( testReporter.failureCount === 1 )
+     }
   
   
-  /**
-    * This class only exists because I cant get jmock to work with Scala. 
-    * Other people seem to do it. Frustrating. 
-    */
-  class TestReporter extends Reporter{
-    var successCount = 0;
-    override def testSucceeded(report: Report) = successCount = successCount + 1
-    var failureCount = 0;
-    override def testFailed(report: Report) = failureCount = failureCount + 1
-  }
   
+     /**
+      * This class only exists because I cant get jmock to work with Scala. 
+      * Other people seem to do it. Frustrating. 
+      */
+     class TestReporter extends Reporter{
+       var successCount = 0;
+       override def testSucceeded(report: Report){ successCount = successCount + 1 }
+       var failureCount = 0;
+       override def testFailed(report: Report){ failureCount = failureCount + 1 }
+     }
+  
+   }
+
+   package test{
+     class FailureTestNGSuite extends TestNGSuite {
+       @Test def testThatFails() { throw new Exception }
+     }
+     class SuccessTestNGSuite extends TestNGSuite {
+       @Test def testThatPasses() {}
+     }
+   }
 }
- 
- 
-
 
 
