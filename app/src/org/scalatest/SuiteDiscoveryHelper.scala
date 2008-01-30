@@ -100,10 +100,11 @@ private[scalatest] class SuiteDiscoveryHelper() {
   private def transformToClassName(fileName: String, fileSeparator: Char): Option[String] = {
 
     // If the fileName starts with a file separator char, lop that off
-    val fn = if (!fileName.isEmpty && fileName(0) == fileSeparator)
-      fileName.substring(1)
-    else
-      fileName
+    val fn =
+      if (!fileName.isEmpty && fileName(0) == fileSeparator)
+        fileName.substring(1)
+      else
+        fileName
 
     if (fn.endsWith(".class") && fn != ".class")
       Some(fn.substring(0, fn.length - 6).replace(fileSeparator, '.'))
@@ -117,6 +118,7 @@ private[scalatest] class SuiteDiscoveryHelper() {
       try {
         classOf[Suite].isAssignableFrom(clazz) &&
           Modifier.isPublic(clazz.getModifiers) &&
+          !Modifier.isAbstract(clazz.getModifiers) &&
           Modifier.isPublic(clazz.getConstructor(emptyClassArray).getModifiers)
       }
       catch {
