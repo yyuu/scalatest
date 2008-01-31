@@ -69,6 +69,18 @@ package org.scalatest.testng {
        // then
        assert( testReporter.successCount === 10 )
      }
+     
+     test( "Report should be notified when test is skipped" ){
+       
+       val testReporter = new TestReporter
+
+       // when
+       new SuiteWithSkippedTest().runTestNG(testReporter)
+
+       // then
+       assert( testReporter.ignoreCount === 1 )
+     }
+     
 
    }
 
@@ -85,6 +97,11 @@ package org.scalatest.testng {
      class TestNGSuiteWithInvocationCount extends TestNGSuite {
        @Test{val invocationCount=10} def testThatPassesTenTimes() {}
      }
+     
+     class SuiteWithSkippedTest extends TestNGSuite {
+       @Test{val groups=Array("run")} def dependeeThatFails() { throw new Exception("fail") }
+       @Test{val dependsOnGroups=Array("run")} def depender() {}
+     } 
 
    }
 }

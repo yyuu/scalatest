@@ -11,6 +11,9 @@ class TestReporter extends Reporter{
   var successCount = 0;
   var failureCount = 0;
   
+  var ignoreReport: Report = null;
+  var ignoreCount = 0;
+  
   override def testSucceeded(report: Report){ 
     successCount = successCount + 1 
     this.report = report;
@@ -18,6 +21,12 @@ class TestReporter extends Reporter{
   
   override def testFailed(report: Report){ 
     failureCount = failureCount + 1 
-           this.report = report;
+    this.report = report;
   }
+
+  override def testIgnored(report: Report){ 
+    ignoreCount = ignoreCount + 1 
+    ignoreReport = report;
+  }
+  
 }
