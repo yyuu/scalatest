@@ -18,6 +18,7 @@ package org.scalatest.testng {
    import org.scalatest.Suite
    import org.scalatest.fun.FunSuite
    import org.testng.annotations.Test
+   import testng.test._
 
    //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
    class TestNGSuiteSuite extends FunSuite {
@@ -27,7 +28,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new testng.test.SuccessTestNGSuite().runTestNG(testReporter)
+       new SuccessTestNGSuite().runTestNG(testReporter)
 
        // then
        assert( testReporter.successCount === 1 )
@@ -39,7 +40,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new testng.test.FailureTestNGSuite().runTestNG(testReporter)
+       new FailureTestNGSuite().runTestNG(testReporter)
 
        // then
        assert( testReporter.failureCount === 1 )
@@ -51,7 +52,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new testng.test.FailureTestNGSuite().runTestNG(testReporter)
+       new FailureTestNGSuite().runTestNG(testReporter)
 
        // then
        assert( testReporter.report.throwable.get.getMessage === "fail" )
@@ -63,58 +64,12 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new testng.test.TestNGSuiteWithInvocationCount().runTestNG(testReporter)
+       new TestNGSuiteWithInvocationCount().runTestNG(testReporter)
 
        // then
        assert( testReporter.successCount === 10 )
      }
 
-     
-     test( "Groups with one method should run" ){ testGroups(Set("runMe"), 1 ) } 
-     
-     test( "Groups with more than one method should run" ){ testGroups(Set("runMeToo"), 2 ) }     
-     
-     test( "When specifically specifying to use more than one group, each group given should run" ){ 
-       testGroups(Set("runMe, runMeToo"), 3 ) 
-     }     
-
-     test( "When groups are not given, all groups should run" ){ testGroups(Set(), 4 ) }    
-     
-     test( "Groups that doesnt exist should not do anything?" ){ testGroups(Set("groupThatDoesntExist"), 0 ) } 
-     
-     def testGroups( groups: Set[String], successCount: int ) = {
-       // given
-       val testReporter = new TestReporter
-
-       // when
-       new testng.test.TestNGSuiteWithGroups().runTestNG(testReporter, groups)
-
-       // then
-       assert( testReporter.successCount === successCount )
-     }
-     
-
-     /**
-      * This class only exists because I cant get jmock to work with Scala. 
-      * Other people seem to do it. Frustrating. 
-      */
-     class TestReporter extends Reporter{
-
-       var report: Report = null;
-       var successCount = 0;
-       var failureCount = 0;
-       
-       override def testSucceeded(report: Report){ 
-         successCount = successCount + 1 
-         this.report = report;
-       }
-       
-       override def testFailed(report: Report){ 
-         failureCount = failureCount + 1 
-       	 this.report = report;
-       }
-     }
-  
    }
 
    package test{
@@ -130,13 +85,7 @@ package org.scalatest.testng {
      class TestNGSuiteWithInvocationCount extends TestNGSuite {
        @Test{val invocationCount=10} def testThatPassesTenTimes() {}
      }
-     
-     class TestNGSuiteWithGroups extends TestNGSuite {
-       @Test{val groups=Array("runMe")} def testThatRuns() {}
-       @Test{val groups=Array("runMeToo")} def testThatRunsInAnotherGroup() {}
-       @Test{val groups=Array("runMeToo")} def anotherTestThatRunsInAnotherGroup() {}
-       @Test{val groups=Array("runMeThree")} def yetAnotherTestThatRunsInYetAnotherGroup() {}
-     }
+
    }
 }
 

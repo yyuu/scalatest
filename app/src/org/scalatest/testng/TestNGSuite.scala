@@ -10,7 +10,7 @@ trait TestNGSuite extends Suite{
   override def execute(testName: Option[String], reporter: Reporter, stopper: Stopper, includes: Set[String], excludes: Set[String],
       properties: Map[String, Any], distributor: Option[Distributor]) {
     
-    runTestNG(reporter, includes);
+    runTestNG(reporter, includes, excludes);
     //super.execute(testName, reporter, stopper, includes, excludes, properties, distributor)
   }
   
@@ -36,13 +36,16 @@ trait TestNGSuite extends Suite{
     }
   }
 
-  private[testng] def runTestNG(reporter: Reporter) : TestListenerAdapter = runTestNG( reporter, Set() )
+  private[testng] def runTestNG(reporter: Reporter) : TestListenerAdapter = runTestNG( reporter, Set(), Set() )
   
-  private[testng] def runTestNG(reporter: Reporter, includes: Set[String]) : TestListenerAdapter = {
+  private[testng] def runTestNG(reporter: Reporter, groupsToInclude: Set[String], 
+      groupsToExclude: Set[String]) : TestListenerAdapter = {
+    
     val tla = new MyTestListenerAdapter(reporter)
     val testng = new TestNG()
     testng.setTestClasses(Array(this.getClass))
-    testng.setGroups(includes.foldLeft(""){_+_})
+    testng.setGroups(groupsToInclude.foldLeft(""){_+","+_})
+    testng.setExcludedGroups(groupsToExclude.foldLeft(""){_+","+_})
     testng.addListener(tla)
     testng.run()
     tla
