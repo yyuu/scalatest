@@ -12,5 +12,8 @@ class ActualTestNGSuite extends TestNGSuite{
     //assert( 1 === 2, "assert fail!!!" )
   }
   
+  @Test{val dependsOnMethods=Array("testWithException")}
+  def testToGetSkipped() = {}
+  
 }
 
