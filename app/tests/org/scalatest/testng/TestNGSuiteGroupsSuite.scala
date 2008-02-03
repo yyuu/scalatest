@@ -89,7 +89,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new TestNGSuiteWithGroups().runTestNG(testReporter, groupsToInclude, groupsToExclude)
+       new TestNGSuiteWithGroups().runTestNG(None, testReporter, groupsToInclude, groupsToExclude)
 
        // then
        assert( testReporter.successCount === successCount )

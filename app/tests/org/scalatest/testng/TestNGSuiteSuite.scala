@@ -70,6 +70,7 @@ package org.scalatest.testng {
        assert( testReporter.successCount === 10 )
      }
      
+     
      test( "Report should be notified when test is skipped" ){
        
        val testReporter = new TestReporter
@@ -82,6 +83,18 @@ package org.scalatest.testng {
      }
      
 
+     
+     test( "Only the correct method should be run when specifying a single method to run" ){
+       
+       val testReporter = new TestReporter
+
+       // when
+       new SuiteWithTwoTests().runTestNG("testThatPasses", testReporter)
+
+       // then
+       assert( testReporter.successCount === 1 )
+     }
+     
    }
 
    package test{
@@ -103,6 +116,11 @@ package org.scalatest.testng {
        @Test{val dependsOnGroups=Array("run")} def depender() {}
      } 
 
+     class SuiteWithTwoTests extends TestNGSuite {
+       @Test def testThatPasses() {}
+       @Test def anotherTestThatPasses() {}
+     }      
+     
    }
 }
 
