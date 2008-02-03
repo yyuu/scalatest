@@ -1,6 +1,8 @@
 package org.scalatest.testng;
 
 import org.scalatest.Suite
+import org.scalatest.Report
+import org.scalatest.TestRerunner
 import org.testng.TestNG
 import org.testng.TestListenerAdapter
 import org.testng.ITestResult
@@ -36,7 +38,8 @@ trait TestNGSuite extends Suite{
     }
     
     private def buildReport( itr: ITestResult, t: Option[Throwable] ): Report = {
-      new Report(className + "." + itr.getName, className, t, None )
+      val testName = className + "." + itr.getName
+      new Report(testName, className, t, Some(new TestRerunner(className, testName)) )
     }
   }
 

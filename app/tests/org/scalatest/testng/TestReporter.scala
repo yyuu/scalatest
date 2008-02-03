@@ -29,4 +29,6 @@ class TestReporter extends Reporter{
     ignoreReport = report;
   }
   
+  def errorMessage = report.throwable.get.getMessage
+  
 }

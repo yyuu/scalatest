@@ -55,7 +55,7 @@ package org.scalatest.testng {
        new FailureTestNGSuite().runTestNG(testReporter)
 
        // then
-       assert( testReporter.report.throwable.get.getMessage === "fail" )
+       assert( testReporter.errorMessage === "fail" )
      }
      
 
