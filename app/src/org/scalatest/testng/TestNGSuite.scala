@@ -58,12 +58,7 @@ trait TestNGSuite extends Suite{
     
     class MyTransformer extends IAnnotationTransformer {
       override def transform( annotation: ITest, testClass: Class, testConstructor: Constructor, testMethod: Method){
-        
         if (testName.equals(testMethod.getName)) {
-          println("testName = " + testName )
-          println("testMethod = " + testMethod.getName )
-          //annotation.setGroups((annotation.getGroups().toList ::: 
-          //  Array("org.scalatest.rerun.methodname").toList).toArray)
           annotation.setGroups(Array("org.scalatest.testng.singlemethodrun.methodname"))  
         }
       }
@@ -95,7 +90,7 @@ trait TestNGSuite extends Suite{
     }
     
     private def buildReport( itr: ITestResult, t: Option[Throwable] ): Report = {
-      val testName = className + "." + itr.getName
+      val testName = itr.getName
       new Report(testName, className, t, Some(new TestRerunner(className, testName)) )
     }
   }
