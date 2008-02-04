@@ -182,8 +182,6 @@ public class ScalaTestTask extends Task {
     public void execute() throws BuildException {
         ArrayList<String> args = new ArrayList<String>();
 
-        System.out.println("gcb runpath [" + runpath + "]");
-
         addSuiteArgs(args);
         addReporterArgs(args);
         addPropertyArgs(args);
@@ -197,7 +195,7 @@ public class ScalaTestTask extends Task {
         Thread runnerThread = new Thread(new RunnerRunner(args.toArray(new String[args.size()])));
         runnerThread.start();
         while(runnerThread.isAlive()) {
-        System.out.println("calling sleep");
+        System.out.println("gcb calling sleep");
         try { Thread.sleep(1000); }catch (Exception exp) {;}
         }
         System.out.println("done calling Runner");

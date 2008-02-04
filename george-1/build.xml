@@ -135,7 +135,7 @@
 
     <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
     <jar jarfile="${dist}/lib/scalatest.jar" basedir="${build}"
-        includes="org/scalatest/*.class, org/scalatest/*.properties, images/*">
+        includes="org/scalatest/**/*.class, org/scalatest/*.properties, images/*">
         <manifest>
             <attribute name="Main-Class" value="org.scalatest.Runner"/>
         	<attribute name="Class-Path" value="junit-4.1.jar"/>
