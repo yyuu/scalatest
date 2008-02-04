@@ -37,12 +37,12 @@ trait TestNGSuite extends Suite{
     testng.setTestClasses(Array(this.getClass))
     
     
-    if( testName.isDefined ){
-      handleGroupsForRunningSingleMethod( testName.get, testng );
-    }
-    else{
-      testng.setGroups(groupsToInclude.foldLeft(""){_+","+_})
-      testng.setExcludedGroups(groupsToExclude.foldLeft(""){_+","+_})
+    testName match {
+      case Some(tn) => handleGroupsForRunningSingleMethod(tn, testng)
+      case None => {
+        testng.setGroups(groupsToInclude.mkString(","))
+        testng.setExcludedGroups(groupsToExclude.mkString(","))
+      }
     }
 
     
