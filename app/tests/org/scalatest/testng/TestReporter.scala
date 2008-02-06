@@ -26,7 +26,7 @@ class TestReporter extends Reporter{
 
   override def testIgnored(report: Report){ 
     ignoreCount = ignoreCount + 1 
-    ignoreReport = report;
+    this.report = report;
   }
   
   def errorMessage = report.throwable.get.getMessage
