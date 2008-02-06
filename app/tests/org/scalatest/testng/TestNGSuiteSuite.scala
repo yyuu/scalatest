@@ -15,9 +15,8 @@
  */
 package org.scalatest.testng {
 
-   import org.scalatest.Suite
+   import org.scalatest.TestRerunner
    import org.scalatest.fun.FunSuite
-   import org.testng.annotations.Test
    import testng.test._
 
    //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
@@ -94,10 +93,48 @@ package org.scalatest.testng {
        // then
        assert( testReporter.successCount === 1 )
      }
+
+     
+     test( "Report for failing tests should include rerunner" ){
+       
+       val testReporter = new TestReporter
+
+       // when - run the failing suite
+       new FailureTestNGSuite().runTestNG(testReporter)
+
+       // then get rerunnable from report 
+       val rerunner = testReporter.report.rerunnable.get.asInstanceOf[TestRerunner];
+       // TODO we need a better assertion here
+     }
+
+     
+     test( "Report for passing tests should include rerunner" ){
+       
+       val testReporter = new TestReporter
+
+       // when - run the passing suite
+       new SuccessTestNGSuite().runTestNG(testReporter)
+
+       // then get rerunnable from report 
+       val rerunner = testReporter.report.rerunnable.get.asInstanceOf[TestRerunner];
+       // TODO we need a better assertion here
+     }
+     
+     
+     test( "infoProvided should be available for BeforeMethod/Class/Suite annotations" ){
+       // this needs to be written after i figure out the mock integration
+     }     
+     
+     test( "infoProvided should be available for AfterMethod/Class/Suite annotations" ){
+       // this needs to be written after i figure out the mock integration
+     }     
+
      
    }
 
    package test{
+     
+     import org.testng.annotations._
      
      class FailureTestNGSuite extends TestNGSuite {
        @Test def testThatFails() { throw new Exception("fail") }
@@ -120,6 +157,10 @@ package org.scalatest.testng {
        @Test def testThatPasses() {}
        @Test def anotherTestThatPasses() {}
      }      
+     
+     class SuiteWithBeforeAndAfterAnnotations extends TestNGSuite {
+       
+     }
      
    }
 }
