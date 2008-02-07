@@ -30,6 +30,22 @@ abstract class FunSuite extends Suite {
       groupsMap += (msg -> groupNames)
   }
 
+  import org.specs.mock.JMocker._
+  
+  def mockTest(msg: String)(f: => Unit): Unit = {
+    test(msg){
+      try{
+        restart
+        f
+        context.assertIsSatisfied
+      }catch { 
+        case e: org.jmock.api.ExpectationError => {
+          throw new Exception(e)
+        }
+      }
+    }
+  }
+  
   protected def ignore(msg: String, groupClasses: Group*)(f: => Unit) {
     test(msg)(f _) // Call test without passing the groups
     val groupNames = Set[String]() ++ groupClasses.map(_.getClass.getName)
