@@ -18,31 +18,38 @@ package org.scalatest.testng {
    import org.scalatest.TestRerunner
    import org.scalatest.fun.FunSuite
    import testng.test._
+   import org.specs.mock.JMocker._
+   import org.specs.mock.JMocker.{expect => expecting}
 
    //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
    class TestNGSuiteSuite extends FunSuite {
 
-     test( "Reporter Should Be Notified When Test Passes" ){
+     
+     mockTest( "Reporter Should Be Notified When Test Passes" ){
     
-       val testReporter = new TestReporter
+       val reporter = mock(classOf[Reporter])
+
+       expecting { 
+         one(reporter).testStarting(any(classOf[Report])) 
+         one(reporter).testSucceeded(any(classOf[Report])) 
+       }
 
        // when
-       new SuccessTestNGSuite().runTestNG(testReporter)
-
-       // then
-       assert( testReporter.successCount === 1 )
+       new SuccessTestNGSuite().runTestNG(reporter)
      }
   
 
-     test( "Reporter Should Be Notified When Test Fails" ){
+     mockTest( "Reporter Should Be Notified When Test Fails" ){
     
-       val testReporter = new TestReporter
+       val reporter = mock(classOf[Reporter])
+
+       expecting { 
+         one(reporter).testStarting(any(classOf[Report])) 
+         one(reporter).testFailed(any(classOf[Report])) 
+       }
 
        // when
-       new FailureTestNGSuite().runTestNG(testReporter)
-
-       // then
-       assert( testReporter.failureCount === 1 )
+       new FailureTestNGSuite().runTestNG(reporter)
      }
 
      
@@ -58,42 +65,54 @@ package org.scalatest.testng {
      }
      
 
-     test( "Report should be generated for each invocation" ){
+     mockTest( "Report should be generated for each invocation" ){
        
-       val testReporter = new TestReporter
+       val reporter = mock(classOf[Reporter])
+
+       for( i <- 1 to 10 ){
+         expecting { 
+           one(reporter).testStarting(any(classOf[Report])) 
+           one(reporter).testSucceeded(any(classOf[Report])) 
+         }
+       }
 
        // when
-       new TestNGSuiteWithInvocationCount().runTestNG(testReporter)
+       new TestNGSuiteWithInvocationCount().runTestNG(reporter)
 
-       // then
-       assert( testReporter.successCount === 10 )
      }
      
      
-     test( "Report should be notified when test is skipped" ){
+     mockTest( "Report should be notified when test is skipped" ){
        
-       val testReporter = new TestReporter
+       val reporter = mock(classOf[Reporter])
+
+       expecting { 
+         one(reporter).testStarting(any(classOf[Report])) 
+         one(reporter).testFailed(any(classOf[Report])) 
+         one(reporter).testIgnored(any(classOf[Report])) 
+       }
 
        // when
-       new SuiteWithSkippedTest().runTestNG(testReporter)
+       new SuiteWithSkippedTest().runTestNG(reporter)
 
-       // then
-       assert( testReporter.ignoreCount === 1 )
      }
      
 
      
-     test( "Only the correct method should be run when specifying a single method to run" ){
+     mockTest( "Only the correct method should be run when specifying a single method to run" ){
        
-       val testReporter = new TestReporter
+       val reporter = mock(classOf[Reporter])
 
+       expecting { 
+         one(reporter).testStarting(any(classOf[Report])) 
+         one(reporter).testSucceeded(any(classOf[Report])) 
+       }
+       
        // when
-       new SuiteWithTwoTests().runTestNG("testThatPasses", testReporter)
+       new SuiteWithTwoTests().runTestNG("testThatPasses", reporter)
 
-       // then
-       assert( testReporter.successCount === 1 )
      }
-
+     
      
      test( "Report for failing tests should include rerunner" ){
        
