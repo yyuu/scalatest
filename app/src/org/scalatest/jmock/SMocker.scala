@@ -15,10 +15,13 @@
  */
 package org.scalatest.jmock;
 
-trait JMockHelper {
+import org.specs.mock.JMocker
+import org.specs.mock.JMocker._
+ 
+trait SMocker extends JMocker{
 
-  import org.specs.mock.JMocker._
-  
+  def expecting(block: => Any) = expect{ block }
+
   def withMock(f: => Unit): Unit = {
     try{
       restart
@@ -31,3 +34,7 @@ trait JMockHelper {
     }
   }
 }
+
+
+
+

@@ -16,14 +16,12 @@
 package org.scalatest.testng {
 
    import org.scalatest.TestRerunner
-   import org.scalatest.jmock.JMockFunSuite
-   import org.scalatest.jmock.JMockHelper
+   import org.scalatest.jmock.SMocker
+   import org.scalatest.jmock.SMockFunSuite
    import testng.test._
-   import org.specs.mock.JMocker._
-   import org.specs.mock.JMocker.{expect => expecting}
 
    //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
-   class TestNGSuiteSuite extends JMockFunSuite{
+   class TestNGSuiteSuite extends SMockFunSuite{
 
      
      mockTest( "Reporter Should Be Notified When Test Passes" ){
