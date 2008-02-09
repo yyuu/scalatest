@@ -34,15 +34,6 @@ class ExampleTestNGSuite extends TestNGSuite with JMocker{
   @Test{val groups=Array("runMe")} def testWithAssertFail = assert( 1 === 2, "assert fail!!!" )
   
   @Test{val dependsOnMethods=Array("testWithException")} def testToGetSkipped = {}
-
-  @Test
-  def testWithMocking = {
-    //val mockReporter = mock(classOf[Reporter])
-    //expect {
-    //  one(mockReporter).testSucceeded(any(classOf[Report]))
-    //}
-    //mockReporter.testSucceeded( new Report( "test", "test" ) )
-  }
   
 }
 
