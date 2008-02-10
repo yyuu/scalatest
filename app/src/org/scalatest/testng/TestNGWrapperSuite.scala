@@ -36,6 +36,9 @@ class TestNGWrapperSuite(suiteXMLFilePaths: List[String]) extends TestNGSuite{
     runTestNG(reporter, includes, excludes);
   }
   
+  override private[testng] def runTestNG(reporter: Reporter) : TestListenerAdapter = {
+    runTestNG( reporter, Set(), Set() )
+  }
   
   private[testng] def runTestNG(reporter: Reporter, groupsToInclude: Set[String], 
       groupsToExclude: Set[String]) : TestListenerAdapter = {
