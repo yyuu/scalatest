@@ -19,13 +19,8 @@ import org.scalatest.Suite
 import org.scalatest.Report
 import org.scalatest.TestRerunner
 
-import org.testng.internal.annotations.ITest
-import org.testng.internal.annotations.IAnnotationTransformer
 import org.testng.TestNG
-import org.testng.ITestResult
 import org.testng.TestListenerAdapter
-import java.lang.reflect.Method
-import java.lang.reflect.Constructor
 
 trait TestNGSuite extends Suite{
 
@@ -77,6 +72,11 @@ trait TestNGSuite extends Suite{
   
   private def handleGroupsForRunningSingleMethod( testName: String, testng: TestNG ) = {
     
+    import org.testng.internal.annotations.IAnnotationTransformer
+    import org.testng.internal.annotations.ITest
+    import java.lang.reflect.Method
+    import java.lang.reflect.Constructor
+    
     class MyTransformer extends IAnnotationTransformer {
       override def transform( annotation: ITest, testClass: Class, testConstructor: Constructor, testMethod: Method){
         if (testName.equals(testMethod.getName)) {
@@ -88,10 +88,17 @@ trait TestNGSuite extends Suite{
     testng.setAnnotationTransformer(new MyTransformer())
   }
   
-
+  
   private[testng] class MyTestListenerAdapter( reporter: Reporter ) extends TestListenerAdapter{
     
+    import org.testng.ITestContext
+    import org.testng.ITestResult
+    
     val className = TestNGSuite.this.getClass.getName
+
+    override def onStart(itc: ITestContext) = reporter.runStarting( 0 )
+
+    override def onFinish(itc: ITestContext) = reporter.runCompleted()
     
     override def onTestStart(result: ITestResult) = {
       reporter.testStarting( buildReport( result, None ) )
@@ -106,7 +113,7 @@ trait TestNGSuite extends Suite{
     }
     
     override def onTestSkipped(itr: ITestResult) = {
-      reporter.testIgnored( buildReport( itr, None) )
+      reporter.testIgnored( buildReport( itr, None ) )
     }
 
     override def onConfigurationFailure(itr: ITestResult) = {
