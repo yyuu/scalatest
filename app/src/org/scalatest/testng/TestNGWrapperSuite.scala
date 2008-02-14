@@ -28,7 +28,11 @@ import java.lang.reflect.Method
 import java.lang.reflect.Constructor
 
 
-class TestNGWrapperSuite(suiteXMLFilePaths: List[String]) extends TestNGSuite{
+class TestNGWrapperSuite(xmlSuitesPropertyName: String) extends TestNGSuite{
+  
+  if( getSuites == null ) throw new IllegalArgumentException("no property: " + xmlSuitesPropertyName )
+  
+  def getSuites: String = System.getProperty(xmlSuitesPropertyName)
   
   override def execute(testName: Option[String], reporter: Reporter, stopper: Stopper, includes: Set[String], 
       excludes: Set[String], properties: Map[String, Any], distributor: Option[Distributor]) {
@@ -47,7 +51,8 @@ class TestNGWrapperSuite(suiteXMLFilePaths: List[String]) extends TestNGSuite{
     handleGroups( groupsToInclude, groupsToExclude, testng )
     
     val files = new java.util.ArrayList
-    suiteXMLFilePaths.foreach( { files add _ } )
+    getSuites.split(",").foreach( { files add _ } )
+    
     testng.setTestSuites(files)
     
     run( testng, reporter )
