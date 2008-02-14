@@ -49,13 +49,25 @@ class TestNGWrapperSuite(xmlSuitesPropertyName: String) extends TestNGSuite{
     
     val testng = new TestNG()
     handleGroups( groupsToInclude, groupsToExclude, testng )
-    
-    val files = new java.util.ArrayList
-    getSuites.split(",").foreach( { files add _ } )
-    
-    testng.setTestSuites(files)
+    handleXmlSuites( testng )
     
     run( testng, reporter )
   }
+  
+  private def handleXmlSuites( testng: TestNG ){
+    import java.io.File
+    import java.io.FileNotFoundException
+    
+    val files = new java.util.ArrayList
+    
+    getSuites.split(",").foreach( { name => 
+        val f = new File( name )
+        if( ! f.exists ) throw new FileNotFoundException( f.getAbsolutePath )
+        files add name
+      } 
+    )
+    testng.setTestSuites(files)
+  }
+  
   
 }
