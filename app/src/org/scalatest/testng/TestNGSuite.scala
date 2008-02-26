@@ -22,24 +22,45 @@ import org.scalatest.TestRerunner
 import org.testng.TestNG
 import org.testng.TestListenerAdapter
 
+/**
+ * <p>
+ * <code>TestNGSuite</code> enables you to write TestNG tests in Scala, continue to run them in your 
+ * standard TestNG runner, <em>and</em> run them in ScalaTest runners. 
+ * </p>
+ * 
+ * @author Josh Cough
+ */
 trait TestNGSuite extends Suite{
 
+  /**
+   *
+   * TODO: Currently doing nothing with properties. Should we be?
+   * NOTE: TestNG doesn't have a stopping mechanism. Stopper is ignored.
+   * NOTE: TestNG handles its own concurrency. Distributor is ignored.
+   */
   override def execute(testName: Option[String], reporter: Reporter, stopper: Stopper, includes: Set[String], 
       excludes: Set[String], properties: Map[String, Any], distributor: Option[Distributor]) {
     
     runTestNG(testName, reporter, includes, excludes);
-    //super.execute(XtestName, Xreporter, stopper, Xincludes, Xexcludes, properties, distributor)
   }
   
+  /**
+   *
+   */
   private[testng] def runTestNG(reporter: Reporter) : TestListenerAdapter = {
     runTestNG( None, reporter, Set(), Set() )
   }
  
+  /**
+   *
+   */  
   private[testng] def runTestNG(testName: String, reporter: Reporter) : TestListenerAdapter = {
     runTestNG( Some(testName), reporter, Set(), Set() )
   }
   
-  
+  /**
+   *
+   */  
   private[testng] def runTestNG(testName: Option[String], reporter: Reporter, groupsToInclude: Set[String], 
       groupsToExclude: Set[String]) : TestListenerAdapter = {
     
@@ -56,15 +77,19 @@ trait TestNGSuite extends Suite{
     
   }
   
+  /**
+   * Runs the TestNG object which calls back to the given Reporter.
+   */
   private[testng] def run( testng: TestNG, reporter: Reporter ): TestListenerAdapter = {
     val tla = new MyTestListenerAdapter(reporter)
     testng.addListener(tla)
     testng.run()
-
     tla
   }
   
-  
+  /**
+   * Tells TestNG which groups to include and exclude, which is directly a one-to-one mapping.
+   */
   private[testng] def handleGroups( groupsToInclude: Set[String], groupsToExclude: Set[String], testng: TestNG){
     testng.setGroups(groupsToInclude.mkString(","))
     testng.setExcludedGroups(groupsToExclude.mkString(","))
@@ -88,67 +113,113 @@ trait TestNGSuite extends Suite{
     testng.setAnnotationTransformer(new MyTransformer())
   }
   
-  
+  /**
+   * This class hooks TestNG's callback mechanism (TestListenerAdapter) to ScalaTest's
+   * reporting mechanism. TestNG has many different callback points which are a near one-to-one
+   * mapping with ScalaTest. At each callback point, this class simply creates ScalaTest 
+   * reports and calls the appropriate method on the Reporter.
+   * 
+   * TODO: 
+   * (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr) 
+   * (12:02:34 AM) bvenners: maybe a testSucceeded with some extra info in the report
+   */
   private[testng] class MyTestListenerAdapter( reporter: Reporter ) extends TestListenerAdapter{
     
     import org.testng.ITestContext
     import org.testng.ITestResult
     
-    val className = TestNGSuite.this.getClass.getName
+    private val className = TestNGSuite.this.getClass.getName
 
-    override def onStart(itc: ITestContext) = reporter.runStarting( 0 )
+    /**
+     * This method is called when TestNG starts, and maps to ScalaTest's runStarting. 
+     * @TODO TestNG doesn't seem to know how many tests are going to be executed.
+     * We are currently telling ScalaTest that 0 tests are about to be run. Investigate
+     * and/or chat with Cedric to determine if its possible to get this number from TestNG.
+     */
+    override def onStart(itc: ITestContext) = {
+      reporter.runStarting( 0 )
+    }
 
-    override def onFinish(itc: ITestContext) = reporter.runCompleted()
+    /**
+     * TestNG's onFinish maps cleanly to runCompleted.
+     * TODO: TestNG does have some extra info here. One thing we could do is map the info
+     * in the ITestContext object into ScalaTest Reports and call reporter.infoProvided.
+     */
+    override def onFinish(itc: ITestContext) = {
+      reporter.runCompleted()
+    }
     
+    /**
+     * TestNG's onTestStart maps cleanly to testStarting. Simply build a report 
+     * and pass it to the Reporter.
+     */
     override def onTestStart(result: ITestResult) = {
       reporter.testStarting( buildReport( result, None ) )
     }
     
+    /**
+     * TestNG's onTestSuccess maps cleanly to testSucceeded. Again, simply build
+     * a report and pass it to the Reporter.
+     */
     override def onTestSuccess(itr: ITestResult) = {
       reporter.testSucceeded( buildReport( itr, None ) )
     }
-    
-    override def onTestFailure(itr: ITestResult) = {
-      reporter.testFailed( buildReport( itr, Some(itr.getThrowable)) )
-    }
-    
+
+    /**
+     * TestNG's onTestSkipped maps cleanly to testIgnored. Again, simply build
+     * a report and pass it to the Reporter.
+     */
     override def onTestSkipped(itr: ITestResult) = {
       reporter.testIgnored( buildReport( itr, None ) )
     }
 
-    override def onConfigurationFailure(itr: ITestResult) = {
-      reporter.testFailed( new Report(itr.getName, className, Some(itr.getThrowable), None) )
-      //reporter.infoProvided( new Report(itr.getName, className, Some(itr.getThrowable), None) )
+    /**
+     * TestNG's onTestFailure maps cleanly to testFailed. This differs slighly from
+     * the other calls however. An expection is available on the ITestResult,
+     * and it gets put into the Report object that is given to the Reporter.
+     */
+    override def onTestFailure(itr: ITestResult) = {
+      reporter.testFailed( buildReport( itr, Some(itr.getThrowable)) )
     }
 
+    /**
+     * A TestNG setup method resulted in an exception, and a test method will later fail to run. 
+     * This TestNG callback method has the exception that caused the problem, as well
+     * as the name of the method that failed. Create a Report with the method name and the
+     * exception and call reporter.testFailed. 
+     * 
+     * Calling testFailed isn't really a clean one-to-one mapping between TestNG and ScalaTest
+     * and somewhat exposes a ScalaTest implementation detail. By default, ScalaTest only shows
+     * failing tests in red in the UI, and does not show additional information such as testIgnored,
+     * and infoProvided. Had I chose to use either of those calls here, the user wouldn't 
+     * immediately know what the root cause of the problem is. They might not even know there
+     * was a problem at all. 
+     * 
+     * In my opinion, we need an additional failure indicator available on the Reporter which
+     * also shows up in red on the UI. Something like, "reporter.failure", or "reporter.setupFailure".
+     * Something that differentiates between test's failing, and other types of failures such as a 
+     * setup method.
+     */
+    override def onConfigurationFailure(itr: ITestResult) = {
+      reporter.testFailed( new Report(itr.getName, className, Some(itr.getThrowable), None) )
+    }
+
+    /**
+     * TestNG's onConfigurationSuccess doesn't have a clean mapping in ScalaTest.
+     * Simply create a Report and call infoProvided on the Reporter. This works well
+     * because there may be a large number of setup methods and infoProvided doesn't 
+     * show up in your face on the UI, and so doesn't clutter the UI. 
+     */
     override def onConfigurationSuccess(itr: ITestResult) = {
       reporter.infoProvided( new Report(itr.getName, className) )
     }
     
+    /**
+     * Constructs the report ojbect.
+     */
     private def buildReport( itr: ITestResult, t: Option[Throwable] ): Report = {
       new Report(itr.getName, className, t, Some(new TestRerunner(className, itr.getName)) )
     }
   }
-  
-  
-  
-  /**
-     TODO
-    (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr) 
-    (12:02:34 AM) bvenners: maybe a testSucceeded with some extra info in the report
-    (12:02:49 AM) bvenners: onStart and onFinish are starting and finishing what, a run?
-    (12:02:57 AM) bvenners: if so then runStarting and runCompleted
-    **/    
-    
-      
-   /**
-    val xmlSuite = new XmlSuite()
-    val xmlClass = new XmlClass(this.getClass.getName)
-    //xmlClass.setIncludedMethods(java.util.Collections.singletonList("testWithAssertFail"))
-    val xmlTest = new XmlTest(xmlSuite)
-    xmlTest.setXmlClasses(java.util.Collections.singletonList(xmlClass))
-    println(xmlSuite.toXml())
-    testng.setXmlSuites(java.util.Collections.singletonList(xmlSuite))
-    **/
   
 }
