@@ -20,7 +20,6 @@ package org.scalatest.testng {
    import org.scalatest.jmock.SMockFunSuite
    import testng.test._
 
-   //execute(None, new StandardOutReporter, new Stopper {}, Set(), Set(IgnoreAnnotation), Map(), None)
    class TestNGSuiteSuite extends SMockFunSuite with TestNGSuiteExpectations{
 
      
@@ -68,36 +67,31 @@ package org.scalatest.testng {
        
        val reporter = mock(classOf[Reporter])
 
-       expecting {
+       expecting( "reporter gets 10 passing reports because invocationCount=10" ) {
          nTestsToPass( 10, reporter )
        }
 
-       when {
+       when ( "run the suite with method that has invocationCount=10" ){
         new TestNGSuiteWithInvocationCount().runTestNG(reporter)
        }
      }
      
-     mockTest( "Report should be notified when test is skipped" ){
+     mockTest( "Reporter should be notified when test is skipped" ){
        
        val reporter = mock(classOf[Reporter])
 
-       expecting { 
-         aTestToFailAndThenATestToBeSkipped( reporter )
+       expecting ( "a single test should fail, followed by a single test being skipped" ){ 
+         one(reporter).runStarting(0) 
+         one(reporter).testStarting(any(classOf[Report])) 
+         one(reporter).testFailed(any(classOf[Report])) 
+         one(reporter).testIgnored(any(classOf[Report]))
+         one(reporter).runCompleted()
        }
 
-       when {
+       when ( "run the suite with a test that should fail and a test that should be skipped" ){
          new SuiteWithSkippedTest().runTestNG(reporter)
        }
      }
-     
-     def aTestToFailAndThenATestToBeSkipped( reporter: Reporter ) = {
-       one(reporter).runStarting(0) 
-       one(reporter).testStarting(any(classOf[Report])) 
-       one(reporter).testFailed(any(classOf[Report])) 
-       one(reporter).testIgnored(any(classOf[Report]))
-       one(reporter).runCompleted()
-     }
-     
      
      mockTest( "Only the correct method should be run when specifying a single method to run" ){
        
