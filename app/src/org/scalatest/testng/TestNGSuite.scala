@@ -24,15 +24,51 @@ import org.testng.TestListenerAdapter
 
 /**
  * <p>
- * <code>TestNGSuite</code> enables you to write TestNG tests in Scala, continue to run them in your 
- * standard TestNG runner, <em>and</em> run them in ScalaTest runners. 
+ * Extending <code>TestNGSuite</code> enables you to write TestNG tests in Scala, continue to run them in your 
+ * standard TestNG runner, <em>and</em> run them in ScalaTest runners.
+ * </p>
+ *
+ * <p>
+ * Doing so is very straightforward. Simply write a Scala class that extends <code>TestNGSuite</code> and 
+ * add standard TestNG annotations to your methods. Here is a simple example that demonstrates the use of 
+ * a number of TestNG features. 
  * </p>
  * 
+ * <pre>
+ * class ExampleTestNGSuite extends TestNGSuite{
+ *  
+ *   @Test{val invocationCount=10} def thisTestRunsTenTimes = {}
+ * 
+ *   @Test{val groups=Array("runMe")} 
+ *   def testWithException(){ 
+ *     throw new Exception("exception!!!") 
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * Notice that other than a few minor details (or if you are wearing sunglasses), you could almost trick 
+ * yourself into thinking this was Java code. That is the point. The idea is to make the transition to 
+ * Scala as simple as possible. Starting in this comfort zone should make it easier to transition into 
+ * some of ScalaTest's more advanced features.
+ * </p>
+ *
  * @author Josh Cough
  */
 trait TestNGSuite extends Suite{
 
   /**
+   * Runs TestNG. Delegates to the meat and potatoes method: <br>
+   * <code>runTestNG(testName: Option[String], reporter: Reporter, groupsToInclude: Set[String], groupsToExclude: Set[String])</code>
+   * 
+   * @param   testName   If present (Some), then only the method with the supplied name is executed and groups will be ignored
+   * @param   reporter	 The reporter to be notified of test events (success, failure, etc)
+   * @param   groupsToInclude	Contains the names of groups to run. only tests in these groups will be executed
+   * @param   groupsToExclude	Tests in groups in this Set will not be executed
+   *
+   * @param   stopper    	Ignored
+   * @param   properties	Currently ignored. see note above...should we be ignoring these?
+   * @param   distributor	Ingored. TestNG handles its own concurrency. We consciously chose to leave that as it was. 
    *
    * TODO: Currently doing nothing with properties. Should we be?
    * NOTE: TestNG doesn't have a stopping mechanism. Stopper is ignored.
@@ -45,31 +81,41 @@ trait TestNGSuite extends Suite{
   }
   
   /**
-   *
+   * Runs TestNG with no test name, no groups. All tests in the class will be executed.
+   * @param   reporter   the reporter to be notified of test events (success, failure, etc)
    */
   private[testng] def runTestNG(reporter: Reporter) : TestListenerAdapter = {
     runTestNG( None, reporter, Set(), Set() )
   }
  
   /**
-   *
-   */  
+   * Runs TestNG, running only the test method with the given name. 
+   * @param   testName   the name of the method to run
+   * @param   reporter   the reporter to be notified of test events (success, failure, etc)
+   */
   private[testng] def runTestNG(testName: String, reporter: Reporter) : TestListenerAdapter = {
     runTestNG( Some(testName), reporter, Set(), Set() )
   }
   
   /**
+   * Runs TestNG. The meat and potatoes. 
    *
+   * @param   testName   if present (Some), then only the method with the supplied name is executed and groups will be ignored
+   * @param   reporter   the reporter to be notified of test events (success, failure, etc)
+   * @param   groupsToInclude    contains the names of groups to run. only tests in these groups will be executed
+   * @param   groupsToExclude    tests in groups in this Set will not be executed
    */  
   private[testng] def runTestNG(testName: Option[String], reporter: Reporter, groupsToInclude: Set[String], 
       groupsToExclude: Set[String]) : TestListenerAdapter = {
     
     val testng = new TestNG()
+    
+    // only run the test methods in this class
     testng.setTestClasses(Array(this.getClass))
     
-    
+    // if testName is supplied, ignore groups.
     testName match {
-      case Some(tn) => handleGroupsForRunningSingleMethod(tn, testng)
+      case Some(tn) => setupTestNGToRunSingleMethod(tn, testng)
       case None => handleGroups( groupsToInclude, groupsToExclude, testng )
     }
 
@@ -81,9 +127,14 @@ trait TestNGSuite extends Suite{
    * Runs the TestNG object which calls back to the given Reporter.
    */
   private[testng] def run( testng: TestNG, reporter: Reporter ): TestListenerAdapter = {
+    
+    // setup the callback mechanism
     val tla = new MyTestListenerAdapter(reporter)
     testng.addListener(tla)
+    
+    //finally, run TestNG
     testng.run()
+    
     tla
   }
   
@@ -95,7 +146,19 @@ trait TestNGSuite extends Suite{
     testng.setExcludedGroups(groupsToExclude.mkString(","))
   }
   
-  private def handleGroupsForRunningSingleMethod( testName: String, testng: TestNG ) = {
+  /**
+   * This method ensures that TestNG will only run the test method whos name matches testName.
+   * 
+   * The approach is a bit odd however because TestNG doesn't have an easy API for
+   * running a single method. To get around that we chose to use an AnnotationTransformer 
+   * to add a secret group to the test method's annotation. We then set up TestNG to run only that group.
+   *
+   * NOTE: There was another option - we could TestNG's XmlSuites to specify which method to run.
+   * This approach was about as much work, offered no clear benefits, and no additional problems either.
+   * 
+   * @param    testName    the name of the test method to be executed
+   */
+  private def setupTestNGToRunSingleMethod( testName: String, testng: TestNG ) = {
     
     import org.testng.internal.annotations.IAnnotationTransformer
     import org.testng.internal.annotations.ITest
