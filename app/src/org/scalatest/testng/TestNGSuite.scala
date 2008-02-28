@@ -29,7 +29,7 @@ import org.testng.TestListenerAdapter
  * </p>
  *
  * <p>
- * Doing so is very straightforward. Simply write a Scala class that extends <code>TestNGSuite</code> and 
+ * Doing so is very straightforward - simply write a Scala class that extends <code>TestNGSuite</code> and 
  * add standard TestNG annotations to your methods. Here is a simple example that demonstrates the use of 
  * a number of TestNG features. 
  * </p>
@@ -58,21 +58,20 @@ import org.testng.TestListenerAdapter
 trait TestNGSuite extends Suite{
 
   /**
-   * Runs TestNG. Delegates to the meat and potatoes method: <br>
-   * <code>runTestNG(testName: Option[String], reporter: Reporter, groupsToInclude: Set[String], groupsToExclude: Set[String])</code>
+   * Runs TestNG. <br>
    * 
-   * @param   testName   If present (Some), then only the method with the supplied name is executed and groups will be ignored
-   * @param   reporter	 The reporter to be notified of test events (success, failure, etc)
-   * @param   groupsToInclude	Contains the names of groups to run. only tests in these groups will be executed
-   * @param   groupsToExclude	Tests in groups in this Set will not be executed
+   * @param   testName   If present (Some), then only the method with the supplied name is executed and groups will be ignored.
+   * @param   reporter	 The reporter to be notified of test events (success, failure, etc).
+   * @param   groupsToInclude	Contains the names of groups to run. Only tests in these groups will be executed.
+   * @param   groupsToExclude	Tests in groups in this Set will not be executed.
    *
-   * @param   stopper    	Ignored
+   * @param   stopper    	Ignored. TestNG doesn't have a stopping mechanism.
    * @param   properties	Currently ignored. see note above...should we be ignoring these?
-   * @param   distributor	Ingored. TestNG handles its own concurrency. We consciously chose to leave that as it was. 
-   *
-   * TODO: Currently doing nothing with properties. Should we be?
-   * NOTE: TestNG doesn't have a stopping mechanism. Stopper is ignored.
-   * NOTE: TestNG handles its own concurrency. Distributor is ignored.
+   * @param   distributor	Ignored. TestNG handles its own concurrency. We consciously chose to leave that as it was. 
+   * <br><br>
+   * TODO: Currently doing nothing with properties. Should we be?<br>
+   * NOTE: TestNG doesn't have a stopping mechanism. Stopper is ignored.<br>
+   * NOTE: TestNG handles its own concurrency. Distributor is ignored.<br>
    */
   override def execute(testName: Option[String], reporter: Reporter, stopper: Stopper, includes: Set[String], 
       excludes: Set[String], properties: Map[String, Any], distributor: Option[Distributor]) {
