@@ -165,7 +165,7 @@ trait TestNGSuite extends Suite{
     import java.lang.reflect.Constructor
     
     class MyTransformer extends IAnnotationTransformer {
-      override def transform( annotation: ITest, testClass: Class, testConstructor: Constructor, testMethod: Method){
+      override def transform( annotation: ITest, testClass: Class[T] forSome { type T }, testConstructor: Constructor[T] forSome { type T }, testMethod: Method){
         if (testName.equals(testMethod.getName)) {
           annotation.setGroups(Array("org.scalatest.testng.singlemethodrun.methodname"))  
         }

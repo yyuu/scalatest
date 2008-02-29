@@ -1575,7 +1575,7 @@ trait Suite {
    * @throws AssertionError if the passed function does not result in a value equal to the
    *     passed <code>expected</code> value.
    */
-  def intercept(clazz: Class[T] forSome { type T <: Throwable }, message: Any)(f: => Unit): Throwable = {
+  def intercept(clazz: Class[_], message: Any)(f: => Unit): Throwable = {
     val caught = try {
       f
       None
@@ -1621,7 +1621,7 @@ trait Suite {
    * @throws IllegalArgumentException if the passed <code>clazz</code> is not <code>Throwable</code> or
    *     one of its subclasses.
    */
-  def intercept(clazz: Class[T] forSome { type T <: Throwable})(f: => Unit): Throwable = {
+  def intercept(clazz: Class[_])(f: => Unit): Throwable = {
     intercept(clazz, "")(f)
   }
 
