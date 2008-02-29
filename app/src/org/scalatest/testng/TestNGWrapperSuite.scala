@@ -58,7 +58,7 @@ class TestNGWrapperSuite(xmlSuitesPropertyName: String) extends TestNGSuite{
     import java.io.File
     import java.io.FileNotFoundException
     
-    val files = new java.util.ArrayList
+    val files = new java.util.ArrayList[String]
     
     getSuites.split(",").foreach( { name => 
         val f = new File( name )
