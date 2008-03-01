@@ -122,7 +122,7 @@
     	<include name="**/*.scala"/>
     </scalac>	
   	
-    <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5"  classpathref="build.test.class.path">
+    <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5"  generics="true" classpathref="build.test.class.path">
     	<include name="org/scalatest/testng/*.scala"/>
     	<include name="org/scalatest/testng/example/*.scala"/>
    	</scalac>	

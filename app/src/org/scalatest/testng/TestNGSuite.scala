@@ -165,7 +165,7 @@ trait TestNGSuite extends Suite{
     import java.lang.reflect.Constructor
     
     class MyTransformer extends IAnnotationTransformer {
-      override def transform( annotation: ITest, testClass: Class[T] forSome { type T }, testConstructor: Constructor[T] forSome { type T }, testMethod: Method){
+      override def transform( annotation: ITest, testClass: Class, testConstructor: Constructor, testMethod: Method){
         if (testName.equals(testMethod.getName)) {
           annotation.setGroups(Array("org.scalatest.testng.singlemethodrun.methodname"))  
         }
@@ -177,12 +177,12 @@ trait TestNGSuite extends Suite{
   
   /**
    * This class hooks TestNG's callback mechanism (TestListenerAdapter) to ScalaTest's
-   * reporting mechanism. TestNG has many different callback points, which are a near one-to-one
-   * mapping with ScalaTest. At each callback point, this class simply creates ScalaTest
+   * reporting mechanism. TestNG has many different callback points which are a near one-to-one
+   * mapping with ScalaTest. At each callback point, this class simply creates ScalaTest 
    * reports and calls the appropriate method on the Reporter.
-   *
-   * TODO:
-   * (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr)
+   * 
+   * TODO: 
+   * (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr) 
    * (12:02:34 AM) bvenners: maybe a testSucceeded with some extra info in the report
    */
   private[testng] class MyTestListenerAdapter( reporter: Reporter ) extends TestListenerAdapter{
