@@ -15,18 +15,8 @@
  */
 package org.scalatest.testng;
 
-import org.scalatest.Suite
-import org.scalatest.Report
-import org.scalatest.TestRerunner
-
-import org.testng.internal.annotations.ITest
-import org.testng.internal.annotations.IAnnotationTransformer
 import org.testng.TestNG
-import org.testng.ITestResult
 import org.testng.TestListenerAdapter
-import java.lang.reflect.Method
-import java.lang.reflect.Constructor
-
 
 class TestNGWrapperSuite(xmlSuitesPropertyName: String) extends TestNGSuite{
   
@@ -49,12 +39,12 @@ class TestNGWrapperSuite(xmlSuitesPropertyName: String) extends TestNGSuite{
     
     val testng = new TestNG()
     handleGroups( groupsToInclude, groupsToExclude, testng )
-    handleXmlSuites( testng )
+    addXmlSuitesToTestNG( testng )
     
     run( testng, reporter )
   }
   
-  private def handleXmlSuites( testng: TestNG ){
+  private def addXmlSuitesToTestNG( testng: TestNG ){
     import java.io.File
     import java.io.FileNotFoundException
     
