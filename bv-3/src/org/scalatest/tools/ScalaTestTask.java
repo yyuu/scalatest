@@ -192,6 +192,7 @@ public class ScalaTestTask extends Task {
 
         String[] argsArray = args.toArray(new String[args.size()]);
         Runner.main(argsArray);
+        try { Thread.sleep(1000); }catch (Exception exp) {;}
 /*
         System.out.println("calling Runner with arguments: " + args);
 //gcb//        Runner.main(args.toArray(new String[args.size()]));

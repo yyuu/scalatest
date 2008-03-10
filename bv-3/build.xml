@@ -259,7 +259,7 @@
 	
   <target name="allfiles" depends="dist, doc, demo"/>
 
-  <target name="acompile" depends="init">
+  <target name="acompile" depends="dist">
     <javac srcdir="${src}" destdir="${build}" classpath="${build}" debug="yes">
       <include name="**/*.java"/>
     </javac>
