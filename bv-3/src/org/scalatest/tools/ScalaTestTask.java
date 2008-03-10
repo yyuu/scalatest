@@ -190,6 +190,9 @@ public class ScalaTestTask extends Task {
         addRunpathArgs(args);
         addConcurrentArg(args);
 
+        String[] argsArray = args.toArray(new String[args.size()]);
+        Runner.main(argsArray);
+/*
         System.out.println("calling Runner with arguments: " + args);
 //gcb//        Runner.main(args.toArray(new String[args.size()]));
         Thread runnerThread = new Thread(new RunnerRunner(args.toArray(new String[args.size()])));
@@ -199,6 +202,7 @@ public class ScalaTestTask extends Task {
         try { Thread.sleep(1000); }catch (Exception exp) {;}
         }
         System.out.println("done calling Runner");
+*/
     }
 
     class RunnerRunner implements Runnable {

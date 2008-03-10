@@ -280,8 +280,9 @@
       </runpath>
       <runpathurl url="http://foo.com/bar.jar"/>
 
+      <suite classname="org.scalatest.SuiteSuite"/>
       <reporter type="stdout"/>
-      <!--<reporter type="graphic"/>-->
+      <reporter type="graphic"/>
     </scalatest>
   </target>
 
