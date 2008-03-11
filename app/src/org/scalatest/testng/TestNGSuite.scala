@@ -182,7 +182,7 @@ trait TestNGSuite extends Suite{
    * reports and calls the appropriate method on the Reporter.
    * 
    * TODO: 
-   * (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr) 
+   * (12:02:27 AM) bvenners: onTestFailedButWithinSuccessPercentage(ITestResult tr) 
    * (12:02:34 AM) bvenners: maybe a testSucceeded with some extra info in the report
    */
   private[testng] class MyTestListenerAdapter( reporter: Reporter ) extends TestListenerAdapter{
