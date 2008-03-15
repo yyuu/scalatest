@@ -199,7 +199,7 @@ trait TestNGSuite extends Suite{
      * and/or chat with Cedric to determine if its possible to get this number from TestNG.
      */
     override def onStart(itc: ITestContext) = {
-      reporter.runStarting( 0 )
+      reporter.suiteStarting( new Report(itc.getName, className, None, None ) )
     }
 
     /**
@@ -208,7 +208,7 @@ trait TestNGSuite extends Suite{
      * in the ITestContext object into ScalaTest Reports and call reporter.infoProvided.
      */
     override def onFinish(itc: ITestContext) = {
-      reporter.runCompleted()
+       reporter.suiteCompleted( new Report(itc.getName, className, None, None ) )
     }
     
     /**
