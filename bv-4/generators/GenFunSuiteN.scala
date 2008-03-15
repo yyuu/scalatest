@@ -264,7 +264,7 @@ trait FunSuite$num$[$typeParams$] extends Suite {
 
   val dir = new File("generated/org/scalatest/fun")
   dir.mkdirs()
-  for (i <- 1 to 9) {
+  for (i <- 1 to 10) {
     val bw = new BufferedWriter(new FileWriter("generated/org/scalatest/fun/FunSuite" + i + ".scala"))
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(template)
