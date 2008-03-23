@@ -289,6 +289,7 @@
      <pathelement location="${build.tests}"/>
      <pathelement location="${lib}/scala-library.jar"/>
      <pathelement location="${lib}/testng-5.7-jdk15.jar"/>
+  	 <pathelement location="${lib}/junit-4.4.jar"/>
      <pathelement location="${lib}/jmock-2.4.0.jar"/>
      <pathelement location="${lib}/hamcrest-all-1.1.jar"/>
      <pathelement location="${lib}/ScalaCheck-1.1.1.jar"/>
@@ -308,10 +309,25 @@
      
         <arg value="-m"/>
         <arg value="org.scalatest.testng.example"/>
-    	
-    	<sysproperty key="testngXmlSuite" value="./tests/org/scalatest/testng/example/testngsuite.xml"/>
     </java>
   </target>
+	
+	
+	
+  <target name="junit-example" depends="dist">
+    <java classname="org.scalatest.tools.Runner" classpathref="example.class.path" fork="true">
+		
+    	<arg value="-p"/>
+        <arg value="build_tests build"/>
+
+        <arg value="-g"/>
+        <arg value="-o"/>
+     
+        <arg value="-m"/>
+        <arg value="org.scalatest.junit.example"/>
+    </java>
+  </target>	
+	
 	
   <target name="allfiles" depends="dist, doc, demo"/>
 
