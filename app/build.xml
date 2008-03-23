@@ -299,34 +299,30 @@
 	
 	
   <target name="testng-example" depends="dist">
-    <java classname="org.scalatest.tools.Runner" classpathref="example.class.path" fork="true">
-		
-    	<arg value="-p"/>
-        <arg value="build_tests build"/>
-
-        <arg value="-g"/>
-        <arg value="-o"/>
-     
-        <arg value="-m"/>
-        <arg value="org.scalatest.testng.example"/>
-    </java>
+  	<run-example package="org.scalatest.testng.example"/>
   </target>
 	
-	
-	
   <target name="junit-example" depends="dist">
-    <java classname="org.scalatest.tools.Runner" classpathref="example.class.path" fork="true">
-		
-    	<arg value="-p"/>
-        <arg value="build_tests build"/>
-
-        <arg value="-g"/>
-        <arg value="-o"/>
-     
-        <arg value="-m"/>
-        <arg value="org.scalatest.junit.example"/>
-    </java>
+    <run-example package="org.scalatest.junit.example"/>
   </target>	
+	
+	
+  <macrodef name="run-example">
+	   <attribute name="package"/>
+	   <sequential>
+	   	    <java classname="org.scalatest.tools.Runner" classpathref="example.class.path" fork="true">
+	   			
+	   	    	<arg value="-p"/>
+	   	        <arg value="build_tests build"/>
+
+	   	        <arg value="-g"/>
+	   	        <arg value="-o"/>
+	   	     
+	   	        <arg value="-m"/>
+	   	        <arg value="@{package}"/>
+	   	    </java>
+	   </sequential>
+	</macrodef>	
 	
 	
   <target name="allfiles" depends="dist, doc, demo"/>
