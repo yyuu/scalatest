@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="app/lib/jmock-2.4.0.jar"/>
 	<classpathentry kind="lib" path="app/lib/hamcrest-all-1.1.jar"/>
 	<classpathentry kind="lib" path="app/lib/specs-1.2.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="app/lib/junit-4.4.jar" sourcepath="app/lib/junit-4.4-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

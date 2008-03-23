@@ -16,11 +16,10 @@
 package org.scalatest.testng {
 
    import org.scalatest.TestRerunner
-   import org.scalatest.jmock.SMocker
-   import org.scalatest.jmock.SMockFunSuite
+   import org.scalatest.jmock._
    import testng.test._
 
-   class TestNGSuiteSuite extends SMockFunSuite with TestNGSuiteExpectations{
+   class TestNGSuiteSuite extends SMockFunSuite with SuiteExpectations{
 
      
      mockTest( "Reporter Should Be Notified When Test Passes" ){
@@ -32,7 +31,7 @@ package org.scalatest.testng {
        }
        
        when{
-         new SuccessTestNGSuite().runTestNG(reporter)
+         new SuccessSuite().runTestNG(reporter)
        }
      }
   
@@ -46,7 +45,7 @@ package org.scalatest.testng {
        }
 
        when{
-         new FailureTestNGSuite().runTestNG(reporter)
+         new FailureSuite().runTestNG(reporter)
        }
      }
 
@@ -56,7 +55,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when
-       new FailureTestNGSuite().runTestNG(testReporter)
+       new FailureSuite().runTestNG(testReporter)
 
        // then
        assert( testReporter.errorMessage === "fail" )
@@ -112,7 +111,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when - run the failing suite
-       new FailureTestNGSuite().runTestNG(testReporter)
+       new FailureSuite().runTestNG(testReporter)
 
        // then get rerunnable from report 
        val rerunner = testReporter.report.rerunnable.get.asInstanceOf[TestRerunner];
@@ -125,7 +124,7 @@ package org.scalatest.testng {
        val testReporter = new TestReporter
 
        // when - run the passing suite
-       new SuccessTestNGSuite().runTestNG(testReporter)
+       new SuccessSuite().runTestNG(testReporter)
 
        // then get rerunnable from report 
        val rerunner = testReporter.report.rerunnable.get.asInstanceOf[TestRerunner];
@@ -148,11 +147,11 @@ package org.scalatest.testng {
      
      import org.testng.annotations._
      
-     class FailureTestNGSuite extends TestNGSuite {
+     class FailureSuite extends TestNGSuite {
        @Test def testThatFails() { throw new Exception("fail") }
      }
      
-     class SuccessTestNGSuite extends TestNGSuite {
+     class SuccessSuite extends TestNGSuite {
        @Test def testThatPasses() {}
      }
      
