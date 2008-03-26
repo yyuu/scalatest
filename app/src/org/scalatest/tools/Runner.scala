@@ -346,7 +346,7 @@ object Runner {
       case None =>
     }
 
-    val (runpathArgsList, reporterArgsList, suiteArgsList, propertiesArgsList, includesArgsList, excludesArgsList, concurrentList, membersOnlyArgsList, wildcardArgsList) = parseArgs(args)
+    val (runpathArgsList, reporterArgsList, suiteArgsList, propertiesArgsList, includesArgsList, excludesArgsList, concurrentList, membersOnlyArgsList, wildcardArgsList, testNGArgsList) = parseArgs(args)
 
     val fullReporterSpecs: ReporterSpecs =
       if (reporterArgsList.isEmpty)
@@ -363,6 +363,9 @@ object Runner {
     val concurrent: Boolean = !concurrentList.isEmpty
     val membersOnlyList: List[String] = parseSuiteArgsIntoNameStrings(membersOnlyArgsList, "-m")
     val wildcardList: List[String] = parseSuiteArgsIntoNameStrings(wildcardArgsList, "-w")
+    val testNGSuitesList: List[String] = parseCompoundArgIntoList(testNGArgsList, "-t")
+
+    println("testNGSuitesList = " + testNGSuitesList )
 
     // Not yet supported
     val recipeName: Option[String] = None
@@ -420,7 +423,7 @@ object Runner {
       // Style advice
       // If it is multiple else ifs, then make it symetrical. If one needs an open curly brace, put it on all
       // If an if just has another if, a compound statement, go ahead and put the open curly brace's around the outer one
-      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-r") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-s") || s.startsWith("-m") || s.startsWith("-w")) {
+      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-r") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-s") || s.startsWith("-m") || s.startsWith("-w")  || s.startsWith("-t")) {
         if (it.hasNext)
           it.next
       }
@@ -446,6 +449,7 @@ object Runner {
     val concurrent = new ListBuffer[String]()
     val membersOnly = new ListBuffer[String]()
     val wildcard = new ListBuffer[String]()
+    val testNGSuites = new ListBuffer[String]()
 
     val it = args.elements
     while (it.hasNext) {
@@ -512,12 +516,18 @@ object Runner {
 
         concurrent += s
       }
+      else if (s.startsWith("-t")) {
+
+        testNGSuites += s
+        if (it.hasNext)
+          testNGSuites += it.next
+      }
       else {
         throw new IllegalArgumentException("Unrecognized argument: " + s)
       }
     }
 
-    (runpath.toList, reporters.toList, suites.toList, props.toList, includes.toList, excludes.toList, concurrent.toList, membersOnly.toList, wildcard.toList)
+    (runpath.toList, reporters.toList, suites.toList, props.toList, includes.toList, excludes.toList, concurrent.toList, membersOnly.toList, wildcard.toList, testNGSuites.toList)
   }
 
   /**
@@ -870,7 +880,7 @@ object Runner {
   private[scalatest] def doRunRunRunADoRunRun(dispatchReporter: DispatchReporter, suitesList: List[String],
       stopper: Stopper, includes: Set[String], excludes: Set[String],
       propertiesMap: Map[String, String], concurrent: Boolean, membersOnlyList: List[String], wildcardList: List[String], runpath: List[String], loader: ClassLoader,
-      doneListener: RunDoneListener) = {
+      doneListener: RunDoneListener, testNGSuites: List[String]) = {
 
     // TODO: add more, and to RunnerThread too
     if (dispatchReporter == null)
