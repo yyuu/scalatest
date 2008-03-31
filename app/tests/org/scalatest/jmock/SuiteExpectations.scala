@@ -1,8 +1,6 @@
-package org.scalatest.testng;
+package org.scalatest.jmock;
 
-import org.scalatest.jmock.SMocker
-
-trait TestNGSuiteExpectations extends SMocker{
+trait SuiteExpectations extends SMocker{
 
   def singleTestToPass( reporter: Reporter ) = nTestsToPass( 1, reporter )
   def singleTestToFail( reporter: Reporter ) = nTestsToFail( 1, reporter )
