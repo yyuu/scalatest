@@ -35,7 +35,7 @@ class JUnitSuite extends TestCase with Suite {
    * @param   groupsToInclude	Contains the names of groups to run. Only tests in these groups will be executed.
    * @param   groupsToExclude	Tests in groups in this Set will not be executed.
    *
-   * @param   stopper    	Ignored. JUnit doesn't have a stopping mechanism.
+   * @param   stopper    	Currently Ignored.
    * @param   properties	Currently ignored. see note above...should we be ignoring these?
    * @param   distributor	Currently ignored.
    */
@@ -58,6 +58,10 @@ class JUnitSuite extends TestCase with Suite {
     runJUnit(reporter)
   }   
    
+  private def buildReport( testName: String, t: Option[Throwable] ): Report = {
+    new Report(testName, this.getClass.getName, t, None )
+  }
+  
   def runJUnit(reporter: Reporter) = {
     reporter.suiteStarting( buildReport( this.getClass.getName, None ) ) 
     testNames.foreach(runSingleTest( _, reporter))
@@ -69,29 +73,26 @@ class JUnitSuite extends TestCase with Suite {
     reporter.testStarting( buildReport( testName, None ) )
     this.run(new MyTestResult(testName, reporter))
   }
-  
-  private def buildReport( testName: String, t: Option[Throwable] ): Report = {
-    new Report(testName, this.getClass.getName, t, None )
-  }
    
-   
-   
-   private class MyTestResult( testName: String, reporter: Reporter ) extends TestResult{
-     override def addFailure(test: Test, t: AssertionFailedError) = {
-       super.addFailure(test, t)
-       reporter.testFailed( buildReport( testName, Some(t) ) ) 
-     }
-     override def addError(test: Test, t: Throwable) = {
-       super.addError(test, t)
-       reporter.testFailed( buildReport( testName, Some(t) ) )
-     }
+  private class MyTestResult( testName: String, reporter: Reporter ) extends TestResult {
+
+    override def addFailure(test: Test, t: AssertionFailedError) = {
+      super.addFailure(test, t)
+      reporter.testFailed( buildReport( testName, Some(t) ) ) 
+    }
+
+    override def addError(test: Test, t: Throwable) = {
+      super.addError(test, t)
+      reporter.testFailed( buildReport( testName, Some(t) ) )
+    }
      
-     override def run(test: TestCase) = {
-       super.run(test)
-       if( this.wasSuccessful ){ 
-         reporter.testSucceeded( buildReport( testName, None ) ) 
-       }
-     }
-   }
-   
+    override def run(test: TestCase) = {
+      super.run(test)
+      if( this.wasSuccessful ){ 
+        reporter.testSucceeded( buildReport( testName, None ) ) 
+      }
+    }
+  }
+  
+
 }
