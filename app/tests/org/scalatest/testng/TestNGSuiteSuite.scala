@@ -19,7 +19,7 @@ package org.scalatest.testng {
    import org.scalatest.jmock._
    import testng.test._
 
-   class TestNGSuiteSuite extends SMockFunSuite with TestNGSuiteExpectations{
+   class TestNGSuiteSuite extends SMockFunSuite with SuiteExpectations{
 
      
      mockTest( "Reporter Should Be Notified When Test Passes" ){

@@ -5,7 +5,7 @@ import org.apache.commons.io.FileUtils
 
 package org.scalatest.testng{
 
-  class TestNGWrapperSuiteSuite extends SMockFunSuite with TestNGSuiteExpectations{
+  class TestNGWrapperSuiteSuite extends SMockFunSuite with SuiteExpectations{
   
     val XML_SUITES_PROPERTY = "xml_suites"
       
