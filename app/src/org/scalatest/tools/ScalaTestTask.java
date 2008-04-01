@@ -2,7 +2,6 @@ package org.scalatest.tools;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.scalatest.Runner;
 import org.apache.tools.ant.types.Path;
 
 import java.util.ArrayList;
