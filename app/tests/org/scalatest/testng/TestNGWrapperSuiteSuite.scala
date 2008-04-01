@@ -1,6 +1,5 @@
 import org.scalatest.testng._
-import org.scalatest.jmock.SMocker
-import org.scalatest.jmock.SMockFunSuite
+import org.scalatest.jmock._
 import java.io.File
 import org.apache.commons.io.FileUtils
 

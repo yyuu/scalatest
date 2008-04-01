@@ -16,8 +16,7 @@
 package org.scalatest.testng {
 
    import org.scalatest.TestRerunner
-   import org.scalatest.jmock.SMocker
-   import org.scalatest.jmock.SMockFunSuite
+   import org.scalatest.jmock._
    import testng.test._
 
    class TestNGSuiteSuite extends SMockFunSuite with TestNGSuiteExpectations{
