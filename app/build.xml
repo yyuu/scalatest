@@ -3,20 +3,20 @@
   <!-- set global properties for this build -->
   <property name="src" value="src"/>
   <property name="tests" value="tests"/>
-  <property name="generators" value="generators"/>
-  <property name="generated" value="generated"/>
   <property name="build" value="build"/>
-  <property name="build.tests" value="build_tests"/>
-  <property name="build.generators" value="build_generators"/>
-  <property name="dist"  value="dist"/>
-  <property name="doc"  value="doc"/>
-  <property name="jdoc"  value="jdoc"/>
+  <property name="generators" value="generators"/>
+  <property name="generated" value="${build}/generated"/>
+  <property name="build.tests" value="${build}/tests"/>
+  <property name="build.generators" value="${build}/generators"/>
+  <property name="dist"  value="${build}/dist"/>
+  <property name="doc"  value="${build}/doc"/>
+  <property name="jdoc"  value="${build}/jdoc"/>
   <property name="zipper"  value="zipper"/>
   <property name="project.name"  value="ScalaTest"/>
   <property name="release" value="0.9.1"/>
-  <property name="demo" value="demo"/>
-  <property name="demodoc" value="demo/example/javadoc"/>
-  <property name="example" value="demo/example"/>
+  <property name="demo" value="${build}/demo"/>
+  <property name="demodoc" value="${demo}example/javadoc"/>
+  <property name="example" value="${demo}/example"/>
   <property name="lib" value="lib"/>
 
   <!--
@@ -50,7 +50,7 @@
             <pathelement location="${generated}"/>
             <pathelement location="${lib}/scala-library.jar"/>
             <pathelement location="${lib}/testng-5.7-jdk15.jar"/>
-            <pathelement location="${lib}/junit-4.4.jar"/>
+            <pathelement location="${lib}/junit-3.8.1.jar"/>
             <pathelement location="${lib}/hamcrest-all-1.1.jar"/>
             <pathelement location="${lib}/ScalaCheck-1.1.1.jar"/>
             <pathelement location="${lib}/specs-1.2.3-SNAPSHOT.jar"/>
@@ -62,7 +62,7 @@
             <pathelement location="${dist}/lib/scalatest.jar"/>
             <pathelement location="${lib}/scala-library.jar"/>
             <pathelement location="${lib}/testng-5.7-jdk15.jar"/>
-        	<pathelement location="${lib}/junit-4.4.jar"/>
+        	<pathelement location="${lib}/junit-3.8.1.jar"/>
             <pathelement location="${lib}/jmock-2.4.0.jar"/>
             <pathelement location="${lib}/hamcrest-all-1.1.jar"/>
             <pathelement location="${lib}/ScalaCheck-1.1.1.jar"/>
@@ -74,7 +74,7 @@
             <pathelement location="${build.tests}"/>
             <pathelement location="${lib}/scala-library.jar"/>
             <pathelement location="${lib}/testng-5.7-jdk15.jar"/>
-        	<pathelement location="${lib}/junit-4.4.jar"/>
+        	<pathelement location="${lib}/junit-3.8.1.jar"/>
             <pathelement location="${lib}/jmock-2.4.0.jar"/>
             <pathelement location="${lib}/hamcrest-all-1.1.jar"/>
             <pathelement location="${lib}/ScalaCheck-1.1.1.jar"/>
@@ -118,10 +118,11 @@
   <delete dir="${zipper}"/>
   <!-- Clean out just the class files in the demo directory, because the demo source files
        are compiled into the same directory.  I.e., the class files sit alongside the java files.  -->
-  <delete>
+  <delete quiet="true">
     <fileset dir="${demo}" includes="**/*.class"/>
   </delete>
   <delete dir="${demodoc}"/>
+  <delete dir="test-output" quiet="true"/>
 
   </target>
 
@@ -265,7 +266,7 @@
     <java classname="org.scalatest.tools.Runner" classpathref="test.class.path" fork="true">
 
         <arg value="-p"/>
-        <arg value="build_tests build"/>
+        <arg value="${build.tests} ${build}"/>
 
        <arg value="-g"/>
        <arg value="-o"/>
@@ -294,7 +295,7 @@
      <pathelement location="${build.tests}"/>
      <pathelement location="${lib}/scala-library.jar"/>
      <pathelement location="${lib}/testng-5.7-jdk15.jar"/>
-  	 <pathelement location="${lib}/junit-4.4.jar"/>
+  	 <pathelement location="${lib}/junit-3.8.1.jar"/>
      <pathelement location="${lib}/jmock-2.4.0.jar"/>
      <pathelement location="${lib}/hamcrest-all-1.1.jar"/>
      <pathelement location="${lib}/ScalaCheck-1.1.1.jar"/>
