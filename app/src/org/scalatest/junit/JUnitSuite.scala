@@ -65,33 +65,39 @@ class JUnitSuite extends TestCase with Suite {
   def runJUnit(reporter: Reporter) = {
     reporter.suiteStarting( buildReport( this.getClass.getName, None ) ) 
     testNames.foreach(runSingleTest( _, reporter))
+    //new TestSuite(this.getClass).run(new MyTestResult(reporter))
     reporter.suiteCompleted( buildReport( this.getClass.getName, None ) )
   }
   
   private def runSingleTest( testName: String, reporter: Reporter ) = {
     this.setName(testName)
-    reporter.testStarting( buildReport( testName, None ) )
-    this.run(new MyTestResult(testName, reporter))
+    this.run(new MyTestResult(reporter))
   }
    
-  private class MyTestResult( testName: String, reporter: Reporter ) extends TestResult {
+  private class MyTestResult(reporter: Reporter) extends TestResult {
 
     override def addFailure(test: Test, t: AssertionFailedError) = {
       super.addFailure(test, t)
-      reporter.testFailed( buildReport( testName, Some(t) ) ) 
+      reporter.testFailed( buildReport( test, Some(t) ) ) 
     }
 
     override def addError(test: Test, t: Throwable) = {
       super.addError(test, t)
-      reporter.testFailed( buildReport( testName, Some(t) ) )
+      reporter.testFailed( buildReport( test, Some(t) ) )
     }
-     
-    override def run(test: TestCase) = {
-      super.run(test)
-      if( this.wasSuccessful ){ 
-        reporter.testSucceeded( buildReport( testName, None ) ) 
-      }
+    
+    override def startTest(test: Test) = {
+      super.startTest(test)
+      reporter.testStarting( buildReport( test, None ) )
     }
+    
+    override def endTest(test: Test) = {
+      super.endTest(test)
+      if( this.wasSuccessful ) reporter.testSucceeded( buildReport( test, None ) ) 
+    }
+    
+    import org.apache.tools.ant.taskdefs.optional.junit.JUnitVersionHelper
+    implicit def testToString(t: Test) = JUnitVersionHelper.getTestCaseName(t)
   }
   
 
