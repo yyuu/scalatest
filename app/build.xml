@@ -274,13 +274,8 @@
 
 	<target name="allfiles" depends="dist, doc, demo" />
 
-	<target name="acompile" depends="dist">
-		<javac srcdir="${src}" destdir="${classes}" classpath="${classes}" debug="yes">
-			<include name="**/*.java" />
-		</javac>
-	</target>
 
-	<target name="atest" depends="acompile">
+	<target name="ant-task-test" depends="compile">
 		<taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestTask">
 			<classpath>
 				<pathelement location="${classes}" />
@@ -288,13 +283,14 @@
 			</classpath>
 		</taskdef>
 
-		<scalatest runpath="build_tests;build">
+		<scalatest runpath="${build.tests};${classes}">
 			<runpath>
 				<pathelement location="dist" />
 			</runpath>
 			<runpathurl url="http://foo.com/bar.jar" />
 
 			<suite classname="org.scalatest.SuiteSuite" />
+			
 			<reporter type="stdout" />
 			<reporter type="graphic" />
 		</scalatest>
