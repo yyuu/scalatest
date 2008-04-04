@@ -1,0 +1,52 @@
+<project name="scalatest-testng-example-java" default="compile" basedir=".">
+
+	<property name="src.dir" location="${basedir}/src" />
+	<property name="main.src.dir" location="${src.dir}/main" />
+	<property name="test.src.dir" location="${src.dir}/test" />
+	<property name="reports" location="${basedir}/reports" />
+	<property name="lib" location="${basedir}/lib" />
+	<property name="build" location="${basedir}/target" />
+	<property name="main.jar.file" value="${build}/${ant.project.name}.jar" />
+	<property name="test.jar.file" value="${build}/${ant.project.name}-test.jar" />
+
+	<path id="classpath"><fileset dir="${lib}"><include name="*.jar" /></fileset></path>
+	
+	<target name="prepare" depends="clean"><mkdir dir="${build}" /></target>
+	
+	<target name="clean"><delete dir="${build}" /></target>
+
+	<target name="compile" depends="prepare">
+		<javac srcdir="${src.dir}" destdir="${build}">
+			<classpath refid="classpath" />
+		</javac>
+		<jar jarfile="${main.jar.file}">
+			<fileset dir="${build}">
+				<patternset>
+					<include name="org/scalatest/legacy**/*" />
+					<exclude name="org/scalatest/legacy**/*Test*" />
+				</patternset>
+			</fileset>
+		</jar>
+		<jar jarfile="${test.jar.file}">
+			<fileset dir="${build}">
+				<patternset>
+					<include name="org/scalatest/legacy**/*Test*" />
+				</patternset>
+			</fileset>
+		</jar>
+	</target>
+
+	<taskdef resource="testngtasks" classpathref="classpath" />
+
+	<path id="test.classpath">
+		<fileset dir="${lib}"><include name="*.jar" /></fileset>
+		<fileset dir="${build}"><include name="*.jar" /></fileset>
+	</path>
+
+	<target name="test" depends="compile">
+		<testng classpathref="test.classpath" outputDir="${reports}" sourcedir="${test.src.dir}" haltOnfailure="true">
+			<xmlfileset dir="${test.src.dir}" includes="volume-tests.xml" />
+		</testng>
+	</target>
+
+</project>

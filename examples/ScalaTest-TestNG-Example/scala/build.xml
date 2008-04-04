@@ -1,0 +1,142 @@
+<project name="scalatest-testng-example-scala" default="test">
+
+	<property name="src.dir" value="${basedir}/src/main"/>
+	<property name="test.src.dir" value="${basedir}/src/test"/>
+	<property name="build.dir" value="${basedir}/target" />
+	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="java.dir" value="${basedir}/../java"/>
+	<property name="java.jar" value="${java.dir}/target/scalatest-testng-example-java.jar"/>
+	<property name="java.test.jar" value="${java.dir}/target/scalatest-testng-example-java-test.jar"/>
+	<property name="main.jar.file" value="${build.dir}/${ant.project.name}.jar" />
+	<property name="test.jar.file" value="${build.dir}/${ant.project.name}-test.jar" />
+
+	
+	<target name="compile-java">
+		<ant antfile="../java/build.xml" inheritall="false" target="compile"></ant>
+    </target>
+	
+	<target name="get-legacy-jars" depends="compile-java">
+		<copy file="${java.jar}" todir="${lib.dir}"/>
+		<copy file="${java.test.jar}" todir="${lib.dir}"/>
+	</target>
+
+	<target name="init" depends="clean, get-legacy-jars">
+
+		<mkdir dir="${build.dir}"/>
+
+		<path id="build.classpath">
+			<fileset dir="${lib.dir}"><include name="*.jar" /></fileset>
+		</path>
+
+		<path id="test.classpath">
+			<path refid="build.classpath"></path>
+			<fileset dir="${build.dir}"><include name="*.jar"/></fileset>
+		</path>
+
+		<taskdef resource="scala/tools/ant/antlib.xml" classpathref="test.classpath"/>
+	</target>
+
+	<target name="clean">
+		<ant antfile="../java/build.xml" inheritall="false" target="clean"></ant>
+		<delete dir="${build.dir}"/>
+		<delete dir="test-output"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<mkdir dir="${build.dir}/main"/>
+		<scalac target="jvm-1.5"
+	    		srcdir="${src.dir}"
+	            destdir="${build.dir}/main"
+	            classpathref="build.classpath"
+	            force="changed">
+			<include name="**/*.scala"/>
+		</scalac>
+
+		<jar jarfile="${main.jar.file}">
+			<fileset dir="${build.dir}/main">
+				<patternset>
+					<include name="org/scalatest/testng**/*" />
+				</patternset>
+			</fileset>
+		</jar>
+
+		<mkdir dir="${build.dir}/test"/>
+		<scalac srcdir="${test.src.dir}"
+			    destdir="${build.dir}/test"
+			    classpathref="test.classpath"
+			    force="changed"
+				target="jvm-1.5">
+			<include name="**/*.scala"/>
+		</scalac>
+
+		<jar jarfile="${test.jar.file}">
+			<fileset dir="${build.dir}/test">
+				<patternset>
+					<include name="org/scalatest/testng**/*" />
+				</patternset>
+			</fileset>
+		</jar>
+
+	</target>
+
+	<target name="test-legacy-only" depends="compile">
+		<taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestTask" classpathref="test.classpath"/>
+		
+		<scalatest>
+			<runpath>
+				<pathelement path="test.classpath"/>
+				<pathelement location="${test.jar.file}"/>
+			</runpath>
+			
+			<testNGSuites>
+				<pathelement location="${java.dir}/src/test/volume-tests.xml"/>
+			</testNGSuites>
+			
+			<reporter type="stdout" />
+			<reporter type="graphic" />
+			
+		</scalatest>
+	</target>
+	
+	<target name="test-scala-only" depends="compile">
+		<taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestTask" classpathref="test.classpath"/>
+		
+		<scalatest>
+			<runpath>
+				<pathelement path="test.classpath"/>
+				<pathelement location="${test.jar.file}"/>
+			</runpath>
+			
+			<suite classname="org.scalatest.testng.AwesomeVolumeKnobTest"/>
+			
+			<reporter type="stdout" />
+			<reporter type="graphic" />
+			
+		</scalatest>
+	</target>
+	
+	
+	
+	<target name="test" depends="compile">
+		<taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestTask" classpathref="test.classpath"/>
+		
+		<scalatest>
+			<runpath>
+				<pathelement path="test.classpath"/>
+				<pathelement location="${test.jar.file}"/>
+			</runpath>
+			
+			<testNGSuites>
+				<pathelement location="${java.dir}/src/test/volume-tests.xml"/>
+			</testNGSuites>
+			
+			<suite classname="org.scalatest.testng.AwesomeVolumeKnobTest"/>
+			
+			<reporter type="stdout" />
+			<reporter type="graphic" />
+			
+		</scalatest>
+	</target>
+	
+
+</project>
