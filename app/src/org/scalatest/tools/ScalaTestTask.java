@@ -170,6 +170,7 @@ public class ScalaTestTask extends Task {
     private ArrayList<String> suites = new ArrayList<String>();
     private ArrayList<String> membersonlys = new ArrayList<String>();
     private ArrayList<String> wildcards = new ArrayList<String>();
+    private ArrayList<String> testNGSuites = new ArrayList<String>();
     private ArrayList<ReporterElement> reporters =
         new ArrayList<ReporterElement>();
     private ArrayList<NameValuePair> properties =
@@ -187,6 +188,7 @@ public class ScalaTestTask extends Task {
         addIncludesArgs(args);
         addExcludesArgs(args);
         addRunpathArgs(args);
+        addTestNGSuiteArgs(args);
         addConcurrentArg(args);
 
         String[] argsArray = args.toArray(new String[args.size()]);
@@ -204,6 +206,13 @@ public class ScalaTestTask extends Task {
         }
     }
 
+    private void addTestNGSuiteArgs(ArrayList<String> args) {
+        if (testNGSuites.size() > 0) {
+            args.add("-t");
+            args.add(getSpacedOutPathStr(testNGSuites));
+        }
+    }
+    
     //
     // Adds '-c' arg to args list if 'concurrent' attribute was
     // specified true for task.
@@ -384,6 +393,13 @@ public class ScalaTestTask extends Task {
             this.runpath.add(element);
         }
     }
+    
+    
+    public void setTestNGSuites(Path testNGSuitePath) {
+        for (String element: testNGSuitePath.list()) {
+            this.testNGSuites.add(element);
+        }
+    }
 
     //
     // Sets value of 'concurrent' attribute.
@@ -398,6 +414,12 @@ public class ScalaTestTask extends Task {
     public void addConfiguredRunpath(Path runpath) {
         for (String element: runpath.list()) {
             this.runpath.add(element);
+        }
+    }
+ 
+    public void addConfiguredTestNGSuites(Path testNGSuitePath) {
+        for (String element: testNGSuitePath.list()) {
+            this.testNGSuites.add(element);
         }
     }
 
