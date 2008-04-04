@@ -90,19 +90,19 @@ package org.scalatest.junit {
      
      import _root_.junit.framework.Assert
      
-     class SuccessSuite extends JUnitSuite {
+     class SuccessSuite extends JUnit3Suite {
        def testThatPasses = {}
      }
      
-     class ErrorSuite extends JUnitSuite {
+     class ErrorSuite extends JUnit3Suite {
        def testThatThrows() { throw new Exception("fail") }
      }
      
-     class FailureSuite extends JUnitSuite {
+     class FailureSuite extends JUnit3Suite {
        def testWithAssertionFailure() { Assert.assertEquals("fail", 1, 2) }
      }
 
-     class SuiteWithTwoTests extends JUnitSuite {
+     class SuiteWithTwoTests extends JUnit3Suite {
        def testThatPasses() {}
        def testAnotherTestThatPasses() {}
      }  

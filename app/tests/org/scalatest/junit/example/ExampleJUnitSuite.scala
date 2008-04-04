@@ -2,7 +2,7 @@ package org.scalatest.junit.example;
 
 import _root_.junit.framework.Assert
 
-class ExampleJUnitSuite extends JUnitSuite {
+class ExampleJUnitSuite extends JUnit3Suite {
   
   override def setUp = println("this should get printed out before each method!")
   
