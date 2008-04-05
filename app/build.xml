@@ -104,15 +104,16 @@
 
 	<target name="compile-main" depends="gencode">
 		<!-- Compile the Java code from ${src} into ${classes} -->
-		<javac srcdir="${src}" destdir="${classes}" debug="yes">
+		<javac srcdir="${src}" destdir="${classes}" debug="yes" classpathref="build.class.path" >
 			<include name="org/scalatest/Ignore.java" />
+			<include name="org/scalatest/junit/JUnitVersionHelper.java"/>
 		</javac>
 
 		<!-- Then compile the Scala code from ${src} into ${classes} -->
 		<scalac srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
 		<scalac srcdir="${generated}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
 
-		<!-- Compile the Ant task -->
+		<!-- Compile the Ant task (Depends on org.scalatest.tools.Runner)-->
 		<javac srcdir="${src}" destdir="${classes}" classpath="${build.class.path}" debug="yes">
 			<include name="org/scalatest/tools/ScalaTestTask.java" />
 		</javac>
