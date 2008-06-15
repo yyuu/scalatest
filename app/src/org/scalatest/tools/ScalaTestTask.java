@@ -173,6 +173,7 @@ public class ScalaTestTask extends Task {
     private ArrayList<String> membersonlys = new ArrayList<String>();
     private ArrayList<String> wildcards = new ArrayList<String>();
     private ArrayList<String> testNGSuites = new ArrayList<String>();
+    private ArrayList<String> junitSuites = new ArrayList<String>();
     private ArrayList<ReporterElement> reporters =
         new ArrayList<ReporterElement>();
     private ArrayList<NameValuePair> properties =
@@ -191,6 +192,7 @@ public class ScalaTestTask extends Task {
         addExcludesArgs(args);
         addRunpathArgs(args);
         addTestNGSuiteArgs(args);
+        addJUnitSuiteArgs(args);
         addConcurrentArg(args);
 
         String[] argsArray = args.toArray(new String[args.size()]);
@@ -214,6 +216,14 @@ public class ScalaTestTask extends Task {
             args.add(getSpacedOutPathStr(testNGSuites));
         }
     }
+    
+    private void addJUnitSuiteArgs(ArrayList<String> args) {
+      if (junitSuites.size() > 0) {
+          args.add("-j");
+          args.add(getSpacedOutPathStr(junitSuites));
+      }
+    }
+    
     
     //
     // Adds '-c' arg to args list if 'concurrent' attribute was
@@ -402,6 +412,13 @@ public class ScalaTestTask extends Task {
             this.testNGSuites.add(element);
         }
     }
+   
+    public void setJUnitSuites(Path junitSuitePath) {
+      for (String element: junitSuitePath.list()) {
+          this.junitSuites.add(element);
+      }
+    }
+    
 
     //
     // Sets value of 'concurrent' attribute.
@@ -425,6 +442,12 @@ public class ScalaTestTask extends Task {
         }
     }
 
+    public void addConfiguredJUnitSuites(Path junitSuitePath) {
+      for (String element: junitSuitePath.list()) {
+          this.junitSuites.add(element);
+      }
+    }
+    
     //
     // Sets value from nested element 'runpathurl'.
     //
