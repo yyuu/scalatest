@@ -64,7 +64,7 @@ import _root_.junit.textui._
  * @author Josh Cough
  * @author Bill Venners
  */
-trait JUnit3Suite extends TestCase with Suite {
+trait JUnit3Suite extends TestCase with Suite with JUnitTestCaseRunner {
 
   /**
    * Runs JUnit. <br>
@@ -112,51 +112,12 @@ trait JUnit3Suite extends TestCase with Suite {
    */  
   private def runJUnit(testName: Option[String], reporter: Reporter, groupsToInclude: Set[String], groupsToExclude: Set[String]) {
     testName match {
-      case Some(name) => runSingleTest(name, reporter)
-      case None => runJUnit(reporter)
+      case Some(name) => runSingleTest(this, name, reporter)
+      case None => runAllTests(this, reporter)
     }
   }   
    
-  private def buildReport(testName: String, t: Option[Throwable]): Report = {
-    new Report(testName, this.getClass.getName, t, None)
-  }
-  
-  private def buildReport(test: Test, t: Option[Throwable]): Report = {
-    buildReport(JUnitVersionHelper.getTestCaseName(test), t)
-  }
-  
   private[junit] def runJUnit(reporter: Reporter) = {
-    reporter.suiteStarting(buildReport(this.getClass.getName, None)) 
-    testNames.foreach(runSingleTest( _, reporter))
-    //new TestSuite(this.getClass).run(new MyTestResult(reporter))
-    reporter.suiteCompleted(buildReport( this.getClass.getName, None))
-  }
-  
-  private def runSingleTest(testName: String, reporter: Reporter) = {
-    this.setName(testName)
-    this.run(new MyTestResult(reporter))
-  }
-   
-  private class MyTestResult(reporter: Reporter) extends TestResult {
-
-    override def addFailure(test: Test, t: AssertionFailedError) = {
-      super.addFailure(test, t)
-      reporter.testFailed(buildReport(test, Some(t))) 
-    }
-
-    override def addError(test: Test, t: Throwable) = {
-      super.addError(test, t)
-      reporter.testFailed(buildReport(test, Some(t)))
-    }
-    
-    override def startTest(test: Test) = {
-      super.startTest(test)
-      reporter.testStarting(buildReport(test, None))
-    }
-    
-    override def endTest(test: Test) = {
-      super.endTest(test)
-      if (this.wasSuccessful) reporter.testSucceeded(buildReport(test, None)) 
-    }
+    runAllTests(this, reporter)
   }
 }

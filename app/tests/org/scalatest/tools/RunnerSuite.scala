@@ -45,9 +45,10 @@ class RunnerSuite() extends Suite {
         concurrentList,
         memberOfList,
         beginsWithList,
-        testNGList
-      ) = Runner.parseArgs(args)
-
+        testNGList,
+        junitList
+      ) = RunnerArgsParser.parseArgs(args)
+      
       assert(runpathList === expectedRunpathList)
       assert(reportersList === expectedReporterList)
       assert(suitesList === expectedSuitesList)
@@ -190,73 +191,73 @@ class RunnerSuite() extends Suite {
 
   def testParseCompoundArgIntoSet() {
     expect(Set("Cat", "Dog")) {
-      Runner.parseCompoundArgIntoSet(List("-n", "Cat Dog"), "-n")
+      RunnerArgsParser.parseCompoundArgIntoSet(List("-n", "Cat Dog"), "-n")
     }
   }
 
   def testParseConfigSet() {
 
     intercept(classOf[NullPointerException]) {
-      Runner.parseConfigSet(null)
+      RunnerArgsParser.parseConfigSet(null)
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseConfigSet("-fX")
+      RunnerArgsParser.parseConfigSet("-fX")
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseConfigSet("-oYZTFUPBISARG-")
+      RunnerArgsParser.parseConfigSet("-oYZTFUPBISARG-")
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseConfigSet("-")
+      RunnerArgsParser.parseConfigSet("-")
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseConfigSet("")
+      RunnerArgsParser.parseConfigSet("")
     }
 
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32)) {
-      Runner.parseConfigSet("-oY")
+      RunnerArgsParser.parseConfigSet("-oY")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentTestStarting.mask32)) {
-      Runner.parseConfigSet("-oZ")
+      RunnerArgsParser.parseConfigSet("-oZ")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentTestSucceeded.mask32)) {
-      Runner.parseConfigSet("-oT")
+      RunnerArgsParser.parseConfigSet("-oT")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32)) {
-      Runner.parseConfigSet("-oF")
+      RunnerArgsParser.parseConfigSet("-oF")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteStarting.mask32)) {
-      Runner.parseConfigSet("-oU")
+      RunnerArgsParser.parseConfigSet("-oU")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteCompleted.mask32)) {
-      Runner.parseConfigSet("-oP")
+      RunnerArgsParser.parseConfigSet("-oP")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteAborted.mask32)) {
-      Runner.parseConfigSet("-oB")
+      RunnerArgsParser.parseConfigSet("-oB")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentInfoProvided.mask32)) {
-      Runner.parseConfigSet("-oI")
+      RunnerArgsParser.parseConfigSet("-oI")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunStopped.mask32)) {
-      Runner.parseConfigSet("-oS")
+      RunnerArgsParser.parseConfigSet("-oS")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunAborted.mask32)) {
-      Runner.parseConfigSet("-oA")
+      RunnerArgsParser.parseConfigSet("-oA")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunCompleted.mask32)) {
-      Runner.parseConfigSet("-oR")
+      RunnerArgsParser.parseConfigSet("-oR")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentTestIgnored.mask32)) {
-      Runner.parseConfigSet("-oG")
+      RunnerArgsParser.parseConfigSet("-oG")
     }
     expect(ReporterOpts.Set32(0)) {
-      Runner.parseConfigSet("-f")
+      RunnerArgsParser.parseConfigSet("-f")
     }
 
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32 | ReporterOpts.PresentTestStarting.mask32)) {
-      Runner.parseConfigSet("-oZY")
+      RunnerArgsParser.parseConfigSet("-oZY")
     }
     expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32 | ReporterOpts.PresentTestStarting.mask32)) {
-      Runner.parseConfigSet("-oYZ") // Just reverse the order of the params
+      RunnerArgsParser.parseConfigSet("-oYZ") // Just reverse the order of the params
     }
     val allOpts = ReporterOpts.Set32(
       ReporterOpts.PresentRunStarting.mask32 |
@@ -273,170 +274,170 @@ class RunnerSuite() extends Suite {
       ReporterOpts.PresentTestIgnored.mask32
     )
     expect(allOpts) {
-      Runner.parseConfigSet("-oYZTFUPBISARG")
+      RunnerArgsParser.parseConfigSet("-oYZTFUPBISARG")
     }
   }
 
   def testParseReporterArgsIntoSpecs() {
     intercept(classOf[NullPointerException]) {
-      Runner.parseReporterArgsIntoSpecs(null)
+      RunnerArgsParser.parseReporterArgsIntoSpecs(null)
     }
     intercept(classOf[NullPointerException]) {
-      Runner.parseReporterArgsIntoSpecs(List("Hello", null, "World"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("Hello", null, "World"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("Hello", "-", "World"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("Hello", "-", "World"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("Hello", "", "World"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("Hello", "", "World"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-g", "-x", "-o"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-g", "-x", "-o"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("Hello", " there", " world!"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("Hello", " there", " world!"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-g", "-o", "-g", "-e"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-g", "-o", "-g", "-e"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-o", "-o", "-g", "-e"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-o", "-o", "-g", "-e"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-e", "-o", "-g", "-e"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-e", "-o", "-g", "-e"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-f")) // Can't have -f last, because need a file name
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-f")) // Can't have -f last, because need a file name
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseReporterArgsIntoSpecs(List("-r")) // Can't have -r last, because need a reporter class
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-r")) // Can't have -r last, because need a reporter class
     }
     expect(new ReporterSpecs(None, Nil, None, None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(Nil)
+      RunnerArgsParser.parseReporterArgsIntoSpecs(Nil)
     }
     expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.Set32(0))), Nil, None, None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-g"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-g"))
     }
     expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), Nil, None, None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-gF"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-gF"))
     }
     expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.Set32(0))), None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-o"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-o"))
     }
     expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-oF"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-oF"))
     }
     expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.Set32(0))), Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-e"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-e"))
     }
     expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-eF"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-eF"))
     }
     expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.Set32(0), "theFilename")), None, None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-f", "theFilename"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-f", "theFilename"))
     }
     expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32), "theFilename")), None, None, Nil)) {
-      Runner.parseReporterArgsIntoSpecs(List("-fF", "theFilename"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-fF", "theFilename"))
     }
     expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.Set32(0), "the.reporter.Class")))) {
-      Runner.parseReporterArgsIntoSpecs(List("-r", "the.reporter.Class"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-r", "the.reporter.Class"))
     }
     expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32), "the.reporter.Class")))) {
-      Runner.parseReporterArgsIntoSpecs(List("-rF", "the.reporter.Class"))
+      RunnerArgsParser.parseReporterArgsIntoSpecs(List("-rF", "the.reporter.Class"))
     }
   }
 
   def testParseSuiteArgsIntoClassNameStrings() {
     intercept(classOf[NullPointerException]) {
-      Runner.parseSuiteArgsIntoNameStrings(null, "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(null, "-s")
     }
     intercept(classOf[NullPointerException]) {
-      Runner.parseSuiteArgsIntoNameStrings(List("-s", null, "-s"), "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(List("-s", null, "-s"), "-s")
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s"), "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s"), "-s")
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "-s"), "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "-s"), "-s")
     }
     expect(List("SweetSuite", "OKSuite")) {
-      Runner.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "OKSuite"), "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "OKSuite"), "-s")
     }
     expect(List("SweetSuite", "OKSuite", "SomeSuite")) {
-      Runner.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "OKSuite", "-s", "SomeSuite"), "-s")
+      RunnerArgsParser.parseSuiteArgsIntoNameStrings(List("-s", "SweetSuite", "-s", "OKSuite", "-s", "SomeSuite"), "-s")
     }
   }
 
   def testParseRunpathArgIntoList() {
     intercept(classOf[NullPointerException]) {
-      Runner.parseRunpathArgIntoList(null)
+      RunnerArgsParser.parseRunpathArgIntoList(null)
     }
     intercept(classOf[NullPointerException]) {
-      Runner.parseRunpathArgIntoList(List("-p", null))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", null))
     }
     intercept(classOf[NullPointerException]) {
-      Runner.parseRunpathArgIntoList(List(null, "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar"))
+      RunnerArgsParser.parseRunpathArgIntoList(List(null, "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseRunpathArgIntoList(List("-p"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseRunpathArgIntoList(List("-p", "bla", "bla"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "bla", "bla"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseRunpathArgIntoList(List("-pX", "bla"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-pX", "bla"))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseRunpathArgIntoList(List("-p", "  "))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "  "))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parseRunpathArgIntoList(List("-p", "\t"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "\t"))
     }
     expect(List("bla")) {
-      Runner.parseRunpathArgIntoList(List("-p", "bla"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "bla"))
     }
     expect(List("bla", "bla", "bla")) {
-      Runner.parseRunpathArgIntoList(List("-p", "bla bla bla"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "bla bla bla"))
     }
     expect(List("serviceuitest-1.1beta4.jar", "myjini", "http://myhost:9998/myfile.jar")) {
-      Runner.parseRunpathArgIntoList(List("-p", "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar"))
+      RunnerArgsParser.parseRunpathArgIntoList(List("-p", "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar"))
     }
   }
 
   def testParsePropertiesArgsIntoMap() {
     intercept(classOf[NullPointerException]) {
-      Runner.parsePropertiesArgsIntoMap(null)
+      RunnerArgsParser.parsePropertiesArgsIntoMap(null)
     }
     intercept(classOf[NullPointerException]) {
-      Runner.parsePropertiesArgsIntoMap(List("-Da=b", null))
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("-Da=b", null))
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parsePropertiesArgsIntoMap(List("-Dab")) // = sign missing
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("-Dab")) // = sign missing
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parsePropertiesArgsIntoMap(List("ab")) // needs to start with -D
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("ab")) // needs to start with -D
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parsePropertiesArgsIntoMap(List("-D=ab")) // no key
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("-D=ab")) // no key
     }
     intercept(classOf[IllegalArgumentException]) {
-      Runner.parsePropertiesArgsIntoMap(List("-Dab=")) // no value
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("-Dab=")) // no value
     }
     expect(Map("a" -> "b", "cat" -> "dog", "Glorp" -> "Glib")) {
-      Runner.parsePropertiesArgsIntoMap(List("-Da=b", "-Dcat=dog", "-DGlorp=Glib"))
+      RunnerArgsParser.parsePropertiesArgsIntoMap(List("-Da=b", "-Dcat=dog", "-DGlorp=Glib"))
     }
   }
 
   def testCheckArgsForValidity() {
     intercept(classOf[NullPointerException]) {
-      Runner.checkArgsForValidity(null)
+      RunnerArgsParser.checkArgsForValidity(null)
     }
     expect(None) {
-      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite"))
+      RunnerArgsParser.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite"))
     }
-    assert(Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-z", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite")) != None)
+    assert(RunnerArgsParser.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-z", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite")) != None)
     expect(None) {
-      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-c"))
+      RunnerArgsParser.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-c"))
     }
   }
 
