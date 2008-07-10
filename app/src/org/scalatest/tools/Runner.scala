@@ -343,9 +343,6 @@ import org.scalatest.junit.JUnit3WrapperSuite
  */
 object Runner {
 
-  private val RUNNER_JFRAME_START_X: Int = 150
-  private val RUNNER_JFRAME_START_Y: Int = 100
-
   // TODO: I don't think I'm enforcing that properties can't start with "org.scalatest"
   // TODO: I don't think I'm handling rejecting multiple -f/-r with the same arg. -f fred.txt -f fred.txt should
   // fail, as should -r MyReporter -r MyReporter. I'm failing on -o -o, -g -g, and -e -e, but the error messages
@@ -399,22 +396,10 @@ object Runner {
       }
 
     fullReporterSpecs.graphicReporterSpec match {
-      case Some(GraphicReporterSpec(configSet)) => {
+      case Some(GraphicReporterSpec(configSet)) => { // if we are using the GUI
         val graphicConfigSet = if (configSet.isEmpty) ReporterOpts.allOptions else configSet
-        val abq = new ArrayBlockingQueue[RunnerJFrame](1)
-        usingEventDispatchThread {
-          val rjf = new RunnerJFrame(recipeName, graphicConfigSet, reporterSpecs, suitesList, runpathList,
+        RunnerJFrame.run(recipeName, graphicConfigSet, reporterSpecs, suitesList, runpathList,
             includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, junitList) 
-          rjf.setLocation(RUNNER_JFRAME_START_X, RUNNER_JFRAME_START_Y)
-          rjf.setVisible(true)
-          rjf.prepUIForRunning()
-          rjf.runFromGUI()
-          abq.put(rjf)
-        }
-        // To get the Ant task to work, the main thread needs to block until
-        // The GUI window exits.
-        val rjf = abq.take()
-        rjf.blockUntilWindowClosed()
       }
       case None => { // Run the test without a GUI
         withClassLoaderAndDispatchReporter(runpathList, reporterSpecs, None) {
@@ -791,13 +776,4 @@ object Runner {
     }
   }
 
-  private[scalatest] def usingEventDispatchThread(f: => Unit): Unit = {
-    SwingUtilities.invokeLater(
-      new Runnable() {
-        def run() {
-          f
-        }
-      }
-    )
-  }
 }

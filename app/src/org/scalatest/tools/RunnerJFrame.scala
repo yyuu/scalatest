@@ -49,7 +49,6 @@ import javax.swing.border.BevelBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
-import Runner.usingEventDispatchThread
 import Runner.withClassLoaderAndDispatchReporter
 import java.util.concurrent.Semaphore
 import java.awt.event.WindowAdapter
@@ -962,7 +961,20 @@ private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportType
       }
     }
   }
+  
+  private[scalatest] def usingEventDispatchThread(f: => Unit): Unit = {
+    import javax.swing.SwingUtilities
+    SwingUtilities.invokeLater(
+      new Runnable() {
+        def run() {
+          f
+        }
+      }
+    )
+  }
 }
+
+import java.util.concurrent.ArrayBlockingQueue
 
 private[scalatest] object RunnerJFrame {
   def getTitle(recipeName: Option[String]): String = {
@@ -973,5 +985,40 @@ private[scalatest] object RunnerJFrame {
       }
       case None => scalaTestTitle
     }
+  }
+  
+  private val RUNNER_JFRAME_START_X: Int = 150
+  private val RUNNER_JFRAME_START_Y: Int = 100
+  
+  def run(recipeName: Option[String], graphicConfigSet: ReporterOpts.Set32,
+    reporterSpecs: ReporterSpecs, suitesList: List[String], runpathList: List[String], includes: Set[String],
+    excludes: Set[String], propertiesMap: Map[String, String], concurrent: Boolean, membersOnlyList: List[String], wildcardList: List[String],
+    testNGList: List[String], junitList: List[String]){
+      
+    val abq = new ArrayBlockingQueue[RunnerJFrame](1)
+    usingEventDispatchThread {
+      val rjf = new RunnerJFrame(recipeName, graphicConfigSet, reporterSpecs, suitesList, runpathList,
+                                 includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, junitList) 
+      rjf.setLocation(RUNNER_JFRAME_START_X, RUNNER_JFRAME_START_Y)
+      rjf.setVisible(true)
+      rjf.prepUIForRunning()
+      rjf.runFromGUI()
+      abq.put(rjf)
+    }
+    // To get the Ant task to work, the main thread needs to block until
+    // The GUI window exits.
+    val rjf = abq.take()
+    rjf.blockUntilWindowClosed()
+  }
+  
+  private[scalatest] def usingEventDispatchThread(f: => Unit): Unit = {
+    import javax.swing.SwingUtilities
+    SwingUtilities.invokeLater(
+      new Runnable() {
+        def run() {
+          f
+        }
+      }
+    )
   }
 }
