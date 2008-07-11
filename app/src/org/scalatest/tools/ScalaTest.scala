@@ -55,10 +55,16 @@ class ScalaTest(runpathList: List[String]) {
   private val propertiesMap: Map[String, String] = Map()
   private val testNGList: List[String] = Nil
   
+  
   /**
    * Runs ScalaTest 
    */
-  private[scalatest] def doRunRunRunADoRunRun(): Unit = {
+  def run = doRunRunRunADoRunRun
+  
+  /**
+   * Runs ScalaTest 
+   */
+  def doRunRunRunADoRunRun(): Unit = {
     
     if( this.loadProblemsExist ) return;
     
