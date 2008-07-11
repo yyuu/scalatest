@@ -21,60 +21,68 @@ import java.lang.reflect.Modifier
 private[scalatest] class SuiteRunner(suite: Suite, dispatchReporter: DispatchReporter, stopper: Stopper, includes: Set[String],
     excludes: Set[String], propertiesMap: Map[String, Any], distributor: Option[Distributor]) extends Runnable {
 
-  def run() {
-
-    if (!stopper.stopRequested) {
-      // Create a Rerunnable if the Suite has a no-arg constructor
-      val hasPublicNoArgConstructor: Boolean =
-        try {
-          val constructor: Constructor[_ <: AnyRef] = suite.getClass.getConstructor(Array[java.lang.Class[_]]())
-          Modifier.isPublic(constructor.getModifiers())
-        }
-        catch {
-          case nsme: NoSuchMethodException => false
-        }
+  def run(): Unit = {
+    if( stopper.stopRequested ) return;
+    
+    this.dispatchSuiteStarting
   
-      val rerunnable: Option[Rerunnable] =
-        if (hasPublicNoArgConstructor)
-          Some(new SuiteRerunner(suite.getClass.getName))
-        else
-          None
+    try {
+      suite.execute(None, dispatchReporter, stopper, includes, excludes, propertiesMap, distributor)
+      this.dispatchSuiteCompleted
+    }
+    catch {
+      case e: RuntimeException => dispatchSuiteAborted(e)
+    }
+  }
+    
+  def rerunnable: Option[Rerunnable] = {
+    if (hasPublicNoArgConstructor)
+      Some(new SuiteRerunner(suite.getClass.getName))
+    else
+      None
+  }
   
-      val rawString = Resources("suiteExecutionStarting")
+  // Create a Rerunnable if the Suite has a no-arg constructor
+  def hasPublicNoArgConstructor: Boolean = {
+    try {
+      val constructor: Constructor[_ <: AnyRef] = suite.getClass.getConstructor(Array[java.lang.Class[_]]())
+      Modifier.isPublic(constructor.getModifiers())
+    }
+    catch {
+      case nsme: NoSuchMethodException => false
+    }
+  }
+  
+  def dispatchSuiteStarting = {
+    val rawString = Resources("suiteExecutionStarting")
+    val report =
+      if (hasPublicNoArgConstructor)
+        new Report(suite.suiteName, rawString, None, rerunnable)
+      else
+        new Report(suite.suiteName, rawString)
+  
+    dispatchReporter.suiteStarting(report)
+  }
+  
+  def dispatchSuiteCompleted = {
+      val rawString = Resources("suiteCompletedNormally")
       val report =
         if (hasPublicNoArgConstructor)
           new Report(suite.suiteName, rawString, None, rerunnable)
         else
           new Report(suite.suiteName, rawString)
   
-      dispatchReporter.suiteStarting(report)
-  
-      try {
-        suite.execute(None, dispatchReporter, stopper, includes, excludes, propertiesMap, distributor)
-  
-        val rawString = Resources("suiteCompletedNormally")
-  
-        val report =
-        if (hasPublicNoArgConstructor)
-          new Report(suite.suiteName, rawString, None, rerunnable)
-        else
-          new Report(suite.suiteName, rawString)
-  
-        dispatchReporter.suiteCompleted(report)
-      }
-      catch {
-        case e: RuntimeException => {
-          val rawString = Resources("executeException")
-  
-          val report =
-          if (hasPublicNoArgConstructor)
-            new Report(suite.suiteName, rawString, Some(e), rerunnable)
-          else
-            new Report(suite.suiteName, rawString, Some(e), None)
-  
-          dispatchReporter.suiteAborted(report)
-        }
-      }
-    }
+      dispatchReporter.suiteCompleted(report)
   }
+  
+  def dispatchSuiteAborted(e: RuntimeException){
+      val rawString = Resources("executeException")
+      val report =
+        if (hasPublicNoArgConstructor)
+          new Report(suite.suiteName, rawString, Some(e), rerunnable)
+        else
+          new Report(suite.suiteName, rawString, Some(e), None)
+  
+      dispatchReporter.suiteAborted(report)
+  }  
 }
