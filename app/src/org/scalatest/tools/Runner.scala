@@ -27,6 +27,8 @@ import javax.swing.SwingUtilities
 import java.util.concurrent.ArrayBlockingQueue
 import org.scalatest.testng.TestNGWrapperSuite
 import org.scalatest.junit.JUnit3WrapperSuite
+import org.scalatest.tools.ui._
+import org.apache.tools.ant.BuildException
 
 /**
  * <p>
@@ -412,37 +414,8 @@ object Runner {
     }
   }
 
-  // For debugging.
-/*
-  private[scalatest] def printOpts(opt: ReporterOpts.Set32) {
-    if (opt.contains(ReporterOpts.PresentRunStarting))
-      println("PresentRunStarting")
-    if (opt.contains(ReporterOpts.PresentTestStarting))
-      println("PresentTestStarting")
-    if (opt.contains(ReporterOpts.PresentTestSucceeded))
-      println("PresentTestSucceeded")
-    if (opt.contains(ReporterOpts.PresentTestFailed))
-      println("PresentTestFailed")
-    if (opt.contains(ReporterOpts.PresentTestIgnored))
-      println("PresentTestIgnored")
-    if (opt.contains(ReporterOpts.PresentSuiteStarting))
-      println("PresentSuiteStarting")
-    if (opt.contains(ReporterOpts.PresentSuiteCompleted))
-      println("PresentSuiteCompleted")
-    if (opt.contains(ReporterOpts.PresentSuiteAborted))
-      println("PresentSuiteAborted")
-    if (opt.contains(ReporterOpts.PresentInfoProvided))
-      println("PresentInfoProvided")
-    if (opt.contains(ReporterOpts.PresentRunStopped))
-      println("PresentRunStopped")
-    if (opt.contains(ReporterOpts.PresentRunCompleted))
-      println("PresentRunCompleted")
-    if (opt.contains(ReporterOpts.PresentRunAborted))
-      println("PresentRunAborted")
-  }
-*/
 
-  private[scalatest] def getDispatchReporter(reporterSpecs: ReporterSpecs, graphicReporter: Option[Reporter], loader: ClassLoader) = {
+  private[scalatest] def getDispatchReporter(reporterSpecs: ReporterSpecs, graphicReporter: Option[Reporter], loader: ClassLoaderHelper) = {
     def getReporterFromSpec(spec: ReporterSpec): Reporter = spec match {
       case StandardOutReporterSpec(configSet) => {
         if (configSet.isEmpty)
@@ -463,7 +436,7 @@ object Runner {
           new FilterReporter(new FileReporter(fileName), configSet)
       }
       case CustomReporterSpec(configSet, reporterClassName) => {
-        val customReporter = getCustomReporter(reporterClassName, loader, "-r... " + reporterClassName)
+        val customReporter = loader.loadCustomReporter(reporterClassName, "-r... " + reporterClassName)
         if (configSet.isEmpty)
           customReporter
         else
@@ -485,44 +458,7 @@ object Runner {
     new DispatchReporter(fullReporterList)
   }
 
-  private def getCustomReporter(reporterClassName: String, loader: ClassLoader, argString: String): Reporter = {
-    try {
-      val reporterClass: java.lang.Class[_] = loader.loadClass(reporterClassName) 
-      reporterClass.newInstance.asInstanceOf[Reporter]
-    }    // Could probably catch ClassCastException too
-    catch {
-      case e: ClassNotFoundException => {
 
-        val msg1 = Resources("cantLoadReporterClass", reporterClassName)
-        val msg2 = Resources("probarg", argString)
-        val msg = msg1 + "\n" + msg2
-    
-        val iae = new IllegalArgumentException(msg)
-        iae.initCause(e)
-        throw iae
-      }
-      case e: InstantiationException => {
-
-        val msg1 = Resources("cantInstantiateReporter", reporterClassName)
-        val msg2 = Resources("probarg", argString)
-        val msg = msg1 + "\n" + msg2
-    
-        val iae = new IllegalArgumentException(msg)
-        iae.initCause(e)
-        throw iae
-      }
-      case e: IllegalAccessException => {
-
-        val msg1 = Resources("cantInstantiateReporter", reporterClassName)
-        val msg2 = Resources("probarg", argString)
-        val msg = msg1 + "\n" + msg2
-    
-        val iae = new IllegalArgumentException(msg)
-        iae.initCause(e)
-        throw iae
-      }
-    }
-  }
 
   private[scalatest] def doRunRunRunADoRunRun(
     dispatchReporter: DispatchReporter,
@@ -602,13 +538,6 @@ object Runner {
             else
               Nil
           
-          val junit3WrapperSuiteList: List[JUnit3WrapperSuite] =
-            if (!junitList.isEmpty)
-              List(new JUnit3WrapperSuite(junitList))
-            else
-              Nil
-    
-          
           val (membersOnlySuiteInstances, wildcardSuiteInstances) = {
 
             val membersOnlyAndBeginsWithListsAreEmpty = membersOnlyList.isEmpty && wildcardList.isEmpty // They didn't specify any -m's or -w's on the command line
@@ -668,7 +597,6 @@ object Runner {
             }
           }
 
-
           if (stopper.stopRequested)
             dispatchReporter.runStopped()
           else
@@ -689,6 +617,9 @@ object Runner {
             val report = new Report("org.scalatest.tools.Runner", Resources("cannotLoadClass"), Some(ex), None)
             dispatchReporter.runAborted(report)
           }
+          case ex: BuildException => {
+            throw ex
+          }
           case ex: Throwable => {
             val report = new Report("org.scalatest.tools.Runner", Resources("bigProblems"), Some(ex), None)
             dispatchReporter.runAborted(report)
@@ -707,13 +638,14 @@ object Runner {
   private[scalatest] def withClassLoaderAndDispatchReporter(runpathList: List[String], reporterSpecs: ReporterSpecs,
       graphicReporter: Option[Reporter])(f: (ClassLoader, DispatchReporter) => Unit): Unit = {
 
-    val loader: ClassLoader = getRunpathClassLoader(runpathList)
+    val helper = new ClassLoaderHelper(runpathList)
+    
     try {
-      Thread.currentThread.setContextClassLoader(loader)
+      Thread.currentThread.setContextClassLoader(helper.loader)
       try {
-        val dispatchReporter = getDispatchReporter(reporterSpecs, graphicReporter, loader)
+        val dispatchReporter = getDispatchReporter(reporterSpecs, graphicReporter, helper)
         try {
-          f(loader, dispatchReporter)
+          f(helper.loader, dispatchReporter)
         }
         finally {
           dispatchReporter.dispose()
@@ -733,47 +665,36 @@ object Runner {
     }
   }
 
-  private[scalatest] def getRunpathClassLoader(runpathList: List[String]): ClassLoader = {
-
-    if (runpathList == null)
-      throw new NullPointerException
-    if (runpathList.isEmpty) {
-      classOf[Suite].getClassLoader // Could this be null technically?
-    }
-    else {
-      val urlsList: List[URL] =
-        for (raw <- runpathList) yield {
-          try {
-            new URL(raw)
-          }
-          catch {
-            case murle: MalformedURLException => {
   
-              // Assume they tried to just pass in a file name
-              val file: File = new File(raw)
-  
-              // file.toURL may throw MalformedURLException too, but for now
-              // just let that propagate up.
-              file.toURL() // If a dir, comes back terminated by a slash
-            }
-          }
-        }
-  
-      // Here is where the Jini preferred class loader stuff went.
-  
-      // Tell the URLConnections to not use caching, so that repeated runs and reruns actually work
-      // on the latest binaries.
-      for (url <- urlsList) {
-        try {
-          url.openConnection.setDefaultUseCaches(false)
-        }
-        catch {
-          case e: IOException => // just ignore these
-        }
-      }
-  
-      new URLClassLoader(urlsList.toArray, classOf[Suite].getClassLoader)
-    }
+    // For debugging.
+/*
+  private[scalatest] def printOpts(opt: ReporterOpts.Set32) {
+    if (opt.contains(ReporterOpts.PresentRunStarting))
+      println("PresentRunStarting")
+    if (opt.contains(ReporterOpts.PresentTestStarting))
+      println("PresentTestStarting")
+    if (opt.contains(ReporterOpts.PresentTestSucceeded))
+      println("PresentTestSucceeded")
+    if (opt.contains(ReporterOpts.PresentTestFailed))
+      println("PresentTestFailed")
+    if (opt.contains(ReporterOpts.PresentTestIgnored))
+      println("PresentTestIgnored")
+    if (opt.contains(ReporterOpts.PresentSuiteStarting))
+      println("PresentSuiteStarting")
+    if (opt.contains(ReporterOpts.PresentSuiteCompleted))
+      println("PresentSuiteCompleted")
+    if (opt.contains(ReporterOpts.PresentSuiteAborted))
+      println("PresentSuiteAborted")
+    if (opt.contains(ReporterOpts.PresentInfoProvided))
+      println("PresentInfoProvided")
+    if (opt.contains(ReporterOpts.PresentRunStopped))
+      println("PresentRunStopped")
+    if (opt.contains(ReporterOpts.PresentRunCompleted))
+      println("PresentRunCompleted")
+    if (opt.contains(ReporterOpts.PresentRunAborted))
+      println("PresentRunAborted")
   }
+*/
 
+  
 }

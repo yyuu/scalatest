@@ -34,9 +34,12 @@ private[scalatest] case class CustomReporterSpec(configSet: ReporterOpts.Set32, 
 
 // If there were no fileReporterSpecList or customReporterSpecList specified, you get Nil
 // If there were no graphicReporterSpec, standardOutReporterSpec, or standardErrReporterSpec, you get None
-private[scalatest] case class ReporterSpecs(val graphicReporterSpec: Option[GraphicReporterSpec],
-    val fileReporterSpecList: List[FileReporterSpec], val standardOutReporterSpec: Option[StandardOutReporterSpec], 
-    val standardErrReporterSpec: Option[StandardErrReporterSpec], val customReporterSpecList: List[CustomReporterSpec])
+private[scalatest] case class ReporterSpecs(
+  val graphicReporterSpec: Option[GraphicReporterSpec],
+  val fileReporterSpecList: List[FileReporterSpec], 
+  val standardOutReporterSpec: Option[StandardOutReporterSpec], 
+  val standardErrReporterSpec: Option[StandardErrReporterSpec], 
+  val customReporterSpecList: List[CustomReporterSpec])
     extends Seq[ReporterSpec] {
 
   val reporterSpecList =

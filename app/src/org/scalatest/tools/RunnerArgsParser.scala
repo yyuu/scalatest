@@ -129,8 +129,6 @@ object RunnerArgsParser {
    // Used to parse -s, -m, and -w args, one of which will be passed as a String as dashArg
   private[scalatest] def parseSuiteArgsIntoNameStrings(args: List[String], dashArg: String) = {
 
-    println("args=" + args)
-    
     if (args == null)
       throw new NullPointerException("args was null")
 

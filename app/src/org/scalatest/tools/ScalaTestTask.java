@@ -163,8 +163,10 @@ import java.util.ArrayList;
  * </pre>
  *
  * @author George Berger
+ * @author Josh Cough
  */
 public class ScalaTestTask extends Task {
+	
     private String includes;
     private String excludes;
     private boolean concurrent;
@@ -173,11 +175,12 @@ public class ScalaTestTask extends Task {
     private ArrayList<String> membersonlys = new ArrayList<String>();
     private ArrayList<String> wildcards = new ArrayList<String>();
     private ArrayList<String> testNGSuites = new ArrayList<String>();
-    private ArrayList<String> junitSuites = new ArrayList<String>();
     private ArrayList<ReporterElement> reporters =
         new ArrayList<ReporterElement>();
     private ArrayList<NameValuePair> properties =
         new ArrayList<NameValuePair>();
+    
+    private boolean haltOnFailure = false;
 
     //
     // Executes the task.
@@ -192,9 +195,11 @@ public class ScalaTestTask extends Task {
         addExcludesArgs(args);
         addRunpathArgs(args);
         addTestNGSuiteArgs(args);
-        addJUnitSuiteArgs(args);
         addConcurrentArg(args);
 
+        args.add("-r");
+        args.add("org.scalatest.tools.AntTaskReporter");
+        
         String[] argsArray = args.toArray(new String[args.size()]);
         Runner.main(argsArray);
     }
@@ -216,14 +221,6 @@ public class ScalaTestTask extends Task {
             args.add(getSpacedOutPathStr(testNGSuites));
         }
     }
-    
-    private void addJUnitSuiteArgs(ArrayList<String> args) {
-      if (junitSuites.size() > 0) {
-          args.add("-j");
-          args.add(getSpacedOutPathStr(junitSuites));
-      }
-    }
-    
     
     //
     // Adds '-c' arg to args list if 'concurrent' attribute was
@@ -413,13 +410,6 @@ public class ScalaTestTask extends Task {
         }
     }
    
-    public void setJUnitSuites(Path junitSuitePath) {
-      for (String element: junitSuitePath.list()) {
-          this.junitSuites.add(element);
-      }
-    }
-    
-
     //
     // Sets value of 'concurrent' attribute.
     //
@@ -442,17 +432,11 @@ public class ScalaTestTask extends Task {
         }
     }
 
-    public void addConfiguredJUnitSuites(Path junitSuitePath) {
-      for (String element: junitSuitePath.list()) {
-          this.junitSuites.add(element);
-      }
-    }
-    
     //
     // Sets value from nested element 'runpathurl'.
     //
     public void addConfiguredRunpathUrl(RunpathUrl runpathurl) {
-            runpath.add(runpathurl.getUrl());
+    	  runpath.add(runpathurl.getUrl());
     }
 
     //
@@ -633,4 +617,11 @@ public class ScalaTestTask extends Task {
         public void   setUrl(String url) { this.url = url; }
         public String getUrl()           { return url;     }
     }
+    
+    public void setHaltOnFailure(boolean b){
+    	this.haltOnFailure = b;
+    }
+    
+    public boolean getHaltOnFailure(){ return haltOnFailure; }
+    
 }
