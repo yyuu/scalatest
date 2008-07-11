@@ -22,39 +22,72 @@ import org.scalatest.testng.TestNGWrapperSuite
 
 /**
  * Main entry point into ScalaTest.
+ * @author Bill Venners
+ * @author Josh Cough
  */
 class ScalaTest(runpathList: List[String]) {
-    
-  val loader = new ClassLoaderHelper(runpathList)
-  implicit def helperToClassLoader( clh: ClassLoaderHelper ) = loader.loader
-  
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  // list of fields and their defaults. user can supply values for any.            //
+  ///////////////////////////////////////////////////////////////////////////////////
+
   // suites
   private var suitesList: List[String] = Nil
   def addSuite(suiteName: String) = suitesList = suiteName :: suitesList
-  def setSuites( l: List[String]) = suitesList = l 
+  def setSuites( l: List[String] ) = suitesList = l 
+  
+  // includes
+  private var includes = Set[String]()
+  def addInclude( include: String ) = includes += include
+
+  // excludes
+  private var excludes = Set[String]()
+  def addExclude( exclude: String ) = excludes += exclude
   
   // reporters
-  private var reporters: List[Reporter] = Nil
-  def addReporter(r: Reporter) = reporters = r :: reporters
-  def setReporters( l: List[Reporter]) = reporters = l 
+  private var reporters: List[Reporter] = List(new StandardOutReporter)
+  def setReporters( l: List[Reporter] ) = reporters = l 
+  def addReporter(r: Reporter) = {
+    reporters = r :: reporters
+    dispatchReporter = new DispatchReporter(reporters)
+  }
   
-  // run done listener
+  // run done listener. default does nothing
   private var runDoneListener = new RunDoneListener{}
-  def setRunDoneListener( l: RunDoneListener) = runDoneListener = l
+  def setRunDoneListener( l: RunDoneListener ) = runDoneListener = l
 
-  // gets the dispatch reporter
-  private def dispatchReporter = new DispatchReporter(reporters)
+  // stopper. default does nothing
+  private var stopper = new Stopper{}
+  def setStopper( s: Stopper ) = stopper = s
+  
+  // the dispatch reporter. 
+  private var dispatchReporter = new DispatchReporter(reporters)
+  
+  // run concurrently
+  private var concurrent = false
+  def setConcurrent( b: boolean ) = concurrent = b
+
+  // wildcards
+  private var wildcards: List[String] = Nil
+  def addWildcard(wildcard: String) = wildcards = wildcard :: wildcards
+  def setWildcards( l: List[String] ) = wildcards = l 
+
+  // members only
+  private var membersOnlyList: List[String] = Nil
+  def addMember(wildcard: String) = membersOnlyList = wildcard :: membersOnlyList
+  def setMembersOnly( l: List[String]) = membersOnlyList = l 
   
   // currently unused vals - need to wire them in still
-  private val stopper = new Stopper{}
-  private val includes = Set[String]()
-  private val excludes = Set[String]()
-  private val concurrent = false
-  private val wildcardList: List[String] = Nil
-  private val membersOnlyList: List[String] = Nil
   private val propertiesMap: Map[String, String] = Map()
   private val testNGList: List[String] = Nil
   
+  // helper class to help with all class loading activities
+  val loader = new ClassLoaderHelper(runpathList)
+  implicit def helperToClassLoader( clh: ClassLoaderHelper ) = loader.loader
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  // end of fields, start of methods                                               //
+  ///////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Runs ScalaTest 
@@ -66,12 +99,21 @@ class ScalaTest(runpathList: List[String]) {
    */
   def doRunRunRunADoRunRun(): Unit = {
     
+    // check to see if load problems exist.
+    // if they do, reporters will be notified during check
     if( this.loadProblemsExist ) return;
     
     try {        
+      // load all of the suites using given field values
       val suites: List[Suite] = this.loadSuites
+      
+      // dispatch run starting
       this.startRun(suites)
+      
+      // runs all suites
       this.run(suites)
+      
+      // dispatches run ended event (via runCompleted or runStopped) 
       this.endRun()
     }
     catch {
@@ -85,33 +127,31 @@ class ScalaTest(runpathList: List[String]) {
     }
   }
 
-  /**
-   * Executes the run.
-   */
-  private def run( suites: List[Suite] ){
-      if (concurrent)
-        this.runConcurrently(suites)
-      else
-        this.runConsecutively(suites)
-  }
-
   
   /**
    * Starts the run.
    */
   private def startRun( suites: List[Suite] ){
-      val expectedTestCount = suites.map( _.expectedTestCount(includes, excludes) ).foldRight(0){ _ + _ }
-      dispatchReporter.runStarting(expectedTestCount)
+    val expectedTestCount = suites.map( _.expectedTestCount(includes, excludes) ).foldRight(0){ _ + _ }
+    dispatchReporter.runStarting(expectedTestCount)
   }
+
+  
+  /**
+   * Executes the run.
+   */
+  private def run( suites: List[Suite] ){
+    if (concurrent) this.runConcurrently(suites)
+    else this.runConsecutively(suites)
+  }
+  
 
   /**
    * Ends the run.
    */
   private def endRun(){
-  if (stopper.stopRequested)
-        dispatchReporter.runStopped()
-      else
-        dispatchReporter.runCompleted()
+    if (stopper.stopRequested) dispatchReporter.runStopped()
+    else dispatchReporter.runCompleted()
   }
   
 
@@ -159,7 +199,7 @@ class ScalaTest(runpathList: List[String]) {
    * loads members only suites and wildcard suites
    */
   private def getMembersOnlyAndWildcardInstances() = {
-    val membersOnlyAndBeginsWithListsAreEmpty = membersOnlyList.isEmpty && wildcardList.isEmpty // They didn't specify any -m's or -w's on the command line
+    val membersOnlyAndBeginsWithListsAreEmpty = membersOnlyList.isEmpty && wildcards.isEmpty // They didn't specify any -m's or -w's on the command line
 
     if (membersOnlyAndBeginsWithListsAreEmpty && !suitesList.isEmpty) {
       (Nil, Nil) // No DiscoverySuites in this case. Just run Suites named with -s
@@ -178,8 +218,8 @@ class ScalaTest(runpathList: List[String]) {
         yield new DiscoverySuite(membersOnlyName, accessibleSuites, false, loader)
 
      val wildcardInstances =
-       for (wildcardName <- wildcardList)
-         yield new DiscoverySuite(wildcardName, accessibleSuites, true, loader)
+       for (wildcard <- wildcards)
+         yield new DiscoverySuite(wildcard, accessibleSuites, true, loader)
 
      (membersOnlyInstances, wildcardInstances)
   }
@@ -208,14 +248,14 @@ class ScalaTest(runpathList: List[String]) {
   }
   
   /**
-   * 
+   * Notifies all reporters that the run has been aborted due to the given exception. 
    */
   private def abort( resourceName: String, ex: Throwable ) = {
     dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None))
   }
   
   /**
-   *
+   * Notifies all reporters that the run has been aborted due to the given problem.
    */
   private def abort( message: String ) = {
     dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", message))

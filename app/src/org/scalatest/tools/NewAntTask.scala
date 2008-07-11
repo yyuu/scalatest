@@ -5,10 +5,12 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.scalatest.Report
 
-class NewAntTask extends Task{
+class NewAntTask extends Task {
 
   var runpath = List[String]()
   var suites = List[String]()
+  var includes = Set[String]()
+  var excludes = Set[String]()
   
   override def execute = {
     val scalatest = new ScalaTest(runpath)
@@ -16,7 +18,6 @@ class NewAntTask extends Task{
     
     val reporter = new AntTaskReporter
     scalatest.addReporter(reporter)
-    
     
     scalatest.doRunRunRunADoRunRun
     
@@ -38,22 +39,32 @@ class NewAntTask extends Task{
   
   def setSuite(suite: String) = suites = List(suite)
 
-  class SuiteElement {
-    var className: String = null;
-    def setClassName(className: String): Unit = this.className = className
-    def getClassName: String = className
-  }
+//  def addConfiguredIncludes(includes: TextElement) = {
+//    this.includes = includes.getText().split(" ")
+//}
   
-  class AntTaskReporter extends Reporter {
-
-	var failedTests: List[Report] = Nil
-	
-	override def testFailed( report: Report ) = {
-	  failedTests = report :: failedTests 
-	}
-  }
-  
+//  def addConfiguredExcludes(excludes: TextElement) = {
+//    this.excludes = excludes.getText().split(" ")
+//  }
 }
 
 
+// keeps track of all failed tests
+class AntTaskReporter extends Reporter {
+  var failedTests: List[Report] = Nil
+  override def testFailed( report: Report ) = {
+    failedTests = report :: failedTests 
+  }
+}
 
+case class SuiteElement {
+  var className: String = null;
+  def setClassName(className: String): Unit = this.className = className
+  def getClassName: String = className
+}
+
+case class TextElement {
+  var text: String = null
+  def addText(text:String) = this.text = text
+  def getText() = text
+}
