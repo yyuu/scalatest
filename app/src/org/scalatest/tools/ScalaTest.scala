@@ -114,7 +114,6 @@ class ScalaTest(runpathList: List[String]) {
         dispatchReporter.runCompleted()
   }
   
-  
 
   /**
    * Runs the tests concurrently, using a ConcurrentDistributor
@@ -135,21 +134,29 @@ class ScalaTest(runpathList: List[String]) {
   }
   
   /**
-   *
+   * Loads named suites
+   * loads members only suites and wildcard suites
+   * loads testng wrapper suites
    */
   private def loadSuites() = {
     val namedSuiteInstances: List[Suite] = loader.loadNamedSuites(suitesList)
     val (membersOnlySuiteInstances, wildcardSuiteInstances) = this.getMembersOnlyAndWildcardInstances
-    val testNGWrapperSuiteList: List[TestNGWrapperSuite] =
-      if (!testNGList.isEmpty)
-        List(new TestNGWrapperSuite(testNGList))
-      else
-        Nil
+    val testNGWrapperSuiteList = this.loadTestNGWrapperSuites
     namedSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
   }
   
   /**
-   *
+   * loads testng wrapper suites
+   */
+  def loadTestNGWrapperSuites = {
+      if (!testNGList.isEmpty)
+        List(new TestNGWrapperSuite(testNGList))
+      else
+        Nil
+  }
+  
+  /**
+   * loads members only suites and wildcard suites
    */
   private def getMembersOnlyAndWildcardInstances() = {
     val membersOnlyAndBeginsWithListsAreEmpty = membersOnlyList.isEmpty && wildcardList.isEmpty // They didn't specify any -m's or -w's on the command line
@@ -178,7 +185,7 @@ class ScalaTest(runpathList: List[String]) {
   }
   
   /**
-   *
+   * @returns true if suite classes cannot be found, or if guven suite class names arent really suites ( is this right? )
    */
   private def loadProblemsExist() = {
     try {
@@ -201,19 +208,17 @@ class ScalaTest(runpathList: List[String]) {
   }
   
   /**
-   *
+   * 
    */
   private def abort( resourceName: String, ex: Throwable ) = {
-    val report = new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None)
-    dispatchReporter.runAborted(report)
+    dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None))
   }
   
   /**
    *
    */
   private def abort( message: String ) = {
-    val report = new Report("org.scalatest.tools.Runner", message)
-    dispatchReporter.runAborted(report)
+    dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", message))
   }
   
   /**
