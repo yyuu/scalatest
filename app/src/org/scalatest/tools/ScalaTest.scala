@@ -21,7 +21,7 @@ import org.scalatest.Stopper
 import org.scalatest.testng.TestNGWrapperSuite
 
 /**
- * Dood. 
+ * Main entry point into ScalaTest.
  */
 class ScalaTest(runpathList: List[String]) {
     
@@ -55,25 +55,18 @@ class ScalaTest(runpathList: List[String]) {
   private val propertiesMap: Map[String, String] = Map()
   private val testNGList: List[String] = Nil
   
-  //////////////////////////////////////////////////////////////
+  /**
+   * Runs ScalaTest 
+   */
   private[scalatest] def doRunRunRunADoRunRun(): Unit = {
     
     if( this.loadProblemsExist ) return;
     
     try {        
       val suites: List[Suite] = this.loadSuites
-      val expectedTestCount = suites.map( _.expectedTestCount(includes, excludes) ).foldRight(0){ _ + _ }
-      dispatchReporter.runStarting(expectedTestCount)
-
-      if (concurrent)
-        this.runConcurrently(suites)
-      else
-        this.runConsecutively(suites)
-
-      if (stopper.stopRequested)
-        dispatchReporter.runStopped()
-      else
-        dispatchReporter.runCompleted()
+      this.startRun(suites)
+      this.run(suites)
+      this.endRun()
     }
     catch {
       case ex: InstantiationException => abort("cannotInstantiateSuite", ex)
@@ -86,22 +79,59 @@ class ScalaTest(runpathList: List[String]) {
     }
   }
 
-  /////////////////////
-  def runConcurrently( suites: List[Suite] ){
+  /**
+   * Executes the run.
+   */
+  private def run( suites: List[Suite] ){
+      if (concurrent)
+        this.runConcurrently(suites)
+      else
+        this.runConsecutively(suites)
+  }
+
+  
+  /**
+   * Starts the run.
+   */
+  private def startRun( suites: List[Suite] ){
+      val expectedTestCount = suites.map( _.expectedTestCount(includes, excludes) ).foldRight(0){ _ + _ }
+      dispatchReporter.runStarting(expectedTestCount)
+  }
+
+  /**
+   * Ends the run.
+   */
+  private def endRun(){
+  if (stopper.stopRequested)
+        dispatchReporter.runStopped()
+      else
+        dispatchReporter.runCompleted()
+  }
+  
+  
+
+  /**
+   * Runs the tests concurrently, using a ConcurrentDistributor
+   */
+  private def runConcurrently( suites: List[Suite] ){
     val distributor = new ConcurrentDistributor(dispatchReporter, stopper, includes, excludesWithIgnore(excludes), propertiesMap)
     suites.foreach( suite => distributor.put(suite) )
     distributor.waitUntilDone()
   }
   
-  /////////////////////
-  def runConsecutively( suites: List[Suite] ){
+  /**
+   * Simply runs the test in order, one after the next.
+   */
+  private def runConsecutively( suites: List[Suite] ){
     for (suite <- suites) {
       new SuiteRunner(suite, dispatchReporter, stopper, includes, excludesWithIgnore(excludes),propertiesMap, None).run()
     }
   }
   
-  //////////////////////
-  def loadSuites() = {
+  /**
+   *
+   */
+  private def loadSuites() = {
     val namedSuiteInstances: List[Suite] = loader.loadNamedSuites(suitesList)
     val (membersOnlySuiteInstances, wildcardSuiteInstances) = this.getMembersOnlyAndWildcardInstances
     val testNGWrapperSuiteList: List[TestNGWrapperSuite] =
@@ -112,7 +142,9 @@ class ScalaTest(runpathList: List[String]) {
     namedSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
   }
   
-  ///////////////////////
+  /**
+   *
+   */
   private def getMembersOnlyAndWildcardInstances() = {
     val membersOnlyAndBeginsWithListsAreEmpty = membersOnlyList.isEmpty && wildcardList.isEmpty // They didn't specify any -m's or -w's on the command line
 
@@ -139,7 +171,9 @@ class ScalaTest(runpathList: List[String]) {
      (membersOnlyInstances, wildcardInstances)
   }
   
-  /////////////////////
+  /**
+   *
+   */
   private def loadProblemsExist() = {
     try {
       val unassignableList = suitesList.filter(className => !classOf[Suite].isAssignableFrom(loader.loadClass(className)))
@@ -160,19 +194,25 @@ class ScalaTest(runpathList: List[String]) {
     }
   }
   
-  ///////////////////////////
+  /**
+   *
+   */
   private def abort( resourceName: String, ex: Throwable ) = {
     val report = new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None)
     dispatchReporter.runAborted(report)
   }
   
-  //////////////////////////
+  /**
+   *
+   */
   private def abort( message: String ) = {
     val report = new Report("org.scalatest.tools.Runner", message)
     dispatchReporter.runAborted(report)
   }
   
-  //////////////////////////
-  private[scalatest] def excludesWithIgnore(excludes: Set[String]) = excludes + "org.scalatest.Ignore"
+  /**
+   *
+   */
+  private def excludesWithIgnore(excludes: Set[String]) = excludes + "org.scalatest.Ignore"
 
 }
