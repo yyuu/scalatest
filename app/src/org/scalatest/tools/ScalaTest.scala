@@ -38,10 +38,12 @@ class ScalaTest(runpathList: List[String]) {
   
   // includes
   private var includes = Set[String]()
+  def setIncludes( in: Set[String] ) = includes = in
   def addInclude( include: String ) = includes += include
 
   // excludes
-  private var excludes = Set[String]()
+  private var excludes = Set[String]("org.scalatest.Ignore")
+  def setExcludes( ex: Set[String] ) = excludes = ex
   def addExclude( exclude: String ) = excludes += exclude
   
   // reporters
@@ -159,7 +161,7 @@ class ScalaTest(runpathList: List[String]) {
    * Runs the tests concurrently, using a ConcurrentDistributor
    */
   private def runConcurrently( suites: List[Suite] ){
-    val distributor = new ConcurrentDistributor(dispatchReporter, stopper, includes, excludesWithIgnore(excludes), propertiesMap)
+    val distributor = new ConcurrentDistributor(dispatchReporter, stopper, includes, excludes, propertiesMap)
     suites.foreach( suite => distributor.put(suite) )
     distributor.waitUntilDone()
   }
@@ -169,7 +171,7 @@ class ScalaTest(runpathList: List[String]) {
    */
   private def runConsecutively( suites: List[Suite] ){
     for (suite <- suites) {
-      new SuiteRunner(suite, dispatchReporter, stopper, includes, excludesWithIgnore(excludes),propertiesMap, None).run()
+      new SuiteRunner(suite, dispatchReporter, stopper, includes, excludes, propertiesMap, None).run()
     }
   }
   
@@ -189,10 +191,10 @@ class ScalaTest(runpathList: List[String]) {
    * loads testng wrapper suites
    */
   def loadTestNGWrapperSuites = {
-      if (!testNGList.isEmpty)
-        List(new TestNGWrapperSuite(testNGList))
-      else
-        Nil
+    if (!testNGList.isEmpty)
+      List(new TestNGWrapperSuite(testNGList))
+    else
+      Nil
   }
   
   /**
@@ -261,9 +263,8 @@ class ScalaTest(runpathList: List[String]) {
     dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", message))
   }
   
-  /**
-   *
-   */
-  private def excludesWithIgnore(excludes: Set[String]) = excludes + "org.scalatest.Ignore"
-
+  def rerun( rerunnable: Rerunnable ) = {
+    rerunnable.rerun(dispatchReporter, stopper, includes, excludes, propertiesMap, None, loader)
+  }
+  
 }
