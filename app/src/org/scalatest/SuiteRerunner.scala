@@ -30,6 +30,15 @@ private[scalatest] class SuiteRerunner(suiteClassName: String) extends Rerunnabl
   def rerun(reporter: Reporter, stopper: Stopper, includes: Set[String], excludes: Set[String],
             properties: Map[String, Any], distributor: Option[Distributor], loader: ClassLoader) {
 
+    
+    def buildReport( resourceName: String, ex: Throwable ) = {
+      new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None)
+    }
+      
+    def dispatchRunAborted( resourceName: String, ex: Throwable ) = {
+      reporter.runAborted( buildReport(resourceName, ex) )
+    }
+    
     try {
       val suiteClass = loader.loadClass(suiteClassName)
       val suite = suiteClass.newInstance().asInstanceOf[Suite]
@@ -67,31 +76,14 @@ private[scalatest] class SuiteRerunner(suiteClassName: String) extends Rerunnabl
         reporter.runCompleted()
     }
     catch { // CLOSE THIS
-      case ex: ClassNotFoundException => {
-        val report = new Report("org.scalatest.tools.Runner", Resources("cannotLoadSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: InstantiationException => {
-        val report = new Report("org.scalatest.tools.Runner", Resources("cannotInstantiateSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: IllegalAccessException => {
-        val report = new Report("org.scalatest.tools.Runner", Resources("cannotInstantiateSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case e: SecurityException => {
-        val report = new Report("org.scalatest.tools.Runner", Resources("securityWhenReruning"), Some(e), None)
-        reporter.runAborted(report)
-      }
+      case ex: ClassNotFoundException => dispatchRunAborted("cannotLoadSuite", ex)
+      case ex: InstantiationException => dispatchRunAborted("cannotInstantiateSuite", ex)
+      case ex: IllegalAccessException => dispatchRunAborted("cannotInstantiateSuite", ex)
+      case ex: SecurityException => dispatchRunAborted("securityWhenReruning", ex)
       case ex: NoClassDefFoundError => {
             // Suggest the problem might be a bad runpath
             // Maybe even print out the current runpath
-        val report = new Report("org.scalatest.tools.Runner", Resources("cannotLoadClass"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: Throwable => {
-        val report = new Report("org.scalatest.tools.Runner", Resources("bigProblems"), Some(ex), None)
-        reporter.runAborted(report)
+        dispatchRunAborted("cannotLoadClass", ex)
       }
     }
   }
