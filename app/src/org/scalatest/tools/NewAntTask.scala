@@ -4,6 +4,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.scalatest.Report
+import org.scalatest.tools.ui.NewRunnerJFrame
 
 /**
  * <p>
@@ -169,6 +170,7 @@ class NewAntTask extends Task {
   var runpath = List[String]()
   var suites =  List[String]()
   var membersonly = List[String]()
+  var wildcards = List[String]()
   
   /**
    * Sets up ScalaTest by using the given inputs
@@ -186,6 +188,9 @@ class NewAntTask extends Task {
     // run scalatest!
     scalatest.doRunRunRunADoRunRun
     
+    // run with UI!
+    //NewRunnerJFrame.run(scalatest)  
+      
     // check for test failures, throw if needed
     this.finish(reporter)
   }
@@ -194,15 +199,23 @@ class NewAntTask extends Task {
    * Sets up ScalaTest by using the given inputs
    */
   def buildScalaTestInstance( reporter: AntTaskReporter ) = {
+    
     // create the scalatest instance with the runpath
     val scalatest = new ScalaTest(runpath)
+    
     // set its suites field
     scalatest.setSuites(suites)
+    
     // set the members only field
     scalatest.setMembersOnly(membersonly)
     
+    // set the wildcards field
+    scalatest.setWildcards(wildcards)
+    
+    // add the AntTaskReporter
     scalatest.addReporter(reporter)
   
+    // return the scalatest instance
     scalatest
   }
   
@@ -242,6 +255,10 @@ class NewAntTask extends Task {
   def addConfiguredMembersOnly(member: PackageElement) = {
     membersonly = member.packageName :: membersonly
   }
+  
+  def addConfiguredWildcard(wildcard: PackageElement) = {
+    wildcards = wildcard.packageName :: wildcards
+  }
 }
 
 
@@ -269,4 +286,21 @@ case class PackageElement {
   var packageName: String = null
   def setPackage(packageName: String) = this.packageName = packageName
   def getPackage = packageName
+}
+
+case class ReporterElement {
+  var `type`: String = null
+  var config: String = null
+  var filename: String = null
+  var classname: String = null
+
+  def getType = `type`
+  def getConfig = config
+  def getGilename = filename
+  def getClassname = classname
+  
+  def setType( t: String ) = `type` = t
+  def setConfig( c: String ) = config = c
+  def setFilename( f: String ) = filename = f
+  def setClassname( c: String ) = classname = c
 }
