@@ -11,17 +11,14 @@ import org.scalatest.Suite
 
 
 private[tools] class ClassLoaderHelper(runpathList: List[String]) {
+
+  if (runpathList == null) throw new NullPointerException
   
   val loader: ClassLoader = getRunpathClassLoader
   
   def loadClass( className: String ) = loader.loadClass(className)
- 
-  
   
   def getRunpathClassLoader: ClassLoader = {
-
-    if (runpathList == null)
-      throw new NullPointerException
     if (runpathList.isEmpty) {
       classOf[Suite].getClassLoader // Could this be null technically?
     }
