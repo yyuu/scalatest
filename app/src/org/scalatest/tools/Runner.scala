@@ -26,7 +26,6 @@ import java.io.IOException
 import javax.swing.SwingUtilities
 import java.util.concurrent.ArrayBlockingQueue
 import org.scalatest.testng.TestNGWrapperSuite
-import org.scalatest.junit.JUnit3WrapperSuite
 import org.scalatest.tools.ui._
 import org.apache.tools.ant.BuildException
 
@@ -364,7 +363,6 @@ object Runner {
       membersOnlyList,
       wildcardList,
       testNGList,
-      junitList,
     ) = RunnerArgsParser.parseArgs(args)
 
     
@@ -401,13 +399,13 @@ object Runner {
       case Some(GraphicReporterSpec(configSet)) => { // if we are using the GUI
         val graphicConfigSet = if (configSet.isEmpty) ReporterOpts.allOptions else configSet
         RunnerJFrame.run(recipeName, graphicConfigSet, reporterSpecs, suitesList, runpathList,
-            includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, junitList) 
+            includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList) 
       }
       case None => { // Run the test without a GUI
         withClassLoaderAndDispatchReporter(runpathList, reporterSpecs, None) {
           (loader, dispatchReporter) => {
             doRunRunRunADoRunRun(dispatchReporter, suitesList, new Stopper {}, includes, excludesWithIgnore(excludes),
-                propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, junitList, runpathList, loader, new RunDoneListener {}) 
+                propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, runpathList, loader, new RunDoneListener {}) 
           }
         }
       }
@@ -471,7 +469,6 @@ object Runner {
     membersOnlyList: List[String],
     wildcardList: List[String],
     testNGList: List[String],
-    junitList: List[String],
     runpath: List[String],
     loader: ClassLoader,
     doneListener: RunDoneListener
