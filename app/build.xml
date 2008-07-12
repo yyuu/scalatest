@@ -39,24 +39,27 @@
 		<mkdir dir="${jdoc}" />
 
 		<path id="lib.path">
-			<fileset dir="${lib}"><include name="**/*.jar" /></fileset>
-		</path>		
-		
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+
 		<path id="build.class.path">
 			<pathelement location="${classes}" />
-			<path refid="lib.path"></path>
+			<path refid="lib.path"/>
 		</path>
 
 		<!-- this is the class path used to run ScalaTest to test itself, in the "test" target -->
 		<path id="test.class.path">
 			<pathelement location="${dist}/lib/scalatest.jar" />
-			<path refid="lib.path"></path>
+			<path refid="lib.path"/>
 		</path>
-		
+
 		<path id="build.test.class.path">
 			<pathelement location="${classes}" />
 			<pathelement location="${build.tests}" />
-			<path refid="lib.path"></path>
+			<path refid="lib.path">
+			</path>
 		</path>
 
 		<path id="build.generators.class.path">
@@ -230,6 +233,28 @@
 		</java>
 	</target>
 
+	<target name="new-test" depends="dist">
+		<taskdef name="scalatest" classname="org.scalatest.tools.NewAntTask">
+			<classpath>
+				<pathelement location="${build.tests}" />
+				<pathelement path="test.class.path"/>
+				<pathelement location="${classes}" />
+				<path><fileset dir="${lib}"><include name="**/*.jar"/></fileset></path>
+			</classpath>
+		</taskdef>
+		<scalatest>
+			<runpath>
+				<pathelement location="${build.tests}" />
+				<pathelement location="${classes}" />
+			</runpath>
+			<wildcard package="org.scalatest"/>
+			<!--<membersonly package="org.scalatest"/>
+			<membersonly package="org.scalatest.junit"/>
+			<membersonly package="org.scalatest.testng"/>
+			<membersonly package="org.scalatest.prop"/>-->
+		</scalatest>
+	</target>
+
 	<target name="bvtest" depends="dist">
 		<java classname="org.scalatest.tools.Runner" classpathref="test.class.path" fork="true">
 
@@ -245,7 +270,7 @@
 			<arg value="-s" />
 			<arg value="org.scalatest.StackSpec" />
 
-<!--
+			<!--
 			<arg value="-s" />
 			<arg value="org.scalatest.SpecSuite" />
 
@@ -263,7 +288,8 @@
 		<pathelement location="${dist}/lib/scalatest.jar" />
 		<pathelement location="${classes}" />
 		<pathelement location="${build.tests}" />
-		<path refid="lib.path"></path>
+		<path refid="lib.path">
+		</path>
 	</path>
 
 
@@ -304,14 +330,14 @@
 			</classpath>
 		</taskdef>
 
-		<scalatest runpath="${build.tests};${classes}">
+		<scalatest runpath="${build.tests};${classes}" haltOnFailure="true">
 			<runpath>
 				<pathelement location="dist" />
 			</runpath>
 			<runpathurl url="http://foo.com/bar.jar" />
 
 			<suite classname="org.scalatest.SuiteSuite" />
-			
+
 			<reporter type="stdout" />
 			<reporter type="graphic" />
 		</scalatest>
