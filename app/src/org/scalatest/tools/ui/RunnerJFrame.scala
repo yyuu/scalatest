@@ -68,7 +68,7 @@ import java.awt.event.WindowEvent
 private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportTypesToCollect: ReporterOpts.Set32,
     reporterSpecs: ReporterSpecs, suitesList: List[String], runpathList: List[String], includes: Set[String],
     excludes: Set[String], propertiesMap: Map[String, String], concurrent: Boolean, memberOfList: List[String], beginsWithList: List[String],
-    testNGList: List[String], junitList: List[String]) extends
+    testNGList: List[String]) extends
     JFrame(RunnerJFrame.getTitle(recipeName)) with RunDoneListener with RunnerGUI {
 
   // This should only be updated by the event handler thread.
@@ -922,7 +922,7 @@ private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportType
         (loader, dispatchReporter) => {
           try {
             Runner.doRunRunRunADoRunRun(dispatchReporter, suitesList, stopper, includes, excludes,
-                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, junitList, runpathList, loader, RunnerJFrame.this) 
+                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList,runpathList, loader, RunnerJFrame.this) 
           }
           finally {
             stopper.reset()
@@ -993,12 +993,12 @@ private[scalatest] object RunnerJFrame {
   def run(recipeName: Option[String], graphicConfigSet: ReporterOpts.Set32,
     reporterSpecs: ReporterSpecs, suitesList: List[String], runpathList: List[String], includes: Set[String],
     excludes: Set[String], propertiesMap: Map[String, String], concurrent: Boolean, membersOnlyList: List[String], wildcardList: List[String],
-    testNGList: List[String], junitList: List[String]){
+    testNGList: List[String]){
       
     val abq = new ArrayBlockingQueue[RunnerJFrame](1)
     usingEventDispatchThread {
       val rjf = new RunnerJFrame(recipeName, graphicConfigSet, reporterSpecs, suitesList, runpathList,
-                                 includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, junitList) 
+                                 includes, excludes, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList) 
       rjf.setLocation(RUNNER_JFRAME_START_X, RUNNER_JFRAME_START_Y)
       rjf.setVisible(true)
       rjf.prepUIForRunning()
