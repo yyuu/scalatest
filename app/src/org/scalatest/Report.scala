@@ -61,7 +61,7 @@ import java.util.Date
  * @author Bill Venners
  */
 @serializable
-class Report(val name: String, val message: String, val throwable: Option[Throwable], val rerunnable: Option[Rerunnable],
+case class Report(val name: String, val message: String, val throwable: Option[Throwable], val rerunnable: Option[Rerunnable],
     val threadName: String, val date: Date) {
 
   if (name == null)
