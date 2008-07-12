@@ -176,20 +176,24 @@ class NewAntTask extends Task {
    * Fails the build if any tests fail.
    */
   override def execute = {
+    // this reporter will keep track of failed tests
+    // in order to fail the build later on if needed
+    val reporter = new AntTaskReporter
+    
     // sets up ScalaTest by using the given inputs 
-    val scalatest = buildScalaTestInstance
+    val scalatest = buildScalaTestInstance(reporter)
     
     // run scalatest!
     scalatest.doRunRunRunADoRunRun
     
     // check for test failures, throw if needed
-    this.finish
+    this.finish(reporter)
   }
   
   /**
    * Sets up ScalaTest by using the given inputs
    */
-  def buildScalaTestInstance = {
+  def buildScalaTestInstance( reporter: AntTaskReporter ) = {
     // create the scalatest instance with the runpath
     val scalatest = new ScalaTest(runpath)
     // set its suites field
@@ -197,9 +201,6 @@ class NewAntTask extends Task {
     // set the members only field
     scalatest.setMembersOnly(membersonly)
     
-    // this reporter will keep track of failed tests
-    // in order to fail the build later on if needed
-    val reporter = new AntTaskReporter
     scalatest.addReporter(reporter)
   
     scalatest
@@ -208,7 +209,7 @@ class NewAntTask extends Task {
   /**
    * check for test failures, throw if needed
    */
-  def finish = {
+  def finish( reporter: AntTaskReporter ) = {
     // weird weird timing issue.
     // FIXME
     Thread.sleep(500)
