@@ -18,11 +18,15 @@ package org.scalatest.tools
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 
+/**
+ * @author Bill Venners
+ * @author Josh Cough
+ */
 private[scalatest] class SuiteRunner(suite: Suite, dispatchReporter: DispatchReporter, stopper: Stopper, includes: Set[String],
     excludes: Set[String], propertiesMap: Map[String, Any], distributor: Option[Distributor]) extends Runnable {
 
   def run(): Unit = {
-    if( stopper.stopRequested ) return;
+    if( stopper.stopRequested ) return
     
     this.dispatchSuiteStarting
   
@@ -54,35 +58,21 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatchReporter: DispatchRep
   }
   
   def dispatchSuiteStarting = {
-    val rawString = Resources("suiteExecutionStarting")
-    val report =
-      if (hasPublicNoArgConstructor)
-        new Report(suite.suiteName, rawString, None, rerunnable)
-      else
-        new Report(suite.suiteName, rawString)
-  
-    dispatchReporter.suiteStarting(report)
+    dispatchReporter.suiteStarting(buildReport("suiteExecutionStarting", None))
   }
   
   def dispatchSuiteCompleted = {
-      val rawString = Resources("suiteCompletedNormally")
-      val report =
-        if (hasPublicNoArgConstructor)
-          new Report(suite.suiteName, rawString, None, rerunnable)
-        else
-          new Report(suite.suiteName, rawString)
-  
-      dispatchReporter.suiteCompleted(report)
+    dispatchReporter.suiteCompleted(buildReport("suiteCompletedNormally", None))
+  }
+
+  def dispatchSuiteAborted(e: RuntimeException) = {
+      dispatchReporter.suiteAborted(buildReport("executeException", Some(e)))
   }
   
-  def dispatchSuiteAborted(e: RuntimeException){
-      val rawString = Resources("executeException")
-      val report =
-        if (hasPublicNoArgConstructor)
-          new Report(suite.suiteName, rawString, Some(e), rerunnable)
-        else
-          new Report(suite.suiteName, rawString, Some(e), None)
-  
-      dispatchReporter.suiteAborted(report)
-  }  
+  def buildReport( resourceName: String, o: Option[Throwable] ) : Report = {
+    if (hasPublicNoArgConstructor)
+      new Report(suite.suiteName, Resources(resourceName), o, rerunnable)
+    else
+      new Report(suite.suiteName, Resources(resourceName), o, None)
+  }
 }
