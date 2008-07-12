@@ -25,7 +25,6 @@ object RunnerArgsParser {
     val membersOnly = new ListBuffer[String]()
     val wildcard = new ListBuffer[String]()
     val testNGXMLFiles = new ListBuffer[String]()
-    val junitSuites = new ListBuffer[String]()
 
     val it = args.elements
     while (it.hasNext) {
@@ -98,12 +97,6 @@ object RunnerArgsParser {
         if (it.hasNext)
           testNGXMLFiles += it.next
       }
-      else if (s.startsWith("-j")) {
-
-        junitSuites += s
-        if (it.hasNext)
-          junitSuites += it.next
-      }
       else {
         throw new IllegalArgumentException("Unrecognized argument: " + s)
       }
@@ -121,7 +114,6 @@ object RunnerArgsParser {
       parseSuiteArgsIntoNameStrings(membersOnly.toList, "-m"),
       parseSuiteArgsIntoNameStrings(wildcard.toList, "-w"),
       parseSuiteArgsIntoNameStrings(testNGXMLFiles.toList, "-t"),
-      parseSuiteArgsIntoNameStrings(junitSuites.toList, "-j")
     )
   }
  
