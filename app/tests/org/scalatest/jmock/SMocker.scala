@@ -26,7 +26,11 @@ trait SMocker extends JMocker{
 
   def when(block: => Any) = block
   
+  def then(block: => Any) = block
+  
   def when( desc: String )(block: => Any) = block
+ 
+  def then( desc: String )(block: => Any) = block
   
   def withMock(f: => Unit): Unit = {
     try{
