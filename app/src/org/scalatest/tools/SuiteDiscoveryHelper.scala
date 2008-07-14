@@ -64,17 +64,20 @@ private[scalatest] class SuiteDiscoveryHelper() {
       }
     }
 
+    def getURLOption( path: String ) = {
+      try {
+        Some(new URL(path))
+      }
+      catch {
+        case e: MalformedURLException => None
+      }
+    }
+    
     val listOfSets: List[Set[String]] = 
       for (path <- runpath)
         yield {
-          val urlOption =
-            try {
-              Some(new URL(path))
-            }
-            catch {
-              case e: MalformedURLException => None
-            }
-    
+          val urlOption = getURLOption(path)
+             
           val endsWithDotJar = path.endsWith(".jar")
     
           if (endsWithDotJar) {
