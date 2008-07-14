@@ -1128,6 +1128,28 @@ trait Suite {
                                                          if (testMethodTakesInformer(testName)) Array(classOf[Informer]) else Array())
 
   /**
+   *
+   */
+  def getRerunnable: Option[Rerunnable] = {
+    if (hasPublicNoArgConstructor)
+      Some(new SuiteRerunner(getClass.getName))
+    else
+      None
+  }
+  
+  /**
+   *
+   */   
+  def getTestRerunnable( testName: String) = {
+    if (hasPublicNoArgConstructor)
+      Some(new TestRerunner(getClass.getName, testName))
+    else
+     None
+  }
+  
+  def hasPublicNoArgConstructor: Boolean = Suite.checkForPublicNoArgConstructor(getClass)
+
+  /**
    * Run a test. This trait's implementation uses Java reflection to invoke on this object the test method identified by the passed <code>testName</code>.
    *
    * @param testName the name of one test to execute.
@@ -1145,14 +1167,7 @@ trait Suite {
     val wrappedReporter = wrapReporterIfNecessary(reporter)
     val method = getMethodForTestName(testName)
 
-    // Create a Rerunnable if the Suite has a no-arg constructor
-    val hasPublicNoArgConstructor = Suite.checkForPublicNoArgConstructor(getClass)
-
-    val rerunnable =
-      if (hasPublicNoArgConstructor)
-        Some(new TestRerunner(getClass.getName, testName))
-      else
-        None
+    val rerunnable = getTestRerunnable(testName)
      
     val report =
       if (hasPublicNoArgConstructor)
