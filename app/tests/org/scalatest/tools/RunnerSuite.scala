@@ -45,8 +45,7 @@ class RunnerSuite() extends Suite {
         concurrentList,
         memberOfList,
         beginsWithList,
-        testNGList,
-        junitList
+        testNGList
       ) = RunnerArgsParser.parseArgs(args)
       
       assert(runpathList === expectedRunpathList)
