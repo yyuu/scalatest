@@ -247,11 +247,11 @@
 				<pathelement location="${build.tests}" />
 				<pathelement location="${classes}" />
 			</runpath>
-			<wildcard package="org.scalatest"/>
-			<!--<membersonly package="org.scalatest"/>
+			<!--<wildcard package="org.scalatest"/>-->
+			<membersonly package="org.scalatest"/>
 			<membersonly package="org.scalatest.junit"/>
 			<membersonly package="org.scalatest.testng"/>
-			<membersonly package="org.scalatest.prop"/>-->
+			<membersonly package="org.scalatest.prop"/>
 		</scalatest>
 	</target>
 
