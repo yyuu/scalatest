@@ -31,6 +31,11 @@ private[scalatest] class TestRerunner(suiteClassName: String, testName: String) 
   def rerun(reporter: Reporter, stopper: Stopper, includes: Set[String], excludes: Set[String], properties: Map[String, Any],
             distributor: Option[Distributor], loader: ClassLoader) {
 
+    def abortRun( resourceName: String, ex: Throwable ) = {
+      val report = new Report("org.scalatest.TestRerunner", Resources(resourceName), Some(ex), None)
+      reporter.runAborted( report )
+    }
+    
     try {
       val suiteClass = loader.loadClass(suiteClassName)
       val suite = suiteClass.newInstance.asInstanceOf[Suite]
@@ -40,36 +45,14 @@ private[scalatest] class TestRerunner(suiteClassName: String, testName: String) 
       reporter.runCompleted()
     }
     catch {
-      case ex: ClassNotFoundException => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("cannotLoadSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: InstantiationException => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("cannotInstantiateSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: IllegalAccessException => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("cannotInstantiateSuite"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case e: NoSuchMethodException => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("cannotFindMethod"), Some(e), None)
-        reporter.runAborted(report)
-      }
-      case e: SecurityException => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("securityWhenReruning"), Some(e), None)
-        reporter.runAborted(report)
-      }
-      case ex: NoClassDefFoundError => {
-        // Suggest the problem might be a bad runpath
-        // Maybe even print out the current runpath
-        val report = new Report("org.scalatest.TestRerunner", Resources("cannotLoadClass"), Some(ex), None)
-        reporter.runAborted(report)
-      }
-      case ex: Throwable => {
-        val report = new Report("org.scalatest.TestRerunner", Resources("bigProblems"), Some(ex), None)
-        reporter.runAborted(report)
-      }
+      case ex: ClassNotFoundException => abortRun("cannotLoadSuite", ex) 
+      case ex: InstantiationException => abortRun("cannotInstantiateSuite", ex)
+      case ex: IllegalAccessException => abortRun("cannotInstantiateSuite", ex)
+      case ex: NoSuchMethodException => abortRun("cannotFindMethod", ex)
+      case ex: SecurityException => abortRun("securityWhenReruning", ex)
+      // Suggest the problem might be a bad runpath
+      // Maybe even print out the current runpath
+      case ex: NoClassDefFoundError => abortRun("cannotLoadClass", ex)
     }
   }
 }
