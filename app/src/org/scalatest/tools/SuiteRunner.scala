@@ -66,7 +66,7 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatchReporter: DispatchRep
   }
 
   def dispatchSuiteAborted(e: RuntimeException) = {
-      dispatchReporter.suiteAborted(buildReport("executeException", Some(e)))
+    dispatchReporter.suiteAborted(buildReport("executeException", Some(e)))
   }
   
   def buildReport( resourceName: String, o: Option[Throwable] ) : Report = {
