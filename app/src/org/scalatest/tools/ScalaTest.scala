@@ -26,76 +26,81 @@ import org.scalatest.testng.TestNGWrapperSuite
  * @author Josh Cough
  */
 class ScalaTest(runpathList: List[String]) {
-
+  
   ///////////////////////////////////////////////////////////////////////////////////
   // list of fields and their defaults. user can supply values for any.            //
   ///////////////////////////////////////////////////////////////////////////////////
 
   // suites
   private var suitesList: List[String] = Nil
-  def addSuite(suiteName: String) = suitesList = suiteName :: suitesList
-  def setSuites( l: List[String] ) = suitesList = l 
   
   // includes
   private var includes = Set[String]()
-  def setIncludes( in: Set[String] ) = includes = in
-  def addInclude( include: String ) = includes += include
 
   // excludes
   private var excludes = Set[String]("org.scalatest.Ignore")
-  def setExcludes( ex: Set[String] ) = excludes = ex
-  def addExclude( exclude: String ) = excludes += exclude
   
   // reporters
   private var reporters: List[Reporter] = List(new StandardOutReporter)
-  def setReporters( l: List[Reporter] ) = reporters = l 
-  def addReporter(r: Reporter) = {
-    reporters = r :: reporters
-    dispatchReporter = new DispatchReporter(reporters)
-  }
   
   // run done listener. default does nothing
   private var runDoneListener = new RunDoneListener{}
-  def setRunDoneListener( l: RunDoneListener ) = runDoneListener = l
 
   // stopper. default does nothing
   private var stopper = new Stopper{}
-  def setStopper( s: Stopper ) = stopper = s
   
   // the dispatch reporter. 
   private var dispatchReporter = new DispatchReporter(reporters)
   
   // run concurrently
   private var concurrent = false
-  def setConcurrent( b: boolean ) = concurrent = b
 
   // wildcards
-  private var wildcards: List[String] = Nil
-  def addWildcard(wildcard: String) = wildcards = wildcard :: wildcards
-  def setWildcards( l: List[String] ) = wildcards = l 
+  private var wildcards: List[String] = Nil 
 
   // members only
-  private var membersOnlyList: List[String] = Nil
-  def addMember(wildcard: String) = membersOnlyList = wildcard :: membersOnlyList
-  def setMembersOnly( l: List[String]) = membersOnlyList = l 
+  private var membersOnlyList: List[String] = Nil 
   
-  // currently unused vals - need to wire them in still
-  private val propertiesMap: Map[String, String] = Map()
-  private val testNGList: List[String] = Nil
+  // properties
+  private var properties: Map[String, String] = Map()  
   
+  // TestNG Wrapper Suites
+  private var testNGWrappers: List[String] = Nil
+
   // helper class to help with all class loading activities
-  val loader = new ClassLoaderHelper(runpathList)
-  implicit def helperToClassLoader( clh: ClassLoaderHelper ) = loader.loader
+  private val loader = new ClassLoaderHelper(runpathList)
+  private implicit def helperToClassLoader( clh: ClassLoaderHelper ) = loader.loader
+  
+  ///////////////////////////////////////////////////////////////////////////////////
+  // mutator methods for fields                                                    //
+  ///////////////////////////////////////////////////////////////////////////////////
+  
+  def addSuite(suiteName: String) = suitesList = suiteName :: suitesList
+  def setSuites( l: List[String] ) = suitesList = l 
+  def setIncludes( in: Set[String] ) = includes = in
+  def addInclude( include: String ) = includes += include
+  def setExcludes( ex: Set[String] ) = excludes = ex
+  def addExclude( exclude: String ) = excludes += exclude
+  def setReporters( l: List[Reporter] ) = reporters = l 
+  def addReporter(r: Reporter) = {
+    reporters = r :: reporters
+    dispatchReporter = new DispatchReporter(reporters)
+  }
+  def setRunDoneListener( l: RunDoneListener ) = runDoneListener = l
+  def setStopper( s: Stopper ) = stopper = s
+  def setConcurrent( b: boolean ) = concurrent = b
+  def addWildcard(wildcard: String) = wildcards = wildcard :: wildcards
+  def setWildcards( l: List[String] ) = wildcards = l
+  def addMember(wildcard: String) = membersOnlyList = wildcard :: membersOnlyList
+  def setMembersOnly( l: List[String]) = membersOnlyList = l
+  def setProperties( p: Map[String, String] ) = properties = p
+  //def addProperty( k: String, v: String ) = properties += (k=>v)
+  def setTestNGWrappers( l: List[String] ) = testNGWrappers = l 
 
   ///////////////////////////////////////////////////////////////////////////////////
-  // end of fields, start of methods                                               //
+  // methods to run ScalaTest, Suites, and Rerunnables                             //
   ///////////////////////////////////////////////////////////////////////////////////
-  
-  /**
-   * Runs ScalaTest 
-   */
-  def run = doRunRunRunADoRunRun
-  
+    
   /**
    * Runs ScalaTest 
    */
@@ -119,16 +124,20 @@ class ScalaTest(runpathList: List[String]) {
       this.endRun()
     }
     catch {
-      case ex: InstantiationException => abort("cannotInstantiateSuite", ex)
-      case ex: IllegalAccessException => abort("cannotInstantiateSuite", ex)
-      case ex: NoClassDefFoundError =>   abort("cannotLoadClass", ex)
+      case ex: InstantiationException => dispatchRunAborted(getClass.getName(), "cannotInstantiateSuite", ex)
+      case ex: IllegalAccessException => dispatchRunAborted(getClass.getName(), "cannotInstantiateSuite", ex)
+      case ex: NoClassDefFoundError =>   dispatchRunAborted(getClass.getName(), "cannotLoadClass", ex)
     }
     finally {
       dispatchReporter.dispose()
       runDoneListener.done()
     }
   }
-
+  
+  /**
+   * Runs ScalaTest 
+   */
+  def run() = doRunRunRunADoRunRun
   
   /**
    * Starts the run.
@@ -138,7 +147,6 @@ class ScalaTest(runpathList: List[String]) {
     dispatchReporter.runStarting(expectedTestCount)
   }
 
-  
   /**
    * Executes the run.
    */
@@ -146,7 +154,6 @@ class ScalaTest(runpathList: List[String]) {
     if (concurrent) this.runConcurrently(suites)
     else this.runConsecutively(suites)
   }
-  
 
   /**
    * Ends the run.
@@ -156,24 +163,47 @@ class ScalaTest(runpathList: List[String]) {
     else dispatchReporter.runCompleted()
   }
   
-
   /**
    * Runs the tests concurrently, using a ConcurrentDistributor
    */
   private def runConcurrently( suites: List[Suite] ){
-    val distributor = new ConcurrentDistributor(dispatchReporter, stopper, includes, excludes, propertiesMap)
-    suites.foreach( suite => distributor.put(suite) )
+    val distributor = new NewConcurrentDistributor(this)
+    distributor.putAll(suites)
     distributor.waitUntilDone()
   }
   
   /**
    * Simply runs the test in order, one after the next.
    */
-  private def runConsecutively( suites: List[Suite] ){
-    for (suite <- suites) {
-      new SuiteRunner(suite, dispatchReporter, stopper, includes, excludes, propertiesMap, None).run()
+  private def runConsecutively( suites: List[Suite] ) = suites.foreach( this.run(_) ) 
+
+  /**
+   * Run a Suite.
+   */
+  def run(suite: Suite): Unit = {
+    if( stopper.stopRequested ) return
+    
+    this.dispatchSuiteStarting( suite )
+  
+    try {
+      suite.execute(None, dispatchReporter, stopper, includes, excludes, properties, None)
+      this.dispatchSuiteCompleted( suite )
+    }
+    catch {
+      case e: RuntimeException => this.dispatchSuiteAborted(suite, e)
     }
   }
+    
+  /**
+   * Rerun something.
+   */
+  def rerun( rerunnable: Rerunnable ) = {
+    rerunnable.rerun(dispatchReporter, stopper, includes, excludes, properties, None, loader)
+  }  
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  // methods for loading Suites                                                    //
+  ///////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Loads named suites
@@ -191,8 +221,8 @@ class ScalaTest(runpathList: List[String]) {
    * loads testng wrapper suites
    */
   def loadTestNGWrapperSuites = {
-    if (!testNGList.isEmpty)
-      List(new TestNGWrapperSuite(testNGList))
+    if (!testNGWrappers.isEmpty)
+      List(new TestNGWrapperSuite(testNGWrappers))
     else
       Nil
   }
@@ -234,7 +264,7 @@ class ScalaTest(runpathList: List[String]) {
       val unassignableList = suitesList.filter(className => !classOf[Suite].isAssignableFrom(loader.loadClass(className)))
       if (!unassignableList.isEmpty) {
         val names = for (className <- unassignableList) yield " " + className
-        abort(Resources("nonSuite") + names)
+        dispatchRunAborted(getClass.getName(), Resources("nonSuite") + names)
         true
       }
       else {
@@ -243,28 +273,56 @@ class ScalaTest(runpathList: List[String]) {
     }
     catch {
       case e: ClassNotFoundException => {
-        abort("cannotLoadSuite", e)
+        dispatchRunAborted(getClass.getName(), "cannotLoadSuite", e)
         true
       }
     }
   }
   
-  /**
-   * Notifies all reporters that the run has been aborted due to the given exception. 
-   */
-  private def abort( resourceName: String, ex: Throwable ) = {
-    dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", Resources(resourceName), Some(ex), None))
-  }
+  ///////////////////////////////////////////////////////////////////////////////////
+  // methods for dispatching reports                                               //
+  ///////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Notifies all reporters that the run has been aborted due to the given problem.
    */
-  private def abort( message: String ) = {
-    dispatchReporter.runAborted(new Report("org.scalatest.tools.Runner", message))
+  def dispatchRunAborted( runner: String, message: String ) = {
+    dispatchReporter.runAborted(new Report(runner, message))
   }
   
-  def rerun( rerunnable: Rerunnable ) = {
-    rerunnable.rerun(dispatchReporter, stopper, includes, excludes, propertiesMap, None, loader)
+  /**
+   * Notifies all reporters that the run has been aborted due to the given exception. 
+   */
+  def dispatchRunAborted( runner: String, resourceName: String, ex: Throwable ) = {
+    dispatchReporter.runAborted(new Report(runner, Resources(resourceName), Some(ex), None))
+  }
+
+  /**
+   *
+   */
+  def dispatchSuiteStarting(s: Suite) = {
+    dispatchReporter.suiteStarting(buildReport(s, "suiteExecutionStarting", None))
+  }
+  
+  /**
+   *
+   */  
+  def dispatchSuiteCompleted(s: Suite) = {
+    dispatchReporter.suiteCompleted(buildReport(s, "suiteCompletedNormally", None))
+  }
+
+  /**
+   *
+   */  
+  def dispatchSuiteAborted(s: Suite, t: Throwable) = {
+    dispatchReporter.suiteAborted(buildReport(s, "executeException", Some(t)))
+  }
+  
+  /**
+   *
+   */  
+  def buildReport( suite: Suite, resourceName: String, o: Option[Throwable] ) : Report = {
+    new Report(suite.suiteName, Resources(resourceName), o, suite.getRerunnable)
   }
   
 }
