@@ -135,27 +135,28 @@ trait JUnit3Suite extends TestCase with Suite {
    
   private class MyTestResult(reporter: Reporter) extends TestResult {
 
+    def testToString(t: Test) = JUnitVersionHelper.getTestCaseName(t)
+
     override def addFailure(test: Test, t: AssertionFailedError) = {
       super.addFailure(test, t)
-      reporter.testFailed( buildReport( test, Some(t) ) ) 
+      // reporter.testFailed(buildReport(test, Some(t))) 
+      reporter.testFailed(buildReport(testToString(test), Some(t))) 
     }
 
     override def addError(test: Test, t: Throwable) = {
       super.addError(test, t)
-      reporter.testFailed( buildReport( test, Some(t) ) )
+      reporter.testFailed(buildReport(testToString(test), Some(t)))
     }
     
     override def startTest(test: Test) = {
       super.startTest(test)
-      reporter.testStarting( buildReport( test, None ) )
+      reporter.testStarting(buildReport(testToString(test), None))
     }
     
     override def endTest(test: Test) = {
       super.endTest(test)
-      if( this.wasSuccessful ) reporter.testSucceeded( buildReport( test, None ) ) 
+      if( this.wasSuccessful ) reporter.testSucceeded(buildReport(testToString(test), None)) 
     }
-    
-    implicit def testToString(t: Test) = JUnitVersionHelper.getTestCaseName(t)
   }
   
 

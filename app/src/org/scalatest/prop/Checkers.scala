@@ -191,7 +191,7 @@ trait Checkers {
   def check(p: Prop, prms: Test.Params) {
     //val stats = Test.check(prms, p, (r,s,d) => ())
     val stats = Test.check(prms, p)
-    val result = stats.result
+    val result = stats.status
     result match {
       case Test.Proved(args) => 
       case Test.Passed => 
@@ -209,17 +209,17 @@ trait Checkers {
     check(p, Test.defaultParams)
   }
 
-  private def prettyTestStats(stats: Test.Stats) = stats.result match {
+  private def prettyTestStats(stats: Test.Result) = stats.status match {
     case Test.Proved(args) =>
       "OK, proved property:                   \n" + prettyArgs(args)
     case Test.Passed =>
       "OK, passed " + stats.succeeded + " tests."
-    case Test.Failed(args) =>
+    case Test.Failed(args, _) =>
       "Falsified after "+stats.succeeded+" passed tests:\n"+prettyArgs(args)
     case Test.Exhausted =>
       "Gave up after only " + stats.succeeded + " passed tests. " +
       stats.discarded + " tests were discarded."
-    case Test.PropException(args,e) =>
+    case Test.PropException(args, e, _) =>
       "Exception \"" + e + "\" raised on property evaluation:\n" +
       prettyArgs(args)
     case Test.GenException(e) =>

@@ -446,7 +446,7 @@ object Runner {
   private[scalatest] def checkArgsForValidity(args: Array[String]) = {
 
     val lb = new ListBuffer[String]
-    val it = args.elements
+    val it = args.toList.elements
     while (it.hasNext) {
       val s = it.next
       // Style advice
@@ -480,7 +480,7 @@ object Runner {
     val wildcard = new ListBuffer[String]()
     val testNGXMLFiles = new ListBuffer[String]()
 
-    val it = args.elements
+    val it = args.toList.elements
     while (it.hasNext) {
 
       val s = it.next
