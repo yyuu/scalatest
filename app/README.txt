@@ -1,7 +1,8 @@
-ScalaTest 0.9.3
+ScalaTest 0.9.3-2.7.2.RC2
 
 ScalaTest is a free, open-source testing toolkit for Scala and
-Java programmers. 
+Java programmers. This is a rerelease of ScalaTest 0.9.3, but compiled
+with Scala version 2.7.2.RC2.
 
 GETTING STARTED
 
@@ -18,13 +19,13 @@ Ignore class is written in Java, and isn't currently shown in the Scaladoc.
 To try it out, you can use ScalaTest to run its own tests, i.e., the tests
 used to test ScalaTest itself. This command will run the GUI:
 
-scala -classpath scalatest-0.9.3.jar org.scalatest.tools.Runner -p "scalatest-0.9.3-tests.jar" -g -s org.scalatest.SuiteSuite
+scala -classpath scalatest-0.9.3-2.7.2.RC2.jar org.scalatest.tools.Runner -p "scalatest-0.9.3-2.7.2.RC2-tests.jar" -g -s org.scalatest.SuiteSuite
 
 This command will run and just print results to the standard output:
 
-scala -classpath scalatest-0.9.3.jar org.scalatest.tools.Runner -p "scalatest-0.9.3-tests.jar" -o -s org.scalatest.SuiteSuite
+scala -classpath scalatest-0.9.3-2.7.2.RC2.jar org.scalatest.tools.Runner -p "scalatest-0.9.3-2.7.2.RC2-tests.jar" -o -s org.scalatest.SuiteSuite
 
-ScalaTest 0.9.3 was tested with Scala version 2.7.1-final, so it is not
+ScalaTest 0.9.3-2.7.2.RC2 was tested with Scala version 2.7.2.RC2, so it is not
 guaranteed to work with earlier Scala versions.
 
 ABOUT SCALATEST
