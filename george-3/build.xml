@@ -252,7 +252,7 @@
     </target>
 
     <target name="test" depends="compile,copyprops,jartests,taskdefscalatest">
-        <scalatest runpath="${build.tests.jar}">
+        <scalatest runpath="${build.tests.jar}" haltonfailure="true">
             <reporter type="graphic" />
             <membersonly package="org.scalatest" />
             <membersonly package="org.scalatest.matchers" />
@@ -378,7 +378,7 @@
 
 
     <target name="ant-task-test" depends="compile,taskdefscalatest">
-        <scalatest runpath="${build.tests};${classes}">
+        <scalatest runpath="${build.tests};${classes}" haltonfailure="true">
             <runpath>
                 <pathelement location="dist" />
             </runpath>
@@ -387,7 +387,9 @@
             <suite classname="org.scalatest.SuiteSuite" />
             
             <reporter type="stdout" />
+<!-- gcbx
             <reporter type="graphic" />
+gcbx -->
         </scalatest>
     </target>
 

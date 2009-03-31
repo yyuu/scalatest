@@ -3,7 +3,6 @@ package org.scalatest.tools;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.AntClassLoader;
 
 import java.util.ArrayList;
@@ -179,6 +178,7 @@ public class ScalaTestTask extends Task {
         new ArrayList<ReporterElement>();
     private ArrayList<NameValuePair> properties =
         new ArrayList<NameValuePair>();
+    private boolean haltonfailure = false;
 
     //
     // Executes the task.
@@ -195,25 +195,12 @@ public class ScalaTestTask extends Task {
         addTestNGSuiteArgs(args);
         addConcurrentArg(args);
 
-        javaTaskRunner(args);
-    }
+        String[] argsArray = args.toArray(new String[args.size()]);
+        boolean success = Runner.runTests(argsArray);
 
-    void javaTaskRunner(ArrayList<String> args) {
-        Java java = new Java();
-        java.bindToOwner(this);
-        java.init();
-        java.setFork(true);
-        java.setClassname("org.scalatest.tools.Runner");
-
-        AntClassLoader classLoader =
-            (AntClassLoader) getClass().getClassLoader();
-
-        java.setClasspath(new Path(getProject(), classLoader.getClasspath()));
-
-        for (String arg: args) {
-            java.createArg().setValue(arg);
+        if (!success && haltonfailure) {
+            throw new BuildException("scalatest test failed");
         }
-        java.execute();
     }
 
     //
@@ -413,6 +400,13 @@ public class ScalaTestTask extends Task {
         for (String element: runpath.list()) {
             this.runpath.add(element);
         }
+    }
+    
+    //
+    // Sets value of 'haltonfailure' attribute.
+    //
+    public void setHaltonfailure(boolean haltonfailure) {
+        this.haltonfailure = haltonfailure;
     }
     
     public void setTestNGSuites(Path testNGSuitePath) {

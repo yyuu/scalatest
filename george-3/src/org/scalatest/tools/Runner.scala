@@ -341,19 +341,22 @@ import org.scalatest.testng.TestNGWrapperSuite
  * @author Josh Cough
  */
 object Runner {
-
   private val RUNNER_JFRAME_START_X: Int = 150
   private val RUNNER_JFRAME_START_Y: Int = 100
   private val passFailReporter = new PassFailReporter
 
   class PassFailReporter extends Reporter {
-    var allTestsPassed = true
+    var fail = false
+    var allTestsCompleted = false
 
-    override def testFailed(report: Report) = {
-      allTestsPassed = false
-    }
+    override def testFailed(report: Report)   = { fail = true }
+    override def runAborted(report: Report)   = { fail = true }
+    override def suiteAborted(report: Report) = { fail = true }
+
+    override def runCompleted() = { allTestsCompleted = true }
   }
-  def allTestsPassed = passFailReporter.allTestsPassed
+  def allTestsPassed =
+    passFailReporter.allTestsCompleted && !passFailReporter.fail
 
   // TODO: I don't think I'm enforcing that properties can't start with "org.scalatest"
   // TODO: I don't think I'm handling rejecting multiple -f/-r with the same arg. -f fred.txt -f fred.txt should
@@ -363,6 +366,13 @@ object Runner {
    * Runs a suite of tests, with optional GUI. See the main documentation for this singleton object for the details.
    */
   def main(args: Array[String]) {
+    runTests(args)
+  }
+
+  //
+  // Returns true if all tests passed.
+  //
+  def runTests(args: Array[String]): boolean = {
 
     checkArgsForValidity(args) match {
       case Some(s) => {
@@ -450,6 +460,7 @@ object Runner {
         }
       }
     }
+    allTestsPassed
   }
 
   // Returns an Option[String]. Some is an error message. None means no error.
