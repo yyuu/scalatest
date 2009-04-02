@@ -3,7 +3,6 @@ package org.scalatest.tools;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.AntClassLoader;
 
 import java.util.ArrayList;
 
@@ -162,6 +161,11 @@ import java.util.ArrayList;
  *     &lt;membersonly package="com.artima.serviceuitest"/&gt;
  *     &lt;wildcard package="com.artima.joker"/&gt;
  * </pre>
+ *
+ * <p>
+ * Use attribute haltonfailure="true" to cause ant to fail the
+ * build if there's a test failure.
+ * </p>
  *
  * @author George Berger
  */
