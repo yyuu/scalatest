@@ -345,6 +345,10 @@ object Runner {
   private val RUNNER_JFRAME_START_Y: Int = 100
   private val passFailReporter = new PassFailReporter
 
+  //
+  // We always include a PassFailReporter on runs in order to determine
+  // whether or not all tests passed.
+  //
   class PassFailReporter extends Reporter {
     var fail = false
     var allTestsCompleted = false
