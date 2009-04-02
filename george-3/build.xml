@@ -25,6 +25,7 @@
     <property name="demodoc" value="${demo}/example/javadoc" />
     <property name="example" value="${demo}/example" />
     <property name="lib" value="lib" />
+    <property name="jvmargs" value="-Xmx1280M"/>
 
     <!--
   <property name="build.compiler" value="jikes"/>
@@ -126,7 +127,7 @@
 
     <target name="gencode" depends="init">
         <!-- First, compile the code generator from ${generators} into ${build.generators} -->
-        <fsc srcdir="${generators}" destdir="${build.generators}" target="jvm-1.5" classpathref="build.generators.class.path" />
+        <scalac srcdir="${generators}" destdir="${build.generators}" target="jvm-1.5" classpathref="build.generators.class.path" />
         <!-- Then, run it. -->
         <java classname="GenMustMatchers" classpathref="run.generators.class.path" fork="false" />
         <java classname="GenMustMatchersTests" classpathref="run.generators.class.path" fork="false" />
@@ -137,10 +138,10 @@
     <target name="compile-main" depends="init">
 
         <!-- Compile the Scala code from ${src} into ${classes}. Scalac will parse the referenced .java files. -->
-        <fsc srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
+        <scalac srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
 
         <!-- Compile the Scala code from ${build.generated.src} into ${classes}. Scalac will parse any referenced .java files. -->
-        <fsc srcdir="${build.generated.src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
+        <scalac srcdir="${build.generated.src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
 
         <!-- Compile the Java code from ${src} into ${classes} -->
         <javac srcdir="${src}" destdir="${classes}" classpathref="build.class.path" debug="yes">
@@ -152,10 +153,10 @@
     <target name="compile-tests" depends="compile-main">
 
         <!-- Compile the Scala code from ${tests} into ${build.tests} -->
-        <fsc srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path"/>
+        <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs}"/>
 
         <!-- Compile the Scala code from ${build.generated.tests} into ${classes}. Scalac will parse any referenced .java files. -->
-        <fsc srcdir="${build.generated.tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" />
+        <scalac srcdir="${build.generated.tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" />
 
         <!-- Compile the Java code from ${tests} into ${build.tests} -->
         <javac srcdir="${tests}" destdir="${build.tests}" classpath="${classes}:${lib}/scala-library.jar" debug="yes" />
@@ -387,9 +388,7 @@
             <suite classname="org.scalatest.SuiteSuite" />
             
             <reporter type="stdout" />
-<!-- gcbx
             <reporter type="graphic" />
-gcbx -->
         </scalatest>
     </target>
 
