@@ -353,18 +353,27 @@ object Runner {
     var failed = false
     var aborted = false
     var completed = false
+    var stopped = false
 
     override def testFailed(report: Report)   { failed = true }
     override def runAborted(report: Report)   { aborted = true }
     override def suiteAborted(report: Report) { aborted = true }
     override def runCompleted()               { completed = true }
+    override def runStarting(testCount: Int)  { stopped = false }
+    override def runStopped()                 { stopped = true }
   }
 
   def allTestsPassed = {
-    while (!passFailReporter.completed && !passFailReporter.aborted)
+    while (!passFailReporter.completed &&
+           !passFailReporter.aborted &&
+           !passFailReporter.stopped)
+    {
       Thread.sleep(100)
+    }
 
-    !passFailReporter.failed && !passFailReporter.aborted
+    !passFailReporter.failed &&
+    !passFailReporter.aborted &&
+    !passFailReporter.stopped
   }
 
   // TODO: I don't think I'm enforcing that properties can't start with "org.scalatest"
