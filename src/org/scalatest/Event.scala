@@ -11,16 +11,11 @@ import java.util.Date
  * has runStamp and ordinal; Suite has those plus suiteStamp; Test has those plus testStamp.
  */
 sealed abstract class Event(
-  val runStamp: Int,
-  val suiteStamp: Option[List[Int]],
-  val testStamp: Option[Int],
-  val ordinal: Int
+  val ordinal: Ordinal
 ) extends Ordered[Event] {
 
-  if (suiteStamp == null)
-    throw new NullPointerException("suiteStamp was null")
-  if (testStamp == null)
-    throw new NullPointerException("testStamp was null")
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
 
   /**
    * Comparing <code>this</code> event with the event passed as <code>that</code>. Returns
@@ -30,7 +25,29 @@ sealed abstract class Event(
    * @param return an integer indicating whether this event is less than, equal to, or greater than
    * the passed event
    */
-  def compare(that: Event): Int = this.runStamp - that.runStamp
+  def compare(that: Event): Int = 0
+  
+/*  def compare(that: Event): Int = {
+    if (this.runStamp != that.runStamp)
+      this.runStamp - that.runStamp
+    else suiteStamp match {
+      case Some(thisStamp) =>
+        that.suiteStamp match {
+          case Some(thatStamp) =>
+            val thisReversed = thisStamp.reverse
+            val thatReversed = thatStamp.reverse
+            val zipped = thisReversed zip thatReversed
+            val unequalPair = zipped find (pair => pair._1 != pair._2)
+            unequalPair match {
+              case Some((thisElement, thatElement)) => thisElement - thatElement
+              case None => 0 // For now
+            }
+          case None => 0 // for now
+        }
+      case None => 0 // For now
+    }
+
+  }*/
 }
 /**
  * Event that indicates a suite (or other entity) is about to start running a test.
@@ -66,20 +83,17 @@ sealed abstract class Event(
  * @throws NullPointerException if any of the passed values are <code>null</code>
  */
 final class TestStarting private (
+  ordinal: Ordinal,
   val name: String,
   val suiteName: String,
   val suiteClassName: Option[String],
   val testName: String,
-  theRunStamp: Int,
-  theSuiteStamp: List[Int],
-  theTestStamp: Int,
-  theOrdinal: Int,
-  val fromSpec: Boolean,
+  val formatter: Option[Formatter],
   val rerunnable: Option[Rerunnable],
   val payload: Option[Any],
   val threadName: String,
   val timeStamp: Long
-) extends Event(theRunStamp, Some(theSuiteStamp), Some(theTestStamp), theOrdinal) {
+) extends Event(ordinal) {
     
   if (name == null)
     throw new NullPointerException("name was null")
@@ -89,6 +103,8 @@ final class TestStarting private (
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
     throw new NullPointerException("testName was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
   if (rerunnable == null)
     throw new NullPointerException("rerunnable was null")
   if (payload == null)
@@ -105,15 +121,12 @@ final class TestStarting private (
   override def equals(other: Any): Boolean = {
     other match {
       case that: TestStarting =>
+        this.ordinal == that.ordinal &&
         name == that.name &&
         suiteName == that.suiteName &&
         suiteClassName == that.suiteClassName &&
         testName == that.testName &&
-        runStamp == that.runStamp &&
-        suiteStamp == that.suiteStamp &&
-        testStamp == that.testStamp &&
-        ordinal == that.ordinal &&
-        fromSpec == that.fromSpec &&
+        formatter == that.formatter &&
         rerunnable == that.rerunnable &&
         payload == that.payload &&
         threadName == that.threadName &&
@@ -137,18 +150,12 @@ final class TestStarting private (
                 41 * (
                   41 * (
                     41 * (
-                      41 * (
-                        41 * (
-                          41 * (
-                            41 + name.hashCode
-                          ) + suiteName.hashCode
-                        ) + suiteClassName.hashCode
-                      ) + testName.hashCode
-                    ) + runStamp.hashCode
-                  ) + suiteStamp.hashCode
-                ) + testStamp.hashCode
-              ) + ordinal.hashCode
-            ) + fromSpec.hashCode
+                      41 + this.ordinal.hashCode
+                    ) + name.hashCode
+                  ) + suiteName.hashCode
+                ) + suiteClassName.hashCode
+              ) + testName.hashCode
+            ) + formatter.hashCode
           ) + rerunnable.hashCode
         ) + payload.hashCode
       ) + threadName.hashCode
@@ -180,21 +187,18 @@ object TestStarting {
    * @throws NullPointerException if any of the passed values are <code>null</code>
    */
   def apply(
+    ordinal: Ordinal,
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: Int,
-    suiteStamp: List[Int],
-    testStamp: Int,
-    ordinal: Int,
-    fromSpec: Boolean,
+    formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any],
     threadName: String,
     timeStamp: Long
   ): TestStarting = {
-    new TestStarting(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, payload, threadName, timeStamp)
+    new TestStarting(ordinal, name, suiteName, suiteClassName, testName, formatter, rerunnable, payload, threadName, timeStamp)
   }
 
   /**
@@ -216,19 +220,16 @@ object TestStarting {
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
+    ordinal: Ordinal,
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: Int,
-    suiteStamp: List[Int],
-    testStamp: Int,
-    ordinal: Int,
-    fromSpec: Boolean,
+    formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -249,18 +250,15 @@ object TestStarting {
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
+    ordinal: Ordinal,
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: Int,
-    suiteStamp: List[Int],
-    testStamp: Int,
-    ordinal: Int,
-    fromSpec: Boolean,
+    formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -280,17 +278,14 @@ object TestStarting {
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
+    ordinal: Ordinal,
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: Int,
-    suiteStamp: List[Int],
-    testStamp: Int,
-    ordinal: Int,
-    fromSpec: Boolean
+    formatter: Option[Formatter]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -308,16 +303,13 @@ object TestStarting {
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
+    ordinal: Ordinal,
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
-    testName: String,
-    runStamp: Int,
-    suiteStamp: List[Int],
-    testStamp: Int,
-    ordinal: Int
+    testName: String
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, false, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -329,6 +321,6 @@ object TestStarting {
    * @return an optional tuple of the values provided to the passed <code>TestStarting</code> event's primary constructor
    */
   // A bit wierd feeling to do the two .gets on the Options, but I "know" that they will be defined.
-  def unapply(event: TestStarting): Option[(String, String, Option[String], String, Int, List[Int], Int, Int, Boolean, Option[Rerunnable], Option[Any], String, Long)] =
-    Some(event.name, event.suiteName, event.suiteClassName, event.testName, event.runStamp, event.suiteStamp.get, event.testStamp.get, event.ordinal, event.fromSpec, event.rerunnable, event.payload, event.threadName, event.timeStamp)
+  def unapply(event: TestStarting): Option[(Ordinal, String, String, Option[String], String, Option[Formatter], Option[Rerunnable], Option[Any], String, Long)] =
+    Some(event.ordinal, event.name, event.suiteName, event.suiteClassName, event.testName, event.formatter, event.rerunnable, event.payload, event.threadName, event.timeStamp)
 }
