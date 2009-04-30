@@ -2,8 +2,29 @@ package org.scalatest
 
 import java.util.Date
 
-sealed abstract class Event
+/**
+ * A base class for the events that can be passed to the report function passed
+ * to the <code>execute</code> method of a <code>Suite</code>.
+ */
+sealed abstract class Event(
+  val runStamp: long,
+  val suiteStamp: List[Int],
+  val timeStamp: long
+) extends Ordered[Event] {
 
+  if (suiteStamp == null)
+    throw new NullPointerException("suiteStamp was null")
+
+  /**
+   * Result of comparing <code>this</code> event with event passed as <code>that</code>. Returns
+   * x where x < 0 iff this < that, x == 0 iff this == that, x > 0 iff this > that.
+   *
+   * @param that the event to compare to this event
+   * @param return an integer indicating whether this event is less than, equal to, or greater than
+   * the passed event
+   */
+  def compare(that: Event): Int = 0
+}
 /**
  * Event that indicates a suite (or other entity) is about to start running a test.
  *
@@ -11,6 +32,16 @@ sealed abstract class Event
  * For example, trait <code>Suite</code> uses <code>TestStarting</code> to report
  * that a test method of a <code>Suite</code> is about to be invoked.
  * </p>
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="TestStarting$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>TestStarting</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(TestStarting(userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * </pre>
  *
  * @param name a localized name identifying the test that is starting, which should include the
  *     suite and test names, suitable for presenting to the user
@@ -27,17 +58,20 @@ sealed abstract class Event
  *
  * @throws NullPointerException if any of the passed values are <code>null</code>
  */
-class TestStarting private (
+final class TestStarting private (
   val name: String,
   val suiteName: String,
   val suiteClassName: Option[String],
   val testName: String,
+  runStamp: long,
+  suiteStamp: List[Int],
   val fromSpec: Boolean,
   val rerunnable: Option[Rerunnable],
   val payload: Option[Any],
   val threadName: String,
-  val timeStamp: Date
-) extends Event {
+  timeStamp: long
+) extends Event(runStamp, suiteStamp, timeStamp) {
+    
   if (name == null)
     throw new NullPointerException("name was null")
   if (suiteName == null)
@@ -52,12 +86,62 @@ class TestStarting private (
     throw new NullPointerException("payload was null")
   if (threadName == null)
     throw new NullPointerException("threadName was null")
-  if (timeStamp == null)
-    throw new NullPointerException("timeStamp was null")
+
+  /**
+   * Indicates whether some other object is structurally "equal to" this one.
+   *
+   * @param other the object to compare to this object for equality
+   * @return true if this object is the same as the obj argument; <code>false</code> otherwise
+   */
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: TestStarting =>
+        name == that.name &&
+        suiteName == that.suiteName &&
+        suiteClassName == that.suiteClassName &&
+        testName == that.testName &&
+        runStamp == that.runStamp &&
+        suiteStamp == that.suiteStamp &&
+        fromSpec == that.fromSpec &&
+        rerunnable == that.rerunnable &&
+        payload == that.payload &&
+        threadName == that.threadName &&
+        timeStamp == that.timeStamp
+      case _ => false
+    }
+  }
+
+  /**
+   * Returns a hash code value for this object.
+   *
+   * @return a hash code value for this object
+   */
+  override def hashCode: Int =
+    41 * (
+      41 * (
+        41 * (
+          41 * (
+            41 * (
+              41 * (
+                41 * (
+                  41 * (
+                    41 * (
+                      41 * (
+                        41 + name.hashCode
+                      ) + suiteName.hashCode
+                    ) + suiteClassName.hashCode
+                  ) + testName.hashCode
+                ) + runStamp.hashCode
+              ) + suiteStamp.hashCode
+            ) + fromSpec.hashCode
+          ) + rerunnable.hashCode
+        ) + payload.hashCode
+      ) + threadName.hashCode
+    ) + timeStamp.hashCode
 }
 
 /**
- * Companion object for the <code>TestStarting</code> event, which contains overloaded factory methods
+ * Companion object for the <a href="TestStarting.html"><code>TestStarting</code></a> event, which contains overloaded factory methods
  * and an extractor method to facilitate pattern matching on <code>TestStarting</code> objects.
  */
 object TestStarting {
@@ -85,13 +169,15 @@ object TestStarting {
       suiteName: String,
       suiteClassName: Option[String],
       testName: String,
+      runStamp: long,
+      suiteStamp: List[Int],
       fromSpec: Boolean,
       rerunnable: Option[Rerunnable],
       payload: Option[Any],
       threadName: String,
-      timeStamp: Date
+      timeStamp: long
   ): TestStarting = {
-    new TestStarting(name, suiteName, suiteClassName, testName, fromSpec, rerunnable, payload, threadName, timeStamp)
+    new TestStarting(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, payload, threadName, timeStamp)
   }
 
   /**
@@ -110,17 +196,20 @@ object TestStarting {
    * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
-      name: String,
-      suiteName: String,
-      suiteClassName: Option[String],
-      testName: String,
-      fromSpec: Boolean,
-      rerunnable: Option[Rerunnable],
-      payload: Option[Any]
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    runStamp: long,
+    suiteStamp: List[Int],
+    fromSpec: Boolean,
+    rerunnable: Option[Rerunnable],
+    payload: Option[Any]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, fromSpec, rerunnable, payload, Thread.currentThread.getName, new Date)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -138,16 +227,19 @@ object TestStarting {
    *                   is passed, the test cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
+    runStamp: long,
+    suiteStamp: List[Int],
     fromSpec: Boolean,
     rerunnable: Option[Rerunnable]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, fromSpec, rerunnable, None, Thread.currentThread.getName, new Date)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -164,15 +256,18 @@ object TestStarting {
    *                 mean the event will be supressed (<em>i.e.</em>, not shown) in specification-like output presented to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
+    runStamp: long,
+    suiteStamp: List[Int],
     fromSpec: Boolean
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, fromSpec, None, None, Thread.currentThread.getName, new Date)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -187,14 +282,17 @@ object TestStarting {
    * @param testName the name of the test that is starting
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
-    testName: String
+    testName: String,
+    runStamp: long,
+    suiteStamp: List[Int]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, false, None, None, Thread.currentThread.getName, new Date)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, false, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -203,7 +301,8 @@ object TestStarting {
    * @param event the <code>TestStarting</code> event from which to extract
    *
    * @throws NullPointerException if the passed <code>event<code> is <code>null</code>
+   * @return an optional tuple of the values provided to the passed <code>TestStarting</code> event's primary constructor
    */
-  def unapply(event: TestStarting): Option[(String, String, Option[String], String, Boolean, Option[Rerunnable], Option[Any], String, Date)] =
-    Some(event.name, event.suiteName, event.suiteClassName, event.testName, event.fromSpec, event.rerunnable, event.payload, event.threadName, event.timeStamp)
+  def unapply(event: TestStarting): Option[(String, String, Option[String], String, Long, List[Int], Boolean, Option[Rerunnable], Option[Any], String, long)] =
+    Some(event.name, event.suiteName, event.suiteClassName, event.testName, event.runStamp, event.suiteStamp, event.fromSpec, event.rerunnable, event.payload, event.threadName, event.timeStamp)
 }
