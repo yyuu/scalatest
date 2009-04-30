@@ -30,7 +30,7 @@ sealed abstract class Event(
    * @param return an integer indicating whether this event is less than, equal to, or greater than
    * the passed event
    */
-  def compare(that: Event): Int = 0
+  def compare(that: Event): Int = this.runStamp - that.runStamp
 }
 /**
  * Event that indicates a suite (or other entity) is about to start running a test.
