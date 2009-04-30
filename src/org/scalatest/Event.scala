@@ -5,19 +5,26 @@ import java.util.Date
 /**
  * A base class for the events that can be passed to the report function passed
  * to the <code>execute</code> method of a <code>Suite</code>.
+ *
+ * Will have a sealed abstract InfoProvided message with three final concrete subclasses,
+ * RunInfoProvided, SuiteInfoProvided, TestInfoProvided. Anything that starts with Run just
+ * has runStamp and ordinal; Suite has those plus suiteStamp; Test has those plus testStamp.
  */
 sealed abstract class Event(
-  val runStamp: long,
-  val suiteStamp: List[Int],
-  val timeStamp: long
+  val runStamp: Int,
+  val suiteStamp: Option[List[Int]],
+  val testStamp: Option[Int],
+  val ordinal: Int
 ) extends Ordered[Event] {
 
   if (suiteStamp == null)
     throw new NullPointerException("suiteStamp was null")
+  if (testStamp == null)
+    throw new NullPointerException("testStamp was null")
 
   /**
-   * Result of comparing <code>this</code> event with event passed as <code>that</code>. Returns
-   * x where x < 0 iff this < that, x == 0 iff this == that, x > 0 iff this > that.
+   * Comparing <code>this</code> event with the event passed as <code>that</code>. Returns
+   * x, where x < 0 iff this < that, x == 0 iff this == that, x > 0 iff this > that.
    *
    * @param that the event to compare to this event
    * @param return an integer indicating whether this event is less than, equal to, or greater than
@@ -63,14 +70,16 @@ final class TestStarting private (
   val suiteName: String,
   val suiteClassName: Option[String],
   val testName: String,
-  runStamp: long,
-  suiteStamp: List[Int],
+  theRunStamp: Int,
+  theSuiteStamp: List[Int],
+  theTestStamp: Int,
+  theOrdinal: Int,
   val fromSpec: Boolean,
   val rerunnable: Option[Rerunnable],
   val payload: Option[Any],
   val threadName: String,
-  timeStamp: long
-) extends Event(runStamp, suiteStamp, timeStamp) {
+  val timeStamp: Long
+) extends Event(theRunStamp, Some(theSuiteStamp), Some(theTestStamp), theOrdinal) {
     
   if (name == null)
     throw new NullPointerException("name was null")
@@ -102,6 +111,8 @@ final class TestStarting private (
         testName == that.testName &&
         runStamp == that.runStamp &&
         suiteStamp == that.suiteStamp &&
+        testStamp == that.testStamp &&
+        ordinal == that.ordinal &&
         fromSpec == that.fromSpec &&
         rerunnable == that.rerunnable &&
         payload == that.payload &&
@@ -127,12 +138,16 @@ final class TestStarting private (
                   41 * (
                     41 * (
                       41 * (
-                        41 + name.hashCode
-                      ) + suiteName.hashCode
-                    ) + suiteClassName.hashCode
-                  ) + testName.hashCode
-                ) + runStamp.hashCode
-              ) + suiteStamp.hashCode
+                        41 * (
+                          41 * (
+                            41 + name.hashCode
+                          ) + suiteName.hashCode
+                        ) + suiteClassName.hashCode
+                      ) + testName.hashCode
+                    ) + runStamp.hashCode
+                  ) + suiteStamp.hashCode
+                ) + testStamp.hashCode
+              ) + ordinal.hashCode
             ) + fromSpec.hashCode
           ) + rerunnable.hashCode
         ) + payload.hashCode
@@ -165,19 +180,21 @@ object TestStarting {
    * @throws NullPointerException if any of the passed values are <code>null</code>
    */
   def apply(
-      name: String,
-      suiteName: String,
-      suiteClassName: Option[String],
-      testName: String,
-      runStamp: long,
-      suiteStamp: List[Int],
-      fromSpec: Boolean,
-      rerunnable: Option[Rerunnable],
-      payload: Option[Any],
-      threadName: String,
-      timeStamp: long
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    runStamp: Int,
+    suiteStamp: List[Int],
+    testStamp: Int,
+    ordinal: Int,
+    fromSpec: Boolean,
+    rerunnable: Option[Rerunnable],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
   ): TestStarting = {
-    new TestStarting(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, payload, threadName, timeStamp)
+    new TestStarting(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, payload, threadName, timeStamp)
   }
 
   /**
@@ -203,13 +220,15 @@ object TestStarting {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: long,
+    runStamp: Int,
     suiteStamp: List[Int],
+    testStamp: Int,
+    ordinal: Int,
     fromSpec: Boolean,
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -234,12 +253,14 @@ object TestStarting {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: long,
+    runStamp: Int,
     suiteStamp: List[Int],
+    testStamp: Int,
+    ordinal: Int,
     fromSpec: Boolean,
     rerunnable: Option[Rerunnable]
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -263,11 +284,13 @@ object TestStarting {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: long,
+    runStamp: Int,
     suiteStamp: List[Int],
+    testStamp: Int,
+    ordinal: Int,
     fromSpec: Boolean
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, fromSpec, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, fromSpec, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -289,10 +312,12 @@ object TestStarting {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
-    runStamp: long,
-    suiteStamp: List[Int]
+    runStamp: Int,
+    suiteStamp: List[Int],
+    testStamp: Int,
+    ordinal: Int
   ): TestStarting = {
-    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, false, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(name, suiteName, suiteClassName, testName, runStamp, suiteStamp, testStamp, ordinal, false, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -303,6 +328,7 @@ object TestStarting {
    * @throws NullPointerException if the passed <code>event<code> is <code>null</code>
    * @return an optional tuple of the values provided to the passed <code>TestStarting</code> event's primary constructor
    */
-  def unapply(event: TestStarting): Option[(String, String, Option[String], String, Long, List[Int], Boolean, Option[Rerunnable], Option[Any], String, long)] =
-    Some(event.name, event.suiteName, event.suiteClassName, event.testName, event.runStamp, event.suiteStamp, event.fromSpec, event.rerunnable, event.payload, event.threadName, event.timeStamp)
+  // A bit wierd feeling to do the two .gets on the Options, but I "know" that they will be defined.
+  def unapply(event: TestStarting): Option[(String, String, Option[String], String, Int, List[Int], Int, Int, Boolean, Option[Rerunnable], Option[Any], String, Long)] =
+    Some(event.name, event.suiteName, event.suiteClassName, event.testName, event.runStamp, event.suiteStamp.get, event.testStamp.get, event.ordinal, event.fromSpec, event.rerunnable, event.payload, event.threadName, event.timeStamp)
 }
