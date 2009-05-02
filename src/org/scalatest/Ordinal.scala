@@ -54,10 +54,11 @@ comes next in the old suite.
         diff = this.stamps(i) - that.stamps(i)
         i += 1
       }
-      // If they were equal all the way to the shorterLength, the longest array
-      // one is the greater ordinal.
+      // If they were equal all the way to the shorterLength, the shortest array
+      // one is the greater ordinal. This is because the newSuite stuff happens
+      // before the next thing that happens in the old suite.
       if (diff != 0) diff
-      else this.stamps.length - that.stamps.length
+      else that.stamps.length - this.stamps.length
     }
     else runStampDiff
   }

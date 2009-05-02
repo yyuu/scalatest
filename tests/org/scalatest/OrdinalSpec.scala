@@ -82,7 +82,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
+    it("should produce a pair of Ordinals whose n - 1 and n elements are equal when nextForNewSuite is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -121,7 +121,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 ord = nextOrd
               }
               val (forNewSuite, forOldSuite) = ord.nextForNewSuite
-              if (forOldSuite >= forNewSuite) {
+              if (forOldSuite <= forNewSuite) {
                 failures = (forOldSuite, forNewSuite) :: failures
                 // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
               }
