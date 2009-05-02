@@ -17,7 +17,7 @@ final class Ordinal private (val runStamp: Int, stamps: Array[Int]) extends Orde
     val zipped = stamps.zipWithIndex
     for ((num, idx) <- zipped)
       newArray(idx) = num
-    newArray(0) += 1
+    newArray(stamps.length - 1) += 1
     new Ordinal(runStamp, newArray)
   }
 
@@ -36,7 +36,7 @@ is the ordinal for this suite
     (new Ordinal(runStamp, newArrayForNewSuite), new Ordinal(runStamp, newArrayForThisSuite))
   }
 
-  def toList: List[Int] = stamps.toList
+  def toList: List[Int] = runStamp :: stamps.toList
 
   def compare(that: Ordinal) = 0
 }
