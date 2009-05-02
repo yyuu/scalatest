@@ -8,7 +8,7 @@
 package org.scalatest
 
 // TODO: equals and hashCode
-final class Ordinal private (val runStamp: Int, stamps: Array[Int]) extends Ordered[Ordinal] {
+final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) extends Ordered[Ordinal] {
 
   def this(runStamp: Int) = this(runStamp, Array(0))
 
@@ -38,5 +38,25 @@ is the ordinal for this suite
 
   def toList: List[Int] = runStamp :: stamps.toList
 
-  def compare(that: Ordinal) = 0
+  def compare(that: Ordinal) = {
+    val runStampDiff = this.runStamp - that.runStamp
+    if (runStampDiff == 0) {
+      val shorterLength =
+        if (this.stamps.length < that.stamps.length)
+          this.stamps.length
+        else
+          that.stamps.length
+      var i = 0
+      var diff = 0
+      while (diff == 0 && i < shorterLength) {
+        diff = this.stamps(i) - that.stamps(i)
+        i += 1
+      }
+      // If they were equal all the way to the shorterLength, the longest array
+      // one is the greater ordinal.
+      if (diff != 0) diff
+      else this.stamps.length - that.stamps.length
+    }
+    else runStampDiff
+  }
 }

@@ -91,7 +91,6 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
             for (i <- 0 until count) {
               for (j <- 0 until i) {
                 ord = ord.next
-                // println("INNER: " + ord.toList)
               }
               val (forOldSuite, forNewSuite) = ord.nextForNewSuite
               val oldList = forOldSuite.toList
@@ -99,11 +98,36 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               if (oldList(oldList.length - 1) != newList(oldList.length - 1))
                 failures = (forOldSuite, forNewSuite) :: failures
               ord = forNewSuite
-              // println("OUTER: " + ord.toList)
             }
-            // println("COUNT: " + count + " FINAL: " + ord.toList)
-            val zeroToCount = for (i <- 0 to count) yield i
-            // println("ZERO2COUNT: " + zeroToCount)
+            failures.isEmpty
+          }
+        }
+      )
+    }
+
+    it("should produce an Ordinal that is greater than this when either next or nextForNewSuite is invoked") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var failures = List[(Ordinal, Ordinal)]()
+            var ord = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                val nextOrd = ord.next
+                if (ord >= nextOrd) {
+                  failures = (ord, nextOrd) :: failures
+                  // println("INNER: " + ord.toList + " *** " + nextOrd.toList + " ^^^ " + ord.compare(nextOrd))
+                }
+                ord = nextOrd
+              }
+              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              if (forOldSuite >= forNewSuite) {
+                failures = (forOldSuite, forNewSuite) :: failures
+                // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
+              }
+              ord = forNewSuite
+            }
+            // println("FAILURES: " + failures.map((pair) => (pair._1.toList, pair._2.toList)))
             failures.isEmpty
           }
         }
