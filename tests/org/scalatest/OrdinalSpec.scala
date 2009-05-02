@@ -82,7 +82,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce a pair of Ordinals whose n - 1 and n elements are equal when nextForNewSuite is invoked") {
+    it("should produce a pair of Ordinals whose n - 1 and n elements are less than by 1 when nextForNewSuite is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -95,7 +95,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               val (forNewSuite, forOldSuite) = ord.nextForNewSuite
               val oldList = forOldSuite.toList
               val newList = forNewSuite.toList
-              if (oldList(oldList.length - 1) != newList(oldList.length - 1))
+              if (oldList(oldList.length - 1) != newList(oldList.length - 1) + 1)
                 failures = (forOldSuite, forNewSuite) :: failures
               ord = forNewSuite
             }
@@ -104,7 +104,14 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
         }
       )
     }
+/*
+ Crap, the more natural progression seems to be:
 
+[scalatest] List(99, 0, 1)      ord
+[scalatest] List(99, 0, 1, 0)   ordForNewSuite
+[scalatest] List(99, 0, 2)      ordForOldSuite
+
+*/
     it("should produce an Ordinal that is greater than this when either next or nextForNewSuite is invoked") {
       check(
         (count: Byte) => {
@@ -116,13 +123,21 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 val nextOrd = ord.next
                 if (ord >= nextOrd) {
                   failures = (ord, nextOrd) :: failures
-                  // println("INNER: " + ord.toList + " *** " + nextOrd.toList + " ^^^ " + ord.compare(nextOrd))
+                  println("INNER: " + ord.toList + " *** " + nextOrd.toList + " ^^^ " + ord.compare(nextOrd))
                 }
                 ord = nextOrd
               }
               val (forNewSuite, forOldSuite) = ord.nextForNewSuite
-              if (forOldSuite <= forNewSuite) {
+              if (forOldSuite <= forNewSuite || forOldSuite <= ord || forNewSuite <= ord) {
                 failures = (forOldSuite, forNewSuite) :: failures
+                println("*** 1 " + (forOldSuite <= ord) + "*** 2 " + (forNewSuite <= ord))
+                println(forOldSuite.compare(ord))
+                println(forNewSuite.compare(ord))
+                println(ord.compare(forOldSuite))
+                println(ord.compare(forNewSuite))
+                println(ord.toList)
+                println(forNewSuite.toList)
+                println(forOldSuite.toList)
                 // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
               }
               ord = forNewSuite

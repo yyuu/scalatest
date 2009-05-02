@@ -25,7 +25,10 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
 the first one is the ordinal for the new suite, the next one
 is the ordinal for this suite. The reason is the first one is less
 than the second one. All the new suite stuff happens "before" whatever
-comes next in the old suite.
+comes next in the old suite. Has this algo:
+[scalatest] List(99, 0, 1)      ord
+[scalatest] List(99, 0, 1, 0)   ordForNewSuite
+[scalatest] List(99, 0, 2)      ordForOldSuite
   */
   def nextForNewSuite: (Ordinal, Ordinal) = {
     val newArrayForNewSuite = new Array[Int](stamps.length + 1)
@@ -35,6 +38,7 @@ comes next in the old suite.
       newArrayForNewSuite(idx) = num
       newArrayForOldSuite(idx) = num
     }
+    newArrayForOldSuite(stamps.length - 1) += 1
     (new Ordinal(runStamp, newArrayForNewSuite), new Ordinal(runStamp, newArrayForOldSuite))
   }
 
@@ -54,11 +58,11 @@ comes next in the old suite.
         diff = this.stamps(i) - that.stamps(i)
         i += 1
       }
-      // If they were equal all the way to the shorterLength, the shortest array
+      // If they were equal all the way to the shorterLength, the longest array
       // one is the greater ordinal. This is because the newSuite stuff happens
       // before the next thing that happens in the old suite.
       if (diff != 0) diff
-      else that.stamps.length - this.stamps.length
+      else this.stamps.length - that.stamps.length
     }
     else runStampDiff
   }
