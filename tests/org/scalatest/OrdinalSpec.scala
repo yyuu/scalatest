@@ -29,7 +29,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
           (count >= 0) ==> {
             var ord = new Ordinal(99)
             for (i <- 0 until count)
-              ord = ord.nextForNewSuite._1
+              ord = ord.nextForNewSuite._2
             ord.toList == 99 :: List.make(count + 1, 0)
           }
         }
@@ -46,7 +46,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 ord = ord.next
                 // println("INNER: " + ord.toList)
               }
-              ord = ord.nextForNewSuite._1
+              ord = ord.nextForNewSuite._2
               // println("OUTER: " + ord.toList)
             }
             for (i <- 0 until count) // Get the nth one up to be count
@@ -59,5 +59,28 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
         }
       )
     }
+
+   /*it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var ord = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                ord = ord.next
+                // println("INNER: " + ord.toList)
+              }
+              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              ord = first
+              // println("OUTER: " + ord.toList)
+            }
+            // println("COUNT: " + count + " FINAL: " + ord.toList)
+            val zeroToCount = for (i <- 0 to count) yield i
+            // println("ZERO2COUNT: " + zeroToCount)
+            ord.toList == 99 :: zeroToCount.toList
+          }
+        }
+      )
+    }*/
   }
 }

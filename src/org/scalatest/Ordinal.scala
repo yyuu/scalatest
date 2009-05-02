@@ -27,13 +27,13 @@ is the ordinal for this suite
   */
   def nextForNewSuite: (Ordinal, Ordinal) = {
     val newArrayForNewSuite = new Array[Int](stamps.length + 1)
-    val newArrayForThisSuite = new Array[Int](stamps.length)
+    val newArrayForOldSuite = new Array[Int](stamps.length)
     val zipped = stamps.zipWithIndex
     for ((num, idx) <- zipped) {
       newArrayForNewSuite(idx) = num
-      newArrayForThisSuite(idx) = num
+      newArrayForOldSuite(idx) = num
     }
-    (new Ordinal(runStamp, newArrayForNewSuite), new Ordinal(runStamp, newArrayForThisSuite))
+    (new Ordinal(runStamp, newArrayForOldSuite), new Ordinal(runStamp, newArrayForNewSuite))
   }
 
   def toList: List[Int] = runStamp :: stamps.toList
