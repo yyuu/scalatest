@@ -60,10 +60,33 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-   /*it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
+   // it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
+   it("should produce a pair of Ordinals with _1.toList.length one less than _2.toList.length after nextForNewSuite is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
+            var failures = List[(Ordinal, Ordinal)]()
+            var ord = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                ord = ord.next
+              }
+              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              if (forOldSuite.toList.length != forNewSuite.toList.length - 1)
+                failures = (forOldSuite, forNewSuite) :: failures
+              ord = forNewSuite
+            }
+            failures.isEmpty
+          }
+        }
+      )
+    }
+
+    it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var failures = List[(Ordinal, Ordinal)]()
             var ord = new Ordinal(99)
             for (i <- 0 until count) {
               for (j <- 0 until i) {
@@ -71,16 +94,20 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 // println("INNER: " + ord.toList)
               }
               val (forOldSuite, forNewSuite) = ord.nextForNewSuite
-              ord = first
+              val oldList = forOldSuite.toList
+              val newList = forNewSuite.toList
+              if (oldList(oldList.length - 1) != newList(oldList.length - 1))
+                failures = (forOldSuite, forNewSuite) :: failures
+              ord = forNewSuite
               // println("OUTER: " + ord.toList)
             }
             // println("COUNT: " + count + " FINAL: " + ord.toList)
             val zeroToCount = for (i <- 0 to count) yield i
             // println("ZERO2COUNT: " + zeroToCount)
-            ord.toList == 99 :: zeroToCount.toList
+            failures.isEmpty
           }
         }
       )
-    }*/
+    }
   }
 }
