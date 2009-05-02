@@ -29,7 +29,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
           (count >= 0) ==> {
             var ord = new Ordinal(99)
             for (i <- 0 until count)
-              ord = ord.nextForNewSuite._2
+              ord = ord.nextForNewSuite._1
             ord.toList == 99 :: List.make(count + 1, 0)
           }
         }
@@ -46,7 +46,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 ord = ord.next
                 // println("INNER: " + ord.toList)
               }
-              ord = ord.nextForNewSuite._2
+              ord = ord.nextForNewSuite._1
               // println("OUTER: " + ord.toList)
             }
             for (i <- 0 until count) // Get the nth one up to be count
@@ -71,7 +71,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               for (j <- 0 until i) {
                 ord = ord.next
               }
-              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
               if (forOldSuite.toList.length != forNewSuite.toList.length - 1)
                 failures = (forOldSuite, forNewSuite) :: failures
               ord = forNewSuite
@@ -92,7 +92,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               for (j <- 0 until i) {
                 ord = ord.next
               }
-              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
               val oldList = forOldSuite.toList
               val newList = forNewSuite.toList
               if (oldList(oldList.length - 1) != newList(oldList.length - 1))
@@ -120,7 +120,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 }
                 ord = nextOrd
               }
-              val (forOldSuite, forNewSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
               if (forOldSuite >= forNewSuite) {
                 failures = (forOldSuite, forNewSuite) :: failures
                 // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))

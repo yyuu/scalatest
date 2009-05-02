@@ -23,7 +23,9 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
 
   /*
 the first one is the ordinal for the new suite, the next one
-is the ordinal for this suite
+is the ordinal for this suite. The reason is the first one is less
+than the second one. All the new suite stuff happens "before" whatever
+comes next in the old suite.
   */
   def nextForNewSuite: (Ordinal, Ordinal) = {
     val newArrayForNewSuite = new Array[Int](stamps.length + 1)
@@ -33,7 +35,7 @@ is the ordinal for this suite
       newArrayForNewSuite(idx) = num
       newArrayForOldSuite(idx) = num
     }
-    (new Ordinal(runStamp, newArrayForOldSuite), new Ordinal(runStamp, newArrayForNewSuite))
+    (new Ordinal(runStamp, newArrayForNewSuite), new Ordinal(runStamp, newArrayForOldSuite))
   }
 
   def toList: List[Int] = runStamp :: stamps.toList
