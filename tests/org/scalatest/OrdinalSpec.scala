@@ -123,13 +123,14 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 val nextOrd = ord.next
                 if (ord >= nextOrd) {
                   failures = (ord, nextOrd) :: failures
-                  println("INNER: " + ord.toList + " *** " + nextOrd.toList + " ^^^ " + ord.compare(nextOrd))
+                  // println("INNER: " + ord.toList + " *** " + nextOrd.toList + " ^^^ " + ord.compare(nextOrd))
                 }
                 ord = nextOrd
               }
               val (forNewSuite, forOldSuite) = ord.nextForNewSuite
               if (forOldSuite <= forNewSuite || forOldSuite <= ord || forNewSuite <= ord) {
                 failures = (forOldSuite, forNewSuite) :: failures
+                /*
                 println("*** 1 " + (forOldSuite <= ord) + "*** 2 " + (forNewSuite <= ord))
                 println(forOldSuite.compare(ord))
                 println(forNewSuite.compare(ord))
@@ -138,12 +139,68 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 println(ord.toList)
                 println(forNewSuite.toList)
                 println(forOldSuite.toList)
+                */
                 // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
               }
               ord = forNewSuite
             }
             // println("FAILURES: " + failures.map((pair) => (pair._1.toList, pair._2.toList)))
             failures.isEmpty
+          }
+        }
+      )
+    }
+
+    it("should produce equal Ordinals given the same series of next and nextForNewSuite calls, unequal otherwise") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var failures = List[Ordinal]()
+            var failuresThatEqualedAnOld = List[Ordinal]()
+            var tupleFailures = List[(Ordinal, Ordinal)]()
+            var previous = List[Ordinal]()
+            var ord = new Ordinal(99)
+            var otherOrd = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                if (ord != otherOrd) {
+                  failures = ord :: failures
+                  println("INNER: " + ord.toList)
+                }
+                previous = ord :: previous
+                ord = ord.next
+                otherOrd = otherOrd.next
+                if (failures.exists(_ == ord)) {
+                  failuresThatEqualedAnOld = ord :: failuresThatEqualedAnOld
+                  println("INNER2: " + ord.toList)
+                }
+              }
+              if (ord != otherOrd) {
+                failures = ord :: failures
+                println("OUTER: " + ord.toList)
+              }
+              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
+              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextForNewSuite
+              if (forOldSuite != otherForOldSuite || forOldSuite == forNewSuite) {
+                tupleFailures = (forOldSuite, forNewSuite) :: tupleFailures
+                println("OUTER2: " + tupleFailures.map((pair) => (pair._1.toList, pair._2.toList)))
+                /*
+                println("*** 1 " + (forOldSuite <= ord) + "*** 2 " + (forNewSuite <= ord))
+                println(forOldSuite.compare(ord))
+                println(forNewSuite.compare(ord))
+                println(ord.compare(forOldSuite))
+                println(ord.compare(forNewSuite))
+                println(ord.toList)
+                println(forNewSuite.toList)
+                println(forOldSuite.toList)
+                */
+                // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
+              }
+              ord = forNewSuite
+              otherOrd = otherForNewSuite
+            }
+            // println("FAILURES: " + failures.map((pair) => (pair._1.toList, pair._2.toList)))
+            failures.isEmpty && failuresThatEqualedAnOld.isEmpty && tupleFailures.isEmpty
           }
         }
       )

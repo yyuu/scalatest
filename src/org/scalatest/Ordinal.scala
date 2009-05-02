@@ -66,4 +66,12 @@ comes next in the old suite. Has this algo:
     }
     else runStampDiff
   }
+
+  override def equals(other: Any): Boolean =
+    other match {
+      case that: Ordinal =>
+        runStamp == that.runStamp &&
+        (stamps deepEquals that.stamps)
+      case _ => false
+    }
 }
