@@ -1,10 +1,3 @@
-/*
- * OrdinalSpec.scala
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package org.scalatest
 
 import org.scalatest.matchers.ShouldMatchers
@@ -37,9 +30,31 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
             var ord = new Ordinal(99)
             for (i <- 0 until count)
               ord = ord.nextForNewSuite._1
-            println(ord.toList)
-            println(99 :: List.make(count, 0))
             ord.toList == 99 :: List.make(count + 1, 0)
+          }
+        }
+      )
+    }
+
+    it("should produce a runStamp :: 0 :: 1 :: 2 :: ... :: n on nth next ad nextForNewSuite") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var ord = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                ord = ord.next
+                // println("INNER: " + ord.toList)
+              }
+              ord = ord.nextForNewSuite._1
+              // println("OUTER: " + ord.toList)
+            }
+            for (i <- 0 until count) // Get the nth one up to be count
+              ord = ord.next
+            // println("COUNT: " + count + " FINAL: " + ord.toList)
+            val zeroToCount = for (i <- 0 to count) yield i
+            // println("ZERO2COUNT: " + zeroToCount)
+            ord.toList == 99 :: zeroToCount.toList
           }
         }
       )
