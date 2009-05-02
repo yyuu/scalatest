@@ -7,6 +7,8 @@
 
 package org.scalatest
 
+import java.util.Arrays
+
 // TODO: equals and hashCode
 final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) extends Ordered[Ordinal] {
 
@@ -74,4 +76,9 @@ comes next in the old suite. Has this algo:
         (stamps deepEquals that.stamps)
       case _ => false
     }
+
+  override def hashCode: Int =
+    41 * (
+      41 + runStamp
+    ) + Arrays.hashCode(stamps)
 }

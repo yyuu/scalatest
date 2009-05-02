@@ -205,5 +205,53 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
         }
       )
     }
+
+    it("should produce Ordinals that have equals hashCodes given the same series of next and nextForNewSuite calls") {
+      check(
+        (count: Byte) => {
+          (count >= 0) ==> {
+            var failures = List[Ordinal]()
+            var tupleFailures = List[(Ordinal, Ordinal)]()
+            var ord = new Ordinal(99)
+            var otherOrd = new Ordinal(99)
+            for (i <- 0 until count) {
+              for (j <- 0 until i) {
+                if (ord.hashCode != otherOrd.hashCode) {
+                  failures = ord :: failures
+                  println("INNER: " + ord.toList)
+                }
+                ord = ord.next
+                otherOrd = otherOrd.next
+              }
+              if (ord.hashCode != otherOrd.hashCode) {
+                failures = ord :: failures
+                println("OUTER: " + ord.toList)
+              }
+              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
+              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextForNewSuite
+              if (forOldSuite.hashCode != otherForOldSuite.hashCode) {
+                tupleFailures = (forOldSuite, forNewSuite) :: tupleFailures
+                println("OUTER2: " + tupleFailures.map((pair) => (pair._1.toList, pair._2.toList)))
+                /*
+                println("*** 1 " + (forOldSuite <= ord) + "*** 2 " + (forNewSuite <= ord))
+                println(forOldSuite.compare(ord))
+                println(forNewSuite.compare(ord))
+                println(ord.compare(forOldSuite))
+                println(ord.compare(forNewSuite))
+                println(ord.toList)
+                println(forNewSuite.toList)
+                println(forOldSuite.toList)
+                */
+                // println("OUTER: " + forOldSuite.toList + " *** " + forNewSuite.toList + " ^^^ " + forOldSuite.compare(forNewSuite))
+              }
+              ord = forNewSuite
+              otherOrd = otherForNewSuite
+            }
+            // println("FAILURES: " + failures.map((pair) => (pair._1.toList, pair._2.toList)))
+            failures.isEmpty && tupleFailures.isEmpty
+          }
+        }
+      )
+    }
   }
 }
