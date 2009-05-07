@@ -15,18 +15,20 @@ import java.util.Arrays
  * during concurrent or distributed execution.
  *
  * <p>
- * The <code>runStamp</code> is an integer that identifies a particular run. All events
- * reported during the same run should share the same <code>runStamp</code>. By contrast, each
- * event reported during a particular run should have a different <code>stamps</code> array.
- * One use case for the <code>runStamp</code> is that the initial run from ScalaTest's GUI
- * will have <code>runStamp</code> 0. Subsequent reruns will have <code>runStamp</code>s 1,
+ * An <code>Ordinal</code> is an immutable object holding a <em>run stamp</em> and a sequence
+ * of <em>stamps</em>.
+ * The run stamp is an integer that identifies a particular run. All events
+ * reported during the same run should share the same run stamp. By contrast, each
+ * event reported during a particular run should have a different stamps sequence.
+ * One use case for the run stamp is that the initial run from ScalaTest's GUI
+ * will have run stamp 0. Subsequent reruns will have run stamps 1,
  * 2, 3, <em>etc.</em>, so that reports in the GUI can simply be sorted in "ordinal" order. Another
  * use case is a set of servers used to run multiple tests simultaneously in a distributed
- * fashion. The <code>runStamp</code> can be used to identify the run for which an event belongs.
+ * fashion. The run stamp can be used to identify the run for which an event belongs.
  * </p>
  *
  * <p>
- * The <code>stamps</code> array is designed to allow a sequential order of events to be specified during
+ * The stamps sequence is designed to allow a sequential order of events to be specified during
  * concurrent execution of ScalaTest suites. ScalaTest's model for concurrent execution is that
  * the suites that make up a run may be executed concurrently, but the tests within a single suite
  * will be executed sequentially. In addition to tests, suites may contain nested suites. The default implementation
@@ -46,7 +48,7 @@ import java.util.Arrays
  * Each event reported during a run should be given a unique <code>Ordinal</code>. An <code>Ordinal</code> is required
  * by all <code>Event</code> subclasses, instances of which are used to send information to the <code>report</code>
  * function passed to a <code>Suite</code>'s <code>execute</code> method. The first <code>Ordinal</code> for a run
- * can be produced be passing a <code>runStamp</code to <code>Ordinal</code>'s primary constructor:
+ * can be produced be passing a run stamp to <code>Ordinal</code>'s lone public constructor:
  * </p>
  * 
  * <pre>
@@ -54,11 +56,11 @@ import java.util.Arrays
  * </pre>
  *
  * <p>
- * The <code>runStamp</code> can be any integer. The <code>Ordinal</code> created in this way can be passed along with the first
+ * The run stamp can be any integer. The <code>Ordinal</code> created in this way can be passed along with the first
  * reported event of the run, such as a <code>RunStarting</code> event. Thereafter, new <code>Ordinal</code>s for the same run
- * can be obtained by calling either <code>next</code> or <code>nextForNewSuite</code> on the previously obtained <code>Ordinal</code>.
+ * can be obtained by calling either <code>next</code> or <code>nextNewOldPair</code> on the previously obtained <code>Ordinal</code>.
  * In other words, given an <code>Ordinal</code>, you can obtain the next <code>Ordinal</code> by invoking one of these two
- * "next" methods on the <code>Ordinal</code> you have in hand. Before executing a new <code>Suite</code>, the <code>nextForNewSuite</code>
+ * "next" methods on the <code>Ordinal</code> you have in hand. Before executing a new <code>Suite</code>, the <code>nextNewOldPair</code>
  * method should be invoked. This will return two new <code>Ordinal</code>s, one for the new <code>Suite</code> about to be executed, and
  * one for the currently executing entity (either a <code>Suite</code> or some sort of test runner). At any other time, the next <code>Ordinal</code>
  * can be obtained by simply invoking <code>next</code> on the current <code>Ordinal</code>.
@@ -66,8 +68,8 @@ import java.util.Arrays
  *
  * <p>
  * You can convert an <code>Ordinal</code> to a <code>List</code> by invoking <code>toList</code> on it. The resulting <code>List</code> will contain
- * the <code>runStamp</code> as its first element, and the contents of the private <code>stamps</code> array as the subsequent elements. The <code>stamps</code>
- * array will initially be composed of a single element with the value 0. Thus <code>toList</code> invoked on the <code>firstOrdinal</code> shown above will 
+ * the run stamp as its first element, and the contents of its stamps sequence as the subsequent elements. The stamps
+ * sequence will initially be composed of a single element with the value 0. Thus, <code>toList</code> invoked on the <code>firstOrdinal</code> shown above will 
  * result in:
  * </p>
  * 
@@ -75,7 +77,9 @@ import java.util.Arrays
  * firstOrdinal.toList // results in: List(99, 0)
  * </pre>
  *
+ * <p>
  * Each time <code>next</code> is invoked, the rightmost integer returned by <code>toList</code> will increment: 
+ * </p>
  * 
  * <pre>
  * val secondOrdinal = firstOrdinal.next
@@ -85,19 +89,22 @@ import java.util.Arrays
  * thirdOrdinal.toList  // result is : List(99, 2)
  * </pre>
  *
- * When <code>nextForNewSuite</code> is invoked the result will be a tuple whose first element is the first <code>Ordinal</code> for
+ * <p>
+ * When <code>nextNewOldPair</code> is invoked the result will be a tuple whose first element is the first <code>Ordinal</code> for
  * the new <code>Suite</code> about to be executed (for example, a nested <code>Suite</code> of the currently executing <code>Suite</code>). The
  * second element is the next <code>Ordinal</code> for the currently executing <code>Suite</code> or other entity:
+ * </p>
  *
  * <pre>
- * val (nextForNewSuite, nextForThisRunner) thirdOrdinal.nextForNewSuite
+ * val (nextForNewSuite, nextForThisRunner) thirdOrdinal.nextNewOldPair
  * nextForNewSuite.toList   // results in: (99, 2, 0)
  * nextForThisRunner.toList // results in: (99, 3)
  * </pre>
  *
  * <p>
- * The new <code>Suite</code>'s <code>Ordinal</code> results in the same list as the <code>Ordinal</code> from which it was created, but with the addition
- * of a new 0 element at the end. Subsequent invocations of <code>next</code> on this series of <code>Ordinal</code>s will increment that last element:
+ * The <code>toList</code> method of the <code>Ordinal</code> for the new suite starts with the same sequence of elements as the <code>Ordinal</code> from which it was
+ * created, but has one more element, a 0, appended at the end. Subsequent invocations of <code>next</code> on this series of <code>Ordinal</code>s will
+ * increment that last element:
  * </p>
  *
  * <pre>
@@ -113,8 +120,8 @@ import java.util.Arrays
  * have been reported. The ordering of two <code>Ordinal</code>s can be determined by first comparing the first element of the <code>List</code>s obtained
  * by invoking <code>toList</code> on both <code>Ordinal</code>s. These values represent the <code>runStamp</code>. If one run stamp is a lower number than
  * the other, that <code>Ordinal</code> comes first. For example, an <code>Ordinal</code> with a run stamp of 98 is ordered before an <code>Ordinal</code> with
- * a run stamp of 99. If the run stamps are equal, the next number in the array is inspected. As with the run stamps, an  <code>Ordinal</code> with a lower
- * number is ordered before an <code>Ordinal</code> with a higher number. If two corresponding elements are equal, the next pair of element will be inspected.
+ * a run stamp of 99. If the run stamps are equal, the next number in the list is inspected. As with the run stamps, an  <code>Ordinal</code> with a lower
+ * number is ordered before an <code>Ordinal</code> with a higher number. If two corresponding elements are equal, the next pair of elements will be inspected.
  * This will continue no down the length of the <code>List</code>s until a position is found where the element values are not equal, or the end of one or both of
  * the <code>List</code>s are reached. If the two <code>List</code>s are identical all the way to the end, and both <code>List</code>s have the same lengths, 
  * then the <code>Ordinal</code>s are equal. (Equal <code>Ordinal</code>s will not happen if correctly used by creating a new <code>Ordinal</code> for
@@ -147,15 +154,19 @@ import java.util.Arrays
  * List(99, 4, 1)
  * List(99, 5)
  * </pre>
- *
- * @param runStamp a number that identifies a particular run
- * @param stamps an array of integers that defines a particular place in a sequential order
- *        of events in a run
  */
 final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) extends Ordered[Ordinal] {
 
+  /**
+   * Construct a the first <code>Ordinal</code> for a run.
+   *
+   * @param runStamp a number that identifies a particular run
+   */
   def this(runStamp: Int) = this(runStamp, Array(0))
 
+  /**
+   * Construct the next <code>Ordinal</code> for the current suite or other entity, such as a runner.
+   */
   def next: Ordinal = {
     val newArray = new Array[Int](stamps.length) // Can't seem to clone
     val zipped = stamps.zipWithIndex
@@ -165,16 +176,27 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
     new Ordinal(runStamp, newArray)
   }
 
-  /*
-the first one is the ordinal for the new suite, the next one
-is the ordinal for this suite. The reason is the first one is less
-than the second one. All the new suite stuff happens "before" whatever
-comes next in the old suite. Has this algo:
-[scalatest] List(99, 0, 1)      ord
-[scalatest] List(99, 0, 1, 0)   ordForNewSuite
-[scalatest] List(99, 0, 2)      ordForOldSuite
-  */
-  def nextForNewSuite: (Ordinal, Ordinal) = {
+  /**
+   * Construct two new <code>Ordinal</code>s, one for a new <code>Suite</code> about to be executed and
+   * one for the current <code>Suite</code> or other entity, such as a runner. The <code>Ordinal</code>
+   * for the new <code>Suite</code> is the first (<code>_1</code>) element in the tuple:
+   *
+   * <pre>
+   * val (nextOrdinalForNewSuite, nextOrdinalForThisSuite) currentOrdinal.nextNewOldPair
+   * </pre>
+   *
+   * <p>
+   * The reason the next <code>Ordinal</code> for the new <code>Suite</code> is first is because it will
+   * be ordered <em>before</em> the next <code>Ordinal</code> for the current <code>Suite</code> (or other
+   * entity such as a runner). In fact, any event reported within the context of the new <code>Suite</code> or
+   * its nested <code>Suite</code>s will be ordered before the next <code>Ordinal</code> for the current <code>Suite</code>.
+   * </p>
+   *
+   * @returns a tuple whose first element is the first <code>Ordinal</code> for the new <code>Suite</code> and whose
+   *          second element is the next <code>Ordinal</code> for the current <code>Suite</code> or other entity, such
+   *          as a runner.
+   */
+  def nextNewOldPair: (Ordinal, Ordinal) = {
     val newArrayForNewSuite = new Array[Int](stamps.length + 1)
     val newArrayForOldSuite = new Array[Int](stamps.length)
     val zipped = stamps.zipWithIndex
@@ -186,8 +208,23 @@ comes next in the old suite. Has this algo:
     (new Ordinal(runStamp, newArrayForNewSuite), new Ordinal(runStamp, newArrayForOldSuite))
   }
 
+  /**
+   * Returns a <code>List[Int]</code> representation of this <code>Ordinal</code>. A set of <code>Ordinal</code>s will be ordered
+   * in the same order as the set of <code>List[Int]</code>s that are returned by invoking this method on each of the <code>Ordinal</code>s.
+   * The first element of the returned <code>List[Int]</code> is the <code>runStamp</code>.
+   *
+   * @returns a <code>List[Int]</code> representation of this <code>Ordinal</code>.
+   */
   def toList: List[Int] = runStamp :: stamps.toList
 
+  /**
+   * Compares this <code>Ordinal</code> with the passed <code>Ordinal</code> for order. If this object is "less than" (ordered before)
+   * the passed object, <code>compare</code> will return a negative integer. If this class is "greater than" (ordered after)
+   * the passed object, <code>compare</code> will return a positive integer. Otherwise, this <code>Ordinal</code> is equal to
+   * the passed object, and <code>compare</code> will return 0.
+   * 
+   * @return a negative integer, 0, or positive integer indicating this <code>Ordinal</code> is less than, equal to, or greater than the passed <code>Ordinal</code>.
+   */
   def compare(that: Ordinal) = {
     val runStampDiff = this.runStamp - that.runStamp
     if (runStampDiff == 0) {
@@ -211,6 +248,12 @@ comes next in the old suite. Has this algo:
     else runStampDiff
   }
 
+  /**
+   * Indicates whether the passed object is equal to this one.
+   *
+   * @param the object with which to compare this one for equality
+   * @returns true if the passed object is equal to this one
+   */
   override def equals(other: Any): Boolean =
     other match {
       case that: Ordinal =>
@@ -219,6 +262,11 @@ comes next in the old suite. Has this algo:
       case _ => false
     }
 
+  /**
+   * Returns a hash code value for this object.
+   *
+   * @returns a hash code for this object
+   */
   override def hashCode: Int =
     41 * (
       41 + runStamp
