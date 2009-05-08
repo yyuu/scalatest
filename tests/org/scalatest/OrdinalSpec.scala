@@ -23,20 +23,20 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce a runStamp :: 0 ... n times on nth nextForNewSuite") {
+    it("should produce a runStamp :: 0 ... n times on nth nextNewOldPair") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
             var ord = new Ordinal(99)
             for (i <- 0 until count)
-              ord = ord.nextForNewSuite._1
+              ord = ord.nextNewOldPair._1
             ord.toList == 99 :: List.make(count + 1, 0)
           }
         }
       )
     }
 
-    it("should produce a runStamp :: 0 :: 1 :: 2 :: ... :: n on nth next ad nextForNewSuite") {
+    it("should produce a runStamp :: 0 :: 1 :: 2 :: ... :: n on nth next ad nextNewOldPair") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -46,7 +46,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 ord = ord.next
                 // println("INNER: " + ord.toList)
               }
-              ord = ord.nextForNewSuite._1
+              ord = ord.nextNewOldPair._1
               // println("OUTER: " + ord.toList)
             }
             for (i <- 0 until count) // Get the nth one up to be count
@@ -60,8 +60,8 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-   // it("should produce a pair of Ordinals that have the same n and n - 1 element when nextForNewSuite is invoked") {
-   it("should produce a pair of Ordinals with _1.toList.length one less than _2.toList.length after nextForNewSuite is invoked") {
+   // it("should produce a pair of Ordinals that have the same n and n - 1 element when nextNewOldPair is invoked") {
+   it("should produce a pair of Ordinals with _1.toList.length one less than _2.toList.length after nextNewOldPair is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -71,7 +71,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               for (j <- 0 until i) {
                 ord = ord.next
               }
-              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextNewOldPair
               if (forOldSuite.toList.length != forNewSuite.toList.length - 1)
                 failures = (forOldSuite, forNewSuite) :: failures
               ord = forNewSuite
@@ -82,7 +82,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce a pair of Ordinals whose n - 1 and n elements are less than by 1 when nextForNewSuite is invoked") {
+    it("should produce a pair of Ordinals whose n - 1 and n elements are less than by 1 when nextNewOldPair is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -92,7 +92,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
               for (j <- 0 until i) {
                 ord = ord.next
               }
-              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextNewOldPair
               val oldList = forOldSuite.toList
               val newList = forNewSuite.toList
               if (oldList(oldList.length - 1) != newList(oldList.length - 1) + 1)
@@ -112,7 +112,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
 [scalatest] List(99, 0, 2)      ordForOldSuite
 
 */
-    it("should produce an Ordinal that is greater than this when either next or nextForNewSuite is invoked") {
+    it("should produce an Ordinal that is greater than this when either next or nextNewOldPair is invoked") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -127,7 +127,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 }
                 ord = nextOrd
               }
-              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextNewOldPair
               if (forOldSuite <= forNewSuite || forOldSuite <= ord || forNewSuite <= ord) {
                 failures = (forOldSuite, forNewSuite) :: failures
                 /*
@@ -151,7 +151,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce equal Ordinals given the same series of next and nextForNewSuite calls, unequal otherwise") {
+    it("should produce equal Ordinals given the same series of next and nextNewOldPair calls, unequal otherwise") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -179,8 +179,8 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 failures = ord :: failures
                 println("OUTER: " + ord.toList)
               }
-              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
-              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextNewOldPair
+              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextNewOldPair
               if (forOldSuite != otherForOldSuite || forOldSuite == forNewSuite) {
                 tupleFailures = (forOldSuite, forNewSuite) :: tupleFailures
                 println("OUTER2: " + tupleFailures.map((pair) => (pair._1.toList, pair._2.toList)))
@@ -206,7 +206,7 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
       )
     }
 
-    it("should produce Ordinals that have equals hashCodes given the same series of next and nextForNewSuite calls") {
+    it("should produce Ordinals that have equals hashCodes given the same series of next and nextNewOldPair calls") {
       check(
         (count: Byte) => {
           (count >= 0) ==> {
@@ -227,8 +227,8 @@ class OrdinalSpec extends Spec with ShouldMatchers with Checkers {
                 failures = ord :: failures
                 println("OUTER: " + ord.toList)
               }
-              val (forNewSuite, forOldSuite) = ord.nextForNewSuite
-              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextForNewSuite
+              val (forNewSuite, forOldSuite) = ord.nextNewOldPair
+              val (otherForNewSuite, otherForOldSuite) = otherOrd.nextNewOldPair
               if (forOldSuite.hashCode != otherForOldSuite.hashCode) {
                 tupleFailures = (forOldSuite, forNewSuite) :: tupleFailures
                 println("OUTER2: " + tupleFailures.map((pair) => (pair._1.toList, pair._2.toList)))

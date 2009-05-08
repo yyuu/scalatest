@@ -10,12 +10,14 @@ import java.util.Date
  * RunInfoProvided, SuiteInfoProvided, TestInfoProvided. Anything that starts with Run just
  * has runStamp and ordinal; Suite has those plus suiteStamp; Test has those plus testStamp.
  */
-sealed abstract class Event(
-  val ordinal: Ordinal
-) extends Ordered[Event] {
+sealed abstract class Event extends Ordered[Event] {
 
-  if (ordinal == null)
-    throw new NullPointerException("ordinal was null")
+  val ordinal: Ordinal
+  val formatter: Option[Formatter]
+  val rerunnable: Option[Rerunnable]
+  val payload: Option[Any]
+  val threadName: String
+  val timeStamp: Long
 
   /**
    * Comparing <code>this</code> event with the event passed as <code>that</code>. Returns
@@ -25,30 +27,9 @@ sealed abstract class Event(
    * @param return an integer indicating whether this event is less than, equal to, or greater than
    * the passed event
    */
-  def compare(that: Event): Int = 0
-  
-/*  def compare(that: Event): Int = {
-    if (this.runStamp != that.runStamp)
-      this.runStamp - that.runStamp
-    else suiteStamp match {
-      case Some(thisStamp) =>
-        that.suiteStamp match {
-          case Some(thatStamp) =>
-            val thisReversed = thisStamp.reverse
-            val thatReversed = thatStamp.reverse
-            val zipped = thisReversed zip thatReversed
-            val unequalPair = zipped find (pair => pair._1 != pair._2)
-            unequalPair match {
-              case Some((thisElement, thatElement)) => thisElement - thatElement
-              case None => 0 // For now
-            }
-          case None => 0 // for now
-        }
-      case None => 0 // For now
-    }
-
-  }*/
+  def compare(that: Event): Int = ordinal.compare(that.ordinal)
 }
+
 /**
  * Event that indicates a suite (or other entity) is about to start running a test.
  *
@@ -83,7 +64,7 @@ sealed abstract class Event(
  * @throws NullPointerException if any of the passed values are <code>null</code>
  */
 final class TestStarting private (
-  ordinal: Ordinal,
+  val ordinal: Ordinal,
   val name: String,
   val suiteName: String,
   val suiteClassName: Option[String],
@@ -93,8 +74,10 @@ final class TestStarting private (
   val payload: Option[Any],
   val threadName: String,
   val timeStamp: Long
-) extends Event(ordinal) {
+) extends Event {
     
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
   if (name == null)
     throw new NullPointerException("name was null")
   if (suiteName == null)
@@ -121,7 +104,7 @@ final class TestStarting private (
   override def equals(other: Any): Boolean = {
     other match {
       case that: TestStarting =>
-        this.ordinal == that.ordinal &&
+        ordinal == that.ordinal &&
         name == that.name &&
         suiteName == that.suiteName &&
         suiteClassName == that.suiteClassName &&
@@ -150,7 +133,7 @@ final class TestStarting private (
                 41 * (
                   41 * (
                     41 * (
-                      41 + this.ordinal.hashCode
+                      41 + ordinal.hashCode
                     ) + name.hashCode
                   ) + suiteName.hashCode
                 ) + suiteClassName.hashCode
