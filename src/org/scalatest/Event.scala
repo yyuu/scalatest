@@ -110,7 +110,7 @@ final case class TestStarting private (
  * and an extractor method to facilitate pattern matching on <code>TestStarting</code> objects.
  *
  * <p>
- * All factory methods throw <code>NullPointerException<code> if any of the passed values are <code>null</code>.
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
  * </p>
  */
 object TestStarting {
@@ -317,7 +317,7 @@ final case class TestSucceeded private (
  * and an extractor method to facilitate pattern matching on <code>TestSucceeded</code> objects.
  *
  * <p>
- * All factory methods throw <code>NullPointerException<code> if any of the passed values are <code>null</code>.
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
  * </p>
  */
 object TestSucceeded {
