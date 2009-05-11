@@ -44,7 +44,7 @@ sealed abstract class Event extends Ordered[Event] {
  * </p>
  *
  * <pre>
- * report(TestStarting(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestStarting(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -133,7 +133,9 @@ object TestStarting {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
+   *
    */
   def apply(
     ordinal: Ordinal,
@@ -165,6 +167,7 @@ object TestStarting {
    *        is passed, the test cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -195,6 +198,7 @@ object TestStarting {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -222,6 +226,7 @@ object TestStarting {
    * @param testName the name of the test that is starting
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -251,7 +256,7 @@ object TestStarting {
  * </p>
  *
  * <pre>
- * report(TestSucceeded(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestSucceeded(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -340,6 +345,7 @@ object TestSucceeded {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
    */
   def apply(
@@ -372,6 +378,7 @@ object TestSucceeded {
    *        is passed, the test cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
    */
   def apply(
@@ -402,6 +409,7 @@ object TestSucceeded {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
    */
   def apply(
@@ -429,6 +437,7 @@ object TestSucceeded {
    * @param testName the name of the test that has succeeded
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
    */
   def apply(
@@ -457,7 +466,7 @@ object TestSucceeded {
  * </p>
  *
  * <pre>
- * report(TestFailed(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestFailed(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -478,7 +487,6 @@ object TestSucceeded {
  * @param testName the name of the test that has failed
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
- *     is reported without describing a <code>Throwable</code>.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
@@ -554,6 +562,7 @@ object TestFailed {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestFailed</code> instance initialized with the passed and default values
    */
   def apply(
@@ -589,6 +598,7 @@ object TestFailed {
    *        is passed, the test cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestFailed</code> instance initialized with the passed and default values
    */
   def apply(
@@ -622,6 +632,7 @@ object TestFailed {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestFailed</code> instance initialized with the passed and default values
    */
   def apply(
@@ -652,6 +663,7 @@ object TestFailed {
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestFailed</code> instance initialized with the passed and default values
    */
   def apply(
@@ -682,7 +694,7 @@ object TestFailed {
  * </p>
  *
  * <pre>
- * report(TestIgnored(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestIgnored(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -764,6 +776,7 @@ object TestIgnored {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestIgnored</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestIgnored</code> instance initialized with the passed and default values
    */
   def apply(
@@ -793,6 +806,7 @@ object TestIgnored {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestIgnored</code> instance initialized with the passed and default values
    */
   def apply(
@@ -820,6 +834,7 @@ object TestIgnored {
    * @param testName the name of the test that was ignored
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestIgnored</code> instance initialized with the passed and default values
    */
   def apply(
@@ -843,7 +858,7 @@ object TestIgnored {
  * </p>
  *
  * <pre>
- * report(TestPending(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestPending(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -925,6 +940,7 @@ object TestPending {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestPending</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestPending</code> instance initialized with the passed and default values
    */
   def apply(
@@ -954,6 +970,7 @@ object TestPending {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestPending</code> instance initialized with the passed and default values
    */
   def apply(
@@ -981,6 +998,7 @@ object TestPending {
    * @param testName the name of the test that is pending
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>TestPending</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1009,7 +1027,7 @@ object TestPending {
  * </p>
  *
  * <pre>
- * report(SuiteStarting(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteStarting(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1093,6 +1111,7 @@ object SuiteStarting {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1123,6 +1142,7 @@ object SuiteStarting {
    *        is passed, the suite cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1151,6 +1171,7 @@ object SuiteStarting {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1176,6 +1197,7 @@ object SuiteStarting {
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that is starting
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1204,7 +1226,7 @@ object SuiteStarting {
  * </p>
  *
  * <pre>
- * report(SuiteCompleted(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteCompleted(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1288,6 +1310,7 @@ object SuiteCompleted {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteCompleted</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1318,6 +1341,7 @@ object SuiteCompleted {
    *        is passed, the suite cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1346,6 +1370,7 @@ object SuiteCompleted {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1371,6 +1396,7 @@ object SuiteCompleted {
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1400,7 +1426,7 @@ object SuiteCompleted {
  * </p>
  *
  * <pre>
- * report(SuiteAborted(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteAborted(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1420,7 +1446,6 @@ object SuiteCompleted {
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
- *     is reported without describing a <code>Throwable</code>.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has aborted (if <code>None</code>
@@ -1492,6 +1517,7 @@ object SuiteAborted {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteAborted</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1525,6 +1551,7 @@ object SuiteAborted {
    *        is passed, the suite cannot be rerun)
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1556,6 +1583,7 @@ object SuiteAborted {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1584,6 +1612,7 @@ object SuiteAborted {
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>SuiteAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1673,6 +1702,7 @@ object RunStarting {
    *
    * @throws IllegalArgumentException if <code>testCount</code> is less than zero.
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1696,6 +1726,7 @@ object RunStarting {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1716,6 +1747,7 @@ object RunStarting {
    * @param testCount the number of tests expected during this run
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStarting</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1802,6 +1834,7 @@ object RunCompleted {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunCompleted</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1823,6 +1856,7 @@ object RunCompleted {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1841,6 +1875,7 @@ object RunCompleted {
    *        other events reported during the same run
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1927,6 +1962,7 @@ object RunStopped {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStopped</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStopped</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1948,6 +1984,7 @@ object RunStopped {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStopped</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1966,6 +2003,7 @@ object RunStopped {
    *        other events reported during the same run
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunStopped</code> instance initialized with the passed and default values
    */
   def apply(
@@ -1998,7 +2036,6 @@ object RunStopped {
  *        other events reported during the same run
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
- *     is reported without describing a <code>Throwable</code>.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunAborted</code> event
@@ -2050,6 +2087,7 @@ object RunAborted {
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunAborted</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -2074,6 +2112,7 @@ object RunAborted {
    *        how to present this event to the user
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -2095,6 +2134,7 @@ object RunAborted {
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
    * @return a new <code>RunAborted</code> instance initialized with the passed and default values
    */
   def apply(
@@ -2102,6 +2142,183 @@ object RunAborted {
     throwable: Option[Throwable]
   ): RunAborted = {
     apply(ordinal, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event used to provide information that is not appropriate to report via any other <code>Event</code>.
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="InfoProvided$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>InfoProvided</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(InfoProvided(ordinal, userFriendlyName, Some(suiteName), Some(thisSuite.getClass.getName), Some(testName)))
+ * </pre>
+ *
+ * <p>
+ * If either <code>suiteClassName</code> or <code>testName</code> is defined, then <code>suiteName</code> must be defined.
+ * The suite class name parameter is optional even if a suite name is provided by passing a <code>Some</code> as <code>suiteName</code>,
+ * because suites in ScalaTest are an abstraction that
+ * need not necessarily correspond to one class. Nevertheless, it most cases each suite will correspond
+ * to a class, and when it does, the fully qualified name of that class should be reported by passing a
+ * <code>Some</code> for <code>suiteClassName</code>. One use for this bit of information is JUnit integration,
+ * because the "name" provided to a JUnit <code>org.junit.runner.Description</code> appears to usually include
+ * a fully qualified class name by convention.
+ * </p>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param message a localized message suitable for presenting to the user
+ * @param suiteName an optional name of the suite about which the information was provided
+ * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
+ * @param testName an optional name of the test about which the information was provided
+ * @param throwable an optional <code>Throwable</code>
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>InfoProvided</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ */
+final case class InfoProvided private (
+  ordinal: Ordinal,
+  message: String,
+  suiteName: Option[String],
+  suiteClassName: Option[String],
+  testName: Option[String],
+  throwable: Option[Throwable],
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (message == null)
+    throw new NullPointerException("name was null")
+  if (suiteName == null)
+    throw new NullPointerException("suiteName was null")
+  if (suiteClassName == null)
+    throw new NullPointerException("suiteClassName was null")
+  if (testName == null)
+    throw new NullPointerException("testName was null")
+  if (throwable == null)
+    throw new NullPointerException("throwable was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="InfoProvided.html"><code>InfoProvided</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>InfoProvided</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
+ * </p>
+ */
+object InfoProvided {
+
+  /**
+   * Constructs a new <code>InfoProvided</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
+   * @param suiteName an optional name of the suite about which this information was provided
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
+   * @param testName an optional name of the about which this information was provided
+   * @param throwable an optional <code>Throwable</code>
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>InfoProvided</code> event
+   *
+   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    suiteName: Option[String],
+    suiteClassName: Option[String],
+    testName: Option[String],
+    throwable: Option[Throwable],
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): InfoProvided = {
+    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+
+  /**
+   * Constructs a new <code>InfoProvided</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>,
+   * and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
+   * @param throwable an optional <code>Throwable</code>
+   * @param suiteName an optional name of the suite about which the information was provided
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
+   * @param testName an optional name of the test about which the information was provided
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    suiteName: Option[String],
+    suiteClassName: Option[String],
+    testName: Option[String],
+    throwable: Option[Throwable],
+    formatter: Option[Formatter]
+  ): InfoProvided = {
+    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>InfoProvided</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
+   * @param suiteName an optional name of the suite about which the information was provided
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
+   * @param testName an optional name of the test about which the information was provided
+   * @param throwable an optional <code>Throwable</code>
+   *
+   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    suiteName: Option[String],
+    suiteClassName: Option[String],
+    testName: Option[String],
+    throwable: Option[Throwable]
+  ): InfoProvided = {
+    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
