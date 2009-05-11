@@ -67,7 +67,7 @@ sealed abstract class Event extends Ordered[Event] {
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that is starting (if <code>None</code>
  *        is passed, the test cannot be rerun)
- * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
  *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
@@ -130,7 +130,7 @@ object TestStarting {
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that is starting (if <code>None</code>
    *        is passed, the test cannot be rerun)
-   * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
    * @return a new <code>TestStarting</code> instance initialized with the passed and default values
@@ -274,7 +274,7 @@ object TestStarting {
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has succeeded (if <code>None</code>
  *        is passed, the test cannot be rerun)
- * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
  *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
@@ -337,7 +337,7 @@ object TestSucceeded {
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has succeeded (if <code>None</code>
    *        is passed, the test cannot be rerun)
-   * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
    * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
@@ -483,7 +483,7 @@ object TestSucceeded {
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
  *        is passed, the test cannot be rerun)
- * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
  *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
@@ -551,7 +551,7 @@ object TestFailed {
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
    *        is passed, the test cannot be rerun)
-   * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
    * @return a new <code>TestFailed</code> instance initialized with the passed and default values
@@ -696,14 +696,14 @@ object TestFailed {
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
- * @param name a localized name identifying the test that is starting, which should include the
+ * @param name a localized name identifying the test that was ignored, which should include the
  *        suite and test names, suitable for presenting to the user
- * @param suiteName the name of the suite containing the test that is starting
- * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
- * @param testName the name of the test that is starting
+ * @param suiteName the name of the suite containing the test that was ignored
+ * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
+ * @param testName the name of the test that was ignored
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
- * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestIgnored</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
  *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
@@ -754,14 +754,14 @@ object TestIgnored {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
-   * @param name a localized name identifying the test that is starting, which should include the
+   * @param name a localized name identifying the test that was ignored, which should include the
    *        suite and test names, suitable for presenting to the user
-   * @param suiteName the name of the suite containing the test that is starting
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
-   * @param testName the name of the test that is starting
+   * @param suiteName the name of the suite containing the test that was ignored
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
+   * @param testName the name of the test that was ignored
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
-   * @param payload an optional object that can be used to pass custom information to the reporter about the test starting event
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestIgnored</code> event
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
    * @return a new <code>TestIgnored</code> instance initialized with the passed and default values
@@ -784,11 +784,11 @@ object TestIgnored {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
-   * @param name a localized name identifying the test that is starting, which should include the
+   * @param name a localized name identifying the test that was ignored, which should include the
    *        suite and test names, suitable for presenting to the user
-   * @param suiteName the name of the suite containing the test that is starting
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
-   * @param testName the name of the test that is starting
+   * @param suiteName the name of the suite containing the test that was ignored
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
+   * @param testName the name of the test that was ignored
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    *
@@ -813,11 +813,11 @@ object TestIgnored {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
-   * @param name a localized name identifying the test that is starting, which should include the
+   * @param name a localized name identifying the test that was ignored, which should include the
    *        suite and test names, suitable for presenting to the user
-   * @param suiteName the name of the suite containing the test that is starting
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
-   * @param testName the name of the test that is starting
+   * @param suiteName the name of the suite containing the test that was ignored
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
+   * @param testName the name of the test that was ignored
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
    * @return a new <code>TestIgnored</code> instance initialized with the passed and default values
@@ -829,6 +829,167 @@ object TestIgnored {
     suiteClassName: Option[String],
     testName: String
   ): TestIgnored = {
+    apply(ordinal, name, suiteName, suiteClassName, testName, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event that indicates a test is pending, <em>i.e.</em>, it hasn't yet been implemented.
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="TestPending$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>TestPending</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(TestPending(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * </pre>
+ *
+ * <p>
+ * The suite class name parameter is optional, because suites in ScalaTest are an abstraction that
+ * need not necessarily correspond to one class. Nevertheless, it most cases each suite will correspond
+ * to a class, and when it does, the fully qualified name of that class should be reported by passing a
+ * <code>Some</code> for <code>suiteClassName</code>. One use for this bit of information is JUnit integration,
+ * because the "name" provided to a JUnit <code>org.junit.runner.Description</code> appears to usually include
+ * a fully qualified class name by convention.
+ * </p>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param name a localized name identifying the test that is pending, which should include the
+ *        suite and test names, suitable for presenting to the user
+ * @param suiteName the name of the suite containing the test that is pending
+ * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
+ * @param testName the name of the test that is pending
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestPending</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ */
+final case class TestPending private (
+  ordinal: Ordinal,
+  name: String,
+  suiteName: String,
+  suiteClassName: Option[String],
+  testName: String,
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (name == null)
+    throw new NullPointerException("name was null")
+  if (suiteName == null)
+    throw new NullPointerException("suiteName was null")
+  if (suiteClassName == null)
+    throw new NullPointerException("suiteClassName was null")
+  if (testName == null)
+    throw new NullPointerException("testName was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="TestPending.html"><code>TestPending</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>TestPending</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
+ * </p>
+ */
+object TestPending {
+
+  /**
+   * Constructs a new <code>TestPending</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the test that is pending, which should include the
+   *        suite and test names, suitable for presenting to the user
+   * @param suiteName the name of the suite containing the test that is pending
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
+   * @param testName the name of the test that is pending
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestPending</code> event
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestPending</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): TestPending = {
+    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>TestPending</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the test that is pending, which should include the
+   *        suite and test names, suitable for presenting to the user
+   * @param suiteName the name of the suite containing the test that is pending
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
+   * @param testName the name of the test that is pending
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestPending</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    formatter: Option[Formatter]
+  ): TestPending = {
+    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>TestPending</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the test that is pending, which should include the
+   *        suite and test names, suitable for presenting to the user
+   * @param suiteName the name of the suite containing the test that is pending
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
+   * @param testName the name of the test that is pending
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>TestPending</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String
+  ): TestPending = {
     apply(ordinal, name, suiteName, suiteClassName, testName, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
