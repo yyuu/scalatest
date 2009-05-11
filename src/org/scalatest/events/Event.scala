@@ -44,7 +44,7 @@ sealed abstract class Event extends Ordered[Event] {
  * </p>
  *
  * <pre>
- * report(TestStarting(userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestStarting(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
  * </pre>
  *
  * <p>
@@ -251,7 +251,7 @@ object TestStarting {
  * </p>
  *
  * <pre>
- * report(TestSucceeded(userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestSucceeded(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
  * </pre>
  *
  * <p>
@@ -457,7 +457,7 @@ object TestSucceeded {
  * </p>
  *
  * <pre>
- * report(TestFailed(userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestFailed(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
  * </pre>
  *
  * <p>
@@ -682,7 +682,7 @@ object TestFailed {
  * </p>
  *
  * <pre>
- * report(TestIgnored(userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
+ * report(TestIgnored(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName, testName))
  * </pre>
  *
  * <p>
@@ -848,7 +848,7 @@ object TestIgnored {
  * </p>
  *
  * <pre>
- * report(SuiteStarting(userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteStarting(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
  * </pre>
  *
  * <p>
@@ -1043,7 +1043,7 @@ object SuiteStarting {
  * </p>
  *
  * <pre>
- * report(SuiteCompleted(userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteCompleted(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
  * </pre>
  *
  * <p>
@@ -1239,7 +1239,7 @@ object SuiteCompleted {
  * </p>
  *
  * <pre>
- * report(SuiteAborted(userFriendlyName, suiteName, thisSuite.getClass.getName))
+ * report(SuiteAborted(ordinal, userFriendlyName, suiteName, thisSuite.getClass.getName))
  * </pre>
  *
  * <p>
@@ -1433,6 +1433,514 @@ object SuiteAborted {
     throwable: Option[Throwable]
   ): SuiteAborted = {
     apply(ordinal, name, suiteName, suiteClassName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event that indicates a runner is about run a suite of tests.
+ *
+ * <p>
+ * For example, object <code>Runner</code> reports <code>RunStarting</code> to indicate
+ * that the first <code>execute</code> method of a run's initial <code>Suite</code>
+ * is about to be invoked.
+ * </p>
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="RunStarting$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>RunStarting</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(RunStarting(ordinal, testCount))
+ * </pre>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param testCount the number of tests expected during this run
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStarting</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ *
+ * @throws IllegalArgumentException if <code>testCount</code> is less than zero.
+ */
+final case class RunStarting private (
+  ordinal: Ordinal,
+  testCount: Int,
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+    
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (testCount < 0)
+    throw new IllegalArgumentException("testCount was less than zero: " + testCount)
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="RunStarting.html"><code>RunStarting</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>RunStarting</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>, and <code>IllegalArgumentException</code> if
+ * <code>testCount</code> is less than zero.
+ * </p>
+ */
+object RunStarting {
+
+  /**
+   * Constructs a new <code>RunStarting</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param testCount the number of tests expected during this run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStarting</code> event
+   *
+   * @throws IllegalArgumentException if <code>testCount</code> is less than zero.
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStarting</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    testCount: Int,
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): RunStarting = {
+    apply(ordinal, testCount, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunStarting</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>,
+   * and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param testCount the number of tests expected during this run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStarting</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    testCount: Int,
+    formatter: Option[Formatter]
+  ): RunStarting = {
+    apply(ordinal, testCount, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunStarting</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param testCount the number of tests expected during this run
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStarting</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    testCount: Int
+  ): RunStarting = {
+    apply(ordinal, testCount, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event that indicates a runner has completed running a suite of tests.
+ *
+ * <p>
+ * <code>Suite</code>'s <code>execute</code> method takes a <code>Stopper</code>, whose <code>stopRequested</code>
+ * method indicates a stop was requested. If <code>true</code> is returned by
+ * <code>stopRequested</code> while a suite of tests is running, the
+ * <code>execute</code> method should promptly
+ * return even if that suite hasn't finished running all of its tests.
+ * </p>
+ *
+ * <p>If a stop was requested via the <code>Stopper</code>.
+ * <code>Runner</code> will report <code>RunStopped</code>
+ * when the <code>execute</code> method of the run's starting <code>Suite</code> returns.
+ * If a stop is not requested, <code>Runner</code> will report <code>RunCompleted</code>
+ * when the last <code>execute</code> method of the run's starting <code>Suite</code>s returns.
+ * </p>
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="RunCompleted$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>RunCompleted</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(RunCompleted(ordinal))
+ * </pre>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunCompleted</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ */
+final case class RunCompleted private (
+  ordinal: Ordinal,
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="RunCompleted.html"><code>RunCompleted</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>RunCompleted</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
+ * </p>
+ */
+object RunCompleted {
+
+  /**
+   * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunCompleted</code> event
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): RunCompleted = {
+    apply(ordinal, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>,
+   * and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    formatter: Option[Formatter]
+  ): RunCompleted = {
+    apply(ordinal, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal
+  ): RunCompleted = {
+    apply(ordinal, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event that indicates a runner has stopped running a suite of tests prior to completion, likely
+ * because of a stop request.
+ *
+ * <p>
+ * <code>Suite</code>'s <code>execute</code> method takes a <code>Stopper</code>, whose <code>stopRequested</code>
+ * method indicates a stop was requested. If <code>true</code> is returned by
+ * <code>stopRequested</code> while a suite of tests is running, the
+ * <code>execute</code> method should promptly
+ * return even if that suite hasn't finished running all of its tests.
+ * </p>
+ *
+ * <p>If a stop was requested via the <code>Stopper</code>.
+ * <code>Runner</code> will report <code>RunStopped</code>
+ * when the <code>execute</code> method of the run's starting <code>Suite</code> returns.
+ * If a stop is not requested, <code>Runner</code> will report <code>RunCompleted</code>
+ * when the last <code>execute</code> method of the run's starting <code>Suite</code>s returns.
+ * </p>
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="RunStopped$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>RunStopped</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(RunStopped(ordinal))
+ * </pre>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStopped</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ */
+final case class RunStopped private (
+  ordinal: Ordinal,
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="RunStopped.html"><code>RunStopped</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>RunStopped</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
+ * </p>
+ */
+object RunStopped {
+
+  /**
+   * Constructs a new <code>RunStopped</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStopped</code> event
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStopped</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): RunStopped = {
+    apply(ordinal, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunStopped</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>,
+   * and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStopped</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    formatter: Option[Formatter]
+  ): RunStopped = {
+    apply(ordinal, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunStopped</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunStopped</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal
+  ): RunStopped = {
+    apply(ordinal, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+}
+
+/**
+ * Event that indicates a runner encountered an error while attempting to run a suite of tests.
+ *
+ * <p>
+ * For example, object <code>Runner</code> reports <code>RunAborted</code> if the
+ * <code>execute</code> method of any of the run's starting <code>Suite</code>s completes
+ * abruptly with a <code>Throwable</code>.
+ * </p>
+ *
+ * <p>
+ * This class has a private constructor. To create instances of this class you must
+ * use one of the factory methods provided in its <a href="RunAborted$object.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>RunAborted</code> event like this:
+ * </p>
+ *
+ * <pre>
+ * report(RunAborted(ordinal, Some(exception)))
+ * </pre>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+ *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+ *     is reported without describing a <code>Throwable</code>.
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunAborted</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ */
+final case class RunAborted private (
+  ordinal: Ordinal,
+  throwable: Option[Throwable],
+  formatter: Option[Formatter],
+  payload: Option[Any],
+  threadName: String,
+  timeStamp: Long
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (throwable == null)
+    throw new NullPointerException("throwable was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
+ * Companion object for the <a href="RunAborted.html"><code>RunAborted</code></a> event, which contains overloaded factory methods
+ * and an extractor method to facilitate pattern matching on <code>RunAborted</code> objects.
+ *
+ * <p>
+ * All factory methods throw <code>NullPointerException</code> if any of the passed values are <code>null</code>.
+ * </p>
+ */
+object RunAborted {
+
+  /**
+   * Constructs a new <code>RunAborted</code> event with the passed parameters, passing the current thread's
+   * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunAborted</code> event
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunAborted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    throwable: Option[Throwable],
+    formatter: Option[Formatter],
+    payload: Option[Any]
+  ): RunAborted = {
+    apply(ordinal, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunAborted</code> event with the passed parameters, passing <code>None</code> as the
+   * <code>payload</code>, the current threads name as <code>threadname</code>,
+   * and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+   *        how to present this event to the user
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunAborted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    throwable: Option[Throwable],
+    formatter: Option[Formatter]
+  ): RunAborted = {
+    apply(ordinal, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunAborted</code> event with the passed parameters, passing <code>None</code> for
+   * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   * @return a new <code>RunAborted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    throwable: Option[Throwable]
+  ): RunAborted = {
+    apply(ordinal, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
