@@ -466,7 +466,7 @@ object TestSucceeded {
  * </p>
  *
  * <pre>
- * report(TestFailed(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
+ * report(TestFailed(ordinal, userFriendlyName, message, suiteName, Some(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -482,6 +482,7 @@ object TestSucceeded {
  *        other events reported during the same run
  * @param name a localized name identifying the test that has failed, which should include the
  *        suite and test names, suitable for presenting to the user
+ * @param message a localized message suitable for presenting to the user
  * @param suiteName the name of the suite containing the test that has failed
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
  * @param testName the name of the test that has failed
@@ -499,6 +500,7 @@ object TestSucceeded {
 final case class TestFailed private (
   ordinal: Ordinal,
   name: String,
+  message: String,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
@@ -514,6 +516,8 @@ final case class TestFailed private (
     throw new NullPointerException("ordinal was null")
   if (name == null)
     throw new NullPointerException("name was null")
+  if (message == null)
+    throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
   if (suiteClassName == null)
@@ -550,6 +554,7 @@ object TestFailed {
    *        other events reported during the same run
    * @param name a localized name identifying the test that has failed, which should include the
    *        suite and test names, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the test that has failed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
    * @param testName the name of the test that has failed
@@ -568,6 +573,7 @@ object TestFailed {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
@@ -576,7 +582,7 @@ object TestFailed {
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): TestFailed = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -587,6 +593,7 @@ object TestFailed {
    *        other events reported during the same run
    * @param name a localized name identifying the test that has failed, which should include the
    *        suite and test names, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the test that has failed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
@@ -604,6 +611,7 @@ object TestFailed {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
@@ -611,7 +619,7 @@ object TestFailed {
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): TestFailed = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -623,6 +631,7 @@ object TestFailed {
    *        other events reported during the same run
    * @param name a localized name identifying the test that has failed, which should include the
    *        suite and test names, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    * @param suiteName the name of the suite containing the test that has failed
@@ -638,13 +647,14 @@ object TestFailed {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
     throwable: Option[Throwable],
     formatter: Option[Formatter]
   ): TestFailed = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -656,6 +666,7 @@ object TestFailed {
    *        other events reported during the same run
    * @param name a localized name identifying the test that has failed, which should include the
    *        suite and test names, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the test that has failed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
    * @param testName the name of the test that has failed
@@ -669,12 +680,13 @@ object TestFailed {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
     throwable: Option[Throwable]
   ): TestFailed = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -1426,7 +1438,7 @@ object SuiteCompleted {
  * </p>
  *
  * <pre>
- * report(SuiteAborted(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
+ * report(SuiteAborted(ordinal, userFriendlyName, message, suiteName, Some(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1442,6 +1454,7 @@ object SuiteCompleted {
  *        other events reported during the same run
  * @param name a localized name identifying the suite that has aborted, which should include the
  *        suite name, suitable for presenting to the user
+ * @param message a localized message suitable for presenting to the user
  * @param suiteName the name of the suite containing the suite that has aborted
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -1458,6 +1471,7 @@ object SuiteCompleted {
 final case class SuiteAborted private (
   ordinal: Ordinal,
   name: String,
+  message: String,
   suiteName: String,
   suiteClassName: Option[String],
   throwable: Option[Throwable],
@@ -1472,6 +1486,8 @@ final case class SuiteAborted private (
     throw new NullPointerException("ordinal was null")
   if (name == null)
     throw new NullPointerException("name was null")
+  if (message == null)
+    throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
   if (suiteClassName == null)
@@ -1506,6 +1522,7 @@ object SuiteAborted {
    *        other events reported during the same run
    * @param name a localized name identifying the suite that has aborted, which should include the
    *        suite name, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has aborted
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -1523,6 +1540,7 @@ object SuiteAborted {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
@@ -1530,7 +1548,7 @@ object SuiteAborted {
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): SuiteAborted = {
-    apply(ordinal, name, suiteName, suiteClassName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1541,6 +1559,7 @@ object SuiteAborted {
    *        other events reported during the same run
    * @param name a localized name identifying the suite that has aborted, which should include the
    *        suite name, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has aborted
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -1557,13 +1576,14 @@ object SuiteAborted {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): SuiteAborted = {
-    apply(ordinal, name, suiteName, suiteClassName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1575,6 +1595,7 @@ object SuiteAborted {
    *        other events reported during the same run
    * @param name a localized name identifying the suite that has aborted, which should include the
    *        suite name, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    * @param suiteName the name of the suite containing the suite that has aborted
@@ -1589,12 +1610,13 @@ object SuiteAborted {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
     formatter: Option[Formatter]
   ): SuiteAborted = {
-    apply(ordinal, name, suiteName, suiteClassName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1606,6 +1628,7 @@ object SuiteAborted {
    *        other events reported during the same run
    * @param name a localized name identifying the suite that has aborted, which should include the
    *        suite name, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has aborted
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -1618,11 +1641,12 @@ object SuiteAborted {
   def apply(
     ordinal: Ordinal,
     name: String,
+    message: String,
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable]
   ): SuiteAborted = {
-    apply(ordinal, name, suiteName, suiteClassName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -2029,11 +2053,12 @@ object RunStopped {
  * </p>
  *
  * <pre>
- * report(RunAborted(ordinal, Some(exception)))
+ * report(RunAborted(ordinal, message, Some(exception)))
  * </pre>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
+ * @param message a localized message suitable for presenting to the user
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -2045,6 +2070,7 @@ object RunStopped {
  */
 final case class RunAborted private (
   ordinal: Ordinal,
+  message: String,
   throwable: Option[Throwable],
   formatter: Option[Formatter],
   payload: Option[Any],
@@ -2054,6 +2080,8 @@ final case class RunAborted private (
 
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
+  if (message == null)
+    throw new NullPointerException("message was null")
   if (throwable == null)
     throw new NullPointerException("throwable was null")
   if (formatter == null)
@@ -2080,6 +2108,7 @@ object RunAborted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -2092,11 +2121,12 @@ object RunAborted {
    */
   def apply(
     ordinal: Ordinal,
+    message: String,
     throwable: Option[Throwable],
     formatter: Option[Formatter],
     payload: Option[Any]
   ): RunAborted = {
-    apply(ordinal, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2106,6 +2136,7 @@ object RunAborted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -2117,10 +2148,11 @@ object RunAborted {
    */
   def apply(
     ordinal: Ordinal,
+    message: String,
     throwable: Option[Throwable],
     formatter: Option[Formatter]
   ): RunAborted = {
-    apply(ordinal, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2130,6 +2162,7 @@ object RunAborted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    *
@@ -2139,9 +2172,10 @@ object RunAborted {
    */
   def apply(
     ordinal: Ordinal,
+    message: String,
     throwable: Option[Throwable]
   ): RunAborted = {
-    apply(ordinal, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -2199,7 +2233,7 @@ final case class InfoProvided private (
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
   if (message == null)
-    throw new NullPointerException("name was null")
+    throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
   if (suiteClassName == null)
