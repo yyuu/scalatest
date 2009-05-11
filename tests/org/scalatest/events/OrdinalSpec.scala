@@ -1,4 +1,4 @@
-package org.scalatest
+package org.scalatest.events
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.prop.Checkers

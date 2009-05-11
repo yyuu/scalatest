@@ -1,4 +1,4 @@
-package org.scalatest
+package org.scalatest.events
 
 import java.util.Date
 

@@ -1,11 +1,4 @@
-/*
- * Ordinal.scala
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
-package org.scalatest
+package org.scalatest.events
 
 import java.util.Arrays
 

@@ -1,11 +1,4 @@
-/*
- * EventSpec.scala
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
-package org.scalatest
+package org.scalatest.events
 
 import org.scalatest.prop.Checkers
 import org.scalacheck._

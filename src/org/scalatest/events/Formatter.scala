@@ -1,4 +1,4 @@
-package org.scalatest
+package org.scalatest.events
 
 /**
  * Abstract class for the optimal formatter objects that must be passed to the <code>Event</code>s reported
