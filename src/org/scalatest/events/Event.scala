@@ -1339,6 +1339,7 @@ object SuiteStarting {
  *        suite name, suitable for presenting to the user
  * @param suiteName the name of the suite containing the suite that has completed
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
+ * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has completed (if <code>None</code>
@@ -1353,6 +1354,7 @@ final case class SuiteCompleted private (
   name: String,
   suiteName: String,
   suiteClassName: Option[String],
+  duration: Option[Long],
   formatter: Option[Formatter],
   rerunnable: Option[Rerunnable],
   payload: Option[Any],
@@ -1368,6 +1370,8 @@ final case class SuiteCompleted private (
     throw new NullPointerException("suiteName was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
   if (rerunnable == null)
@@ -1398,6 +1402,7 @@ object SuiteCompleted {
    *        suite name, suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has completed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has completed (if <code>None</code>
@@ -1413,11 +1418,12 @@ object SuiteCompleted {
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): SuiteCompleted = {
-    apply(ordinal, name, suiteName, suiteClassName, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, duration, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1430,6 +1436,7 @@ object SuiteCompleted {
    *        suite name, suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has completed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has completed (if <code>None</code>
@@ -1444,10 +1451,11 @@ object SuiteCompleted {
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): SuiteCompleted = {
-    apply(ordinal, name, suiteName, suiteClassName, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, duration, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1461,6 +1469,7 @@ object SuiteCompleted {
    *        suite name, suitable for presenting to the user
    * @param suiteName the name of the suite containing the suite that has completed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    *
@@ -1473,14 +1482,42 @@ object SuiteCompleted {
     name: String,
     suiteName: String,
     suiteClassName: Option[String],
+    duration: Option[Long],
     formatter: Option[Formatter]
   ): SuiteCompleted = {
-    apply(ordinal, name, suiteName, suiteClassName, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, duration, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>SuiteCompleted</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the suite that has completed, which should include the
+   *        suite name, suitable for presenting to the user
+   * @param suiteName the name of the suite containing the suite that has completed
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>SuiteCompleted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    duration: Option[Long]
+  ): SuiteCompleted = {
+    apply(ordinal, name, suiteName, suiteClassName, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>SuiteCompleted</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -1500,7 +1537,7 @@ object SuiteCompleted {
     suiteName: String,
     suiteClassName: Option[String]
   ): SuiteCompleted = {
-    apply(ordinal, name, suiteName, suiteClassName, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -1542,6 +1579,7 @@ object SuiteCompleted {
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+ * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has aborted (if <code>None</code>
@@ -1558,6 +1596,7 @@ final case class SuiteAborted private (
   suiteName: String,
   suiteClassName: Option[String],
   throwable: Option[Throwable],
+  duration: Option[Long],
   formatter: Option[Formatter],
   rerunnable: Option[Rerunnable],
   payload: Option[Any],
@@ -1577,6 +1616,8 @@ final case class SuiteAborted private (
     throw new NullPointerException("suiteClassName was null")
   if (throwable == null)
     throw new NullPointerException("throwable was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
   if (rerunnable == null)
@@ -1610,6 +1651,7 @@ object SuiteAborted {
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has aborted (if <code>None</code>
@@ -1627,11 +1669,12 @@ object SuiteAborted {
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): SuiteAborted = {
-    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1647,6 +1690,7 @@ object SuiteAborted {
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the suite that has aborted (if <code>None</code>
@@ -1663,10 +1707,11 @@ object SuiteAborted {
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): SuiteAborted = {
-    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1681,6 +1726,7 @@ object SuiteAborted {
    * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
    * @param suiteName the name of the suite containing the suite that has aborted
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -1697,14 +1743,47 @@ object SuiteAborted {
     suiteName: String,
     suiteClassName: Option[String],
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter]
   ): SuiteAborted = {
-    apply(ordinal, name, message, suiteName, suiteClassName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, duration, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>SuiteAborted</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the suite that has aborted, which should include the
+   *        suite name, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
+   * @param suiteName the name of the suite containing the suite that has aborted
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>SuiteAborted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    message: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    throwable: Option[Throwable],
+    duration: Option[Long]
+  ): SuiteAborted = {
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>SuiteAborted</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -1729,7 +1808,7 @@ object SuiteAborted {
     suiteClassName: Option[String],
     throwable: Option[Throwable]
   ): SuiteAborted = {
-    apply(ordinal, name, message, suiteName, suiteClassName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, throwable, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
