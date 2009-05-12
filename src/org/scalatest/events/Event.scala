@@ -275,6 +275,7 @@ object TestStarting {
  * @param suiteName the name of the suite containing the test that has succeeded
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
  * @param testName the name of the test that has succeeded
+ * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has succeeded (if <code>None</code>
@@ -290,6 +291,7 @@ final case class TestSucceeded private (
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
+  duration: Option[Long],
   formatter: Option[Formatter],
   rerunnable: Option[Rerunnable],
   payload: Option[Any],
@@ -307,6 +309,8 @@ final case class TestSucceeded private (
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
     throw new NullPointerException("testName was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
   if (rerunnable == null)
@@ -338,6 +342,7 @@ object TestSucceeded {
    * @param suiteName the name of the suite containing the test that has succeeded
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
    * @param testName the name of the test that has succeeded
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has succeeded (if <code>None</code>
@@ -354,11 +359,12 @@ object TestSucceeded {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): TestSucceeded = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -372,6 +378,7 @@ object TestSucceeded {
    * @param suiteName the name of the suite containing the test that has succeeded
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
    * @param testName the name of the test that has succeeded
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has succeeded (if <code>None</code>
@@ -387,10 +394,11 @@ object TestSucceeded {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): TestSucceeded = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, duration, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -405,6 +413,7 @@ object TestSucceeded {
    * @param suiteName the name of the suite containing the test that has succeeded
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
    * @param testName the name of the test that has succeeded
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    *
@@ -418,14 +427,44 @@ object TestSucceeded {
     suiteName: String,
     suiteClassName: Option[String],
     testName: String,
+    duration: Option[Long],
     formatter: Option[Formatter]
   ): TestSucceeded = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, duration, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>TestSucceeded</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the test that has succeeded, which should include the
+   *        suite and test names, suitable for presenting to the user
+   * @param suiteName the name of the suite containing the test that has succeeded
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
+   * @param testName the name of the test that has succeeded
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>TestSucceeded</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    duration: Option[Long]
+  ): TestSucceeded = {
+    apply(ordinal, name, suiteName, suiteClassName, testName, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>TestSucceeded</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -447,7 +486,7 @@ object TestSucceeded {
     suiteClassName: Option[String],
     testName: String
   ): TestSucceeded = {
-    apply(ordinal, name, suiteName, suiteClassName, testName, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, suiteName, suiteClassName, testName, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -488,6 +527,7 @@ object TestSucceeded {
  * @param testName the name of the test that has failed
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+ * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
@@ -505,6 +545,7 @@ final case class TestFailed private (
   suiteClassName: Option[String],
   testName: String,
   throwable: Option[Throwable],
+  duration: Option[Long],
   formatter: Option[Formatter],
   rerunnable: Option[Rerunnable],
   payload: Option[Any],
@@ -526,6 +567,8 @@ final case class TestFailed private (
     throw new NullPointerException("testName was null")
   if (throwable == null)
     throw new NullPointerException("throwable was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
   if (rerunnable == null)
@@ -560,6 +603,7 @@ object TestFailed {
    * @param testName the name of the test that has failed
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
@@ -578,11 +622,12 @@ object TestFailed {
     suiteClassName: Option[String],
     testName: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable],
     payload: Option[Any]
   ): TestFailed = {
-    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -596,9 +641,10 @@ object TestFailed {
    * @param message a localized message suitable for presenting to the user
    * @param suiteName the name of the suite containing the test that has failed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
+   * @param testName the name of the test that has failed
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
-   * @param testName the name of the test that has failed
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param rerunnable an optional <code>Rerunnable</code> that can be used to rerun the test that has failed (if <code>None</code>
@@ -616,10 +662,11 @@ object TestFailed {
     suiteClassName: Option[String],
     testName: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter],
     rerunnable: Option[Rerunnable]
   ): TestFailed = {
-    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -632,11 +679,12 @@ object TestFailed {
    * @param name a localized name identifying the test that has failed, which should include the
    *        suite and test names, suitable for presenting to the user
    * @param message a localized message suitable for presenting to the user
-   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
-   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
    * @param suiteName the name of the suite containing the test that has failed
    * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
    * @param testName the name of the test that has failed
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    *
@@ -652,14 +700,49 @@ object TestFailed {
     suiteClassName: Option[String],
     testName: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     formatter: Option[Formatter]
   ): TestFailed = {
-    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, duration, formatter, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>TestFailed</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param name a localized name identifying the test that has failed, which should include the
+   *        suite and test names, suitable for presenting to the user
+   * @param message a localized message suitable for presenting to the user
+   * @param suiteName the name of the suite containing the test that has failed
+   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
+   * @param testName the name of the test that has failed
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the test has failed,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>TestFailed</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    name: String,
+    message: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    throwable: Option[Throwable],
+    duration: Option[Long]
+  ): TestFailed = {
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>TestFailed</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>rerunnable</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -686,7 +769,7 @@ object TestFailed {
     testName: String,
     throwable: Option[Throwable]
   ): TestFailed = {
-    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, name, message, suiteName, suiteClassName, testName, throwable, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
