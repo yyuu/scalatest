@@ -2189,26 +2189,23 @@ object RunAborted {
  * </p>
  *
  * <pre>
- * report(InfoProvided(ordinal, userFriendlyName, Some(suiteName), Some(thisSuite.getClass.getName), Some(testName)))
+ * report(InfoProvided(ordinal, message, Some(NameInfo(suiteName, Some(thisSuite.getClass.getName), Some(testName)))))
  * </pre>
  *
  * <p>
- * If either <code>suiteClassName</code> or <code>testName</code> is defined, then <code>suiteName</code> must be defined.
- * The suite class name parameter is optional even if a suite name is provided by passing a <code>Some</code> as <code>suiteName</code>,
- * because suites in ScalaTest are an abstraction that
- * need not necessarily correspond to one class. Nevertheless, it most cases each suite will correspond
- * to a class, and when it does, the fully qualified name of that class should be reported by passing a
- * <code>Some</code> for <code>suiteClassName</code>. One use for this bit of information is JUnit integration,
- * because the "name" provided to a JUnit <code>org.junit.runner.Description</code> appears to usually include
- * a fully qualified class name by convention.
+ * An <code>InfoProvided</code> event may be fired from anywhere. In this respect <code>InfoProvided</code> is different
+ * from the other events, for which it is defined whether they are fired in the context of a suite or test.
+ * If fired in the context of a test, the <code>InfoProvided</code> event should include a <code>NameInfo</code> in which
+ * <code>testName</code> is defined. If fired in the context of a suite, but not a test, the <code>InfoProvided</code> event
+ * should include a <code>NameInfo</code> in which <code>testName</code> is <em>not</em> defined. If fired within the context
+ * of neither a suite nor a test, the <code>nameInfo</code> of the <code>InfoProvided</code> event (an <code>Option[NameInfo]</code>) should be <code>None</code>.
  * </p>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param message a localized message suitable for presenting to the user
- * @param suiteName an optional name of the suite about which the information was provided
- * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
- * @param testName an optional name of the test about which the information was provided
+ * @param nameInfo an optional <code>NameInfo</code> that if defined, provides names for the suite and optionally the test 
+ *        in the context of which the information was provided
  * @param throwable an optional <code>Throwable</code>
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
@@ -2220,9 +2217,7 @@ object RunAborted {
 final case class InfoProvided private (
   ordinal: Ordinal,
   message: String,
-  suiteName: Option[String],
-  suiteClassName: Option[String],
-  testName: Option[String],
+  nameInfo: Option[NameInfo],
   throwable: Option[Throwable],
   formatter: Option[Formatter],
   payload: Option[Any],
@@ -2234,12 +2229,8 @@ final case class InfoProvided private (
     throw new NullPointerException("ordinal was null")
   if (message == null)
     throw new NullPointerException("message was null")
-  if (suiteName == null)
-    throw new NullPointerException("suiteName was null")
-  if (suiteClassName == null)
-    throw new NullPointerException("suiteClassName was null")
-  if (testName == null)
-    throw new NullPointerException("testName was null")
+  if (nameInfo == null)
+    throw new NullPointerException("nameInfo was null")
   if (throwable == null)
     throw new NullPointerException("throwable was null")
   if (formatter == null)
@@ -2267,15 +2258,13 @@ object InfoProvided {
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
    * @param message a localized message suitable for presenting to the user
-   * @param suiteName an optional name of the suite about which this information was provided
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
-   * @param testName an optional name of the about which this information was provided
+   * @param nameInfo an optional <code>NameInfo</code> that if defined, provides names for the suite and optionally the test 
+   *        in the context of which the information was provided
    * @param throwable an optional <code>Throwable</code>
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>InfoProvided</code> event
    *
-   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
    * @throws NullPointerException if any of the passed values are <code>null</code>
    *
    * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
@@ -2283,14 +2272,12 @@ object InfoProvided {
   def apply(
     ordinal: Ordinal,
     message: String,
-    suiteName: Option[String],
-    suiteClassName: Option[String],
-    testName: Option[String],
+    nameInfo: Option[NameInfo],
     throwable: Option[Throwable],
     formatter: Option[Formatter],
     payload: Option[Any]
   ): InfoProvided = {
-    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, nameInfo, throwable, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
 
@@ -2303,13 +2290,11 @@ object InfoProvided {
    *        other events reported during the same run
    * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code>
-   * @param suiteName an optional name of the suite about which the information was provided
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
-   * @param testName an optional name of the test about which the information was provided
+   * @param nameInfo an optional <code>NameInfo</code> that if defined, provides names for the suite and optionally the test 
+   *        in the context of which the information was provided
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
    *
-   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
    * @throws NullPointerException if any of the passed values are <code>null</code>
    *
    * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
@@ -2317,13 +2302,11 @@ object InfoProvided {
   def apply(
     ordinal: Ordinal,
     message: String,
-    suiteName: Option[String],
-    suiteClassName: Option[String],
-    testName: Option[String],
+    nameInfo: Option[NameInfo],
     throwable: Option[Throwable],
     formatter: Option[Formatter]
   ): InfoProvided = {
-    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, nameInfo, throwable, formatter, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2334,12 +2317,10 @@ object InfoProvided {
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
    * @param message a localized message suitable for presenting to the user
-   * @param suiteName an optional name of the suite about which the information was provided
-   * @param suiteClassName an optional fully qualifed <code>Suite</code> class name about which the information was provided
-   * @param testName an optional name of the test about which the information was provided
+   * @param nameInfo an optional <code>NameInfo</code> that if defined, provides names for the suite and optionally the test 
+   *        in the context of which the information was provided
    * @param throwable an optional <code>Throwable</code>
    *
-   * @throws IllegalArgumentException if either <code>suiteClassName</code> or <code>testName</code> is defined, but <code>suiteName</code> is not defined.
    * @throws NullPointerException if any of the passed values are <code>null</code>
    *
    * @return a new <code>InfoProvided</code> instance initialized with the passed and default values
@@ -2347,12 +2328,10 @@ object InfoProvided {
   def apply(
     ordinal: Ordinal,
     message: String,
-    suiteName: Option[String],
-    suiteClassName: Option[String],
-    testName: Option[String],
+    nameInfo: Option[NameInfo],
     throwable: Option[Throwable]
   ): InfoProvided = {
-    apply(ordinal, message, suiteName, suiteClassName, testName, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, nameInfo, throwable, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
