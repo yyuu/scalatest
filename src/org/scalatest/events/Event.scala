@@ -1981,6 +1981,7 @@ object RunStarting {
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
+ * @param duration an optional amount of time, in milliseconds, that was required by the run that has completed
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
@@ -1991,6 +1992,7 @@ object RunStarting {
  */
 final case class RunCompleted private (
   ordinal: Ordinal,
+  duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
   payload: Option[Any],
@@ -2000,6 +2002,8 @@ final case class RunCompleted private (
 
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (summary == null)
     throw new NullPointerException("summary was null")
   if (formatter == null)
@@ -2026,6 +2030,7 @@ object RunCompleted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has completed
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2037,11 +2042,12 @@ object RunCompleted {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter],
     payload: Option[Any]
   ): RunCompleted = {
-    apply(ordinal, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2051,6 +2057,7 @@ object RunCompleted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has completed
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2061,10 +2068,11 @@ object RunCompleted {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter]
   ): RunCompleted = {
-    apply(ordinal, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2074,6 +2082,7 @@ object RunCompleted {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has completed
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
@@ -2082,14 +2091,35 @@ object RunCompleted {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary]
   ): RunCompleted = {
-    apply(ordinal, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing <code>None</code> for <code>summary</code>,
    *  <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has completed
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>RunCompleted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    duration: Option[Long]
+  ): RunCompleted = {
+    apply(ordinal, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>summary</code>, <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2102,7 +2132,7 @@ object RunCompleted {
   def apply(
     ordinal: Ordinal
   ): RunCompleted = {
-    apply(ordinal, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -2144,6 +2174,7 @@ object RunCompleted {
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
+ * @param duration an optional amount of time, in milliseconds, that was required by the run that has stopped
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
@@ -2154,6 +2185,7 @@ object RunCompleted {
  */
 final case class RunStopped private (
   ordinal: Ordinal,
+  duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
   payload: Option[Any],
@@ -2163,6 +2195,8 @@ final case class RunStopped private (
 
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (summary == null)
     throw new NullPointerException("summary was null")
   if (formatter == null)
@@ -2189,6 +2223,7 @@ object RunStopped {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has stopped
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2200,11 +2235,12 @@ object RunStopped {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter],
     payload: Option[Any]
   ): RunStopped = {
-    apply(ordinal, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2214,6 +2250,7 @@ object RunStopped {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has stopped
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2224,10 +2261,11 @@ object RunStopped {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter]
   ): RunStopped = {
-    apply(ordinal, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2237,6 +2275,7 @@ object RunStopped {
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
    *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has stopped
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
@@ -2245,14 +2284,35 @@ object RunStopped {
    */
   def apply(
     ordinal: Ordinal,
+    duration: Option[Long],
     summary: Option[Summary]
   ): RunStopped = {
-    apply(ordinal, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, duration, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>RunStopped</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has stopped
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>RunStopped</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    duration: Option[Long]
+  ): RunStopped = {
+    apply(ordinal, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunStopped</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2265,7 +2325,7 @@ object RunStopped {
   def apply(
     ordinal: Ordinal
   ): RunStopped = {
-    apply(ordinal, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
@@ -2300,6 +2360,7 @@ object RunStopped {
  * @param message a localized message suitable for presenting to the user
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
  *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+ * @param duration an optional amount of time, in milliseconds, that was required by the run that has aborted
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
@@ -2312,6 +2373,7 @@ final case class RunAborted private (
   ordinal: Ordinal,
   message: String,
   throwable: Option[Throwable],
+  duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
   payload: Option[Any],
@@ -2325,6 +2387,8 @@ final case class RunAborted private (
     throw new NullPointerException("message was null")
   if (throwable == null)
     throw new NullPointerException("throwable was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (summary == null)
     throw new NullPointerException("summary was null")
   if (formatter == null)
@@ -2354,6 +2418,7 @@ object RunAborted {
    * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has aborted
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2367,11 +2432,12 @@ object RunAborted {
     ordinal: Ordinal,
     message: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter],
     payload: Option[Any]
   ): RunAborted = {
-    apply(ordinal, message, throwable, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, duration, summary, formatter, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2384,6 +2450,7 @@ object RunAborted {
    * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has aborted
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
@@ -2396,10 +2463,11 @@ object RunAborted {
     ordinal: Ordinal,
     message: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     summary: Option[Summary],
     formatter: Option[Formatter]
   ): RunAborted = {
-    apply(ordinal, message, throwable, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, duration, summary, formatter, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2412,6 +2480,7 @@ object RunAborted {
    * @param message a localized message suitable for presenting to the user
    * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
    *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has aborted
    * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
    *
    * @throws NullPointerException if any of the passed values are <code>null</code>
@@ -2422,14 +2491,40 @@ object RunAborted {
     ordinal: Ordinal,
     message: String,
     throwable: Option[Throwable],
+    duration: Option[Long],
     summary: Option[Summary]
   ): RunAborted = {
-    apply(ordinal, message, throwable, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, duration, summary, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
    * Constructs a new <code>RunAborted</code> event with the passed parameters, passing <code>None</code> for
    * <code>formatter</code>, <code>None</code> as the <code>payload</code>,
+   * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
+   *
+   * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+   *        other events reported during the same run
+   * @param message a localized message suitable for presenting to the user
+   * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
+   *        or a <code>Throwable</code> created to capture stack trace information about the problem.
+   * @param duration an optional amount of time, in milliseconds, that was required by the run that has aborted
+   *
+   * @throws NullPointerException if any of the passed values are <code>null</code>
+   *
+   * @return a new <code>RunAborted</code> instance initialized with the passed and default values
+   */
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    throwable: Option[Throwable],
+    duration: Option[Long]
+  ): RunAborted = {
+    apply(ordinal, message, throwable, duration, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+  }
+
+  /**
+   * Constructs a new <code>RunAborted</code> event with the passed parameters, passing <code>None</code> for <code>duration</code>,
+   * <code>None</code> for <code>formatter</code>, <code>None</code> as the <code>payload</code>,
    * the current threads name as <code>threadname</code>, and the current time as <code>timeStamp</code>.
    *
    * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2447,7 +2542,7 @@ object RunAborted {
     message: String,
     throwable: Option[Throwable]
   ): RunAborted = {
-    apply(ordinal, message, throwable, None, None, None, Thread.currentThread.getName, (new Date).getTime)
+    apply(ordinal, message, throwable, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
 
