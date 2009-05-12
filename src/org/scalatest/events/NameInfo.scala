@@ -28,3 +28,8 @@ package org.scalatest.events
  * @param testName an optional name of the test about which the information was provided
  */
 final case class NameInfo(suiteName: String, suiteClassName: Option[String], testName: Option[String])
+
+/**
+ * Companion object for case class <a href="NameInfo.html"><code>NameInfo</code></a>.
+ */
+object NameInfo
