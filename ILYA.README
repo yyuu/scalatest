@@ -10,7 +10,7 @@ To build the compiler plugin, you need to type:
 
 ant compile-plugin
 
-This will also copy it to the JavaOneIDEADemo area. In there you can type:
+This will also copy it to the JavaOneIDEADemo area, which has everything for my JavaOne IDEA demo. In there you can type:
 
 sh<runme.sh
 
