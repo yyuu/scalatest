@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Command line test" failures="0" tests="6" time="0.02" errors="0">
+  <properties/>
+  <testcase name="anEmptyStackShouldNotBeFull" time="0.0030" classname="com.artima.demo.StackTestNGSuite"/>
+  <testcase name="peekOnAnEmptyStackShouldThrowIllegalStateException" time="0.0030" classname="com.artima.demo.StackTestNGSuite"/>
+  <testcase name="isEmptyOnAnEmptyStackShouldReturnTrue" time="0.0" classname="com.artima.demo.StackTestNGSuite"/>
+  <testcase name="popOnAnEmptyStackShouldThrowIllegalStateException" time="0.0" classname="com.artima.demo.StackTestNGSuite"/>
+  <testcase name="pushingAnElementOntoAnEmptyStackShouldWorkProperly" time="0.0" classname="com.artima.demo.StackTestNGSuite"/>
+  <testcase name="theSizeOfAnEmptyStackShouldBeZero" time="0.0" classname="com.artima.demo.StackTestNGSuite"/>
+</testsuite>

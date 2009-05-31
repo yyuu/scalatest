@@ -1,0 +1,24 @@
+<testng-results>
+  <reporter-output>
+  </reporter-output>
+  <suite name="Command line suite">
+    <groups>
+    </groups>
+    <test name="Command line test">
+      <class name="com.artima.demo.StackTestNGSuite">
+        <test-method status="PASS" signature="peekOnAnEmptyStackShouldThrowIllegalStateException()" name="peekOnAnEmptyStackShouldThrowIllegalStateException" duration-ms="3" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+        <test-method status="PASS" signature="isEmptyOnAnEmptyStackShouldReturnTrue()" name="isEmptyOnAnEmptyStackShouldReturnTrue" duration-ms="0" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+        <test-method status="PASS" signature="theSizeOfAnEmptyStackShouldBeZero()" name="theSizeOfAnEmptyStackShouldBeZero" duration-ms="0" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+        <test-method status="PASS" signature="pushingAnElementOntoAnEmptyStackShouldWorkProperly()" name="pushingAnElementOntoAnEmptyStackShouldWorkProperly" duration-ms="0" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+        <test-method status="PASS" signature="popOnAnEmptyStackShouldThrowIllegalStateException()" name="popOnAnEmptyStackShouldThrowIllegalStateException" duration-ms="0" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+        <test-method status="PASS" signature="anEmptyStackShouldNotBeFull()" name="anEmptyStackShouldNotBeFull" duration-ms="3" started-at="2009-05-30T16:59:53Z" finished-at="2009-05-30T16:59:53Z">
+        </test-method>
+      </class>
+    </test>
+  </suite>
+</testng-results>
