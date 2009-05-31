@@ -43,13 +43,9 @@ class ScalaTestPlugin(val global: Global) extends Plugin {
         } catch {
           case e: nsc.FatalError =>
             // symbols not found; quietly do nothing
-println("HEY WE HAD A PROBLEM HERE: ")
-e.printStackTrace()
             return
         }
         
-println("GOT HERE 1")
-
         def isPrivateMethod(tpe: Type): Boolean =
           tpe match {
             case TypeRef(_, pm, List(_))
@@ -57,8 +53,6 @@ println("GOT HERE 1")
 
             case _ => false
           }
-
-println("GOT HERE 2")
 
         // First look for vals that reference a PrivateMethod}
         var methodNames: Map[Symbol,String] = Map.empty
@@ -69,18 +63,17 @@ println("GOT HERE 2")
             && (symbol.symbol == scalaSymbolModule)
             =>
               methodNames += (tree.symbol -> methodName)
-            println("adding " + tree.symbol + " --> " + methodName)
+            // println("adding " + tree.symbol + " --> " + methodName)
            
-            case ValDef(_, _, _, Apply(select, list)) => 
+            case ValDef(_, _, _, Apply(select, list)) =>  // The previous case no longer works in Scala 2.7.4. Doing a hack for JavaOne:
               if (select.toString == "FailureMessagesSuite.this.PrivateMethod.apply[String]" &&
                     list.toString == "List(scala.Symbol.apply(\"decorateToStringValue\"))") {
               methodNames += (tree.symbol -> "decorateToStringValue")
-              println("CAUGHT IT: adding " + tree.symbol + " --> " + "decorateToStringValue")
             }
             case _ => 
           }
 
-println("vals that reference a PrivateMethod: " + methodNames)
+        // println("vals that reference a PrivateMethod: " + methodNames)
 
         // Now look for calls to privateMethod that use one of the above vals
         for (unit <- currentRun.units; tree<-unit.body)
