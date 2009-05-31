@@ -1,0 +1,4 @@
+<plugin>
+  <name>scalatest</name>
+  <classname>org.scalatest.tools.compilerplugin.ScalaTestPlugin</classname>
+</plugin>
