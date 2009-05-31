@@ -7,13 +7,17 @@
     <property name="jar.contents" value="${build}/jar_contents" />
     <!-- classes go in jar.contents. redundant, but makes the rest of build.xml easier to read -->
     <property name="classes" value="${jar.contents}" />
+    <property name="pluginsrc" value="compilerplugin/src" />
     <property name="generators" value="generators" />
+    <property name="build.plugin" value="${build}/plugin" />
     <property name="build.generated.src" value="${build}/generated/src" />
     <property name="build.generated.tests" value="${build}/generated/tests" />
     <property name="build.tests" value="${build}/tests" />
     <property name="build.tests.jar" value="${build}/tests.jar" />
     <property name="build.generators" value="${build}/generators" />
     <property name="build.coverage" value="${build}/coverage" />
+    <property name="plugin.jar" value="${build}/scalatest-plugin.jar" />
+    <property name="test.params" value="-Xplugin:${plugin.jar} -Xshow-phases" />
     <property name="dist" value="${build}/dist" />
     <property name="instrumented" value="${build}/instrumented" />
     <property name="doc" value="${build}/doc" />
@@ -36,6 +40,7 @@
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${jar.contents}" />
         <mkdir dir="${build.tests}" />
+        <mkdir dir="${build.plugin}" />
         <mkdir dir="${build.generators}" />
         <mkdir dir="${build.generated.src}" />
         <mkdir dir="${build.generated.tests}" />
@@ -136,6 +141,18 @@
             <include name="org/scalatest/junit/JUnitVersionHelper.java"/>
             <include name="org/scalatest/tools/ScalaTestTask.java" />
         </javac>
+    </target>
+
+    <target name="compile-plugin" depends="init">
+            <!-- Compile the plugin source from ${pluginsrc} to ${build.plugin} -->
+            <scalac srcdir="${pluginsrc}" destdir="${build.plugin}" target="jvm-1.5" classpathref="build.class.path" />
+
+            <!-- Build the plugin's jar -->
+            <jar destfile="${plugin.jar}">
+                    <fileset dir="${build.plugin}" />
+                    <fileset file="compilerplugin/scalac-plugin.xml" />
+            </jar>
+            <copy file="${plugin.jar}" todir="JavaOneIDEADemo" />
     </target>
 
     <target name="compile-tests" depends="compile-main">
