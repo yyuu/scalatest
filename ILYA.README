@@ -1,0 +1,76 @@
+Hi Ilya,
+
+This branch is a copy of release 0.9.5., the current ScalaTest release, with the addition of
+the compiler plugin I use in the Feel of Scala talk. To build and run ScalaTest itself, you can
+type:
+
+ant test
+
+To build the compiler plugin, you need to type:
+
+ant compile-plugin
+
+This will also copy it to the JavaOneIDEADemo area. In there you can type:
+
+sh<runme.sh
+
+And it will compile using the plugin using scalac, and it will show the plugin-generated error messages:
+
+Macintosh-65:release0.9.5WithPlugin bv$ cd JavaOneIDEADemo/
+Macintosh-65:JavaOneIDEADemo bv$ sh<runme.sh 
+tests/com/artima/demo/FailureMessagesSuite.scala:19: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(1.toByte)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:22: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(1.toShort)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:25: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(1)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:28: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(10L)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:31: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(1.0f)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:34: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(1.0)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:37: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(false)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:40: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(true)
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:43: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(())
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:46: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue("Howdy!")
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:49: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue('c')
+                      ^
+tests/com/artima/demo/FailureMessagesSuite.scala:52: error: there is no private method named decorateToStringValue in type com.artima.demo.FailureMessages.type
+      FailureMessages invokePrivate decorateToStringValue(new AnyRef { override def toString = "Hey!" })
+                      ^
+12 errors found
+
+However, when I try and add this via IDEA, by going to:
+
+IntelliJ IDEA --> Preferences
+
+Then under Compiler / Scala Compiler
+
+In Command line parameters, I put:
+
+-Xplugin:/Users/bv/nobkp/delus/JavaOneIDEADemo/scalatest-plugin.jar
+
+It doesn't seem to be running the plugin. Basically I don't get the
+errors, which is a bummer because it makes a really nice demo.
+
+I can just show the command line Tuesday if I have to, but it would be nicer to show these errors in IDEA.
+
+Thanks.
+
+Bill
