@@ -968,7 +968,7 @@ trait Matchers extends Assertions { matchers =>
               leftMatchResult.negatedFailureMessage,
               leftMatchResult.failureMessage,
               leftMatchResult.midSentenceNegatedFailureMessage,
-              leftMatchResult.midSentenceFailureMessage,
+              leftMatchResult.midSentenceFailureMessage
             )
           else {
             MatchResult(
@@ -4988,7 +4988,7 @@ trait Matchers extends Assertions { matchers =>
             FailureMessages("wasNull"),
             FailureMessages("wasNotNull", left),
             FailureMessages("midSentenceWasNull"),
-            FailureMessages("wasNotNull", left),
+            FailureMessages("wasNotNull", left)
           )
         }
       }
