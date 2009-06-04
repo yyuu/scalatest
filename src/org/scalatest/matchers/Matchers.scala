@@ -1720,12 +1720,13 @@ trait Matchers extends Assertions { matchers =>
      * </pre>
      */
     def value(expectedValue: V) {
-      if (left.values.contains(expectedValue) != shouldBeTrue)
+      if (left.values.asInstanceOf[Set[V]].contains(expectedValue) != shouldBeTrue) // KLUDGE, WHY?
         throw newTestFailedException(
           FailureMessages(
             if (shouldBeTrue) "didNotContainValue" else "containedValue",
             left,
-            expectedValue)
+            expectedValue
+          )
         )
     }
   }
@@ -1789,7 +1790,7 @@ trait Matchers extends Assertions { matchers =>
     new Matcher[java.util.Collection[T]] {
       def apply(left: java.util.Collection[T]) = {
         val iterable = new Iterable[T] {
-          def elements = new Iterator[T] {
+          override def iterator = new Iterator[T] {
             private val javaIterator = left.iterator
             def next: T = javaIterator.next
             def hasNext: Boolean = javaIterator.hasNext
@@ -1813,13 +1814,40 @@ trait Matchers extends Assertions { matchers =>
   implicit def convertMapMatcherToJavaMapMatcher[K, V](mapMatcher: Matcher[scala.collection.Map[K, V]]) = 
     new Matcher[java.util.Map[K, V]] {
       def apply(left: java.util.Map[K, V]) = {
-        // Even though the java map is mutable I just wrap it it to a plain old Scala map, because
+
+        // Even though the java map is mutable I just wrap it to a plain old Scala map, because
         // I have no intention of mutating it.
+        class MapWrapper[Z](javaMap: java.util.Map[K, Z]) extends scala.collection.Map[K, Z] {
+          override def size: Int = javaMap.size
+          def get(key: K): Option[Z] =
+            if (javaMap.containsKey(key)) Some(javaMap.get(key)) else None
+          override def iterator = new Iterator[(K, Z)] {
+            private val javaIterator = javaMap.keySet.iterator
+            def next: (K, Z) = {
+              val nextKey = javaIterator.next
+              (nextKey, javaMap.get(nextKey))
+            }
+            def hasNext: Boolean = javaIterator.hasNext
+          }
+          override def +[W >: Z] (kv: (K, W)): scala.collection.Map[K, W] = {
+            val newJavaMap = new java.util.HashMap[K, W](javaMap)
+            val (key, value) = kv
+            newJavaMap.put(key, value)
+            new MapWrapper[W](newJavaMap)
+          }
+          override def - (key: K): scala.collection.Map[K, Z] = {
+            val newJavaMap = new java.util.HashMap[K, Z](javaMap)
+            newJavaMap.remove(key)
+            new MapWrapper[Z](newJavaMap)
+          }
+          override def toString = javaMap.toString
+        }
+/*
         val scalaMap = new scala.collection.Map[K, V] {
-          def size: Int = left.size
+          override def size: Int = left.size
           def get(key: K): Option[V] =
             if (left.containsKey(key)) Some(left.get(key)) else None
-          def elements = new Iterator[(K, V)] {
+          override def elements = new Iterator[(K, V)] {
             private val javaIterator = left.keySet.iterator
             def next: (K, V) = {
               val nextKey = javaIterator.next
@@ -1827,8 +1855,12 @@ trait Matchers extends Assertions { matchers =>
             }
             def hasNext: Boolean = javaIterator.hasNext
           }
+          def - (key: K): scala.collection.Map[K, V] =
+            left.remove(key)
           override def toString = left.toString
         }
+*/
+        val scalaMap = new MapWrapper[V](left)
         mapMatcher.apply(scalaMap)
       }
     }
@@ -1942,7 +1974,7 @@ trait Matchers extends Assertions { matchers =>
       new Matcher[scala.collection.Map[K, V] forSome { type K }] {
         def apply(left: scala.collection.Map[K, V] forSome { type K }) =
           MatchResult(
-            left.values.contains(expectedValue),
+            left.values.asInstanceOf[Set[V]].contains(expectedValue), // KLUDGE, WHY?
             FailureMessages("didNotContainValue", left, expectedValue),
             FailureMessages("containedValue", left, expectedValue)
           )
