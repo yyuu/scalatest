@@ -51,7 +51,7 @@ private[scalatest] case class ReporterSpecs(val graphicReporterSpec: Option[Grap
   // Need to add the null pointer checks, or later, NotNull
 
   override def length = reporterSpecList.length
-  override def elements = reporterSpecList.elements
+  override def iterator = reporterSpecList.iterator
   override def apply(i: Int) = reporterSpecList(i)
 }
 
