@@ -38,19 +38,19 @@ private[scalatest] object ReporterOpts extends Enumeration {
        
   // allOptions contains all possible ReporterOpts
   val allOptions =
-    new ReporterOpts.Set32(
-      ReporterOpts.PresentRunStarting.mask32
-      | ReporterOpts.PresentTestStarting.mask32
-      | ReporterOpts.PresentTestSucceeded.mask32
-      | ReporterOpts.PresentTestFailed.mask32
-      | ReporterOpts.PresentTestIgnored.mask32
-      | ReporterOpts.PresentSuiteStarting.mask32
-      | ReporterOpts.PresentSuiteCompleted.mask32
-      | ReporterOpts.PresentSuiteAborted.mask32
-      | ReporterOpts.PresentInfoProvided.mask32
-      | ReporterOpts.PresentRunStopped.mask32
-      | ReporterOpts.PresentRunCompleted.mask32
-      | ReporterOpts.PresentRunAborted.mask32
+    ReporterOpts.ValueSet(
+      ReporterOpts.PresentRunStarting,
+      ReporterOpts.PresentTestStarting,
+      ReporterOpts.PresentTestSucceeded,
+      ReporterOpts.PresentTestFailed,
+      ReporterOpts.PresentTestIgnored,
+      ReporterOpts.PresentSuiteStarting,
+      ReporterOpts.PresentSuiteCompleted,
+      ReporterOpts.PresentSuiteAborted,
+      ReporterOpts.PresentInfoProvided,
+      ReporterOpts.PresentRunStopped,
+      ReporterOpts.PresentRunCompleted,
+      ReporterOpts.PresentRunAborted
     )
 
   def getUpperCaseName(option: ReporterOpts.Value) = option match {

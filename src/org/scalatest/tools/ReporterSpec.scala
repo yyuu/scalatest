@@ -24,13 +24,13 @@ package org.scalatest.tools
  *
  * @author Bill Venners
  */
-private[scalatest] abstract class ReporterSpec(configSet: ReporterOpts.Set32)
+private[scalatest] abstract class ReporterSpec(configSet: ReporterOpts.ValueSet)
 
-private[scalatest] case class GraphicReporterSpec(configSet: ReporterOpts.Set32) extends ReporterSpec(configSet)
-private[scalatest] case class StandardOutReporterSpec(configSet: ReporterOpts.Set32) extends ReporterSpec(configSet)
-private[scalatest] case class StandardErrReporterSpec(configSet: ReporterOpts.Set32) extends ReporterSpec(configSet)
-private[scalatest] case class FileReporterSpec(configSet: ReporterOpts.Set32, fileName: String) extends ReporterSpec(configSet)
-private[scalatest] case class CustomReporterSpec(configSet: ReporterOpts.Set32, reporterClass: String) extends ReporterSpec(configSet)
+private[scalatest] case class GraphicReporterSpec(configSet: ReporterOpts.ValueSet) extends ReporterSpec(configSet)
+private[scalatest] case class StandardOutReporterSpec(configSet: ReporterOpts.ValueSet) extends ReporterSpec(configSet)
+private[scalatest] case class StandardErrReporterSpec(configSet: ReporterOpts.ValueSet) extends ReporterSpec(configSet)
+private[scalatest] case class FileReporterSpec(configSet: ReporterOpts.ValueSet, fileName: String) extends ReporterSpec(configSet)
+private[scalatest] case class CustomReporterSpec(configSet: ReporterOpts.ValueSet, reporterClass: String) extends ReporterSpec(configSet)
 
 // If there were no fileReporterSpecList or customReporterSpecList specified, you get Nil
 // If there were no graphicReporterSpec, standardOutReporterSpec, or standardErrReporterSpec, you get None

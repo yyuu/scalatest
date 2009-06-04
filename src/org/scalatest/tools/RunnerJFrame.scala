@@ -68,7 +68,7 @@ import org.scalatest.prop.PropertyTestFailedException
  *
  * @author Bill Venners
  */
-private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportTypesToCollect: ReporterOpts.Set32,
+private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportTypesToCollect: ReporterOpts.ValueSet,
     reporterSpecs: ReporterSpecs, suitesList: List[String], runpathList: List[String], includes: Set[String],
     excludes: Set[String], propertiesMap: Map[String, String], concurrent: Boolean, memberOfList: List[String], beginsWithList: List[String],
     testNGList: List[String]) extends
@@ -80,13 +80,13 @@ private[scalatest] class RunnerJFrame(recipeName: Option[String], val reportType
   // The default options in the graphic view. Just show runs
   // and failures. This is also a selection in the View menu.
   private val runsAndFailures =
-    new ReporterOpts.Set32(
-      ReporterOpts.PresentRunStarting.mask32
-      | ReporterOpts.PresentTestFailed.mask32
-      | ReporterOpts.PresentSuiteAborted.mask32
-      | ReporterOpts.PresentRunStopped.mask32
-      | ReporterOpts.PresentRunAborted.mask32
-      | ReporterOpts.PresentRunCompleted.mask32
+     ReporterOpts.ValueSet(
+      ReporterOpts.PresentRunStarting,
+      ReporterOpts.PresentTestFailed,
+      ReporterOpts.PresentSuiteAborted,
+      ReporterOpts.PresentRunStopped,
+      ReporterOpts.PresentRunAborted,
+      ReporterOpts.PresentRunCompleted
     )
 
   // These are the actual options to view in the list of reports.

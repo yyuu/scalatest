@@ -21,9 +21,9 @@ package org.scalatest.tools
  *
  * @author Bill Venners
  */
-private[scalatest] class FilterReporter(wrappedReporter: Reporter, configSet: ReporterOpts.Set32) extends Reporter {
+private[scalatest] class FilterReporter(wrappedReporter: Reporter, configSet: ReporterOpts.ValueSet) extends Reporter {
 
-  def reFilter(configSet: ReporterOpts.Set32) = new FilterReporter(wrappedReporter, configSet)
+  def reFilter(configSet: ReporterOpts.ValueSet) = new FilterReporter(wrappedReporter, configSet)
       
    // Have some methods that translate chars & strings to Opts things, and vice versa
  

@@ -378,7 +378,7 @@ object Runner {
     val fullReporterSpecs: ReporterSpecs =
       if (reporterArgsList.isEmpty)
         // If no reporters specified, just give them a graphic reporter
-        new ReporterSpecs(Some(GraphicReporterSpec(ReporterOpts.Set32(0))), Nil, None, None, Nil)
+        new ReporterSpecs(Some(GraphicReporterSpec(ReporterOpts.ValueSet.empty)), Nil, None, None, Nil)
       else
         parseReporterArgsIntoSpecs(reporterArgsList)
 
@@ -581,7 +581,7 @@ object Runner {
    * If no configuration options are specified, this method returns an
    * empty ConfigSet. This method never returns null.
    */
-  private[scalatest] def parseConfigSet(reporterArg: String): ReporterOpts.Set32 = {
+  private[scalatest] def parseConfigSet(reporterArg: String): ReporterOpts.ValueSet = {
 
     if (reporterArg == null)
       throw new NullPointerException("reporterArg was null")
@@ -594,21 +594,21 @@ object Runner {
     val configString = reporterArg.substring(2)
     val it = configString.elements
     val allConfigs = "YZTFUPBISARG" // G for test ignored
-    var mask = 0
+    var valueSet = ReporterOpts.ValueSet.empty
     while (it.hasNext) 
       it.next match {
-        case 'Y' => mask = mask | ReporterOpts.PresentRunStarting.mask32
-        case 'Z' => mask = mask | ReporterOpts.PresentTestStarting.mask32
-        case 'T' => mask = mask | ReporterOpts.PresentTestSucceeded.mask32
-        case 'F' => mask = mask | ReporterOpts.PresentTestFailed.mask32
-        case 'U' => mask = mask | ReporterOpts.PresentSuiteStarting.mask32
-        case 'P' => mask = mask | ReporterOpts.PresentSuiteCompleted.mask32
-        case 'B' => mask = mask | ReporterOpts.PresentSuiteAborted.mask32
-        case 'I' => mask = mask | ReporterOpts.PresentInfoProvided.mask32
-        case 'S' => mask = mask | ReporterOpts.PresentRunStopped.mask32
-        case 'A' => mask = mask | ReporterOpts.PresentRunAborted.mask32
-        case 'R' => mask = mask | ReporterOpts.PresentRunCompleted.mask32
-        case 'G' => mask = mask | ReporterOpts.PresentTestIgnored.mask32
+        case 'Y' => valueSet += ReporterOpts.PresentRunStarting
+        case 'Z' => valueSet += ReporterOpts.PresentTestStarting
+        case 'T' => valueSet += ReporterOpts.PresentTestSucceeded
+        case 'F' => valueSet += ReporterOpts.PresentTestFailed
+        case 'U' => valueSet += ReporterOpts.PresentSuiteStarting
+        case 'P' => valueSet += ReporterOpts.PresentSuiteCompleted
+        case 'B' => valueSet += ReporterOpts.PresentSuiteAborted
+        case 'I' => valueSet += ReporterOpts.PresentInfoProvided
+        case 'S' => valueSet += ReporterOpts.PresentRunStopped
+        case 'A' => valueSet += ReporterOpts.PresentRunAborted
+        case 'R' => valueSet += ReporterOpts.PresentRunCompleted
+        case 'G' => valueSet += ReporterOpts.PresentTestIgnored
         case c: Char => {
 
           // this should be moved to the checker, and just throw an exception here with a debug message. Or allow a MatchError.
@@ -618,7 +618,7 @@ object Runner {
           throw new IllegalArgumentException(msg1 + msg2)
         }
       }
-    ReporterOpts.Set32(mask)
+    valueSet
   }
 
   private[scalatest] def parseReporterArgsIntoSpecs(args: List[String]) = {
@@ -807,7 +807,7 @@ object Runner {
 
   // For debugging.
 /*
-  private[scalatest] def printOpts(opt: ReporterOpts.Set32) {
+  private[scalatest] def printOpts(opt: ReporterOpts.ValueSet) {
     if (opt.contains(ReporterOpts.PresentRunStarting))
       println("PresentRunStarting")
     if (opt.contains(ReporterOpts.PresentTestStarting))
