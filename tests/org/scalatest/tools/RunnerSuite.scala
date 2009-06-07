@@ -212,65 +212,65 @@ class RunnerSuite() extends Suite {
       Runner.parseConfigSet("")
     }
 
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunStarting)) {
       Runner.parseConfigSet("-oY")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentTestStarting.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentTestStarting)) {
       Runner.parseConfigSet("-oZ")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentTestSucceeded.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentTestSucceeded)) {
       Runner.parseConfigSet("-oT")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed)) {
       Runner.parseConfigSet("-oF")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteStarting.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentSuiteStarting)) {
       Runner.parseConfigSet("-oU")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteCompleted.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentSuiteCompleted)) {
       Runner.parseConfigSet("-oP")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentSuiteAborted.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentSuiteAborted)) {
       Runner.parseConfigSet("-oB")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentInfoProvided.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentInfoProvided)) {
       Runner.parseConfigSet("-oI")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunStopped.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunStopped)) {
       Runner.parseConfigSet("-oS")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunAborted.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunAborted)) {
       Runner.parseConfigSet("-oA")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunCompleted.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunCompleted)) {
       Runner.parseConfigSet("-oR")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentTestIgnored.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentTestIgnored)) {
       Runner.parseConfigSet("-oG")
     }
-    expect(ReporterOpts.Set32(0)) {
+    expect(ReporterOpts.ValueSet()) {
       Runner.parseConfigSet("-f")
     }
 
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32 | ReporterOpts.PresentTestStarting.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunStarting, ReporterOpts.PresentTestStarting)) {
       Runner.parseConfigSet("-oZY")
     }
-    expect(ReporterOpts.Set32(ReporterOpts.PresentRunStarting.mask32 | ReporterOpts.PresentTestStarting.mask32)) {
+    expect(ReporterOpts.ValueSet(ReporterOpts.PresentRunStarting, ReporterOpts.PresentTestStarting)) {
       Runner.parseConfigSet("-oYZ") // Just reverse the order of the params
     }
-    val allOpts = ReporterOpts.Set32(
-      ReporterOpts.PresentRunStarting.mask32 |
-      ReporterOpts.PresentTestStarting.mask32 |
-      ReporterOpts.PresentTestSucceeded.mask32 |
-      ReporterOpts.PresentTestFailed.mask32 |
-      ReporterOpts.PresentSuiteStarting.mask32 |
-      ReporterOpts.PresentSuiteCompleted.mask32 |
-      ReporterOpts.PresentSuiteAborted.mask32 |
-      ReporterOpts.PresentInfoProvided.mask32 |
-      ReporterOpts.PresentRunStopped.mask32 |
-      ReporterOpts.PresentRunAborted.mask32 |
-      ReporterOpts.PresentRunCompleted.mask32 |
-      ReporterOpts.PresentTestIgnored.mask32
+    val allOpts = ReporterOpts.ValueSet(
+      ReporterOpts.PresentRunStarting,
+      ReporterOpts.PresentTestStarting,
+      ReporterOpts.PresentTestSucceeded,
+      ReporterOpts.PresentTestFailed,
+      ReporterOpts.PresentSuiteStarting,
+      ReporterOpts.PresentSuiteCompleted,
+      ReporterOpts.PresentSuiteAborted,
+      ReporterOpts.PresentInfoProvided,
+      ReporterOpts.PresentRunStopped,
+      ReporterOpts.PresentRunAborted,
+      ReporterOpts.PresentRunCompleted,
+      ReporterOpts.PresentTestIgnored
     )
     expect(allOpts) {
       Runner.parseConfigSet("-oYZTFUPBISARG")
@@ -314,34 +314,34 @@ class RunnerSuite() extends Suite {
     expect(new ReporterSpecs(None, Nil, None, None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(Nil)
     }
-    expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.Set32(0))), Nil, None, None, Nil)) {
+    expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.ValueSet())), Nil, None, None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-g"))
     }
-    expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), Nil, None, None, Nil)) {
+    expect(new ReporterSpecs(Some(new GraphicReporterSpec(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed))), Nil, None, None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-gF"))
     }
-    expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.Set32(0))), None, Nil)) {
+    expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.ValueSet())), None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-o"))
     }
-    expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), None, Nil)) {
+    expect(new ReporterSpecs(None, Nil, Some(new StandardOutReporterSpec(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed))), None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-oF"))
     }
-    expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.Set32(0))), Nil)) {
+    expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.ValueSet())), Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-e"))
     }
-    expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32))), Nil)) {
+    expect(new ReporterSpecs(None, Nil, None, Some(new StandardErrReporterSpec(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed))), Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-eF"))
     }
-    expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.Set32(0), "theFilename")), None, None, Nil)) {
+    expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.ValueSet(), "theFilename")), None, None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-f", "theFilename"))
     }
-    expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32), "theFilename")), None, None, Nil)) {
+    expect(new ReporterSpecs(None, List(new FileReporterSpec(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed), "theFilename")), None, None, Nil)) {
       Runner.parseReporterArgsIntoSpecs(List("-fF", "theFilename"))
     }
-    expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.Set32(0), "the.reporter.Class")))) {
+    expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.ValueSet(), "the.reporter.Class")))) {
       Runner.parseReporterArgsIntoSpecs(List("-r", "the.reporter.Class"))
     }
-    expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.Set32(ReporterOpts.PresentTestFailed.mask32), "the.reporter.Class")))) {
+    expect(new ReporterSpecs(None, Nil, None, None, List(new CustomReporterSpec(ReporterOpts.ValueSet(ReporterOpts.PresentTestFailed), "the.reporter.Class")))) {
       Runner.parseReporterArgsIntoSpecs(List("-rF", "the.reporter.Class"))
     }
   }
