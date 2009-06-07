@@ -41,24 +41,24 @@ class ExampleTestNGSuite extends TestNGSuite with JMocker{
   @AfterClass def passAfterClass(){}
   @AfterSuite def passAfterSuite(){}
   
-  @Test{val invocationCount=10} def thisTestRunsTenTimes = {}
+  @Test(invocationCount = 10) def thisTestRunsTenTimes = {}
   
-  @Test{val groups=Array("runMe")} 
+  @Test(groups = Array("runMe")) 
   def testWithException(){ 
     throw new Exception("exception!!!") 
    }
   
-  @Test{val groups=Array("runMe")} def testWithAssertFail = assert( 1 === 2, "assert fail!!!" )
+  @Test(groups = Array("runMe")) def testWithAssertFail = assert( 1 === 2, "assert fail!!!" )
   
-  @Test{val dependsOnMethods=Array("testWithException")} def testToGetSkipped = {}
+  @Test(dependsOnMethods = Array("testWithException")) def testToGetSkipped = {}
   
-  @DataProvider{val name="andValues"}
+  @DataProvider(name = "andValues")
   def andValues = { 
     val and = Array("0", "1")
     for( x <- and; y <- and ) yield Array(x,y)
   }
   
-  @Test{ val dataProvider="andValues" }
+  @Test(dataProvider = "andValues")
   def testAndStates(a: String, b: String){
     println("a=" + a + ", b=" + b)
   }

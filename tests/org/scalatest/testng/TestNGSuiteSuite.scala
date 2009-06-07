@@ -151,12 +151,12 @@ package org.scalatest.testng {
      }
      
      class TestNGSuiteWithInvocationCount extends TestNGSuite {
-       @Test{val invocationCount=10} def testThatPassesTenTimes() {}
+       @Test(invocationCount = 10) def testThatPassesTenTimes() {}
      }
      
      class SuiteWithSkippedTest extends TestNGSuite {
-       @Test{val groups=Array("run")} def dependeeThatFails() { throw new Exception("fail") }
-       @Test{val dependsOnGroups=Array("run")} def depender() {}
+       @Test(groups = Array("run")) def dependeeThatFails() { throw new Exception("fail") }
+       @Test(dependsOnGroups = Array("run")) def depender() {}
      } 
 
      class SuiteWithTwoTests extends TestNGSuite {
