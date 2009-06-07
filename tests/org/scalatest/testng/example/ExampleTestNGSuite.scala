@@ -23,12 +23,8 @@ import org.testng.annotations.AfterMethod
 import org.testng.annotations.AfterClass
 import org.testng.annotations.AfterSuite
 import org.testng.annotations.DataProvider
-import org.specs.mock._
 
-class ExampleTestNGSuite extends TestNGSuite with JMocker{
-
-  // I have no idea what this is for. No documentation. Want to dump this stuff.
-  def addExpectation: org.specs.specification.Example = null
+class ExampleTestNGSuite extends TestNGSuite {
 
   @AfterSuite
   def failAfterSuite(){ throw new Exception("fail in before method") }
@@ -46,7 +42,7 @@ class ExampleTestNGSuite extends TestNGSuite with JMocker{
   @Test(groups = Array("runMe")) 
   def testWithException(){ 
     throw new Exception("exception!!!") 
-   }
+  }
   
   @Test(groups = Array("runMe")) def testWithAssertFail = assert( 1 === 2, "assert fail!!!" )
   
@@ -62,6 +58,5 @@ class ExampleTestNGSuite extends TestNGSuite with JMocker{
   def testAndStates(a: String, b: String){
     println("a=" + a + ", b=" + b)
   }
-  
 }
 

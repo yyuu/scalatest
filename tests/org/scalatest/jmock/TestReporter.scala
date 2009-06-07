@@ -15,12 +15,7 @@
  */
 package org.scalatest.jmock;
 
-
-/**
- * This class only exists because I cant get jmock to work with Scala. 
- * Other people seem to do it. Frustrating. 
- */
-class TestReporter extends Reporter{
+class TestReporter extends Reporter {
 
   var report: Report = null;
   var successCount = 0;
@@ -45,5 +40,4 @@ class TestReporter extends Reporter{
   }
   
   def errorMessage = report.throwable.get.getMessage
-  
 }
