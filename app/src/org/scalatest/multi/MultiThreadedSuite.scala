@@ -4,21 +4,6 @@ package org.scalatest.multi
 import java.io.{StringWriter, PrintWriter}
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.concurrent.{ArrayBlockingQueue, Semaphore, CountDownLatch, TimeUnit}
-import matchers.MustMatchers
-
-
-trait MultiThreadedFunSuite extends MultiThreadedSuite with FunSuite with MustMatchers {
-  implicit def anyToMustBe(a: Any) = new {
-    def mustBe(b: Any) {
-      a must be(b)
-    }
-
-    def must_be(b: Any) {
-      a must be(b)
-    }
-  }
-}
-
 
 /**
  * @author dood
