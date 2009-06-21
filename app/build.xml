@@ -260,12 +260,13 @@
             <reporter type="graphic"/>
             <reporter type="stdout" />
             <reporter type="file" filename="delme.txt" />
-            <membersonly package="org.scalatest" />
-            <membersonly package="org.scalatest.matchers" />
-            <membersonly package="org.scalatest.testng" />
-            <membersonly package="org.scalatest.junit" />
-            <membersonly package="org.scalatest.events" />
-            <membersonly package="org.scalatest.prop" />
+            <!--<membersonly package="org.scalatest" />-->
+            <!--<membersonly package="org.scalatest.matchers" />-->
+            <!--<membersonly package="org.scalatest.testng" />-->
+            <!--<membersonly package="org.scalatest.junit" />-->
+            <!--<membersonly package="org.scalatest.events" />-->
+          <!--<membersonly package="org.scalatest.prop" />-->
+          <membersonly package="org.scalatest.multi" />
         </scalatest>
     </target>
 

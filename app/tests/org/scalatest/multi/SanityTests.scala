@@ -24,15 +24,10 @@ trait MustBeSugar { this: MustMatchers =>
   }
 }
 
-class SanityMetronomeOrder extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityMetronomeOrder extends MultiThreadedSuite with MustMatchers with MustBeSugar {
 
   //trace = true
-
   var s = ""
-
-  initialize {
-    s = ""
-  }
 
   thread("t1") {
     waitForTick(1)
@@ -73,18 +68,13 @@ class SanityMetronomeOrder extends MultiThreadedSuite with FunSuite with MustMat
 }
 
 // Test order called is init, then thread, then finish
-class SanityInitBeforeThreadsBeforeFinish extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
-  var v1: AtomicInteger = null
-  var v2: AtomicInteger = null
-  var c: CountDownLatch = null
+class SanityInitBeforeThreadsBeforeFinish extends MultiThreadedSuite with MustMatchers with MustBeSugar {
 
-  initialize {
-    v1 = new AtomicInteger(0)
-    v2 = new AtomicInteger(0)
-    assert(v1.compareAndSet(0, 1))
-    assert(v2.compareAndSet(0, 1))
-    c = new CountDownLatch(2)
-  }
+  val v1 = new AtomicInteger(0)
+  val v2 = new AtomicInteger(0)
+  assert(v1.compareAndSet(0, 1))
+  assert(v2.compareAndSet(0, 1))
+  val c = new CountDownLatch(2)
 
   thread("t1") {
     assert(v1.compareAndSet(1, 2))
@@ -104,7 +94,7 @@ class SanityInitBeforeThreadsBeforeFinish extends MultiThreadedSuite with FunSui
   }
 }
 
-class SanityWaitForTickAdvancesWhenTestsAreBlocked extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityWaitForTickAdvancesWhenTestsAreBlocked extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var c: CountDownLatch = new CountDownLatch(3)
 
   thread {
@@ -130,7 +120,7 @@ class SanityWaitForTickAdvancesWhenTestsAreBlocked extends MultiThreadedSuite wi
   }
 }
 
-class SanityWaitForTickBlocksThread extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityWaitForTickBlocksThread extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var t: Thread = null
 
   thread {
@@ -145,7 +135,7 @@ class SanityWaitForTickBlocksThread extends MultiThreadedSuite with FunSuite wit
 }
 
 
-class SanityThreadTerminatesBeforeFinishIsCalled extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityThreadTerminatesBeforeFinishIsCalled extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var t1, t2: Thread = null
 
   thread {
@@ -162,7 +152,7 @@ class SanityThreadTerminatesBeforeFinishIsCalled extends MultiThreadedSuite with
   }
 }
 
-class SanityThreadMethodsInvokedInDifferentThreads extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityThreadMethodsInvokedInDifferentThreads extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var t1, t2: Thread = null
 
   thread {
@@ -182,7 +172,7 @@ class SanityThreadMethodsInvokedInDifferentThreads extends MultiThreadedSuite wi
 }
 
 // doesnt really make sense anymore....isnt really useful....
-class SanityGetThreadReturnsCorrectThread extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityGetThreadReturnsCorrectThread extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var t: Thread = null
 
   val t0 = thread {
@@ -197,7 +187,7 @@ class SanityGetThreadReturnsCorrectThread extends MultiThreadedSuite with FunSui
   }
 }
 
-class SanityGetThreadByNameReturnsCorrectThread extends MultiThreadedSuite with FunSuite with MustMatchers with MustBeSugar {
+class SanityGetThreadByNameReturnsCorrectThread extends MultiThreadedSuite with MustMatchers with MustBeSugar {
   var t: Thread = null
 
   val fooey = thread("Fooey") {
