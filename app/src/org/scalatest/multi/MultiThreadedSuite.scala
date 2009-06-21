@@ -27,6 +27,6 @@ trait MultiThreadedSuite extends Suite with MultiThreadedTest { thisSuite =>
       getInt(RUNLIMIT_KEY, DEFAULT_RUNLIMIT))
 
     if( error.isEmpty ) reporter.testSucceeded(buildReport(None))
-    else reporter.testSucceeded(buildReport(Some(error.peek)))
+    else reporter.testFailed(buildReport(Some(error.peek)))
   }
 }
