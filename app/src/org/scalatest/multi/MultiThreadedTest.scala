@@ -247,9 +247,6 @@ trait MultiThreadedTest {
    *               global setting)
    */
   def runMultiThreadedTest(clockPeriod: Int, runLimit: Int) {
-    // invoke initialize method before each run
-    //runInitFunction
-
     // invoke each thread method in a seperate thread
     startThreads
 
@@ -257,7 +254,7 @@ trait MultiThreadedTest {
     val clockThread = startClock(clockPeriod, runLimit)
 
     // wait until all threads have ended
-    waitForMethodThreads(threads + clockThread)
+    waitForThreads(threads + clockThread)
 
     // invoke finish at the end of each run
     runFinishFunction
@@ -327,7 +324,7 @@ trait MultiThreadedTest {
    * @throws Throwable
    *             The first error or exception that is thrown by one of the threads
    */
-  private def waitForMethodThreads(threads: List[Thread]) {
+  private def waitForThreads(threads: List[Thread]) {
     //println("waiting for threads: " + threads)
 
     def waitForThread(t: Thread) {
