@@ -26,7 +26,6 @@ trait MustBeSugar { this: MustMatchers =>
 
 class SanityMetronomeOrder extends MultiThreadedSuite with MustMatchers with MustBeSugar {
 
-  //trace = true
   var s = ""
 
   thread("t1") {
@@ -168,36 +167,6 @@ class SanityThreadMethodsInvokedInDifferentThreads extends MultiThreadedSuite wi
   thread {
     waitForTick(1)
     t1 must not(be(t2))
-  }
-}
-
-// doesnt really make sense anymore....isnt really useful....
-class SanityGetThreadReturnsCorrectThread extends MultiThreadedSuite with MustMatchers with MustBeSugar {
-  var t: Thread = null
-
-  val t0 = thread {
-    t = Thread.currentThread
-    waitForTick(2)
-  }
-
-  thread {
-    waitForTick(1)
-    t0 mustBe t
-    getThread(0) mustBe t
-  }
-}
-
-class SanityGetThreadByNameReturnsCorrectThread extends MultiThreadedSuite with MustMatchers with MustBeSugar {
-  var t: Thread = null
-
-  val fooey = thread("Fooey") {
-    t = Thread.currentThread
-    waitForTick(2)
-  }
-
-  thread("Booey") {
-    waitForTick(1)
-    getThread("Fooey") mustBe t
   }
 }
 

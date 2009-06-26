@@ -266,7 +266,7 @@
             <!--<membersonly package="org.scalatest.junit" />-->
             <!--<membersonly package="org.scalatest.events" />-->
           <!--<membersonly package="org.scalatest.prop" />-->
-          <membersonly package="org.scalatest.multi" />
+          <membersonly package="org.scalatest.multi.actors" />
         </scalatest>
     </target>
 
