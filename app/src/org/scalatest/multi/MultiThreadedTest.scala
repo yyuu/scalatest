@@ -54,7 +54,7 @@ trait MultiThreadedTest extends PrintlnLogger {
 
   import MultiThreadedTest._
 
-  val logLevel : LogLevel = nothing
+  override val logLevel : LogLevel = nothing
 
   type Tick = Int
 
