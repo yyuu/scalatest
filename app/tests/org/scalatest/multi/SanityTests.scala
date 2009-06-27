@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CountDownLatch
 import org.scalatest.matchers.MustMatchers
 import org.scalatest.Suite
+import Thread.State._
 
 trait MustBeSugar { this: MustMatchers =>
 
@@ -90,8 +91,8 @@ class SanityInitBeforeThreadsBeforeFinish extends MultiThreadedSuite with MustMa
   }
 
   finish {
-    v1.intValue() must be(2)
-    v2.intValue() must be(2)
+    v1.intValue() mustBe 2
+    v2.intValue() mustBe 2
   }
 }
 
@@ -110,14 +111,14 @@ class SanityWaitForTickAdvancesWhenTestsAreBlocked extends MultiThreadedSuite wi
 
   thread {
     waitForTick(1)
-    c.getCount() must be(1)
+    c.getCount mustBe 1
     waitForTick(2) // advances quickly
-    c.getCount() must be(1)
+    c.getCount mustBe 1
     c.countDown()
   }
 
   finish {
-    c.getCount() must be(0)
+    c.getCount() mustBe 0
   }
 }
 
@@ -125,13 +126,13 @@ class SanityWaitForTickBlocksThread extends MultiThreadedSuite with MustMatchers
   var t: Thread = null
 
   thread {
-    t = Thread.currentThread()
+    t = currentThread
     waitForTick(2)
   }
 
   thread {
     waitForTick(1)
-    t.getState must be(Thread.State.WAITING)
+    t.getState mustBe WAITING
   }
 }
 
@@ -148,8 +149,8 @@ class SanityThreadTerminatesBeforeFinishIsCalled extends MultiThreadedSuite with
   }
 
   finish {
-    t1.getState must be(Thread.State.TERMINATED)
-    t2.getState must be(Thread.State.TERMINATED)
+    t1.getState mustBe TERMINATED
+    t2.getState mustBe TERMINATED
   }
 }
 
