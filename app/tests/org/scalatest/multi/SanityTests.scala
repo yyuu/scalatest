@@ -26,6 +26,8 @@ trait MustBeSugar { this: MustMatchers =>
 
 class SanityMetronomeOrder extends MultiThreadedSuite with MustMatchers with MustBeSugar {
 
+  logLevel = everything
+
   var s = ""
 
   thread("t1") {
@@ -169,4 +171,3 @@ class SanityThreadMethodsInvokedInDifferentThreads extends MultiThreadedSuite wi
     t1 must not(be(t2))
   }
 }
-

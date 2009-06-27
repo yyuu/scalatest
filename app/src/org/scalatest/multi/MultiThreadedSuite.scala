@@ -26,9 +26,14 @@ trait MultiThreadedSuite extends Suite with MultiThreadedTest{ thisSuite =>
 
     reporter.testStarting(buildReport(None))
 
-    runMultiThreadedTest()
-
-    if( errors.isEmpty ) reporter.testSucceeded(buildReport(None))
-    else reporter.testFailed(buildReport(Some(errors.peek)))
+    try{
+      runMultiThreadedTest()
+    }finally{
+      if( errors.isEmpty ) reporter.testSucceeded(buildReport(None))
+      else {
+        reporter.testFailed(buildReport(Some(errors.take)))
+        while(!errors.isEmpty){ reporter.infoProvided(buildReport(Some(errors.take))) }
+      }
+    }
   }
 }

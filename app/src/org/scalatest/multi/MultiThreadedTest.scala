@@ -54,7 +54,7 @@ trait MultiThreadedTest extends PrintlnLogger {
 
   import MultiThreadedTest._
 
-  override val logLevel : LogLevel = nothing
+  logLevel = nothing
 
   type Tick = Int
 
@@ -78,6 +78,9 @@ trait MultiThreadedTest extends PrintlnLogger {
 
   // all the threads in this test
   protected var threads = List[Thread]()
+
+  // the main test thread
+  protected val mainThread = currentThread
 
   /**
    *
@@ -109,7 +112,7 @@ trait MultiThreadedTest extends PrintlnLogger {
           threadStartLatch.await
           // At this point all threads are created and released
           // (in random order?) together to run in parallel
-          f
+          f()
         } catch {
           case e: ThreadDeath =>
           case t: Throwable => signalError(t)
@@ -140,7 +143,7 @@ trait MultiThreadedTest extends PrintlnLogger {
    * finished.
    *
    */
-  private def runFinishFunction = finishFunction match {
+  private def runFinishFunction() = finishFunction match {
     case Some(f) => f()
     case _ =>
   }
@@ -214,34 +217,27 @@ trait MultiThreadedTest extends PrintlnLogger {
    * @param runLimit The limit to run the test in seconds
    */
   def runMultiThreadedTest(clockPeriod: Int, runLimit: Int) {
-    // invoke each thread method in a seperate thread
-    startThreads
+    // start each test thread
+    startThreads()
 
-    // start and add clock thread
-    val clockThread = startClock(clockPeriod, runLimit)
+    // start the clock thread
+    val clockThread = start(ClockThread(clockPeriod, runLimit))
 
     // wait until all threads have ended
     waitForThreads(threads + clockThread)
 
     // invoke finish at the end of each run
-    runFinishFunction
+    runFinishFunction()
   }
 
   /**
    * Start all the threads in the test.
    */
-  private def startThreads {
+  private def startThreads() {
     threads.foreach( start )
     threadStartLatch.await()
   }
 
-  /**
-   * Start and return a clock thread
-   * @return the (already started) clock thread
-   */
-  def startClock(clockPeriod: Int, runLimit: Int): Thread = {
-    start(ClockThread(currentThread, clockPeriod, runLimit))
-  }
 
   def start(t:Thread): Thread = {
     logger.trace.around("starting: " + t){ t.start(); t }
@@ -275,6 +271,7 @@ trait MultiThreadedTest extends PrintlnLogger {
 
     threads foreach waitForThread
 
+    logger.trace("errors: " + errors)
     if (!errors.isEmpty) throw errors.peek
   }
 
@@ -288,7 +285,7 @@ trait MultiThreadedTest extends PrintlnLogger {
     logger.error(t)
     errors offer t
     for (t <- threads; if (t != currentThread)) {
-      logger.trace("signaling error to " + t.getName)
+      logger.error("signaling error to " + t.getName)
       val assertionError = new AssertionError(t.getName + " killed by " + currentThread.getName)
       assertionError setStackTrace t.getStackTrace
       t stop assertionError
@@ -435,8 +432,7 @@ trait MultiThreadedTest extends PrintlnLogger {
    *
    * @param maxRunTime The limit to run the test in seconds
    */
-  case class ClockThread(mainThread: Thread,
-                         clockPeriod: Int,
+  case class ClockThread(clockPeriod: Int,
                          maxRunTime: Int) extends Thread("Clock Thread") {
     this setDaemon true
     // used in detecting timeouts

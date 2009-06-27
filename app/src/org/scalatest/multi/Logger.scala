@@ -15,7 +15,7 @@ trait PrintlnLogger extends Logger {
 trait Logger {
 
   def log(a: Any): Unit = {}
-  val logLevel: LogLevel
+  var logLevel: LogLevel = nothing
   def logger = this
 
   case class LogLevel(level: Int) {
