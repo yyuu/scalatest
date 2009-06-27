@@ -11,7 +11,7 @@ import Thread.State._
 import PimpedThreadGroup._
 
 /**
- * 
+ *
  */
 object MultiThreadedTest {
   /**
@@ -39,28 +39,22 @@ object MultiThreadedTest {
   /**
    *
    */
-  def getClockPeriod = getInt(CLOCKPERIOD_KEY, DEFAULT_CLOCKPERIOD)
+  def getClockPeriod = Integer.getInteger(CLOCKPERIOD_KEY, DEFAULT_CLOCKPERIOD).intValue
 
   /**
    *
    */
-  def getRunLimit = getInt(RUNLIMIT_KEY, DEFAULT_RUNLIMIT)
-
-  /**
-   *
-   */
-  private def getInt(prop: String, default: Int): Int = Integer.getInteger(prop, default).intValue
+  def getRunLimit = Integer.getInteger(RUNLIMIT_KEY, DEFAULT_RUNLIMIT).intValue
 }
-
 
 /**
  *
  */
-trait MultiThreadedTest extends Logger {
-  
+trait MultiThreadedTest extends PrintlnLogger {
+
   import MultiThreadedTest._
 
-  val logLevel:LogLevel = nothing
+  val logLevel : LogLevel = nothing
 
   type Tick = Int
 
@@ -84,14 +78,14 @@ trait MultiThreadedTest extends Logger {
 
   // all the threads in this test
   protected var threads = List[Thread]()
-  
+
   /**
-   * 
+   *
    */
   def thread[T](f: => T): Thread = thread("thread" + threads.size) {f}
 
   /**
-   * 
+   *
    */
   def thread[T](desc: String)(f: => T): Thread = {
     val t = createTestThread(desc, f _)
@@ -117,8 +111,8 @@ trait MultiThreadedTest extends Logger {
           // (in random order?) together to run in parallel
           f
         } catch {
-          case e: ThreadDeath => 
-          case t: Throwable => { errors offer t; signalError() }
+          case e: ThreadDeath =>
+          case t: Throwable => signalError(t)
         }
       }
     }, name)
@@ -128,7 +122,6 @@ trait MultiThreadedTest extends Logger {
 
   /////////////////////// finish handler end //////////////////////////////
 
-
   /**
    *
    */
@@ -136,7 +129,7 @@ trait MultiThreadedTest extends Logger {
 
   /**
    * An option that might contain a function to run after all threads have finished.
-   * By default, there is no finish function. A user must call finish{...} 
+   * By default, there is no finish function. A user must call finish{...}
    * in order to have a function executed. If the user does call finish{...}
    * then that function gets saved in this Option, as Some(f)
    */
@@ -173,7 +166,7 @@ trait MultiThreadedTest extends Logger {
   def tick: Int = clock.time
 
   /**
-   * 
+   *
    */
   def withClockFrozen[T](f: => T) = clock.withClockFrozen(f _)
 
@@ -184,11 +177,9 @@ trait MultiThreadedTest extends Logger {
 
   /////////////////////// clock management end //////////////////////////////
 
-
   // ===============================
   // -- Customized Wait Functions --
   // - - - - - - - - - - - - - - - -
-
 
   /**
    * Calling this method from one of the test threads may cause the
@@ -240,7 +231,7 @@ trait MultiThreadedTest extends Logger {
    * Start all the threads in the test.
    */
   private def startThreads {
-    threads.foreach { t => trace.around("starting: " + t){ t.start() } }
+    threads.foreach( start )
     threadStartLatch.await()
   }
 
@@ -249,11 +240,11 @@ trait MultiThreadedTest extends Logger {
    * @return the (already started) clock thread
    */
   def startClock(clockPeriod: Int, runLimit: Int): Thread = {
-    trace.around("starting clock thread"){
-      val ct = ClockThread(currentThread, clockPeriod, runLimit)
-      ct.start()
-      ct
-    }
+    start(ClockThread(currentThread, clockPeriod, runLimit))
+  }
+
+  def start(t:Thread): Thread = {
+    logger.trace.around("starting: " + t){ t.start(); t }
   }
 
   /**
@@ -270,13 +261,13 @@ trait MultiThreadedTest extends Logger {
    */
   private def waitForThreads(threads: List[Thread]) {
     def waitForThread(t: Thread) {
-      //println("waiting for: " + t.getName + " which is in state:" + t.getState)
+      logger.trace("waiting for: " + t.getName + " which is in state:" + t.getState)
       try {
-        if (t.isAlive && !errors.isEmpty) trace.around("stoppping: " + t){ t.stop() }
-        else trace.around("joining: " + t){ t.join() }
+        if (t.isAlive && !errors.isEmpty) logger.trace.around("stopping: " + t){ t.stop() }
+        else logger.trace.around("joining: " + t){ t.join() }
       } catch {
         case e: InterruptedException => {
-          trace("killed waiting for threads. probably deadlock or timeout.")
+          logger.trace("killed waiting for threads. probably deadlock or timeout.")
           errors offer new AssertionError(e)
         }
       }
@@ -293,10 +284,11 @@ trait MultiThreadedTest extends Logger {
    * ready to end in failure and it wants to make sure all the other
    * threads have ended before throwing an exception.
    */
-  def signalError() {
-    //("signaling error to all threads")
+  def signalError(t:Throwable) {
+    logger.error(t)
+    errors offer t
     for (t <- threads; if (t != currentThread)) {
-      //println("signaling error to " + t.getName)
+      logger.trace("signaling error to " + t.getName)
       val assertionError = new AssertionError(t.getName + " killed by " + currentThread.getName)
       assertionError setStackTrace t.getStackTrace
       t stop assertionError
@@ -304,7 +296,6 @@ trait MultiThreadedTest extends Logger {
   }
 
   /**
-   *
    * A Clock manages the current tick in a MultiThreadedTest.
    * Several duties stem from that responsibility.
    *
@@ -351,7 +342,7 @@ trait MultiThreadedTest extends Logger {
     def tick() {
       lock.synchronized {
         rwLock.withWriteLock{
-          trace("tick! from: " + currentTime + " to: " + (currentTime + 1))
+          logger.trace("tick! from: " + currentTime + " to: " + (currentTime + 1))
           currentTime += 1
         }
         lock.notifyAll()
@@ -372,7 +363,7 @@ trait MultiThreadedTest extends Logger {
         threadsWithTickCounts += (currentThread -> t)
         while (time < t) {
           try {
-            trace.around(currentThread.getName + " is waiting for time " + t){
+            logger.trace.around(currentThread.getName + " is waiting for time " + t){
               lock.wait()
             }
           } catch {
@@ -402,7 +393,6 @@ trait MultiThreadedTest extends Logger {
 
   }
 
-
   /**
    * The clock thread is the manager of the MultiThreadedTest.
    * Periodically checks all the test case threads and regulates them.
@@ -415,7 +405,7 @@ trait MultiThreadedTest extends Logger {
    * Algorithm in detail:
    *
    * While there are threads alive
-   * 
+   *
    *    If there are threads RUNNING
    *
    *       If they have been running too long
@@ -486,8 +476,7 @@ trait MultiThreadedTest extends Logger {
      */
     private def timeout() {
       mainThread.interrupt()
-      errors offer new IllegalStateException("No progress")
-      signalError()
+      signalError(new IllegalStateException("No progress"))
     }
 
     /**
@@ -496,8 +485,7 @@ trait MultiThreadedTest extends Logger {
     def detectDeadlock() {
       if (deadlockCount == 50) {
         mainThread.interrupt()
-        errors offer new IllegalStateException("Deadlock")
-        signalError()
+        signalError(new IllegalStateException("Deadlock"))
       }
       else deadlockCount += 1
     }
