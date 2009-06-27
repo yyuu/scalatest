@@ -77,6 +77,9 @@ trait MultiThreadedTest extends PrintlnLogger {
   protected val threadGroup = new ThreadGroup("MTC-Threads")
 
   // all the threads in this test
+  // TODO: Potential problem with should only be accessed by main thread, but not enforcing. Should
+  // enforce it by throwing an exception if accessed (Set or read) by any other thread. Also, should
+  // make sure it is only set and possibly accessed during construction
   protected var threads = List[Thread]()
 
   // the main test thread
@@ -109,11 +112,13 @@ trait MultiThreadedTest extends PrintlnLogger {
       def run() {
         try {
           threadStartLatch.countDown
-          threadStartLatch.await
-          // At this point all threads are created and released
-          // (in random order?) together to run in parallel
+          threadStartLatch.await // Wait for all threads to start before progressing
           f()
         } catch {
+          // The reason this is a catch Throwable is because you want to let ThreadDeath through
+          // without signalling errors. Otherwise the signalError could have been in a finally.
+          // If the simulation is aborted, then stop will be called,
+          // which will cause ThreadDeath, so just die and do nothing
           case e: ThreadDeath =>
           case t: Throwable => signalError(t)
         }
@@ -126,7 +131,7 @@ trait MultiThreadedTest extends PrintlnLogger {
   /////////////////////// finish handler end //////////////////////////////
 
   /**
-   *
+   * Register a function to be executed after the simulation has finished.
    */
   def finish(f: => Unit) {finishFunction = Some(f _)}
 
@@ -136,6 +141,7 @@ trait MultiThreadedTest extends PrintlnLogger {
    * in order to have a function executed. If the user does call finish{...}
    * then that function gets saved in this Option, as Some(f)
    */
+  // TODO: Ensure this is set and called by the main thread, and if not, it gets an exception
   private var finishFunction: Option[() => Unit] = None
 
   /**
@@ -153,7 +159,7 @@ trait MultiThreadedTest extends PrintlnLogger {
   /////////////////////// clock management start //////////////////////////////
 
   /**
-   * Force this thread to block until the thread metronome reaches the
+   * Force this thread to block until the thread clock reaches the
    * specified value, at which point the thread is unblocked.
    *
    * @param c the tick value to wait for
@@ -161,20 +167,21 @@ trait MultiThreadedTest extends PrintlnLogger {
   def waitForTick(t: Tick) { clock waitForTick t }
 
   /**
-   * Gets the current value of the thread metronome. Primarily useful in
+   * Gets the current value of the thread clock. Primarily useful in
    * assert statements.
    *
    * @return the current tick value
    */
-  def tick: Int = clock.time
+  def tick: Tick = clock.time
 
   /**
-   *
+   * This runs the passed function, and while it runs it, the clock cannot advance.
    */
   def withClockFrozen[T](f: => T) = clock.withClockFrozen(f _)
 
   /**
-   * Check if the clock has been frozen by any threads.
+   * Check if the clock has been frozen by any threads. (The only way a thread
+   * can freeze the clock is by calling withClockFrozen.)
    */
   def isClockFrozen: Boolean = clock.isFrozen
 
@@ -189,7 +196,9 @@ trait MultiThreadedTest extends PrintlnLogger {
    * thread to yield. Use this between statements to generate more
    * interleavings.
    */
-  def mayYield() {mayYield(0.5)}
+  def possiblyYield() {possiblyYield(0.5)}
+  // TODO: possibly remove, because it is inconsistent with trying to test interleavings
+  // deterministically
 
   /**
    * Calling this method from one of the test threads may cause the
@@ -199,7 +208,7 @@ trait MultiThreadedTest extends PrintlnLogger {
    * @param probability
    *             (a number between 0 and 1) the likelihood that Thread.yield() is called
    */
-  def mayYield(probability: Double) {
+  def possiblyYield(probability: Double) {
     if (new Random().nextDouble() < probability) Thread.`yield`
   }
 
@@ -209,19 +218,23 @@ trait MultiThreadedTest extends PrintlnLogger {
    * Run multithreaded test with the default parameters,
    * or the parameters set at the command line.
    */
-  def runMultiThreadedTest() { runMultiThreadedTest(getClockPeriod, getRunLimit) }
+  def start() { start(getClockPeriod, getRunLimit) }
 
   /**
    * Run multithreaded test.
    * @param clockPeriod The period (in ms) between checks for the clock 
    * @param runLimit The limit to run the test in seconds
-   */
-  def runMultiThreadedTest(clockPeriod: Int, runLimit: Int) {
+   */ // TODO: Only allow this to be called once per instance. Probably call this start().
+  def start(clockPeriod: Int, runLimit: Int) {
+
     // start each test thread
-    startThreads()
+    threads.foreach(startThread)
+
+    // wait for all the test threads to start before starting the clock
+    threadStartLatch.await()
 
     // start the clock thread
-    val clockThread = start(ClockThread(clockPeriod, runLimit))
+    val clockThread = startThread(ClockThread(clockPeriod, runLimit))
 
     // wait until all threads have ended
     waitForThreads(threads + clockThread)
@@ -230,17 +243,8 @@ trait MultiThreadedTest extends PrintlnLogger {
     runFinishFunction()
   }
 
-  /**
-   * Start all the threads in the test.
-   */
-  private def startThreads() {
-    threads.foreach( start )
-    threadStartLatch.await()
-  }
-
-
-  def start(t:Thread): Thread = {
-    logger.trace.around("starting: " + t){ t.start(); t }
+  private def startThread(t:Thread): Thread = {
+    logger.trace.around("starting: " + t) { t.start(); t }
   }
 
   /**
@@ -255,6 +259,13 @@ trait MultiThreadedTest extends PrintlnLogger {
    * @throws Throwable
    *             The first error or exception that is thrown by one of the threads
    */
+  // Explain how we understand it works: if the thread that's been joined already dies with an exception
+  // that will go into errors, and this thread the join will return. If the thread returns and doesn't
+  // die, that means all went well, and join will return and it can loop to the next one.
+  // There should be no race condition between the last thread being waited on by join, it dies, join
+  // returns, and after that the error gets into the errors. Because if you look in run() in the
+  // thread inside createTestThread, the signalling error happens in a catch Throwable block before the thread
+  // returns.
   private def waitForThreads(threads: List[Thread]) {
     def waitForThread(t: Thread) {
       logger.trace("waiting for: " + t.getName + " which is in state:" + t.getState)
@@ -280,6 +291,9 @@ trait MultiThreadedTest extends PrintlnLogger {
    * which this method is called. This method is used when a thread is
    * ready to end in failure and it wants to make sure all the other
    * threads have ended before throwing an exception.
+   * Clock thread will return normally when no threads are running.
+   * // TODO: kill all the threads, not just the top level ones. All threads
+   * //
    */
   def signalError(t:Throwable) {
     logger.error(t)
@@ -308,12 +322,12 @@ trait MultiThreadedTest extends PrintlnLogger {
    * Time: 8:56:54 AM
    * @author Josh Cough
    */
-  class Clock {
+  class Clock { // TODO: figure out why the compiler won't let us make this private
 
     import PimpedReadWriteLock._
 
     // tick is nothing more than an int
-    type Tick = Int
+    // type Tick = Int  // TODO: Remove if this works
 
     // clock starts at time 0
     private var currentTime = 0
@@ -326,7 +340,7 @@ trait MultiThreadedTest extends PrintlnLogger {
     private val rwLock = new ReentrantReadWriteLock
 
     /**
-     * Map each thread to the clock tick it is waiting for.
+     * Map each thread to the clock tick it is waiting for. // TODO: Better name?
      */
     private var threadsWithTickCounts = Map[Thread, Tick]()
 
@@ -335,7 +349,15 @@ trait MultiThreadedTest extends PrintlnLogger {
      * until it has become unfrozen.
      *
      * All threads waiting for the clock to tick will be notified after the advance.
+     *
+     * Only the clock thread should be calling this.
+     *
+     * If the clock has been frozen by a thread, then that thread will own the readLock. Write
+     * lcok can only be acquired when there are no readers, so ticks won't progress while someone
+     * has the clock frozen. Other methods also grab the read lock, like time (which gets
+     * the current tick.)
      */
+    // TODO: rename time() to tick or currentTick, and tick to incrementTick? Maybe not. Maybe OK.
     def tick() {
       lock.synchronized {
         rwLock.withWriteLock{
@@ -348,13 +370,14 @@ trait MultiThreadedTest extends PrintlnLogger {
 
     /**
      * The current time.
-     */
+     */  // TODO: Maybe currentTime is a better name for the method, but...
     def time: Tick = rwLock withReadLock currentTime
 
     /**
      * When wait for tick is called, the current thread will block until
      * the given tick is reached by the clock.
-     */
+     */  // TODO: Could just notify in the tick() method the folks that are waiting on that
+    // particular tick, but then that's more complicated. Not a big deal.
     def waitForTick(t: Tick) {
       lock.synchronized {
         threadsWithTickCounts += (currentThread -> t)
@@ -369,6 +392,11 @@ trait MultiThreadedTest extends PrintlnLogger {
         }
       }
     }
+    // The reason there's no race condition between calling time() in the while and calling
+    // lock.wait() later (between that) and some other thread incrementing the tick and doing
+    // a notify that this thread would miss (which it would want to know about if that's the
+    // new time that it's waiting for) is becauswe both this and the tick method are synchronized
+    // on the lock.
 
     /**
      * Returns true if any thread is waiting for a tick in the future ( greater than the current time )
@@ -387,7 +415,6 @@ trait MultiThreadedTest extends PrintlnLogger {
      * Check if the clock has been frozen by any threads.
      */
     def isFrozen: Boolean = rwLock.getReadLockCount > 0
-
   }
 
   /**
@@ -434,11 +461,13 @@ trait MultiThreadedTest extends PrintlnLogger {
    */
   case class ClockThread(clockPeriod: Int,
                          maxRunTime: Int) extends Thread("Clock Thread") {
-    this setDaemon true
+
+    this setDaemon true // TODO: Why is this a daemon thread? If no good reason, drop it.
+
     // used in detecting timeouts
-    var lastProgress = System.currentTimeMillis
+    private var lastProgress = System.currentTimeMillis
     // used in detecting deadlocks
-    var deadlockCount = 0
+    private var deadlockCount = 0
 
     /**
      * Runs the steps described above.
@@ -472,16 +501,16 @@ trait MultiThreadedTest extends PrintlnLogger {
      */
     private def timeout() {
       mainThread.interrupt()
-      signalError(new IllegalStateException("No progress"))
+      signalError(new IllegalStateException("No progress")) // TODO: Be more descriptive of the problem in the detail message
     }
 
     /**
      * Determine if there is a deadlock and if so, stop the test.
      */
     def detectDeadlock() {
-      if (deadlockCount == 50) {
+      if (deadlockCount == 50) { // TODO: Magic number; Pull out into val with a comment
         mainThread.interrupt()
-        signalError(new IllegalStateException("Deadlock"))
+        signalError(new IllegalStateException("Deadlock")) // TODO: Be more description
       }
       else deadlockCount += 1
     }
