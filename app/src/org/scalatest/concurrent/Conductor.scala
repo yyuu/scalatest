@@ -21,51 +21,40 @@ class Conductor(logger:Logger){
    */
   private val clock = new Clock
 
-  /**
-   * a BlockingQueue containing the first Error/Exception that occured
-   * in thread methods or that are thrown by the clock thread
-   */
-  private val errorsQueue = new ArrayBlockingQueue[Throwable](20)
-
-  /**
-   * 
-   */
-  def errors: List[Throwable] = {
-    def errors(errorList: List[Throwable], it: java.util.Iterator[Throwable]): List[Throwable] = {
-      if(it.hasNext) errors( errorList ::: List(it.next), it)
-      else errorList
-    }
-    errors(Nil, errorsQueue.iterator)
-  }
-
   /////////////////////// thread management start //////////////////////////////
 
   // place all threads in a new thread group
   protected val threadGroup = new ThreadGroup("Orchestra")
 
   // all the threads in this test
-  // TODO: Potential problem with should only be accessed by main thread, but not enforcing. Should
-  // enforce it by throwing an exception if accessed (Set or read) by any other thread. Also, should
-  // make sure it is only set and possibly accessed during construction
   protected val threads = new CopyOnWriteArrayList[Thread]()
 
   // the main test thread
   protected val mainThread = currentThread
 
   /**
-   *
+   * Create a new thread that will execute the given function
+   * @param f the function to be executed by the thread
    */
   def thread[T](f: => T): Thread = thread("thread" + threads.size) {f}
 
   /**
-   *
+   * Create a new thread that will execute the given function
+   * @param name the name of the thread
+   * @param f the function to be executed by the thread
    */
-  def thread[T](desc: String)(f: => T): Thread = {
-    val t = createTestThread(desc, f _)
+  def thread[T](name: String)(f: => T): Thread = {
+    val t = TestThread(name, f _)
     threads add t
-    t
+    startThread(t)
   }
 
+  /**
+   * Adds threads methods to int, so one can say:<br/>
+   * val threads:List[Thread] = 5.threads("some name"){ ... }<br/>
+   * val anonymous_threads:List[Thread] = 10 threads { ... }<br/>
+   * @param nrThreads the number of threads to be created
+   */
   implicit def addThreadsMethodToInt(nrThreads:Int) = new ThreadedInt(nrThreads)
 
   class ThreadedInt(nrThreads:Int) {
@@ -80,28 +69,79 @@ class Conductor(logger:Logger){
   }
 
   /**
-   *
+   * A test thread runs the given function.
+   * It only does so after it is given permission to do so by the main thread.
+   * The main thread grants permission after it receives notication that
+   * all test threads are ready to go.
    */
-  private def createTestThread[T](name: String, f: () => T) =
-    new Thread(threadGroup, new Runnable() {
-      def run() {
-        try {
-          mainThreadStartLatch.countDown // notify the main thread that we are indeed ready to go.
-          testThreadStartLatch.await // Wait for the test framework to say its ok to go.
-          f()
-        } catch {
-          // The reason this is a catch Throwable is because you want to let ThreadDeath through
-          // without signalling errors. Otherwise the signalError could have been in a finally.
-          // If the simulation is aborted, then stop will be called,
-          // which will cause ThreadDeath, so just die and do nothing
-          case e: ThreadDeath =>
-          case t: Throwable => signalError(t)
-        }
+  private case class TestThread[T](name: String, f: () => T) extends Thread(threadGroup, name){
+    override def run(){
+      try {
+        // notify the main thread that we are indeed ready to go.
+        mainThreadStartLatch.countDown
+        // wait for the main thread to say its ok to go.
+        testThreadStartLatch.await
+        // go
+        f()
+      } catch {
+        // The reason this is a catch Throwable is because you want to let ThreadDeath through
+        // without signalling errors. Otherwise the signalError could have been in a finally.
+        // If the simulation is aborted, then stop will be called,
+        // which will cause ThreadDeath, so just die and do nothing
+        case e: ThreadDeath =>
+        case t: Throwable => signalError(t)
       }
-    }, name)
+    }
+  }
+
+  /**
+   * start a thread, logging before and after
+   */
+  private def startThread(t: Thread): Thread = {
+    logger.trace.around("starting: " + t) {t.start(); t}
+  }
+
+  /////////////////////// thread management end /////////////////////////////
+
+  /////////////////////// error handling start //////////////////////////////
+
+  /**
+   * a BlockingQueue containing the first Error/Exception that occured
+   * in thread methods or that are thrown by the clock thread
+   */
+  private val errorsQueue = new ArrayBlockingQueue[Throwable](20)
+
+  /**
+   * A list of any errors thrown by test threads at the time this method is called.
+   */
+  def errors: List[Throwable] = {
+    def errors(errorList: List[Throwable], it: java.util.Iterator[Throwable]): List[Throwable] = {
+      if(it.hasNext) errors( errorList ::: List(it.next), it)
+      else errorList
+    }
+    errors(Nil, errorsQueue.iterator)
+  }
 
 
-  /////////////////////// thread management end //////////////////////////////
+  /**
+   * Stop all test case threads and clock thread, except the thread from
+   * which this method is called. This method is used when a thread is
+   * ready to end in failure and it wants to make sure all the other
+   * threads have ended before throwing an exception.
+   * Clock thread will return normally when no threads are running.
+   */
+  private def signalError(t: Throwable) {
+    logger.error(t)
+    errorsQueue offer t
+    for (t <- threadGroup.getThreads; if (t != currentThread)) {
+      logger.error("signaling error to " + t.getName)
+      val assertionError = new AssertionError(t.getName + " killed by " + currentThread.getName)
+      assertionError setStackTrace t.getStackTrace
+      t stop assertionError
+    }
+  }
+
+  /////////////////////// error handling end //////////////////////////////
 
   /////////////////////// finish handler end //////////////////////////////
 
@@ -122,7 +162,6 @@ class Conductor(logger:Logger){
   /**
    * This method is invoked in a test after after all test threads have
    * finished.
-   *
    */
   private def runFinishFunction() = finishFunction match {
     case Some(f) => f()
@@ -131,11 +170,11 @@ class Conductor(logger:Logger){
 
   /////////////////////// finish handler end //////////////////////////////
 
-  /////////////////////// clock management start //////////////////////////////
+  /////////////////////// clock management start //////////////////////////
 
   /**
-   * Force this thread to block until the thread clock reaches the
-   * specified value, at which point the thread is unblocked.
+   * Force the current thread to block until the thread clock reaches the
+   * specified value, at which point the current thread is unblocked.
    *
    * @param c the tick value to wait for
    */
@@ -162,32 +201,7 @@ class Conductor(logger:Logger){
 
   /////////////////////// clock management end //////////////////////////////
 
-  // ===============================
-  // -- Customized Wait Functions --
-  // - - - - - - - - - - - - - - - -
-
-  /**
-   * Calling this method from one of the test threads may cause the
-   * thread to yield. Use this between statements to generate more
-   * interleavings.
-   */
-  def possiblyYield() {possiblyYield(0.5)}
-  // TODO: possibly remove, because it is inconsistent with trying to test interleavings
-  // deterministically
-
-  /**
-   * Calling this method from one of the test threads may cause the
-   * thread to yield. Use this between statements to generate more
-   * interleavings.
-   *
-   * @param probability
-   *             (a number between 0 and 1) the likelihood that Thread.yield() is called
-   */
-  def possiblyYield(probability: Double) {
-    if (new java.util.Random().nextDouble() < probability) Thread.`yield`
-  }
-
-  //////////////////////////////// run methods start ////////////////////////////////////////
+  /////////////////////// run methods start /////////////////////////////////
 
   /**
    * Keeps the main thread from allowing the test threads to execute their bodies
@@ -220,8 +234,8 @@ class Conductor(logger:Logger){
   // TODO: Only allow this to be called once per instance.
   def execute(clockPeriod: Int, runLimit: Int) {
 
-    // start each test thread
-    threads foreach startThread
+    // wait until all threads are definitely ready to go
+    mainThreadStartLatch.await()
 
     // release the latch, allowing all threads to start
     // wait for all the test threads to start before starting the clock
@@ -235,10 +249,6 @@ class Conductor(logger:Logger){
 
     // if there are any errors, get out and dont run the finish function
     if (errorsQueue.isEmpty) { runFinishFunction() }
-  }
-
-  private def startThread(t: Thread): Thread = {
-    logger.trace.around("starting: " + t) {t.start(); t}
   }
 
   /**
@@ -258,14 +268,14 @@ class Conductor(logger:Logger){
   // returns, and after that the error gets into the errors. Because if you look in run() in the
   // thread inside createTestThread, the signalling error happens in a catch Throwable block before the thread
   // returns.
-  def waitForThreads{
+  private def waitForThreads{
     while(threadGroup.anyThreadsAlive_?){
       threadGroup.getThreads foreach waitForThread
     }
   }
 
 
-  def waitForThread(t: Thread) {
+  private def waitForThread(t: Thread) {
     logger.trace("waiting for: " + t.getName + " which is in state:" + t.getState)
     try {
       if (t.isAlive && !errorsQueue.isEmpty) logger.trace.around("stopping: " + t) {t.stop()}
@@ -275,25 +285,6 @@ class Conductor(logger:Logger){
         logger.trace("killed waiting for threads. probably deadlock or timeout.")
         errorsQueue offer new AssertionError(e)
       }
-    }
-  }
-
-  /**
-   * Stop all test case threads and clock thread, except the thread from
-   * which this method is called. This method is used when a thread is
-   * ready to end in failure and it wants to make sure all the other
-   * threads have ended before throwing an exception.
-   * Clock thread will return normally when no threads are running.
-   * //
-   */
-  def signalError(t: Throwable) {
-    logger.error(t)
-    errorsQueue offer t
-    for (t <- threadGroup.getThreads; if (t != currentThread)) {
-      logger.error("signaling error to " + t.getName)
-      val assertionError = new AssertionError(t.getName + " killed by " + currentThread.getName)
-      assertionError setStackTrace t.getStackTrace
-      t stop assertionError
     }
   }
 
