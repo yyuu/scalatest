@@ -15,8 +15,8 @@ class Conductor(logger:Logger){
   type Tick = Int
 
   /**
-   * The metronome used to coordinate between threads. This clock
-   * is advanced by the clock thread..
+   * The metronome used to coordinate between threads.
+   * This clock is advanced by the clock thread.
    * The clock will not advance if it is frozen.
    */
   private val clock = new Clock
@@ -369,13 +369,13 @@ class Conductor(logger:Logger){
     def waitForTick(t: Tick) {
       lock.synchronized {
         if (t > highestTickCountBeingWaitedOn) highestTickCountBeingWaitedOn = t
-        while (time < t) {
-          try {
-            logger.trace.around(currentThread.getName + " is waiting for time " + t) {
+        logger.trace.around(currentThread.getName + " is waiting for time " + t) {
+          while (time < t) {
+            try {
               lock.wait()
+            } catch {
+              case e: InterruptedException => throw new AssertionError(e)
             }
-          } catch {
-            case e: InterruptedException => throw new AssertionError(e)
           }
         }
       }
@@ -507,7 +507,4 @@ class Conductor(logger:Logger){
       else deadlockCount += 1
     }
   }
-
-
-
 }

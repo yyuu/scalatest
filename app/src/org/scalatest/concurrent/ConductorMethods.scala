@@ -17,6 +17,7 @@ trait ConductorMethods extends Suite with Logger{ thisSuite =>
   protected def thread[T](name: String)(f: => T): Thread = conductor.get.thread(name){ f }
   protected def waitForTick(tick:Int) = conductor.get.waitForTick(tick)
   protected def tick = conductor.get.tick
+  protected def finish(f: => Unit) = conductor.get.finish{ f } 
   protected implicit def addThreadsMethodToInt(nrThreads:Int) = conductor.get.addThreadsMethodToInt(nrThreads)
 
   /**
@@ -100,8 +101,6 @@ trait ConductorMethods extends Suite with Logger{ thisSuite =>
       }
     }
   }
-  
-
 
   /**
    * 

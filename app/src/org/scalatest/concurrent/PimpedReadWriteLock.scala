@@ -1,13 +1,5 @@
 package org.scalatest.concurrent
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshcough
- * Date: Jul 12, 2009
- * Time: 1:50:19 AM
- * To change this template use File | Settings | File Templates.
- */
-
 import java.util.concurrent.locks.{Lock, ReadWriteLock}
 
 /**
