@@ -4,8 +4,23 @@ import events._
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * Date: Jun 16, 2009
- * Time: 7:25:34 PM
+ * A Scala port of <a href="http://code.google.com/p/multithreadedtc/">MultithreadedTC</a>
+ * (also <a href="http://www.cs.umd.edu/projects/PL/multithreadedtc/overview.html">here</a>)
+ * which was built by Bill Pugh and Nat Ayewah at the University of Maryland.
+ *
+ * <blockquote>"The MultithreadedTC framework was created to make it easier to test small concurrent abstractions.
+ * It enables test designers to guarantee a specific interleaving of two or more threads,
+ * even in the presence of blocking and timing issues."</blockquote>
+ *
+ * <blockquote>"MultithreadedTC is a framework for testing concurrent applications.
+ * It features a metronome that is used to provide fine control over the sequence
+ * of activities in multiple threads."</blockquote>
+ *
+ * The Scala version offers significant API improvements over the original Java version,
+ * while maintaining most of the intent. Some original ideas were introduced, while some
+ * non-scala-like features were cut.  
+ *
+ * @date Jun 16, 2009
  * @author Josh Cough
  */
 trait ConductorMethods extends Suite with Logger{
