@@ -25,6 +25,7 @@ import java.io.File
 import java.io.IOException
 import javax.swing.SwingUtilities
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.regex.Pattern
 import org.scalatest.testng.TestNGWrapperSuite
 import java.util.concurrent.Semaphore
 import org.scalatest.events._
@@ -972,13 +973,68 @@ object Runner {
       if (runpathArg.trim.isEmpty)
         throw new IllegalArgumentException("The runpath string must actually include some non-whitespace characters.")
 
-      val tokens = runpathArg.split("\\s")
-
-      tokens.toList
+      splitPath(runpathArg)
     }
     else {
       throw new IllegalArgumentException("Runpath must be either zero or two args: " + args)
     }
+  }
+
+  //
+  // Splits a space-delimited path into its component parts.
+  //
+  // Spaces within path elements may be escaped with backslashes, e.g.
+  // "c:\Documents\ And\ Settings c:\Program\ Files"
+  //
+  // See comments for isCompleteToken() below for exceptions.
+  //
+  val START_TOKEN_PATTERN = Pattern.compile("""^\s*(.*?)(\s|$)""")
+  val FULL_TOKEN_PATTERN  = Pattern.compile("""^\s*(.+?)(((?<=[^\\])\s)|$)""")
+  def splitPath(pathArg: String): List[String] = {
+    val path = pathArg.trim
+
+    if (path.isEmpty) Nil
+    else {
+      val startMatcher = START_TOKEN_PATTERN.matcher(path)
+
+      if (!startMatcher.find())
+        throw new RuntimeException("unexpected startMatcher path [" +
+                                   path + "]")
+      val token = startMatcher.group(1)
+
+      if (isCompleteToken(token)) {
+        token :: splitPath(path.substring(startMatcher.end))
+      }
+      else {
+        val fullMatcher = FULL_TOKEN_PATTERN.matcher(path)
+
+        if (!fullMatcher.find())
+          throw new RuntimeException("unexpected fullMatcher path [" +
+                                     path + "]")
+        val fullToken = fullMatcher.group(1).replaceAll("""\\(\s)""", "$1")
+
+        fullToken :: splitPath(path.substring(fullMatcher.end))
+      }
+    }
+  }
+
+  //
+  // Determines whether specified token is complete or partial.
+  //
+  // Tokens are considered partial if they end with a backslash, since
+  // backslash is used to escape spaces that would otherwise be
+  // treated as delimiters within the path string.
+  //
+  // Exceptions are cases where the token ends in a backslash
+  // but is still considered a complete token because it constitutes
+  // a valid representation of a root directory on a windows system,
+  // e.g. "c:\" or just "\".
+  //
+  val ROOT_DIR_PATTERN = Pattern.compile("""(?i)\\|[a-z]:\\""")
+  def isCompleteToken(token: String): Boolean = {
+    val matcher = ROOT_DIR_PATTERN.matcher(token)
+
+    matcher.matches() || (token(token.length - 1) != '\\')
   }
 
   private[scalatest] def parsePropertiesArgsIntoMap(args: List[String]) = {

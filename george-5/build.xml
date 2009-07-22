@@ -265,7 +265,11 @@
         </copy>
     </target>
 
-    <target name="test" depends="compile,copyprops,jartests,taskdefscalatest">
+    <target name="test-all" depends="gencode, test" />
+
+    <target name="test" depends="compile,copyprops,jartests,retest" />
+
+    <target name="retest" depends="taskdefscalatest">
         <scalatest runpath="${build.tests.jar}" concurrent="false" haltonfailure="true">
             <reporter type="graphic"/>
             <reporter type="stdout" config="D"/>
@@ -278,6 +282,7 @@
             <membersonly package="org.scalatest.events" />
             <membersonly package="org.scalatest.prop" />
             <membersonly package="org.scalatest.tools" />
+            <extra name="dbname" value="testdb" />
         </scalatest>
     </target>
 
