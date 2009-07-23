@@ -33,7 +33,24 @@ trait MustBeSugar { this: ShouldMatchers =>
   }
 }
 
-class ConductorSuite extends FunSuite with ConductorMethods with ShouldMatchers with MustBeSugar {
+class ConductorSuite extends FunSuite {
+  // TODO:
+  // 2. add a testWasConducted: Boolean method to both Conductor and ConductorMethods
+  // TODO: ask bill why it should be added to CM's
+  test("if conductTest is called twice, the second time it throws an IllegalStateException") {
+    val c = new Conductor
+    c.conductTest()
+    intercept[IllegalStateException] {
+      c.conductTest()
+    }
+  }
+
+  // TODO: not so sure this needs to be exposed!
+  // test("if conductTest has not been called, testWasConducted should return false") (pending)
+  // test("if conductTest has been called, testWasConducted should return true") (pending)
+}
+
+class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMatchers with MustBeSugar {
 
   test("metronome order") {
 
@@ -181,6 +198,37 @@ class ConductorSuite extends FunSuite with ConductorMethods with ShouldMatchers 
     }
   }
 
+  test("two thread calls return threads that both are in the same thread group"){
+    val t1 = thread {
+      waitForBeat(1)
+      t2.getThreadGroup mustBe t1.getThreadGroup
+      waitForBeat(2)
+    }
+    val t2 = thread {
+      waitForBeat(1)
+      t1.getThreadGroup mustBe t2.getThreadGroup
+      waitForBeat(2)      
+    }
+    ()
+  }
+
+  test("if a thread call is nested inside another thread call, both threads are in the same thread group"){
+    val t1 = thread {
+      val t2 = thread {
+        waitForBeat(1)
+        t1.getThreadGroup mustBe t2.getThreadGroup
+        waitForBeat(2)
+      }
+      waitForBeat(1)
+      t2.getThreadGroup mustBe t1.getThreadGroup
+      waitForBeat(2)
+    }
+    ()
+  }
+
+
+
+
   // Josh, when a test is marked (pending) it completes abruptly with TestPendingException. This is
   // not a test failure but an indication the test is pending, not yet implemented. We need to check
   // for this in ConductorMethods, and let it through somehow. Right now it causes a big red stack
@@ -189,19 +237,8 @@ class ConductorSuite extends FunSuite with ConductorMethods with ShouldMatchers 
 
   // test("handle TestPendingException properly in ConductorMehthods") (pending)
 
-  // TODO:
-  // 1. rename start() to conductTest() in both Conductor and ConductorMethods
-  // 2. add a testWasConducted: Boolean method to both Conductor and ConductorMethods
-
-  // test("if conductTest is called twice, the second time it throws an IllegalStateException") (pending)
-
-  // test("if conductTest has not been called, testWasConducted should return false") (pending)
-
-  // test("if conductTest has been called, testWasConducted should return true") (pending)
   
-  // test("two thread calls return threads that both are in the same thread group") (pending)
 
-  // test("if a thread call is nested inside another thread call, both threads are in the same thread group") (pending)
 
   // test("top level thread calls result in a running thread that is blocked such that it doesn't execute " +
   //        "prior to conductTest being called.") (pending)

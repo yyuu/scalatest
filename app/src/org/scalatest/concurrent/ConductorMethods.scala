@@ -37,9 +37,11 @@ import java.util.concurrent.atomic.AtomicReference
  *
  * @author Josh Cough
  */
-trait ConductorMethods extends RunMethods with Logger { this: Suite =>
+trait ConductorMethods extends RunMethods { this: Suite =>
 
   private val conductor = new AtomicReference[Conductor]()
+
+  var trace = false  
 
   /**
    * Create a new thread that will execute the given function.
@@ -115,7 +117,7 @@ trait ConductorMethods extends RunMethods with Logger { this: Suite =>
                                 stopper: Stopper, properties: Map[String,Any], tracker:Tracker) {
 
     // use a new conductor for each test
-    conductor.compareAndSet(conductor.get, new Conductor(this))
+    conductor.compareAndSet(conductor.get, new Conductor(trace))
 
     val interceptor = new PassFailInterceptor(reporter)
 
@@ -168,7 +170,7 @@ trait ConductorMethods extends RunMethods with Logger { this: Suite =>
     var caughtException = false
 
     try {
-      conductor.get.start()
+      conductor.get.conductTest()
     } catch {
       // handle the main thread throwing an exception      
       case e => {
