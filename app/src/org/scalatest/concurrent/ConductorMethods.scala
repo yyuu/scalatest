@@ -41,8 +41,6 @@ trait ConductorMethods extends RunMethods { this: Suite =>
 
   private val conductor = new AtomicReference[Conductor]()
 
-  var trace = false  
-
   /**
    * Create a new thread that will execute the given function.
    * If the test is started, then the thread will run the function immediately.
@@ -94,9 +92,19 @@ trait ConductorMethods extends RunMethods { this: Suite =>
   protected def whenFinished(f: => Unit) = conductor.get.whenFinished{ f }
 
   /**
-   * Adds threads methods to int, so one can say:<br/>
-   * val threads:List[Thread] = 5.threads("some name"){ ... }<br/>
-   * val anonymous_threads:List[Thread] = 10 threads { ... }<br/>
+   *
+   */
+  protected def enableLogging = conductor.get.enableLogging
+
+  /**
+   *
+   */
+  protected def disableLogging = conductor.get.disableLogging
+
+  /**
+   *   Adds threads methods to int, so one can say:<br/> 
+   * val threads:List[Thread] = 5.threads("some name")  { ... } <br/>
+   * val anonymous_threads:List[Thread] = 10 threads   { ... } <br/>
    * @param nrThreads the number of threads to be created
    */
   protected implicit def addThreadsMethodToInt(nrThreads:Int) = {
@@ -117,7 +125,8 @@ trait ConductorMethods extends RunMethods { this: Suite =>
                                 stopper: Stopper, properties: Map[String,Any], tracker:Tracker) {
 
     // use a new conductor for each test
-    conductor.compareAndSet(conductor.get, new Conductor(trace))
+    conductor.compareAndSet(conductor.get,
+                           new Conductor(Some(new Informer { def apply(s: String) { println(s) } })))
 
     val interceptor = new PassFailInterceptor(reporter)
 

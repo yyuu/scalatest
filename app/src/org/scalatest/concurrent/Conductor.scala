@@ -15,20 +15,19 @@
  */
 package org.scalatest.concurrent
 
-import java.util.concurrent._
 import Thread.State._
 import PimpedThreadGroup._
 import scala.collection.jcl.Conversions.convertList
+import _root_.java.util.concurrent._
+import _root_.java.util.concurrent.atomic.AtomicReference
 
 /**
  *
  * @author Josh Cough
  */
-class Conductor(var trace: Boolean /* = false */){
-  import _root_.java.util.concurrent.atomic.AtomicReference
+class Conductor(val informer: Option[Informer]){
 
-
-  def this() = this(false)
+  def this() = this(None)
 
   /**
    * The metronome used to coordinate between threads.
@@ -328,20 +327,29 @@ class Conductor(var trace: Boolean /* = false */){
     }
   }
 
-  def log(a:Any) = println(a)
+  /////////////////////// logging start /////////////////////////////
 
-  def logAround[T](a: => Any)(f: => T): T = {
-    if (trace) {
-      log("|starting: " + a)
-      val t = f
-      log("|done with: " + a)
-      t
-    } else {
-      f
+  private var trace: AtomicReference[Boolean] = new AtomicReference(false)
+  def enableLogging() = trace set true
+  def disableLogging() = trace set false
+
+  def log(a:Any) = {
+    if( trace.get ) informer match {
+      case Some(inf) => inf(a.toString)
+      case None => 
     }
   }
+  
+  def logAround[T](a: => Any)(f: => T): T = {
+    log("|starting: " + a)
+    val t = f
+    log("|done with: " + a)
+    t
+  }
 
+  /////////////////////// logging end /////////////////////////////
 
+  
   /**
    * A Clock manages the current tick in a MultiThreadedTest.
    * Several duties stem from that responsibility.
