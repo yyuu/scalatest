@@ -228,7 +228,7 @@ class Conductor(val informer: Option[Informer]){
   /////////////////////// clock management start //////////////////////////
 
   /**
-   * Force the current thread to block until the thread clock reaches the
+   * Force the current thread to block until the thread beat reaches the
    * specified value, at which point the current thread is unblocked.
    *
    * @param c the tick value to wait for
@@ -244,13 +244,15 @@ class Conductor(val informer: Option[Informer]){
   def beat: Int = clock.currentBeat
 
   /**
-   * This runs the passed function, and while it runs it, the clock cannot advance.
+   * Freezes the conductor so that the beat cannot advance.
+   * Runs the given function.
+   * Unfreezes the conductor.
    */
   def withConductorFrozen[T](f: => T) = clock.withClockFrozen(f _)
 
   /**
-   * Check if the clock has been frozen by any threads. (The only way a thread
-   * can freeze the clock is by calling withClockFrozen.)
+   * Check if the conductor has been frozen by any threads. (The only way a thread
+   * can freeze the conductor is by calling withConductorFrozen.)
    */
   def isConductorFrozen: Boolean = clock.isFrozen
 
@@ -292,8 +294,10 @@ class Conductor(val informer: Option[Informer]){
    */
   def conductTest(clockPeriod: Int, runLimit: Int) {
 
+    // if the test was started already, explode
+    // otherwise, change state to TestStarted
     if( testWasStarted ) throw new IllegalStateException("Conductor can only be run once!")
-    currentState set TestStarted
+    else currentState set TestStarted
 
     // wait until all threads are definitely ready to go
     mainThreadStartLatch.await()
@@ -311,6 +315,7 @@ class Conductor(val informer: Option[Informer]){
     // if there are any errors, get out and dont run the finish function
     if (errorsQueue.isEmpty) { runFinishFunction() }
 
+    // change state to test finished
     currentState set TestFinished
   }
 
@@ -321,8 +326,7 @@ class Conductor(val informer: Option[Informer]){
    * or other threads fail, the error is placed in the shared error array
    * and thrown by this method.
    *
-   * @param threads
-   *             List of all the test case threads and the clock thread
+   * @param threads List of all the test case threads and the clock thread
    */
   // Explain how we understand it works: if the thread that's been joined already dies with an exception
   // that will go into errors, and this thread the join will return. If the thread returns and doesn't
@@ -354,16 +358,30 @@ class Conductor(val informer: Option[Informer]){
   /////////////////////// logging start /////////////////////////////
 
   private var trace: AtomicReference[Boolean] = new AtomicReference(false)
+
+  /**
+   * Turn logging on
+   */
   def enableLogging() = trace set true
+
+  /**
+   * Turn logging off
+   */
   def disableLogging() = trace set false
 
+  /**
+   * Logs the given object by calling toString on it
+   */
   def log(a:Any) = {
     if( trace.get ) informer match {
       case Some(inf) => inf(a.toString)
       case None => 
     }
   }
-  
+
+  /**
+   * Logs before and after executing the given function.
+   */
   def logAround[T](a: => Any)(f: => T): T = {
     log("|starting: " + a)
     val t = f
@@ -373,9 +391,9 @@ class Conductor(val informer: Option[Informer]){
 
   /////////////////////// logging end /////////////////////////////
 
-  
+
   /**
-   * A Clock manages the current tick in a MultiThreadedTest.
+   * A Clock manages the current beat in a MultiThreadedTest.
    * Several duties stem from that responsibility.
    *
    * The clock will:
@@ -385,8 +403,6 @@ class Conductor(val informer: Option[Informer]){
    * <li>Report the current time</li>
    * <li>Run operations with the clock frozen.</li>
    * </ol>
-   *
-   * @author Josh Cough
    */
   private class Clock {
 
@@ -581,8 +597,30 @@ class Conductor(val informer: Option[Informer]){
     }
   }
 
-  private case class ConductorState(testWasStarted:Boolean, testIsFinished: Boolean)
+  /**
+   * Base class for the possible states of the Conductor.
+   */
+  private sealed case class ConductorState(testWasStarted:Boolean, testIsFinished: Boolean)
+
+  /**
+   * The initial state of the Conductor.
+   * Any calls the thread{ ... } will result in blocked Threads.
+   * Any call to conductTest will start the test.
+   */
   private case object Setup extends ConductorState(false, false)
+
+  /**
+   * The state of the Conductor while its running.
+   * Any calls the thread{ ... } will result in running Threads.
+   * Any further call to conductTest will result in an exception.
+   */
   private case object TestStarted extends ConductorState(true, false)
+
+  /**
+   * The state of the Conductor after all threads have finished,
+   * and the whenFinished method has completed.
+   * Any calls the thread{ ... } will result in an exception
+   * Any call to conductTest will result in an exception.
+   */
   private case object TestFinished extends ConductorState(true, true)
 }

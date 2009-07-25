@@ -145,7 +145,6 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
     whenFinished{ r.runCount mustBe 1 }
   }
 
-
   test("runnables can wait for beats"){
     val r = new Runnable{
       var runCount = 0
@@ -199,20 +198,19 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
 
   // For ConductorMethods (probably in a ConductorMethodsSuite)
   // TODO: ask bill, dont think we should expose this in CM's
-  // test("if conductTest is called from within the test itself, the test still succeeds (in other words," +
-  //        "ConductorMethods doesn't call it if testWasConducted is true.") (pending)
+  test("if conductTest is called from within the test itself, the test still succeeds (in other words," +
+          "ConductorMethods doesn't call it if testWasConducted is true.") (pending)
 
   // TODO: ask bill, dont think we should expose this in CM's
-  // test("if conductTest is not called from within the test itself, the test still executes (because
-  //       "ConductorMethods calls it given testWasConducted is false") (pending)
+  test("if conductTest is not called from within the test itself, the test still executes (because " +
+         "ConductorMethods calls it given testWasConducted is false") (pending)
 
   // TODO: ask bill, dont think we should expose this in CM's
   // ConductorFixture  (probably in a ConductorMethodsSuite)
-  // test("if conductTest is called from within the test itself, the test still succeeds (in other words," +
-  //        "ConductorFixture doesn't call it if testWasConducted is true.") (pending)
+  test("if conductTest is called from within the test itself, the test still succeeds (in other words," +
+          "ConductorFixture doesn't call it if testWasConducted is true.") (pending)
 
   // TODO: ask bill, dont think we should expose this in CM's
-  // test("if conductTest is not called from within the test itself, the test still executes (because
-  //       "ConductorFixture calls it given testWasConducted is false") (pending)
-
+  test("if conductTest is not called from within the test itself, the test still executes (because " +
+         "ConductorFixture calls it given testWasConducted is false") (pending)
 }
