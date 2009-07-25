@@ -55,6 +55,30 @@ class Conductor(val informer: Option[Informer]){
   def thread[T](f: => T): Thread = thread("thread" + threads.size) {f}
 
   /**
+   * Create a new thread that will execute the given Runnable
+   * @param runnable the Runnable to be executed by the thread
+   */
+  def thread[T](runnable: Runnable): Thread = thread("thread" + threads.size) {runnable.run}
+
+  /**
+   * Create a new thread that will execute the given Runnable
+   * @param runnable the Runnable to be executed by the thread
+   */
+  def thread[T](name: String, runnable: Runnable): Thread = thread(name) {runnable.run}
+
+  /**
+   * Create a new thread that will execute the given Callable
+   * @param callable the Callable to be executed by the thread
+   */
+  def thread[T](callable: Callable[T]): Thread = thread("thread" + threads.size) {callable.call}
+
+  /**
+   * Create a new thread that will execute the given Callable
+   * @param callable the Callable to be executed by the thread
+   */
+  def thread[T](name: String, callable: Callable[T]): Thread = thread(name) {callable.call}
+
+  /**
    * Create a new thread that will execute the given function
    * @param name the name of the thread
    * @param f the function to be executed by the thread
@@ -313,12 +337,12 @@ class Conductor(val informer: Option[Informer]){
     }
   }
 
-
   private def waitForThread(t: Thread) {
     log("waiting for: " + t.getName + " which is in state:" + t.getState)
     try {
       if (t.isAlive && !errorsQueue.isEmpty) logAround("stopping: " + t) {t.stop()}
       else logAround("joining: " + t) {t.join()}
+      assert(t.getState == TERMINATED)
     } catch {
       case e: InterruptedException => {
         log("killed waiting for threads. probably deadlock or timeout.")

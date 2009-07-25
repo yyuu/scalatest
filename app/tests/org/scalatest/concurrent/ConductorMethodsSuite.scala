@@ -1,7 +1,7 @@
 package org.scalatest.concurrent
 
 import matchers.ShouldMatchers
-import _root_.java.util.concurrent.CountDownLatch
+import _root_.java.util.concurrent.{Callable, CountDownLatch}
 import Thread.State._
 
 /**
@@ -135,6 +135,52 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
   }
 
   test("nested thread calls result in a running thread that is allowed to execute immediately") (pending)
+
+  test("runnables are run"){
+    val r = new Runnable{
+      var runCount = 0
+      def run = { runCount+=1 }
+    }
+    thread(r)
+    whenFinished{ r.runCount mustBe 1 }
+  }
+
+
+  test("runnables can wait for beats"){
+    val r = new Runnable{
+      var runCount = 0
+      def run = {
+        waitForBeat(1)
+        runCount+=1
+      }
+    }
+    thread(r)
+    thread{ r.runCount mustBe 0 }
+    whenFinished{ r.runCount mustBe 1 }
+  }
+
+  test("callables are called"){
+    val c = new Callable[Unit]{
+      var callCount = 0
+      def call = { callCount+=1 }
+    }
+    thread(c)
+    whenFinished{ c.callCount mustBe 1 }
+  }
+
+
+  test("callables can wait for beats"){
+    val c = new Callable[Unit]{
+      var callCount = 0
+      def call = {
+        waitForBeat(1)
+        callCount+=1
+      }
+    }
+    thread(c)
+    thread{ c.callCount mustBe 0 }
+    whenFinished{ c.callCount mustBe 1 }
+  }
 
   /////////////////////////////////////////////////
 

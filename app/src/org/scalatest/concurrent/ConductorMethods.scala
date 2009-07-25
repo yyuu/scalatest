@@ -17,6 +17,7 @@ package org.scalatest.concurrent
 
 import events._
 import java.util.concurrent.atomic.AtomicReference
+import _root_.java.util.concurrent.Callable
 
 /**
  * A Scala port of <a href="http://code.google.com/p/multithreadedtc/">MultithreadedTC</a>
@@ -61,15 +62,41 @@ trait ConductorMethods extends RunMethods { this: Suite =>
   protected def thread[T](name: String)(f: => T): Thread = conductor.get.thread(name){ f }
 
   /**
+   * Create a new thread that will execute the given Runnable
+   * @param runnable the Runnable to be executed by the thread
+   */
+  def thread[T](runnable: Runnable): Thread = conductor.get.thread(runnable)
+
+  /**
+   * Create a new thread that will execute the given Runnable
+   * @param name the name of the thread
+   * @param runnable the Runnable to be executed by the thread
+   */
+  def thread[T](name: String, runnable: Runnable): Thread = conductor.get.thread(name,runnable)
+
+  /**
+   * Create a new thread that will execute the given Callable
+   * @param callable the Callable to be executed by the thread
+   */
+  def thread[T](callable: Callable[T]): Thread = conductor.get.thread(callable)
+
+  /**
+   * Create a new thread that will execute the given Callable
+   * @param name the name of the thread
+   * @param callable the Callable to be executed by the thread
+   */
+  def thread[T](name: String, callable: Callable[T]): Thread = conductor.get.thread(name,callable)
+
+  /**
    * Force the current thread to block until the thread clock reaches the
    * specified value, at which point the current thread is unblocked.
-   *
    * @param c the tick value to wait for
    */
   protected def waitForBeat(beat:Int) = conductor.get.waitForBeat(beat)
 
   /**
-   * Run the passed function, ensuring the clock does not advance while the function is running (has not yet returned or thrown an exception).
+   * Run the passed function, ensuring the clock does not advance while the function is running
+   * (has not yet returned or thrown an exception).
    */
   protected def withConductorFrozen[T](f: => T) = conductor.get.withConductorFrozen(f)
 
@@ -81,7 +108,6 @@ trait ConductorMethods extends RunMethods { this: Suite =>
 
   /**
    * Gets the current value of the clock. Primarily useful in assert statements.
-   *
    * @return the current tick value
    */
   protected def beat = conductor.get.beat
@@ -107,7 +133,7 @@ trait ConductorMethods extends RunMethods { this: Suite =>
   protected var enableLoggingForAllTests = false
 
   /**
-   *   Adds threads methods to int, so one can say:<br/> 
+   * Adds threads methods to int, so one can say:<br/> 
    * val threads:List[Thread] = 5.threads("some name")  { ... } <br/>
    * val anonymous_threads:List[Thread] = 10 threads   { ... } <br/>
    * @param nrThreads the number of threads to be created
