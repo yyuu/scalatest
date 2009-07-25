@@ -142,11 +142,11 @@ trait ConductorMethods extends RunMethods { this: Suite =>
 
     super.runTest(testName, interceptor, stopper, properties, tracker)
 
-    // if we've intercepted a Failure, get out now.
-    // otherwise, run the Conductor
-    interceptor.failReport match {
-      case Some(fail) => reporter(fail)
-      case None => runConductor(testName, startTime, tracker, reporter, interceptor.successReport.get)
+    // if we've havent received a Success, then we need to get out now.
+    // if we have, its ok to run the Conductor.
+    interceptor.successReport match {
+      case Some(success) => runConductor(testName, startTime, tracker, reporter, success)
+      case None =>
     }
   }
 
@@ -228,11 +228,13 @@ trait ConductorMethods extends RunMethods { this: Suite =>
 
     var successReport: Option[TestSucceeded] = None
     var failReport: Option[TestFailed] = None
+    var pendingReport: Option[TestPending] = None
 
     def apply(event:Event){
       event match {
         case pass:TestSucceeded => successReport = Some(pass)
-        case fail:TestFailed => failReport = Some(fail)
+        case fail:TestFailed => failReport = Some(fail); original(fail)
+        case pend:TestPending => pendingReport = Some(pend); original(pend)
         case _ => original(event)
       }
     }

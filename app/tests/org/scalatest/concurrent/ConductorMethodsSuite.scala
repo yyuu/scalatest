@@ -9,8 +9,6 @@ import Thread.State._
  */
 class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMatchers with MustBeSugar {
 
-  enableLoggingForAllTests = true
-
   test("metronome order") {
 
     var s = ""
@@ -129,16 +127,14 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
   }
 
 
-  // Josh, when a test is marked (pending) it completes abruptly with TestPendingException. This is
-  // not a test failure but an indication the test is pending, not yet implemented. We need to check
-  // for this in ConductorMethods, and let it through somehow. Right now it causes a big red stack
-  // trace. Once that works, you can uncomment the rest of these and they'll print out nicely as
-  // pending tests.
+  test("top level thread calls result in a running thread that is blocked such that it doesn't execute " +
+       "prior to conductTest being called."){
+    val conductor = new Conductor
+    val t = conductor.thread{ 1 mustBe 1 }
+    thread{ t.getState mustBe WAITING }
+  }
 
-  // test("handle TestPendingException properly in ConductorMehthods") (pending)
-
-  // test("nested thread calls result in a running thread that is allowed to execute immediately") (pending)
-
+  test("nested thread calls result in a running thread that is allowed to execute immediately") (pending)
 
   /////////////////////////////////////////////////
 

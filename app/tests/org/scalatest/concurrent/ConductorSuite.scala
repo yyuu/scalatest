@@ -78,13 +78,6 @@ class ConductorSuite extends FunSuite with ShouldMatchers with MustBeSugar {
     }.getMessage mustBe "whenFinished can only be called once."
   }
 
-  test("top level thread calls result in a running thread that is blocked such that it doesn't execute " +
-       "prior to conductTest being called."){
-    val conductor = new Conductor    
-    val t = conductor.thread{ 1 mustBe 1 }
-    t.getState mustBe WAITING
-  }
-
   // TODO: should we really have this rule? i dont think we should
   // test("if thread(String) is called twice with the same String name, the second invocation results" +
   //        "in an IllegalArgumentException that explains each thread in a multi-threaded test" +
