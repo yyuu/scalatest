@@ -94,12 +94,17 @@ trait ConductorMethods extends RunMethods { this: Suite =>
   /**
    *
    */
-  protected def enableLogging = conductor.get.enableLogging
+  protected def enableLogging() = conductor.get.enableLogging()
 
   /**
    *
    */
-  protected def disableLogging = conductor.get.disableLogging
+  protected def disableLogging() = conductor.get.disableLogging()
+
+  /**
+   * 
+   */
+  protected var enableLoggingForAllTests = false
 
   /**
    *   Adds threads methods to int, so one can say:<br/> 
@@ -127,6 +132,8 @@ trait ConductorMethods extends RunMethods { this: Suite =>
     // use a new conductor for each test
     conductor.compareAndSet(conductor.get,
                            new Conductor(Some(new Informer { def apply(s: String) { println(s) } })))
+
+    if( enableLoggingForAllTests ) conductor.get.enableLogging()
 
     val interceptor = new PassFailInterceptor(reporter)
 

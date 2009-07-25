@@ -9,6 +9,8 @@ import Thread.State._
  */
 class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMatchers with MustBeSugar {
 
+  enableLoggingForAllTests = true
+
   test("metronome order") {
 
     var s = ""
