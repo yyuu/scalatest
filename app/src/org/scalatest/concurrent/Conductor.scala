@@ -25,6 +25,8 @@ import scala.collection.jcl.Conversions.convertList
  * @author Josh Cough
  */
 class Conductor(var trace: Boolean /* = false */){
+  import _root_.java.util.concurrent.atomic.AtomicReference
+
 
   def this() = this(false)
 
@@ -59,10 +61,15 @@ class Conductor(var trace: Boolean /* = false */){
    * @param f the function to be executed by the thread
    */
   def thread[T](name: String)(f: => T): Thread = {
-    val t = TestThread(name, f _)
-    threads add t
-    startThread(t)
+    currentState.get match {
+      case TestFinished => throw new IllegalStateException("Test already completed.")
+      case _ =>
+        val t = TestThread(name, f _)
+        threads add t
+        startThread(t)
+    }
   }
+  
   // The reason that the thread is started immediately, is do that nested threads
   // will start immediately, without requiring the user to explicitly start() them.
 
@@ -165,7 +172,16 @@ class Conductor(var trace: Boolean /* = false */){
   /**
    * Register a function to be executed after the simulation has finished.
    */
-  def whenFinished(fun: => Unit) {finishFunction = Some(fun _)}
+  def whenFinished(fun: => Unit) {
+    if( currentThread != mainThread )
+      throw new IllegalStateException("whenFinished can only be called by thread that created Conductor.")
+
+    finishFunction match {
+      case Some(_) =>
+        throw new IllegalStateException("whenFinished can only be called once.")
+      case None => finishFunction = Some(fun _)
+    }
+  }
 
   /**
    * An option that might contain a function to run after all threads have finished.
@@ -173,7 +189,6 @@ class Conductor(var trace: Boolean /* = false */){
    * in order to have a function executed. If the user does call finish  {...}
    * then that function gets saved in this Option, as Some(f)
    */
-  // TODO: Ensure this is set and called by the main thread, and if not, it gets an exception
   private var finishFunction: Option[() => Unit] = None
 
   /**
@@ -242,7 +257,9 @@ class Conductor(var trace: Boolean /* = false */){
     conductTest(DEFAULT_CLOCKPERIOD, DEFAULT_RUNLIMIT)
   }
 
-  private var testStarted = false
+  private val currentState: AtomicReference[ConductorState] = new AtomicReference(Setup)
+
+  def testWasStarted = currentState.get.testWasStarted
 
   /**
    * Start a multithreaded test.
@@ -252,7 +269,8 @@ class Conductor(var trace: Boolean /* = false */){
    */
   def conductTest(clockPeriod: Int, runLimit: Int) {
 
-    if( testStarted ) throw new IllegalStateException("Conductor can only be run once!")
+    if( testWasStarted ) throw new IllegalStateException("Conductor can only be run once!")
+    currentState set TestStarted
 
     // wait until all threads are definitely ready to go
     mainThreadStartLatch.await()
@@ -269,6 +287,8 @@ class Conductor(var trace: Boolean /* = false */){
 
     // if there are any errors, get out and dont run the finish function
     if (errorsQueue.isEmpty) { runFinishFunction() }
+
+    currentState set TestFinished
   }
 
   /**
@@ -528,4 +548,9 @@ class Conductor(var trace: Boolean /* = false */){
       else deadlockCount += 1
     }
   }
+
+  private case class ConductorState(testWasStarted:Boolean, testIsFinished: Boolean)
+  private case object Setup extends ConductorState(false, false)
+  private case object TestStarted extends ConductorState(true, false)
+  private case object TestFinished extends ConductorState(true, true)
 }
