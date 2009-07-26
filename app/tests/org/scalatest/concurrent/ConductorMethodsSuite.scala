@@ -11,6 +11,8 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
 
   test("metronome order") {
 
+    // Josh, this test isn't guaranteed to work. Different threads are accessing a
+    // shared mutable variable that isn't synchronized.
     var s = ""
 
     thread("t1") {
