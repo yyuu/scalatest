@@ -29,6 +29,7 @@ import java.util.regex.Pattern
 import org.scalatest.testng.TestNGWrapperSuite
 import java.util.concurrent.Semaphore
 import org.scalatest.events._
+import org.scalatest.junit.JUnit3WrapperSuite
 
 /**
  * <p>
@@ -500,6 +501,7 @@ object Runner {
       runpathArgsList,
       reporterArgsList,
       suiteArgsList,
+      junitArgsList,
       propertiesArgsList,
       includesArgsList,
       excludesArgsList,
@@ -517,6 +519,7 @@ object Runner {
         parseReporterArgsIntoConfigurations(reporterArgsList)
 
     val suitesList: List[String] = parseSuiteArgsIntoNameStrings(suiteArgsList, "-s")
+    val junitsList: List[String] = parseSuiteArgsIntoNameStrings(junitArgsList, "-j")
     val runpathList: List[String] = parseRunpathArgIntoList(runpathArgsList)
     val propertiesMap: Map[String, String] = parsePropertiesArgsIntoMap(propertiesArgsList)
     val tagsToInclude: Set[String] = parseCompoundArgIntoSet(includesArgsList, "-n")
@@ -562,7 +565,7 @@ object Runner {
 
         val abq = new ArrayBlockingQueue[RunnerJFrame](1)
         usingEventDispatchThread {
-          val rjf = new RunnerJFrame(graphicEventsToPresent, reporterConfigs, suitesList, runpathList,
+          val rjf = new RunnerJFrame(graphicEventsToPresent, reporterConfigs, suitesList, junitsList, runpathList,
             filter, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, passFailReporter)
           rjf.setLocation(RUNNER_JFRAME_START_X, RUNNER_JFRAME_START_Y)
           rjf.setVisible(true)
@@ -578,7 +581,7 @@ object Runner {
       case None => { // Run the test without a GUI
         withClassLoaderAndDispatchReporter(runpathList, reporterConfigs, None, passFailReporter) {
           (loader, dispatchReporter) => {
-            doRunRunRunADoRunRun(dispatchReporter, suitesList, new Stopper {}, filter,
+            doRunRunRunADoRunRun(dispatchReporter, suitesList, junitsList, new Stopper {}, filter,
                 propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, runpathList, loader, new RunDoneListener {}, 1) 
           }
         }
@@ -601,7 +604,7 @@ object Runner {
       // Style advice
       // If it is multiple else ifs, then make it symetrical. If one needs an open curly brace, put it on all
       // If an if just has another if, a compound statement, go ahead and put the open curly brace's around the outer one
-      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-s") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-t")) {
+      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-s") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-t")) {
         if (it.hasNext)
           it.next
       }
@@ -621,6 +624,7 @@ object Runner {
     val runpath = new ListBuffer[String]()
     val reporters = new ListBuffer[String]()
     val suites = new ListBuffer[String]()
+    val junits = new ListBuffer[String]()
     val props = new ListBuffer[String]()
     val includes = new ListBuffer[String]()
     val excludes = new ListBuffer[String]()
@@ -683,6 +687,12 @@ object Runner {
         if (it.hasNext)
           suites += it.next
       }
+      else if (s.startsWith("-j")) {
+
+        junits += s
+        if (it.hasNext)
+          junits += it.next
+      }
       else if (s.startsWith("-m")) {
 
         membersOnly += s
@@ -714,6 +724,7 @@ object Runner {
       runpath.toList,
       reporters.toList,
       suites.toList,
+      junits.toList,
       props.toList,
       includes.toList,
       excludes.toList,
@@ -916,7 +927,7 @@ object Runner {
     )
   }
 
-  // Used to parse -s, -m, and -w args, one of which will be passed as a String as dashArg
+  // Used to parse -s, -j, -m, and -w args, one of which will be passed as a String as dashArg
   private[scalatest] def parseSuiteArgsIntoNameStrings(args: List[String], dashArg: String) = {
 
     if (args == null)
@@ -925,7 +936,7 @@ object Runner {
     if (args.exists(_ == null))
       throw new NullPointerException("an arg String was null")
 
-    if (dashArg != "-s" && dashArg != "-w" && dashArg != "-m" && dashArg != "-t")
+    if (dashArg != "-j" && dashArg != "-s" && dashArg != "-w" && dashArg != "-m" && dashArg != "-t")
       throw new NullPointerException("dashArg invalid: " + dashArg)
 
     val lb = new ListBuffer[String]
@@ -1249,6 +1260,7 @@ object Runner {
   private[scalatest] def doRunRunRunADoRunRun(
     dispatch: DispatchReporter,
     suitesList: List[String],
+    junitsList: List[String],
     stopRequested: Stopper,
     filter: Filter,
     config: Map[String, String],
@@ -1266,6 +1278,8 @@ object Runner {
     if (dispatch == null)
       throw new NullPointerException
     if (suitesList == null)
+      throw new NullPointerException
+    if (junitsList == null)
       throw new NullPointerException
     if (stopRequested == null)
       throw new NullPointerException
@@ -1324,6 +1338,10 @@ object Runner {
                 clazz.newInstance.asInstanceOf[Suite]
               }
 
+          val junitSuiteInstances: List[Suite] =
+            for (junitClassName <- junitsList)
+              yield new JUnit3WrapperSuite(junitClassName, loader)
+
           val testNGWrapperSuiteList: List[TestNGWrapperSuite] =
             if (!testNGList.isEmpty)
               List(new TestNGWrapperSuite(testNGList))
@@ -1338,14 +1356,14 @@ object Runner {
             // TODO: rename the 'BeginsWith' variables to 'Wildcard' to match the terminology that
             // we ended up with on the outside
             // TODO: Should SuiteDiscoverHelper be a singleton object?
-            if (membersOnlyAndBeginsWithListsAreEmpty && !suitesList.isEmpty) {
-              (Nil, Nil) // No DiscoverySuites in this case. Just run Suites named with -s
+            if (membersOnlyAndBeginsWithListsAreEmpty && (!suitesList.isEmpty || !junitsList.isEmpty)) {
+              (Nil, Nil) // No DiscoverySuites in this case. Just run Suites named with -s or -j
             }
             else {
               val accessibleSuites = (new SuiteDiscoveryHelper).discoverSuiteNames(runpath, loader)
 
-              if (membersOnlyAndBeginsWithListsAreEmpty && suitesList.isEmpty) {
-                // In this case, they didn't specify any -w, -m, or -s on the command line, so the default
+              if (membersOnlyAndBeginsWithListsAreEmpty && suitesList.isEmpty && junitsList.isEmpty) {
+                // In this case, they didn't specify any -w, -m, -s, or -j on the command line, so the default
                 // is to run any accessible Suites discovered on the runpath
                 (Nil, List(new DiscoverySuite("", accessibleSuites, true, loader)))
               }
@@ -1363,7 +1381,7 @@ object Runner {
             }
           }
 
-          val suiteInstances: List[Suite] = namedSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
+          val suiteInstances: List[Suite] = namedSuiteInstances ::: junitSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
 
           val testCountList =
             for (suite <- suiteInstances)
