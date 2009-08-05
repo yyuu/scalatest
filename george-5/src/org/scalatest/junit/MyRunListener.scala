@@ -22,6 +22,9 @@ import org.junit.runner.notification.Failure
 import org.junit.runner.Description
 import org.junit.runner.Result
 import org.scalatest.events._
+import java.util.Collections
+import java.util.HashSet
+import java.util.regex.Pattern
 
   private[junit] class MyRunListener(report: Reporter,
                                      config: Map[String, Any],
@@ -29,40 +32,61 @@ import org.scalatest.events._
                                      thisSuite: Suite)
   extends RunListener {
 
+    val failedTests = Collections.synchronizedSet(new HashSet[String])
+
     override def testFailure(failure: Failure) {
-      val testName = getTestNameFromDescription(failure.getDescription)
+      failedTests.add(failure.getDescription.getDisplayName)
+        System.out.println("gcbx failedTests [" + failedTests + "]");
+      val (testName, testClass) = parseTestDescription(failure.getDescription)
       val throwableOrNull = failure.getException
       val throwable = if (throwableOrNull != null) Some(throwableOrNull) else None
       val message = if (throwableOrNull != null) throwableOrNull.getMessage else Resources("jUnitTestFailed")
-      report(TestFailed(theTracker.nextOrdinal(), message, thisSuite.suiteName, Some(thisSuite.getClass.getName), testName, throwable)) // TODO: can I add a duration?
+      report(TestFailed(theTracker.nextOrdinal(), message, testClass, Some(testClass), testName, throwable)) // TODO: can I add a duration?
     }
 
     override def testFinished(description: Description) {
-      val testName = getTestNameFromDescription(description)
-      report(TestSucceeded(theTracker.nextOrdinal(), thisSuite.suiteName, Some(thisSuite.getClass.getName), testName)) // TODO: can I add a duration?
+        System.out.println("gcbx description [" + description + "]");
+      if (!failedTests.contains(description.getDisplayName)) {
+        val (testName, testClass) = parseTestDescription(description)
+        report(TestSucceeded(theTracker.nextOrdinal(), testClass, Some(testClass), testName)) // TODO: can I add a duration?
+      }
     }
 
     override def testIgnored(description: Description) {
-      val testName = getTestNameFromDescription(description)
-      report(TestIgnored(theTracker.nextOrdinal(), thisSuite.suiteName, Some(thisSuite.getClass.getName), testName))
+      val (testName, testClass) = parseTestDescription(description)
+      report(TestIgnored(theTracker.nextOrdinal(), testClass, Some(testClass), testName))
     }
 
     override def testRunFinished(result: Result) {
-      report(RunCompleted(theTracker.nextOrdinal()))
+      // don't report these - they get reported by Runner
     }
 
     override def testRunStarted(description: Description) {
-      report(RunStarting(theTracker.nextOrdinal(), description.testCount, config))
+      // don't report these - they get reported by Runner
     }
 
     override def testStarted(description: Description) {
-      val testName = getTestNameFromDescription(description)
-      report(TestStarting(theTracker.nextOrdinal(), thisSuite.suiteName, Some(thisSuite.getClass.getName), testName))
+      val (testName, testClass) = parseTestDescription(description)
+      report(TestStarting(theTracker.nextOrdinal(), testClass, Some(testClass), testName))
     }
 
-    private def getTestNameFromDescription(description: Description): String = {
-      val displayName = description.getDisplayName
-      val index = displayName.indexOf('(')
-      if (index >= 0) displayName.substring(0, index) else displayName
+    //
+    // Parses test name and suite name from description.  Returns them
+    // as a tuple (testname, suitename).
+    //
+    // The test descriptions I've seen have had the form testname(testclass).
+    // This may need to be modified if other formats are discovered.
+    //
+    val TEST_DESCRIPTION_PATTERN = Pattern.compile("""^(.*)\((.*)\)""")
+    private def parseTestDescription(description: Description):
+    (String, String) = {
+      val matcher =
+        TEST_DESCRIPTION_PATTERN.matcher(description.getDisplayName)
+
+      if (!matcher.find())
+        throw new RuntimeException("unexpected displayName [" +
+                                   description.getDisplayName + "]")
+
+      (matcher.group(1), matcher.group(2))
     }
   }

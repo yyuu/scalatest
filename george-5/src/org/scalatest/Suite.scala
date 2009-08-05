@@ -1372,11 +1372,13 @@ trait Suite extends Assertions with RunMethods { thisSuite =>
 
   private def testMethodTakesInformer(testName: String) = testName.endsWith(InformerInParens)
 
-  private def getMethodForTestName(testName: String) =
+  private def getMethodForTestName(testName: String) = {
+
     getClass.getMethod(
       simpleNameForTest(testName),
       (if (testMethodTakesInformer(testName)) Array(classOf[Informer]) else new Array[Class[_]](0)): _*
     )
+  }
 
   /**
    * Run a test.
@@ -1853,11 +1855,12 @@ trait Suite extends Assertions with RunMethods { thisSuite =>
   def expectedTestCount(filter: Filter): Int = {
 
     // [bv: here was another tricky refactor. How to increment a counter in a loop]
-    def countNestedSuiteTests(nestedSuites: List[Suite], filter: Filter): Int =
+    def countNestedSuiteTests(nestedSuites: List[Suite], filter: Filter): Int = {
       nestedSuites match {
         case List() => 0
         case nestedSuite :: nestedSuites => nestedSuite.expectedTestCount(filter) +
             countNestedSuiteTests(nestedSuites, filter)
+      }
     }
 
     filter.runnableTestCount(testNames, tags) + countNestedSuiteTests(nestedSuites, filter)

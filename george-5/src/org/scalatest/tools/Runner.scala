@@ -29,7 +29,7 @@ import java.util.regex.Pattern
 import org.scalatest.testng.TestNGWrapperSuite
 import java.util.concurrent.Semaphore
 import org.scalatest.events._
-import org.scalatest.junit.JUnit3WrapperSuite
+import org.scalatest.junit.JUnitWrapperSuite
 
 /**
  * <p>
@@ -42,7 +42,7 @@ import org.scalatest.junit.JUnit3WrapperSuite
  * </p>
  *
  * <p>
- * <code>scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner [-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] [-n &lt;includes&gt;] [-x &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; [...]] [-m &lt;members-only suite path&gt; [...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file path&gt; [...]]</code>
+ * <code>scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner [-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] [-n &lt;includes&gt;] [-x &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; [...]] [-j &lt;junit class name&gt; [...]] [-m &lt;members-only suite path&gt; [...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file path&gt; [...]]</code>
  * </p>
  *
  * <p>
@@ -390,6 +390,19 @@ import org.scalatest.junit.JUnit3WrapperSuite
  * The <code>-t</code> argument will enable you to run existing <code>TestNG</code> tests, including tests written in Java, as part of a ScalaTest run.
  * You need not use <code>-t</code> to run suites written in Scala that extend <code>TestNGSuite</code>. You can simply run such suites with 
  * <code>-s</code>, <code>-m</code>, or </code>-w</code> parameters.
+ * </p>
+ *
+ * <p>
+ * <strong>Specifying JUnit tests</strong>
+ * </p>
+ *
+ * <p>
+ * JUnit tests, including ones written in Java, may be run by specifying
+ * <code>-j classname</code>, where the classname is a valid JUnit class
+ * such as a TestCase, TestSuite, or a class implementing a suite() method
+ * returning a TestSuite. </p>
+ * <p>
+ * To use this option you must include a JUnit jar file on your classpath.
  * </p>
  *
  * @author Bill Venners
@@ -1340,7 +1353,7 @@ object Runner {
 
           val junitSuiteInstances: List[Suite] =
             for (junitClassName <- junitsList)
-              yield new JUnit3WrapperSuite(junitClassName, loader)
+              yield new JUnitWrapperSuite(junitClassName, loader)
 
           val testNGWrapperSuiteList: List[TestNGWrapperSuite] =
             if (!testNGList.isEmpty)

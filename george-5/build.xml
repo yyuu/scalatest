@@ -144,7 +144,7 @@
     <target name="compile-main" depends="init">
 
         <!-- Compile the Scala code from ${src} into ${classes}. Scalac will parse the referenced .java files. -->
-        <scalac srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
+        <scalac srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" addparams="-Xno-varargs-conversion" />
 
         <!-- Compile the Scala code from ${build.generated.src} into ${classes}. Scalac will parse any referenced .java files. -->
         <scalac srcdir="${build.generated.src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
@@ -405,12 +405,11 @@
         <fail message="class not defined (use -Dclass=classname)"
               unless="class" />
 
-        <scalatest runpath="${build.examples} ${classes}" haltonfailure="true">
+        <scalatest runpath="${build.examples} ${classes} ${build.tests}" haltonfailure="true">
 <!--
             <property name="tempFileName" value="TempFile.txt"/>
 -->
             <excludes>SlowTest</excludes>
-            <reporter type="graphic"/>
             <reporter type="stdout" config="N"/>
             <suite classname="${class}"/>
         </scalatest>
