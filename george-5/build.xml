@@ -405,11 +405,12 @@
         <fail message="class not defined (use -Dclass=classname)"
               unless="class" />
 
-        <scalatest runpath="${build.examples} ${classes} ${build.tests}" haltonfailure="true">
+        <scalatest runpath="${build.examples} ${classes}" haltonfailure="true">
 <!--
             <property name="tempFileName" value="TempFile.txt"/>
 -->
             <excludes>SlowTest</excludes>
+            <reporter type="graphic"/>
             <reporter type="stdout" config="N"/>
             <suite classname="${class}"/>
         </scalatest>

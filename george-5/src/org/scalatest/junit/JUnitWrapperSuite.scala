@@ -49,7 +49,7 @@ extends Suite {
   // TODO: This may need to be made thread safe, because who
   // knows what Thread JUnit will fire through this
   private var theTracker = new Tracker
-  private val testClass = Class.forName(junitClassName, false, loader)
+  private val junitClass = Class.forName(junitClassName, false, loader)
 
   override def run(testName: Option[String],
                    report: Reporter, 
@@ -65,7 +65,7 @@ extends Suite {
 
     jUnitCore.addListener(new MyRunListener(report, config, tracker))
 
-    jUnitCore.run(testClass)
+    jUnitCore.run(junitClass)
   }
 
   override def expectedTestCount(filter: Filter): Int = {
@@ -84,7 +84,7 @@ extends Suite {
   val REQUEST_CLASS_NAME = "org.junit.runner.Request"
   def getRequest(): Request = {
     var classArgs = new Array[Class[_]](1)
-    classArgs(0) = testClass
+    classArgs(0) = junitClass
 
     val requestClass =
       try { Class.forName(REQUEST_CLASS_NAME) }
@@ -129,7 +129,8 @@ extends Suite {
 
     override def testFailure(failure: Failure) {
       failedTests.add(failure.getDescription.getDisplayName)
-      val (testName, testClass) = parseTestDescription(failure.getDescription)
+      val (testName, testClass, testClassName) =
+        parseTestDescription(failure.getDescription)
       val throwableOrNull = failure.getException
       val throwable =
         if (throwableOrNull != null)
@@ -143,23 +144,25 @@ extends Suite {
         else
           Resources("jUnitTestFailed")
 
-      report(TestFailed(theTracker.nextOrdinal(), message, testClass,
+      report(TestFailed(theTracker.nextOrdinal(), message, testClassName,
                         Some(testClass), testName, throwable))
       // TODO: can I add a duration?
     }
 
     override def testFinished(description: Description) {
       if (!failedTests.contains(description.getDisplayName)) {
-        val (testName, testClass) = parseTestDescription(description)
-        report(TestSucceeded(theTracker.nextOrdinal(), testClass,
+        val (testName, testClass, testClassName) =
+          parseTestDescription(description)
+        report(TestSucceeded(theTracker.nextOrdinal(), testClassName,
                              Some(testClass), testName))
         // TODO: can I add a duration?
       }
     }
 
     override def testIgnored(description: Description) {
-      val (testName, testClass) = parseTestDescription(description)
-      report(TestIgnored(theTracker.nextOrdinal(), testClass,
+      val (testName, testClass, testClassName) =
+        parseTestDescription(description)
+      report(TestIgnored(theTracker.nextOrdinal(), testClassName,
                          Some(testClass), testName))
     }
 
@@ -172,8 +175,9 @@ extends Suite {
     }
 
     override def testStarted(description: Description) {
-      val (testName, testClass) = parseTestDescription(description)
-      report(TestStarting(theTracker.nextOrdinal(), testClass, 
+      val (testName, testClass, testClassName) =
+        parseTestDescription(description)
+      report(TestStarting(theTracker.nextOrdinal(), testClassName, 
                          Some(testClass), testName))
     }
 
@@ -186,7 +190,7 @@ extends Suite {
     //
     val TEST_DESCRIPTION_PATTERN = Pattern.compile("""^(.*)\((.*)\)""")
     private def parseTestDescription(description: Description):
-    (String, String) = {
+    (String, String, String) = {
       val matcher =
         TEST_DESCRIPTION_PATTERN.matcher(description.getDisplayName)
 
@@ -194,7 +198,11 @@ extends Suite {
         throw new RuntimeException("unexpected displayName [" +
                                    description.getDisplayName + "]")
 
-      (matcher.group(1), matcher.group(2))
+      val testName = matcher.group(1)
+      val testClass = matcher.group(2)
+      val testClassName = testClass.replaceAll(".*\\.", "")
+
+      (testName, testClass, testClassName)
     }
   }
 }

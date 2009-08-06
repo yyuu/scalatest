@@ -57,21 +57,24 @@ package org.scalatest.junit {
 
     class MyReporter extends Reporter {
 
+      var runStartingCount = 0
+      var runCompletedCount = 0
       def apply(event: Event) {
         event match {
+          case RunStarting(_, testCount, _, _, _, _, _) =>
+            runStartingCount += 1
+          case event: RunCompleted =>
+            runCompletedCount += 1
           case event: TestStarting =>
             testStartingEvent = Some(event)
-        System.out.println("gcbx testStartingEvent.get.testName [" + testStartingEvent.get.testName + "][" + testStartingEvent.get.suiteName + "]");
             testStartingCount += 1
           case event: TestIgnored =>
             testIgnoredEvent = Some(event)
           case event: TestSucceeded =>
             testSucceededEvent = Some(event)
-        System.out.println("gcbx testSucceededEvent.get.testName [" + testSucceededEvent.get.testName + "][" + testSucceededEvent.get.suiteName + "]");
             testSucceededCount += 1
           case event: TestFailed =>
             testFailedEvent = Some(event)
-        System.out.println("gcbx testFailedEvent.get.testName [" + testFailedEvent.get.testName + "][" + testFailedEvent.get.suiteName + "]");
           case _ => 
         }
       }
@@ -150,46 +153,20 @@ package org.scalatest.junit {
       assert(repA.testSucceededCount === 2)
     }
 
-    test("A JUnitWrapperSuite for a JUnit3 TestCase class") {
-      val jRap = new JUnitWrapperSuite("org.scalatest.junit.JUnit3TestCase", this.getClass.getClassLoader)
+    test("A JUnitSuite with a JUnit 4 Test annotation will not cause runStarting to be invoked") {
+
+      val happy = new HappySuite
       val repA = new MyReporter
-
-      jRap.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
-
-      assert(repA.testStartingEvent.isDefined)
-      assert(repA.testStartingEvent.get.suiteName === "JUnitWrapperSuite")
-      assert(repA.testStartingEvent.get.suiteClassName.get ===
-             "org.scalatest.junit.JUnitWrapperSuite")
-      assert(repA.testStartingCount === 3)
-
-      assert(repA.testSucceededEvent.isDefined)
-      assert(repA.testSucceededEvent.get.testName === "testC")
-      assert(repA.testSucceededEvent.get.suiteName === "JUnitWrapperSuite")
-      assert(repA.testSucceededEvent.get.suiteClassName.get ===
-             "org.scalatest.junit.JUnitWrapperSuite")
-      assert(repA.testSucceededCount === 2)
+      happy.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
+      assert(repA.runStartingCount === 0)
     }
 
-    test("A JUnitWrapperSuite for a JUnit3 TestSuite class") {
-      val jRap = new JUnitWrapperSuite("org.scalatest.junit.JUnit3TestSuite", this.getClass.getClassLoader)
+    test("A JUnitSuite with a JUnit 4 Test annotation will not cause runCompleted to be invoked") {
+
+      val happy = new HappySuite
       val repA = new MyReporter
-
-      jRap.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
-
-      assert(repA.testStartingEvent.isDefined)
-      assert(repA.testStartingEvent.get.testName === "testB")
-      assert(repA.testStartingEvent.get.suiteName === "JUnitWrapperSuite")
-      assert(repA.testStartingEvent.get.suiteClassName.get ===
-             "org.scalatest.junit.JUnitWrapperSuite")
-      assert(repA.testStartingCount === 2)
-
-      assert(repA.testSucceededEvent.isDefined)
-      assert(repA.testSucceededEvent.get.testName === "testB")
-      assert(repA.testSucceededEvent.get.suiteName === "JUnitWrapperSuite")
-      assert(repA.testSucceededEvent.get.suiteClassName.get ===
-             "org.scalatest.junit.JUnitWrapperSuite")
-      assert(repA.testSucceededCount === 2)
+      happy.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
+      assert(repA.runCompletedCount === 0)
     }
-
   }
 }
