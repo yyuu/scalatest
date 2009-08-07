@@ -265,11 +265,7 @@
         </copy>
     </target>
 
-    <target name="test-all" depends="gencode, test" />
-
-    <target name="test" depends="compile,copyprops,jartests,retest" />
-
-    <target name="retest" depends="taskdefscalatest">
+    <target name="test" depends="compile,copyprops,jartests,taskdefscalatest">
         <scalatest runpath="${build.tests.jar}" concurrent="false" haltonfailure="true">
             <reporter type="graphic"/>
             <reporter type="stdout" config="D"/>

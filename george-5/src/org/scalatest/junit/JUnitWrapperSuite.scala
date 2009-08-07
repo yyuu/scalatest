@@ -81,18 +81,17 @@ extends Suite {
   // is used here to identify and use whichever version is
   // available in the junit jar on the user's classpath.
   //
-  val REQUEST_CLASS_NAME = "org.junit.runner.Request"
   def getRequest(): Request = {
     var classArgs = new Array[Class[_]](1)
     classArgs(0) = junitClass
 
     val requestClass =
-      try { Class.forName(REQUEST_CLASS_NAME) }
+      try { Class.forName("org.junit.runner.Request") }
       catch {
         case e: ClassNotFoundException =>
           throw new RuntimeException(
-            "Could not find class: " + REQUEST_CLASS_NAME +
-            ".  Note: a junit4 jar must be included on " +
+            "Could not find class: org.junit.runner.Request.  " +
+            "Note: a junit4 jar must be included on " +
             "the classpath if using the -j option.")
       }
 
@@ -183,7 +182,7 @@ extends Suite {
 
     //
     // Parses test name and suite name from description.  Returns them
-    // as a tuple (testname, suitename).
+    // as a tuple (testname, test class (fully qualified), test class name).
     //
     // The test descriptions I've seen have had the form testname(testclass).
     // This may need to be modified if other formats are discovered.

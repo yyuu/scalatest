@@ -91,7 +91,7 @@ package org.scalatest.junit {
              "org.scalatest.junit.JUnit3TestCase")
     }
 
-    test("A JUnitWrapperSuite runs a JUnit4 TestCase class successfully") {
+    test("A JUnitWrapperSuite runs a JUnit4 class successfully") {
       val jRap =
         new JUnitWrapperSuite("org.scalatest.junit.JHappySuite",
                               this.getClass.getClassLoader)
@@ -125,8 +125,7 @@ package org.scalatest.junit {
 
     }
 
-    test("A JUnitWrapperSuite runs a failing JUnit4 TestCase class " +
-         "successfully") {
+    test("A JUnitWrapperSuite runs a failing JUnit4 class successfully") {
       val jRap =
         new JUnitWrapperSuite("org.scalatest.junit.JBitterSuite",
                               this.getClass.getClassLoader)

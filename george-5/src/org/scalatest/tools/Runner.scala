@@ -399,8 +399,8 @@ import org.scalatest.junit.JUnitWrapperSuite
  * <p>
  * JUnit tests, including ones written in Java, may be run by specifying
  * <code>-j classname</code>, where the classname is a valid JUnit class
- * such as a TestCase, TestSuite, or a class implementing a suite() method
- * returning a TestSuite. </p>
+ * such as a TestCase, TestSuite, or a class implementing a static suite()
+ * method returning a TestSuite. </p>
  * <p>
  * To use this option you must include a JUnit jar file on your classpath.
  * </p>
