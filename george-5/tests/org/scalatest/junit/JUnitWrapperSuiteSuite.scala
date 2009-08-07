@@ -91,6 +91,72 @@ package org.scalatest.junit {
              "org.scalatest.junit.JUnit3TestCase")
     }
 
+    test("A JUnitWrapperSuite runs a JUnit4 TestCase class successfully") {
+      val jRap =
+        new JUnitWrapperSuite("org.scalatest.junit.JHappySuite",
+                              this.getClass.getClassLoader)
+      val repA = new MyReporter
+
+      jRap.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
+
+      //
+      // verify the TestStarting event
+      //
+      assert(repA.testStartingEvents.size === 1)
+
+      val startingEvent = repA.testStartingEvents.toArray(0)
+
+      assert(startingEvent.testName === "verifySomething")
+      assert(startingEvent.suiteName === "JHappySuite")
+      assert(startingEvent.suiteClassName.get ===
+             "org.scalatest.junit.JHappySuite")
+
+      //
+      // verify the TestSucceeded event
+      //
+      assert(repA.testSucceededEvents.size === 1)
+
+      val succeededEvent = repA.testSucceededEvents.toArray(0)
+
+      assert(succeededEvent.testName === "verifySomething")
+      assert(succeededEvent.suiteName === "JHappySuite")
+      assert(succeededEvent.suiteClassName.get ===
+             "org.scalatest.junit.JHappySuite")
+
+    }
+
+    test("A JUnitWrapperSuite runs a failing JUnit4 TestCase class " +
+         "successfully") {
+      val jRap =
+        new JUnitWrapperSuite("org.scalatest.junit.JBitterSuite",
+                              this.getClass.getClassLoader)
+      val repA = new MyReporter
+
+      jRap.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
+
+      //
+      // verify the TestStarting event
+      //
+      assert(repA.testStartingEvents.size === 1)
+
+      val startingEvent = repA.testStartingEvents.toArray(0)
+
+      assert(startingEvent.testName === "verifySomething")
+      assert(startingEvent.suiteName === "JBitterSuite")
+      assert(startingEvent.suiteClassName.get ===
+             "org.scalatest.junit.JBitterSuite")
+
+      //
+      // verify a TestFailed event
+      //
+      assert(repA.testFailedEvent.isDefined)
+      assert(repA.testFailedEvent.get.testName === "verifySomething")
+      assert(repA.testFailedEvent.get.suiteName === "JBitterSuite")
+      assert(repA.testFailedEvent.get.suiteClassName.get ===
+             "org.scalatest.junit.JBitterSuite")
+      assert(repA.testSucceededEvents.size === 0)
+    }
+
     test("A JUnitWrapperSuite runs a JUnit3 TestSuite class successfully") {
       val jRap = new JUnitWrapperSuite("org.scalatest.junit.JUnit3TestSuite",
                                        this.getClass.getClassLoader)
@@ -102,7 +168,7 @@ package org.scalatest.junit {
       // verify one of the TestStarting events
       //
       val startingEventsTestB =
-        repA.testSucceededEvents.filter(_.testName == "testB")
+        repA.testStartingEvents.filter(_.testName == "testB")
 
       assert(startingEventsTestB.size === 1)
 
