@@ -1,0 +1,795 @@
+import org.scalatest.junit.AssertionsForJUnit3
+import org.scalatest.junit.ShouldMatchersForJUnit3
+import org.scalatest.junit.MustMatchersForJUnit3
+
+Add pendingUntilFixed to Suite.
+
+Make sure all the SharedBehavior examples use by-name parameters to pass a stack creation function in, because
+that object is mutable. Also add a little bit of text to the docs to point out that immutable things can be
+simply passed in, but mutable ones need to be passed in as a function that can be called (most likely a by-name
+parameter is most appropriate, as is used here.)
+
+Add text about registration and ready mode to Spec and others. (In FunSuite and FeatureSpec now.)
+
+In Spec (and probably at least WordSpec, and the fixture sisters) this needs to be changed to this. Because if the first thing inside a describe with
+tests is an info, then it was not printing anything out. May need to be more tricky than this too,
+but probably not. describe, info, info, describe, etc.
+
+        if (desc.subNodes.isEmpty)
+          sendInfoProvidedMessage() 
+        else
+          desc.subNodes.reverse.head match {
+            case _: DescriptionBranch =>  // Do nothing in this case (should never happen)
+            case _ => sendInfoProvidedMessage()
+          }
+
+Maybe throw StackDepthExceptions for any kind of error in test code.
+
+Only allow ignore to replace it in FlatSpec tests that start with it. (45 min.)
+
+Do the "pending" thing in InfoProvided. Probably just add a fromPendingTest Boolean to it. So that I can turn the given when thens yellow that came from a pending test. (1 hour)
+
+Text:
+Test fixtures:
+fixture, the best approach => immutable fixture, one approach
+it needs to be recreated => they need to be recreated
+setup => setUp
+BeforeAndAfter => BeforeAndAfterEach
+consider two approaches => consider some approaches
+
+Add tests and error messages for the dynamic error of registering a test that takes no fixture in one
+that requires fixtures, and vice versa, for WordSpec and FlatSpec, or at least just FlatSpec.
+
+In RunnerSuite, 'parseConfigSet was 'parseCOnfigSet, and it was passing, which tells me if invokePrivate
+doesn't find the requested method name maybe it isn't failing. It needs to fail. No, I think the problem
+was probably simply that tools wasn't being run.
+
+Turn off tags in JUnitComfortSuite? At least until 0.9.8 when I turn on TagAnnotation?
+
+Add back in Report and SpecReport. Put deprecated final execute methods in that forward as best they can to the regular one, though
+perhaps I just need the final execute forms for the interpreter and the one public execute. Make a trait that can be mixed into
+Reporter called TransitionalReporter, which has an apply method that forwards to the old methods, so people can bring existing reporters
+up to date with a quick mix in. Or, consider whether I can just do that directly in Reporter itself. Oh, no, because then people's would
+extensions would automatically work. No, that's OK. Just deprecate all the old testStarting, etc., methods.
+
+Write tests for JUnitComfort Suite.
+
+Probably make an org.scalatest.junit.AssertionsForJUnit3 trait that provides the same syntax as org.scalatest.Assertions, but
+throws an AssertionFailedError, which will cause JUnit 3 to record it as a failure not an error.
+
+Possibly have TestFailedException extend AssertionError, just for the heck of it? Because it seems like an assert method should
+actually throw an AssertionError.
+
+Document JUnitComfortSuite.
+
+Put an Option[Nothing] in the run methods as a placeholder for the OutErrTester kind of stuff. Whatever that object is
+that's getting passed around. OutErrManager maybe. Wierd, could even provide overloaded versions. Wait, I could do that
+anyway. Just add it at the end later, and make.., no because then it would have to be final.
+OutputManager, OutputTester. Those seem nicer. Anyway, it is for another day. OutputTester
+
+Someone complained that if they configured the graphic reporter, that it should show that configuration by default not
+just runs and failures. Not sure.
+
+Do more testing on the FilterReporter config stuff.
+
+Try sorting the GUI reports with the ordinal
+
+I think I want to deprecate the use of -x for tags to exclude, to use it for XML Reporter. So in 0.9.6, -x should
+still work, but so will some new one. And I'll warn folks that probably in 0.9.7, -x will start meaning xml reporter.
+
+Refactor SuiteRerunner to just create a tools.SuiteRunner and call run on that. Maybe SuiteRunner should be in org.scalatest,
+because it is also used by Distributor and will be used by SuiteRerunner.
+
+add a RandomTestOrder trait?
+
+put goodies in ant task as well as properties for two releases, then drop properties
+Change description of includes --> tagsToInclude,
+excludes --> tagsToExclude. Leave old one in for two releases.
+
+Add the things for Property based testing displaying args nicely in the GUI (like empty strings should be "")
+
+The eating error message problem. Make sure an exception message shows up in the GUI/Print output.
+
+I'm not printing out the message in a formatted report, just the exception's detail message
+
+Do an XML reporter and an HTML reporter
+
+Make everything private in ScalaTestTask that can be private. I see a few things that are public I think unnecessarily.
+
+The enter-after-be issue:
+love the scala-test BDD-DSL (only weird thing was a false possitive 
+when I added an enter after a "be" 
+be 
+( 
+instead of 
+be ( 
+The first case always passes :/ It would be better if it always failed. 
+
+
+Ask folks about run versus execute
+Ask folks about TestCase/Suite compatibility (check about testNames, because if that doesn't work it really is a non-starter)
+Ask folks about the beforeAll and afterAll in BeforeAndAfter
+Ask folks about JUnit error instead of failures being fired
+
+a *** file-system separator separated runpath (platform-runpath)
+b
+c - concurrent execution (--concurrent)
+d
+e - standard error reporter (--stderr-reporter)
+f - file reporter
+g - graphical reporter
+h *** HTML Reporter
+i
+j *** some way to run existing Java JUnit tests from command line
+k
+l
+m - members only path
+n - tags to include
+o - standard out reporter
+p - space-separated runpath
+q
+r - custom reporter
+s - suite class name
+t - testNG XML config file
+u
+v *** xml reporter (v for verbose!)
+w - wildcard path
+x - tags to exclude
+y
+z
+
+D - goodie pair
+
+For HTML reporter, can pick a style sheet? Could be -hC for Colorful, else get pretty one like cobertura
+
+-w and -m could take an option "Q" for quick discovery that uses naming conventions. It would only load
+classes whose .class file names end in Spec or Suite.
+
+George list:
+
+1. Update build.xml. Right now compile and test only builds and tests
+ShouldMatchers. You have to run gencode by hand and then recompile and
+test to get MustMatchers, because MustMatchers is generated from
+ShouldMatchers. Please modify the ant file so default task builds all
+(test builds and tests all, compile compiles all, including the
+MustMatchers). Then add a qbuild and qcompile that skips the gencode
+so I can do quicker builds. It takes 5 minutes to do a full build
+without MustMatchers, so that's long enough. Also, if it will work,
+can you make a clean target that doesn't delete the matcher tests,
+because that's what takes forever to compile. Maybe a qclean?
+
+2. Modify ant task
+- Add goodies to the ant task (leaving in properties as "deprecated"
+for two releases) I renamed properties to goodies because there are
+two other things called properties in ScalaTest (HavePropertyMatchers
+and ScalaCheck property checks). Also, one guy thought properties
+specified that way should be Java system properties. Calling them
+goodies should avoid that confusion as well.
+- Add tagsToInclude to the ant task (leaving in includes as
+"deprecated" for two releases), to bring ant task in line with new
+name.
+- Add tagsToExclude to the ant task (leaving in excludes as
+"deprecated" for two releases), to bring ant task in line with new
+name.
+- Add a -a runpath command line option, (also in the ant task but I'm
+not sure under what name). Idea is that -p takes a space-separated
+runpath, which works fine except when people have spaces in their
+paths. I want to keep -p as is, because you can specify jar files with
+URLs in there, but also provide another way to specify the runpath -a,
+that uses the traditional path separated by platform-specific
+separator character. (On Unix, a :, on Windows, a;, etc.) Please
+suggest a name for this, maybe platformRunpath or something.
+- Create a JUnitWrapperSuite, which can wrap an existing set of JUnit
+tests, probably written in Java, but already compiled to binary
+- Recommend something to do with -j. What I'd like people to be able
+to do is use -j to point ScalaTest's Runner to some existing JUnit
+tests, and have it create the JUnitWrapperSuite necessary to run them
+from within ScalaTest.
+- The JUnit Ant task does some discovery. I think it relies on things
+being named Test. I'd like to be able to tell people they can do the
+exact same discovery of JUnit tests with ScalaTest's ant task as they
+can with JUnit's ant task. That way it is a migration path forward.
+They should be able to run those old JUnit tests with similar stuff in
+the ScalaTest ant task that they now put in the JUnit ant task.
+- Add a "quick" option for suite discovery. Suite discovery takes a
+long time already for ScalaTest testing itself, because Scala
+generates so many darn class files. We're opening every single one
+looking for suites. I think if they add a Q to their -w or -m's, like
+-wQ or -mQ, then that batch should be done based on naming convention.
+ScalaTest will only even open class files that end in either "Spec" or
+"Suite" looking for classes that extend org.scalatest.Suite. We could
+add Test in there if people request it, but frankly these classes
+represent suites of tests not single tests usually, so I'd like to try
+and get them out of the JUnit habit of calling the classes XTest. Plus
+it helps differentiate when discovering in packages that have mixed
+JUnit tests and ScalaTest Suites, which would speed up both kinds of
+discovery.
+
+3. Surefire support.
+- Maven uses something called SureFire to run tests. A fellow named
+Jan has started some integration here. Once you get to this point, let
+me know and I'll find out where Jan is at so you can see if you want
+to start there. I don't know much about SureFire, but I think we need
+to support Maven as well as Ant to get Maven people to use ScalaTest.
+
+4. HTML and XML reporters
+- Dianne is doing an HTML reporter, so when you get to this one, let
+me know and I'll see where she's at. But one thing is we want a -h
+command line param to run the HTML reporter, and also add this to the
+ant task.
+- Do an XML reporter that always prints out everything no matter what
+it is configured with. Print out the ordinal and everything. The
+reason is this can be used as an output during concurrent tests which
+can be read in and then sorted to produce other output.
+
+"A Stack (with one item)" should behave like nonEmptyStack(lastValuePushed)(stackWithOneItem)
+it should behave like nonFullStack(stackWithOneItem)
+
+In FlatSpec, just support "it should behave like X" and if ShouldMatchers is mixed in "string should behave like X". No shared tests needed.
+In Spec, just support "it should behave like X." No SharedTests mix in needed. So it("test name") will have to be an apply method on
+the it object.
+
+ask about sugar forms for shouldEqual and mustEqual to Should/MustMatchers:
+
+    stack.peek mustEqual lastItemAdded
+    stack.size mustEqual size
+    
+    stack.peek shouldEqual lastItemAdded
+    stack.size shouldEqual size
+    
+    stack.peek must_== lastItemAdded
+    stack.size must_== size
+    
+    stack.peek should_== lastItemAdded
+    stack.size should_== size
+
+Put these into ShouldEqual and MustEqual traits, which Should/MustMatchers mix in. So that way people can get
+them by themselves if they want? Or maybe not. Just add them to the Matchers traits.
+    
+0.9.7
+Do the parallel afterAll thing.
+Add BeforeAndAfterEach, BeforeAndAfterAll. Make BeforeAndAfter just an extension of BeforeAndAfterEach and BeforeAndAfterAll and deprecate it.
+BeforeAndAfterAll will need to look for some object sent down in goodies from OneInstancePerTest, so it knows not to do it if it is an
+"isolated test instance" or something. And then it will also have to turn off the distributor. This would mean that DistributedTestExecution
+would not happen if there's an AfterAll right now. Later, what I could do is BeforeAndAfterAll wraps the distributor, if it is defined, in
+an AfterAllDistributor. And that guy would wrap the suites that are put into it in a SuiteWrapper that forwards the run invocation but when
+it completes (in a finally) it notifies an AfterAllActor. This react actor knows which notifications to wait for, and when they are all done, it
+executes the after all method. So my theory is that since I'm using react, these actors won't hold up threads. But what tangled complexity we weave when
+we first learn to parallelize.
+
+Don't do the OneArgXXX traits
+
+From the SharedTests trait:
+
+/**
+ * Trait that enables the same tests to be run on different fixture objects. In other words, it enables tests to be "shared"
+ * by different fixture objects.
+ *
+ * <p>
+ * To use the <code>SharedTests</code> trait, you first place shared tests in <em>behavior functions</em>. These behavior functions will be
+ * invoked during the construction phase of any suite that uses them, so that the tests they contain will be registered as tests in that suite.
+ * The <code>SharedTests</code>, therefore, can only be used in suites in which tests are represented by function values registered
+ * during suite object construction, such as ScalaTest's <code>FunSuite</code> and <code>Spec</code> classes. By contrast, trait
+ * <code>SharedTests</code>  can't be mixed into suites such as ScalaTest's <code>Suite</code>, <code>JUnitSuite</code>, or
+ * <code>TestNGSuite</code>, in which tests are represented by methods. Any attempt to mix <code>SharedTests</code> into any such
+ * suite will not compile, because they don't conform to <code>SharedTest</code>'s self type, <code>TestRegistration</code>.
+ * </p>
+ *
+ * <p>
+ * For example, given this stack class:
+ * </p>
+ *
+ * <pre>
+ * import scala.collection.mutable.ListBuffer
+ * 
+ * class Stack[T] {
+ *
+ *   val MAX = 10
+ *   private var buf = new ListBuffer[T]
+ *
+ *   def push(o: T) {
+ *     if (!full)
+ *       o +: buf
+ *     else
+ *       throw new IllegalStateException("can't push onto a full stack")
+ *   }
+ *
+ *   def pop(): T = {
+ *     if (!empty)
+ *       buf.remove(0)
+ *     else
+ *       throw new IllegalStateException("can't pop an empty stack")
+ *   }
+ *
+ *   def peek: T = {
+ *     if (!empty)
+ *       buf(0)
+ *     else
+ *       throw new IllegalStateException("can't pop an empty stack")
+ *   }
+ *
+ *   def full: Boolean = buf.size == MAX
+ *   def empty: Boolean = buf.size == 0
+ *   def size = buf.size
+ *
+ *   override def toString = buf.mkString("Stack(", ", ", ")")
+ * }
+ * </pre>
+ *
+ * <p>
+ * You may want to test the <code>Stack</code> class in different states: empty, full, with one item, with one item less than capacity,
+ * <em>etc</em>. You may find you have several tests that make sense any time the stack is non-empty. Thus you'd ideally want to run
+ * those same tests for three stack fixture objects: a full stack, a stack with a one item, and a stack with one item less than
+ * capacity. With <code>SharedTests</code>, you can factor these tests out into a behavior function, into which you pass the
+ * stack fixture to use when running the tests. So in your test suite for stack, you'd invoke the
+ * behavior function three times, passing in each of the three stack fixtures so that the shared tests are run for all three fixtures. You
+ * can define a behavior function that encapsulates these shared tests inside the suite you use them. If they are shared
+ * between different suites, however, you could also define them in a separate trait that is mixed into each suite that uses them.
+ * </p>
+ *
+ * <p>
+ * <a name="StackBehaviors">For</a> example, here the <code>nonEmptyStack</code> behavior function (here a behavior <em>method</em>) is defined in a trait along with another
+ * method containing shared tests for non-full stacks:
+ * </p>
+ * 
+ * <pre>
+ * trait StackBehaviors { this: Spec =>
+ * 
+ *   def nonEmptyStack(lastItemAdded: Int)(stack: Stack[Int]) {
+ * 
+ *     it("should be non-empty") {
+ *       assert(!stack.empty)
+ *     }  
+ * 
+ *     it("should return the top item on peek") {
+ *       assert(stack.peek === lastItemAdded)
+ *     }
+ *   
+ *     it("should not remove the top item on peek") {
+ *       val size = stack.size
+ *       assert(stack.peek === lastItemAdded)
+ *       assert(stack.size === size)
+ *     }
+ *   
+ *     it("should remove the top item on pop") {
+ *       val size = stack.size
+ *       assert(stack.pop === lastItemAdded)
+ *       assert(stack.size === size - 1)
+ *     }
+ *   }
+ *   
+ *   def nonFullStack(stack: Stack[Int]) {
+ *       
+ *     it("should not be full") {
+ *       assert(!stack.full)
+ *     }
+ *       
+ *     it("should add to the top on push") {
+ *       val size = stack.size
+ *       stack.push(7)
+ *       assert(stack.size === size + 1)
+ *       assert(stack.peek === 7)
+ *     }
+ *   }
+ * }
+ * </pre>
+ *
+ *
+ * <p>
+ * In a behavior function, the fixture object must be passed in its own parameter list. If the shared tests need nothing more than
+ * the fixture object, then the fixture object's parameter list is the only parameter list, as in the <code>nonFullStack</code>
+ * method from the previous example:
+ * </p>
+ *
+ * <pre>
+ * def nonFullStack(stack: Stack[Int])
+ * </pre>
+ *
+ * <p>
+ * However, if the shared tests need other information in addition to the fixture object, that information must be
+ * passed in a separate parameter list. The behavior function must in that case be curried, with the parameter list
+ * for the fixture object coming last, as in the <code>nonEmptyStack</code> method from the previous example:
+ * </p>
+ *
+ * <pre>
+ * def nonEmptyStack(lastItemAdded: Int)(stack: Stack[Int])
+ * </pre>
+ *
+ * <p>
+ * Given these behavior functions, you could invoke them directly, but <code>SharedTests</code> offers a DSL for the purpose,
+ * which looks like this:
+ * </p>
+ *
+ * <pre>
+ * ensure (stackWithOneItem) behaves like (nonEmptyStack(lastValuePushed))
+ * ensure (stackWithOneItem) behaves like (nonFullStack)
+ * </pre>
+ *
+ * <p>
+ * If you prefer to use an imperative style to change fixtures, for example by mixing in <code>BeforeAndAfter</code> and
+ * reassigning a <code>stack</code> <code>var</code> in <code>beforeEach</code>, you could write your behavior functions
+ * in the context of that <code>var</code>, which means you wouldn't need to pass in the stack fixture because it would be
+ * in scope already inside the behavior function. In that case, you can
+ * use <code>it</code> in place of the fixture object, like this:
+ * </p>
+ *
+ * <pre>
+ * ensure it behaves like nonEmptyStack // assuming lastValuePushed is also in scope inside nonEmptyStack
+ * ensure it behaves like nonFullStack
+ * </pre>
+ *
+ * <p>
+ * The recommended style, however, is the functional, pass-all-the-needed-values-in style. Here's an example:
+ * </p>
+ *
+ * <pre>
+ * class SharedTestExampleSpec extends Spec with SharedTests with StackBehaviors {
+ * 
+ *   // Stack fixture creation methods
+ *   def emptyStack = new Stack[Int]
+ * 
+ *   def fullStack = {
+ *     val stack = new Stack[Int]
+ *     for (i <- 0 until stack.MAX)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * 
+ *   def stackWithOneItem = {
+ *     val stack = new Stack[Int]
+ *     stack.push(9)
+ *     stack
+ *   }
+ * 
+ *   def stackWithOneItemLessThanCapacity = {
+ *     val stack = new Stack[Int]
+ *     for (i <- 1 to 9)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * 
+ *   val lastValuePushed = 9
+ * 
+ *   describe("A Stack") {
+ * 
+ *     describe("(when empty)") {
+ *       
+ *       it("should be empty") {
+ *         assert(emptyStack.empty)
+ *       }
+ * 
+ *       it("should complain on peek") {
+ *         intercept[IllegalStateException] {
+ *           emptyStack.peek
+ *         }
+ *       }
+ * 
+ *       it("should complain on pop") {
+ *         intercept[IllegalStateException] {
+ *           emptyStack.pop
+ *         }
+ *       }
+ *     }
+ * 
+ *     describe("(with one item)") {
+ *       ensure (stackWithOneItem) behaves like (nonEmptyStack(lastValuePushed))
+ *       ensure (stackWithOneItem) behaves like (nonFullStack)
+ *     }
+ *     
+ *     describe("(with one item less than capacity)") {
+ *       ensure (stackWithOneItemLessThanCapacity) behaves like (nonEmptyStack(lastValuePushed))
+ *       ensure (stackWithOneItemLessThanCapacity) behaves like (nonFullStack)
+ *     }
+ * 
+ *     describe("(full)") {
+ *       
+ *       it("should be full") {
+ *         assert(fullStack.full)
+ *       }
+ * 
+ *       nonEmptyStack(lastValuePushed)(fullStack)
+ * 
+ *       it("should complain on a push") {
+ *         intercept[IllegalStateException] {
+ *           fullStack.push(10)
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * If you load these classes into the Scala interpreter (with scalatest's JAR file on the class path), and execute it,
+ * you'll see:
+ * </p>
+ *
+ * <pre>
+ * scala> (new StackSpec).execute()
+ * A Stack (when empty) 
+ * - should be empty
+ * - should complain on peek
+ * - should complain on pop
+ * A Stack (with one item) 
+ * - should be non-empty
+ * - should return the top item on peek
+ * - should not remove the top item on peek
+ * - should remove the top item on pop
+ * - should not be full
+ * - should add to the top on push
+ * A Stack (with one item less than capacity) 
+ * - should be non-empty
+ * - should return the top item on peek
+ * - should not remove the top item on peek
+ * - should remove the top item on pop
+ * - should not be full
+ * - should add to the top on push
+ * A Stack (full) 
+ * - should be full
+ * - should be non-empty
+ * - should return the top item on peek
+ * - should not remove the top item on peek
+ * - should remove the top item on pop
+ * - should complain on a push
+ * </pre>
+ * 
+ * <p>
+ * <strong>Obtaining unique test names</strong>
+ * </p>
+ *
+ * <p>
+ * One thing to keep in mind when using shared tests is that in ScalaTest, each test in a suite must have a unique name.
+ * If you register the same tests repeatedly in the same suite, one problem you may encounter is an exception at runtime
+ * complaining that multiple tests are being registered with the same test name. A good way to solve this problem in a <code>Spec</code> is to surround
+ * each invocation of a behavior function with a <code>describe</code> clause, which will prepend a string to each test name.
+ * For example, the following code in a <code>Spec</code> would register a test with the name <code>"A Stack (when empty) should be empty"</code>:
+ * </p>
+ *
+ * <pre>
+ *   describe("A Stack") {
+ * 
+ *     describe("(when empty)") {
+ *       
+ *       it("should be empty") {
+ *         assert(emptyStack.empty)
+ *       }
+ *       // ...
+ * </pre>
+ *
+ * <p>
+ * If the <code>"should be empty"</code> tests were factored out into a behavior function, it could be called repeatedly so long
+ * as each invocation of the behavior function is inside a different set of <code>describe</code> clauses. In a <code>FunSuite</code>
+ * there is no nesting construct analogous to <code>Spec</code>'s <code>describe</code> clause. If the duplicate test name problem shows up in a
+ * <code>FunSuite</code>, you'll need to pass in a prefix or suffix string to add to each test name. You can pass this string
+ * the same way you pass any other data needed by the shared tests, or just call <code>toString</code> on the shared fixture object.
+ * Here's an example of how <code>StackBehaviors</code> might look for a <code>FunSuite</code>:
+ * </p>
+ *
+ * <pre>
+ * trait StackBehaviors { this: FunSuite =>
+ * 
+ *   def nonEmptyStack(lastItemAdded: Int)(stack: Stack[Int]) {
+ * 
+ *     test(stack.toString + " should be non-empty") {
+ *       assert(!stack.empty)
+ *     }  
+ * 
+ *     test(stack.toString + " should return the top item on peek") {
+ *       assert(stack.peek === lastItemAdded)
+ *     }
+ *   
+ *     test(stack.toString + " should not remove the top item on peek") {
+ *       val size = stack.size
+ *       assert(stack.peek === lastItemAdded)
+ *       assert(stack.size === size)
+ *     }
+ *   
+ *     test(stack.toString + " should remove the top item on pop") {
+ *       val size = stack.size
+ *       assert(stack.pop === lastItemAdded)
+ *       assert(stack.size === size - 1)
+ *     }
+ *   }
+ *   
+ *   // ...
+ * }
+ * </pre>
+ *
+ * <p>
+ * Given this <code>StackBahaviors</code> trait, calling it with the <code>stackWithOneItem</code> fixture:
+ * </p>
+ *
+ * <pre>
+ * ensure (stackWithOneItem) behaves like (nonEmptyStack(lastValuePushed))
+ * </pre>
+ *
+ * <p>
+ * would yield test names:
+ * </p>
+ *
+ * <ul>
+ * <li><code>Stack(9) should be non-empty</code></li>
+ * <li><code>Stack(9) should return the top item on peek</code></li>
+ * <li><code>Stack(9) should not remove the top item on peek</code></li>
+ * <li><code>Stack(9) should remove the top item on pop</code></li>
+ * </ul>
+ *
+ * <p>
+ * Whereas calling it with the <code>stackWithOneItemLessThanCapacity</code> fixture:
+ * </p>
+ *
+ * <pre>
+ * ensure (stackWithOneItemLessThanCapacity) behaves like (nonEmptyStack(lastValuePushed))
+ * </pre>
+ *
+ * <p>
+ * would yield different test names:
+ * </p>
+ *
+ * <ul>
+ * <li><code>Stack(9, 8, 7, 6, 5, 4, 3, 2, 1) should be non-empty</code></li>
+ * <li><code>Stack(9, 8, 7, 6, 5, 4, 3, 2, 1) should return the top item on peek</code></li>
+ * <li><code>Stack(9, 8, 7, 6, 5, 4, 3, 2, 1) should not remove the top item on peek</code></li>
+ * <li><code>Stack(9, 8, 7, 6, 5, 4, 3, 2, 1) should remove the top item on pop</code></li>
+ * </ul>
+ */
+
+
+"A TimeSpan" can {
+    "be created from a number of milliseconds" in {
+      TimeSpan(3000) must_== TimeSpan(3 * 1000)
+    }
+    "be created from a number of seconds" in {
+      3.seconds must_== TimeSpan(3 * 1000)
+    }
+    "be created from a number of minutes" in {
+      3.minutes must_== TimeSpan(3 * 60 * 1000)
+    }
+    "be created from a number of hours" in {
+      3.hours must_== TimeSpan(3 * 60 * 60 * 1000)
+    }
+    "be created from a number of days" in {
+      3.days must_== TimeSpan(3 * 24 * 60 * 60 * 1000)
+    }
+    "be created from a number of weeks" in {
+      3.weeks must_== TimeSpan(3 * 7 * 24 * 60 * 60 * 1000)
+    }
+    "be converted implicitly to a date starting from the epoch time" in {
+      3.seconds.after(new Date(0)) must beTrue
+    }
+    "be converted to a date starting from the epoch time, using the date method" in {
+      3.seconds.after(new Date(0)) must beTrue
+    }
+    "be implicitly converted to a Long" in {
+      3.seconds must_== 3000L
+    }
+    "be compared to an int" in {
+      3.seconds must_== 3000
+      3.seconds must_!= 2000
+    }
+    "be compared to a long" in {
+      3.seconds must_== 3000L
+      3.seconds must_!= 2000L
+    }
+    "be compared to another TimeSpan" in {
+      3.seconds must_== 3.seconds
+      3.seconds must_!= 2.seconds
+    }
+    "be compared to another object" in {
+      3.seconds must_!= "string"
+    }
+  }
+
+Thoughts on OutputManager. I would replace System.err and System.out with PrintStreams that are connected
+to the OutputManager, which I pass in a Some to run. You can register a listener with the OutputManager and
+unregister it. While registered, it will receive one "event" per call to the PrintStream methods. So I'd
+do the loan pattern to basically say capture the thing. 
+
+val myListener = new OutputListener
+outMan.addListener(myListener)
+try {
+  // Some code
+}
+finally {
+  outMan.removeListener(myListener)
+}
+
+Can make a trait that has a withListener method:
+
+val myListener = new OutputListener
+outMan.withListener(myListener) { // Maybe listens to both std err and std out
+}
+outMan.withOutputListener(myListener) { // Maybe listens to only std out
+}
+outMan.withErrorListener(myListener) { // Maybe listens to only std err
+}
+
+Then in all my runTest methods, whew, I would have a:
+
+outputManager match {
+case None =>
+case Some 
+
+yuck. Basically probably out an OutputManager, which does nothing with the listener if it is not listening
+
+So this listener could be an OutputCollector, and I could pass it in goodies as "org.scalatest.OutputCollector"
+
+Man, need to say just my thread or all threads.
+
+outMan.withListenerAllThreads(myListener) { // Maybe listens to both std err and std out
+}
+outMan.withOutputListenerAllThreads(myListener) { // Maybe listens to only std out
+}
+outMan.withErrorListenerAllThreads(myListener) { // Maybe listens to only std err
+}
+
+Would want to give the Dispatcher's thread a unique name so it can not show up. Blech. Very ugly and complicated. Side effect city.
+
+Yes, I think this makes sense. Only offer the withListener approach, because otherwise people could forget
+to unregister a listener. The Listener is a trait, and I can offer a BufferListener, that is in=memory. But people
+could put a file listener in there too if they wanted to write one. Could be called A Collector. Because that's really
+what it is doing as it listens is collects. So I really need OutputManager to be a trait that has a do nothing one
+and a real one.
+
+
+outputAndError.captureWith(collector) {
+}
+
+capture stdOutAndErrWith collector {
+}
+
+capture stdOutWith collector {
+}
+
+val collector = new BufferCollector
+capture stdErrWith collector {
+}
+
+import outMan._
+
+stdErr.capture(collector) {
+}
+
+outMan.collectStdErr(collector)
+
+collect(stdErr) {
+}
+
+Collector can be a function that takes a thing that is either stdErr, stdOut, or stdOutAndErr, which
+could be members of outMan. The collect method could also be a member of outMan. So could say:
+
+import outMan._
+
+vall collect = new BufCollector
+
+collect(stdErr) {
+}
+
+val stdErr = new BufCollector
+
+outMan.collect(stdErr) {
+}
+
+val stdErr = outMan.collectStdErr {
+}
+
+import outMan._
+val stdErr =
+  collectStdErr {
+  }
+
+stdErr.all should include "expected output"
+Actually, stdErr could simply be a List[String], right? Or a Seq[String].
+
+Then could offer another collectStdErr method that takes a Collector. This one provides a collector that
+buffers stuff in memory.
+
+val seq =
+  collectStandardError {
+  }
+
+assert(seq.find("bla") != -1)
+
+Could offer a CollectorFixture that will fail if there's no Collector. Else it passes it in,
+and tests can do tests based on standard input and output.
+
