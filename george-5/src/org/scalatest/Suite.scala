@@ -1858,7 +1858,7 @@ trait Suite extends Assertions with RunMethods { thisSuite =>
         case List() => 0
         case nestedSuite :: nestedSuites => nestedSuite.expectedTestCount(filter) +
             countNestedSuiteTests(nestedSuites, filter)
-      }
+    }
 
     filter.runnableTestCount(testNames, tags) + countNestedSuiteTests(nestedSuites, filter)
   }
