@@ -5,6 +5,9 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 
 import java.util.ArrayList;
+import java.util.List;
+import org.apache.tools.ant.AntClassLoader;
+import org.apache.tools.ant.taskdefs.Java;
 
 /**
  * <p>
@@ -167,12 +170,48 @@ import java.util.ArrayList;
  * build if there's a test failure.
  * </p>
  *
+ * <p>
+ * Use attribute fork="true" to cause ant to run the tests in
+ * a separate process.
+ * </p>
+ *
+ * <p>
+ * When fork is true, attribute maxmemory may be used to specify
+ * the max memory size that will be passed to the forked jvm.&nbsp;
+ * E.g.:
+ *
+ * <pre>
+ *   &lt;scalatest maxmemory="1280M"&gt;
+ * </pre>
+ *
+ * will cause "-Xmx1280M" to be passed to the java command used to
+ * run the tests.
+ * </p>
+ *
+ * <p>
+ * When fork is true, attribute maxpermsize may be used to specify
+ * the max permanent generation memory size that will be passed to
+ * the forked jvm. &nbsp;E.g.:
+ *
+ * <pre>
+ *   &lt;scalatest maxpermsize="128m"&gt;
+ * </pre>
+ *
+ * will cause "-XX:MaxPermSize=128m" to be passed to the java command
+ * used to run the tests.  &nbsp;(This may help in cases where an
+ * 'OutOfMemoryError: PermGen space' error is received.)
+ * </p>
+ *
  * @author George Berger
  */
 public class ScalaTestTask extends Task {
     private String includes;
     private String excludes;
+    private String maxMemory;
+    private String maxPermSize;
     private boolean concurrent;
+    private boolean haltonfailure;
+    private boolean fork;
     private ArrayList<String> runpath = new ArrayList<String>();
     private ArrayList<String> suites = new ArrayList<String>();
     private ArrayList<String> membersonlys = new ArrayList<String>();
@@ -182,7 +221,6 @@ public class ScalaTestTask extends Task {
         new ArrayList<ReporterElement>();
     private ArrayList<NameValuePair> properties =
         new ArrayList<NameValuePair>();
-    private boolean haltonfailure = false;
 
     //
     // Executes the task.
@@ -200,11 +238,47 @@ public class ScalaTestTask extends Task {
         addConcurrentArg(args);
 
         String[] argsArray = args.toArray(new String[args.size()]);
-        boolean success = Runner.run(argsArray);
+
+        boolean success;
+        if (fork) {
+            success = javaTaskRunner(args);
+        }
+        else {
+            success = Runner.run(argsArray);
+        }
 
         if (!success && haltonfailure) {
             throw new BuildException("ScalaTest run failed.");
         }
+    }
+
+    boolean javaTaskRunner(List<String> args) {
+        Java java = new Java();
+        java.bindToOwner(this);
+        java.init();
+        java.setFork(true);
+        java.setClassname("org.scalatest.tools.Runner");
+
+        AntClassLoader classLoader =
+            (AntClassLoader) getClass().getClassLoader();
+
+        java.setClasspath(new Path(getProject(), classLoader.getClasspath()));
+
+        if (maxMemory != null) {
+            java.createJvmarg().setValue("-Xmx" + maxMemory);
+        }
+
+        if (maxPermSize != null) {
+            java.createJvmarg().setValue("-XX:MaxPermSize=" + maxPermSize);
+        }
+
+        for (String arg: args) {
+            java.createArg().setValue(arg);
+        }
+
+        int result = java.executeJava();
+
+        return (result == 0);
     }
 
     //
@@ -431,6 +505,27 @@ public class ScalaTestTask extends Task {
     //
     public void setHaltonfailure(boolean haltonfailure) {
         this.haltonfailure = haltonfailure;
+    }
+    
+    //
+    // Sets value of 'fork' attribute.
+    //
+    public void setFork(boolean fork) {
+        this.fork = fork;
+    }
+    
+    //
+    // Sets value of 'maxmemory' attribute.
+    //
+    public void setMaxmemory(String max) {
+        this.maxMemory = max;
+    }
+    
+    //
+    // Sets value of 'maxpermsize' attribute.
+    //
+    public void setMaxpermsize(String max) {
+        this.maxPermSize = max;
     }
     
     public void setTestNGSuites(Path testNGSuitePath) {
