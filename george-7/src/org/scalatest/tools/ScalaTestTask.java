@@ -189,17 +189,14 @@ import org.apache.tools.ant.taskdefs.Java;
  * </p>
  *
  * <p>
- * When fork is true, attribute maxpermsize may be used to specify
- * the max permanent generation memory size that will be passed to
- * the forked jvm. &nbsp;E.g.:
+ * When fork is true, nested &lt;jvmarg&gt; elements may be used
+ * to pass additional arguments to the forked jvm.
+ * E.g., if you are running into 'PermGen space' memory errors,
+ * you could add this arg to bump up the jvm's MaxPermSize value:
  *
  * <pre>
- *   &lt;scalatest maxpermsize="128m"&gt;
+ *   &lt;jvmarg value="-XX:MaxPermSize=128m"/&gt;
  * </pre>
- *
- * will cause "-XX:MaxPermSize=128m" to be passed to the java command
- * used to run the tests.  &nbsp;(This may help in cases where an
- * 'OutOfMemoryError: PermGen space' error is received.)
  * </p>
  *
  * @author George Berger
@@ -208,11 +205,11 @@ public class ScalaTestTask extends Task {
     private String includes;
     private String excludes;
     private String maxMemory;
-    private String maxPermSize;
     private boolean concurrent;
     private boolean haltonfailure;
     private boolean fork;
     private ArrayList<String> runpath = new ArrayList<String>();
+    private ArrayList<String> jvmArgs = new ArrayList<String>();
     private ArrayList<String> suites = new ArrayList<String>();
     private ArrayList<String> membersonlys = new ArrayList<String>();
     private ArrayList<String> wildcards = new ArrayList<String>();
@@ -268,8 +265,8 @@ public class ScalaTestTask extends Task {
             java.createJvmarg().setValue("-Xmx" + maxMemory);
         }
 
-        if (maxPermSize != null) {
-            java.createJvmarg().setValue("-XX:MaxPermSize=" + maxPermSize);
+        for (String arg: jvmArgs) {
+            java.createJvmarg().setValue(arg);
         }
 
         for (String arg: args) {
@@ -521,13 +518,6 @@ public class ScalaTestTask extends Task {
         this.maxMemory = max;
     }
     
-    //
-    // Sets value of 'maxpermsize' attribute.
-    //
-    public void setMaxpermsize(String max) {
-        this.maxPermSize = max;
-    }
-    
     public void setTestNGSuites(Path testNGSuitePath) {
         for (String element: testNGSuitePath.list()) {
             this.testNGSuites.add(element);
@@ -560,7 +550,14 @@ public class ScalaTestTask extends Task {
     // Sets value from nested element 'runpathurl'.
     //
     public void addConfiguredRunpathUrl(RunpathUrl runpathurl) {
-            runpath.add(runpathurl.getUrl());
+        runpath.add(runpathurl.getUrl());
+    }
+
+    //
+    // Sets value from nested element 'jvmarg'.
+    //
+    public void addConfiguredJvmArg(JvmArg arg) {
+        jvmArgs.add(arg.getValue());
     }
 
     //
@@ -776,5 +773,15 @@ public class ScalaTestTask extends Task {
 
         public void   setUrl(String url) { this.url = url; }
         public String getUrl()           { return url;     }
+    }
+
+    //
+    // Class to hold data from <jvmarg> elements.
+    //
+    public static class JvmArg {
+        private String value;
+
+        public void   setValue(String value) { this.value = value; }
+        public String getValue()             { return value;       }
     }
 }
