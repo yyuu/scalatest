@@ -2,8 +2,11 @@
          xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
     <!-- set global properties for this build -->
-    <property name="src" value="src" />
-    <property name="tests" value="tests" />
+    <property name="scalasrc" value="src/main/scala" />
+    <property name="javasrc" value="src/main/java" />
+    <property name="tests" value="src/test/scala" />
+    <property name="tests-java" value="src/test/java" />
+    <property name="images" value="src/main/resources/images" />
     <property name="examples" value="examples" />
     <property name="build" value="target" />
     <property name="jar.contents" value="${build}/jar_contents" />
@@ -98,7 +101,7 @@
         </taskdef>
 
         <path id="scaladoc.source.path">
-            <pathelement location="${src}" />
+            <pathelement location="${scalasrc}" />
             <pathelement location="${build.generated.src}" />
         </path>
 
@@ -146,14 +149,14 @@
 
     <target name="compile-main" depends="init">
 
-        <!-- Compile the Scala code from ${src} into ${classes}. Scalac will parse the referenced .java files. -->
-        <scalac srcdir="${src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" addparams="-Xno-varargs-conversion" fork="true" jvmargs="${jvmargs}" />
+        <!-- Compile the Scala code from ${scalasrc} into ${classes}. Scalac will parse the referenced .java files. -->
+        <scalac srcdir="${scalasrc}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" addparams="-Xno-varargs-conversion" fork="true" jvmargs="${jvmargs}" />
 
         <!-- Compile the Scala code from ${build.generated.src} into ${classes}. Scalac will parse any referenced .java files. -->
         <scalac srcdir="${build.generated.src}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" />
 
-        <!-- Compile the Java code from ${src} into ${classes} -->
-        <javac srcdir="${src}" destdir="${classes}" memoryMaximumSize="1500M" fork="true" classpathref="build.class.path" debug="yes">
+        <!-- Compile the Java code from ${javasrc} into ${classes} -->
+        <javac srcdir="${javasrc}" destdir="${classes}" memoryMaximumSize="1500M" fork="true" classpathref="build.class.path" debug="yes">
             <include name="org/scalatest/Ignore.java" />
             <include name="org/scalatest/tools/ScalaTestTask.java" />
         </javac>
@@ -162,13 +165,13 @@
     <target name="compile-tests" depends="compile-main">
 
         <!-- Compile the Scala code from ${tests} into ${build.tests} -->
-        <scalac srcdir="${tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs} -XX:+UseConcMarkSweepGC"/>
+        <scalac srcdir="${tests}:${tests-java}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs} -XX:+UseConcMarkSweepGC"/>
 
         <!-- Compile the Scala code from ${build.generated.tests} into ${classes}. Scalac will parse any referenced .java files. -->
         <scalac srcdir="${build.generated.tests}" destdir="${build.tests}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs}" />
 
         <!-- Compile the Java code from ${tests} into ${build.tests} -->
-        <javac srcdir="${tests}" destdir="${build.tests}" memoryMaximumSize="1500M" fork="true" classpath="${classes}:${lib}/scala-library.jar:${lib}/junit-4.4.jar" debug="yes" />
+        <javac srcdir="${tests-java}" destdir="${build.tests}" memoryMaximumSize="1500M" fork="true" classpath="${classes}:${lib}/scala-library.jar:${lib}/junit-4.4.jar" debug="yes" />
     </target>
 
     <target name="compile-examples" depends="compile-main">
@@ -192,7 +195,7 @@
     </target>
 
     <target name="doc" depends="compile-main">
-        <javadoc sourcepath="${src}" destdir="${jdoc}" packagenames="org.scalatest,org.scalatest.tools" classpathref="build.class.path" windowtitle="ScalaTest ${releaseCapitalized}" doctitle="ScalaTest ${releaseCapitalized}" bottom="Copyright (C) 2001-2009 Artima, Inc. All rights reserved." />
+        <javadoc sourcepath="${javasrc}" destdir="${jdoc}" packagenames="org.scalatest,org.scalatest.tools" classpathref="build.class.path" windowtitle="ScalaTest ${releaseCapitalized}" doctitle="ScalaTest ${releaseCapitalized}" bottom="Copyright (C) 2001-2009 Artima, Inc. All rights reserved." />
 
         <scaladoc addparams="-Xno-varargs-conversion" srcref="scaladoc.source.path" destdir="${doc}" classpathref="build.class.path" windowtitle="ScalaTest ${releaseCapitalized}" doctitle="ScalaTest ${releaseCapitalized}" bottom="Copyright (C) 2001-2009 Artima, Inc. All rights reserved.">
             <include name="**/*.scala" />
@@ -213,9 +216,9 @@
         <mkdir dir="${dist}/lib" />
         <delete file="${dist}/lib/scalatest.jar" />
 
-        <copy file="${src}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
+        <copy file="${scalasrc}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
         <copy todir="${jar.contents}/images">
-            <fileset dir="${src}/images" />
+            <fileset dir="${images}" />
         </copy>
 
         <!-- Put everything in ${jar.contents} into the MyProject-${DSTAMP}.jar file -->
@@ -246,11 +249,7 @@
         </copy>
 
         <copy todir="${zipper}/scalatest-${release}/src">
-            <fileset dir="${src}/" />
-        </copy>
-
-        <copy todir="${zipper}/scalatest-${release}/tests">
-            <fileset dir="${tests}/" />
+            <fileset dir="src/" />
         </copy>
 
         <!--
@@ -262,9 +261,9 @@
     </target>
 
     <target name="copyprops">
-        <copy file="${src}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
+        <copy file="${scalasrc}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
         <copy todir="${jar.contents}/images">
-            <fileset dir="${src}/images" />
+            <fileset dir="${images}" />
         </copy>
     </target>
 
@@ -585,11 +584,16 @@
         </copy>
 
         <artifact:deploy file="target/scalatest-${release}.jar">
+            <!-- gcbx
             <remoteRepository
                 url="http://nexus.scala-tools.org/content/repositories/snapshots/">
                 <authentication username="${deployment-username}"
                                 password="${deployment-password}"/>
             </remoteRepository>
+            -->
+<!--gcbx--> <remoteRepository url="http://localhost:8081/nexus/content/repositories/snapshots/">
+<!--gcbx-->     <authentication username="admin" password="admin123"/>
+<!--gcbx--> </remoteRepository>
             <pom file="target/pom.xml"/>
         </artifact:deploy>
     </target>
