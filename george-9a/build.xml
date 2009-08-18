@@ -8,7 +8,8 @@
     <property name="javasrc.test" value="src/test/java" />
     <property name="scalasrc.examples" value="src/examples/scala" />
     <property name="javasrc.examples" value="src/examples/java" />
-    <property name="images" value="src/main/resources/images" />
+    <property name="resources" value="src/main/resources" />
+    <property name="images" value="${resources}/images" />
     <property name="build" value="target" />
     <property name="jar.contents" value="${build}/jar_contents" />
     <!-- classes go in jar.contents. redundant, but makes the rest of build.xml easier to read -->
@@ -217,7 +218,7 @@
         <mkdir dir="${dist}/lib" />
         <delete file="${dist}/lib/scalatest.jar" />
 
-        <copy file="${scalasrc}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
+        <copy file="${resources}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
         <copy todir="${jar.contents}/images">
             <fileset dir="${images}" />
         </copy>
@@ -262,7 +263,7 @@
     </target>
 
     <target name="copyprops">
-        <copy file="${scalasrc}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
+        <copy file="${resources}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
         <copy todir="${jar.contents}/images">
             <fileset dir="${images}" />
         </copy>
