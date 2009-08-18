@@ -13,8 +13,8 @@
     <!-- classes go in jar.contents. redundant, but makes the rest of build.xml easier to read -->
     <property name="classes" value="${jar.contents}" />
     <property name="generators" value="generators" />
-    <property name="build.generated.src" value="${build}/generated/src" />
-    <property name="build.generated.tests" value="${build}/generated/tests" />
+    <property name="build.generated.src" value="${build}/generated/src/main/scala" />
+    <property name="build.generated.tests" value="${build}/generated/src/test/scala" />
     <property name="build.tests" value="${build}/tests" />
     <property name="build.tests.jar" value="${build}/tests.jar" />
     <property name="build.examples" value="${build}/examples" />
@@ -388,7 +388,9 @@
             <arg value="-m" />
             <arg value="org.scalatest.prop" />
         </java>
-        <cobertura-report srcdir="${src}" destdir="${build.coverage}"/>
+        <echo message="starting cobertura-report..." />
+        <cobertura-report srcdir="${scalasrc}" destdir="${build.coverage}"/>
+        <echo message="... finished cobertura-report" />
     </target>
 
     <target name="bvtest" depends="compile-main,compile-tests,copyprops,taskdefscalatest">
