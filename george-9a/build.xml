@@ -7,7 +7,8 @@
     <property name="tests" value="src/test/scala" />
     <property name="tests-java" value="src/test/java" />
     <property name="images" value="src/main/resources/images" />
-    <property name="examples" value="examples" />
+    <property name="scalasrc.examples" value="src/examples/scala" />
+    <property name="javasrc.examples" value="src/examples/java" />
     <property name="build" value="target" />
     <property name="jar.contents" value="${build}/jar_contents" />
     <!-- classes go in jar.contents. redundant, but makes the rest of build.xml easier to read -->
@@ -176,11 +177,11 @@
 
     <target name="compile-examples" depends="compile-main">
 
-        <!-- Compile the Scala code from ${examples} into ${build.examples} -->
-        <scalac srcdir="${examples}" destdir="${build.examples}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs} -XX:+UseConcMarkSweepGC"/>
+        <!-- Compile the Scala code from ${scalasrc.examples} into ${build.examples} -->
+        <scalac srcdir="${scalasrc.examples}:${javasrc.examples}" destdir="${build.examples}" target="jvm-1.5" classpathref="build.test.class.path" fork="true" jvmargs="${jvmargs} -XX:+UseConcMarkSweepGC"/>
 
         <!-- Compile the Java code from ${examples} into ${build.examples} -->
-        <javac srcdir="${examples}" destdir="${build.examples}" classpath="${classes}:${lib}/easymock-2.5.1.jar:${lib}/scala-library.jar" debug="yes" />
+        <javac srcdir="${javasrc.examples}" destdir="${build.examples}" classpath="${classes}:${lib}/easymock-2.5.1.jar:${lib}/scala-library.jar" debug="yes" />
     </target>
 
     <!-- Compile demo into its own directory. I.e., the class files will sit alongside the java files
