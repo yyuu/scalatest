@@ -587,16 +587,11 @@
         </copy>
 
         <artifact:deploy file="target/scalatest-${release}.jar">
-            <!-- gcbx
             <remoteRepository
                 url="http://nexus.scala-tools.org/content/repositories/snapshots/">
                 <authentication username="${deployment-username}"
                                 password="${deployment-password}"/>
             </remoteRepository>
-            -->
-<!--gcbx--> <remoteRepository url="http://localhost:8081/nexus/content/repositories/snapshots/">
-<!--gcbx-->     <authentication username="admin" password="admin123"/>
-<!--gcbx--> </remoteRepository>
             <pom file="target/pom.xml"/>
         </artifact:deploy>
     </target>
