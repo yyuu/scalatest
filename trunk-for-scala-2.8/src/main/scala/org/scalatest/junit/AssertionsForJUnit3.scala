@@ -15,7 +15,9 @@
  */
 package org.scalatest.junit
 
+import org.scalatest._
 import _root_.junit.framework.AssertionFailedError
+import org.scalatest.Assertions
 
 /**
  * Trait that contains ScalaTest's basic assertion methods, suitable for use with JUnit 3.

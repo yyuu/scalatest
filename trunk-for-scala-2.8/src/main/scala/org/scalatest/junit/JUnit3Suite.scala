@@ -15,6 +15,7 @@
  */
 package org.scalatest.junit
 
+import org.scalatest._
 import _root_.junit.framework.TestCase
 import _root_.junit.framework.TestResult
 import _root_.junit.framework.TestSuite
@@ -25,6 +26,22 @@ import scala.collection.mutable.HashSet
 import org.scalatest.events.TestStarting
 import org.scalatest.events.TestSucceeded
 import org.scalatest.events.TestFailed
+import org.scalatest.DuplicateTestNameException
+import org.scalatest.Informer
+import org.scalatest.PendingNothing
+import org.scalatest.Tag
+import org.scalatest.TestRegistrationClosedException
+import org.scalatest.Reporter
+import org.scalatest.Tracker
+import org.scalatest.Stopper
+import org.scalatest.Filter
+import org.scalatest.Resources
+import org.scalatest.TestRerunner
+import org.scalatest.MessageRecordingInformer
+import org.scalatest.TestPendingException
+import org.scalatest.Rerunner
+import org.scalatest.Distributor
+import org.scalatest.ConcurrentInformer
 
 /**
  * A <code>Suite</code> that is also a <code>junit.framework.TestCase</code>. 

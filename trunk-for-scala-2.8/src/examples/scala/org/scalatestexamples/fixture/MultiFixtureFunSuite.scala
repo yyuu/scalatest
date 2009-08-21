@@ -15,8 +15,8 @@
  */
 package org.scalatestexamples.fixture
 
-
-import scalatest.fixture.MultipleFixtureFunSuite
+import org.scalatestexamples._
+import org.scalatest.fixture.MultipleFixtureFunSuite
 
 class MultiFixtureFunSuite extends MultipleFixtureFunSuite {
 

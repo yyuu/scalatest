@@ -1,5 +1,6 @@
 package org.scalatest.junit
 
+import org.scalatest._
 import _root_.junit.framework.AssertionFailedError
 import org.scalatest.WordSpec
 

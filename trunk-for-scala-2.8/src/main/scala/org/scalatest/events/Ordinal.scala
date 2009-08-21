@@ -1,5 +1,6 @@
 package org.scalatest.events
 
+import org.scalatest._
 import java.util.Arrays
 
 /**

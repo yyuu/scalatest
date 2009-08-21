@@ -15,6 +15,7 @@
  */
 package org.scalatest.testng {
 
+   import org.scalatest._
    import org.scalatest.Suite
    import org.scalatest.jmock.TestReporter
    import org.testng.annotations.Test
@@ -112,10 +113,10 @@ package org.scalatest.testng {
    package test {
      
      class TestNGSuiteWithGroups extends TestNGSuite {
-       @Test{val groups = Array("runMe")} def testThatRuns() {}
-       @Test{val groups = Array("runMeToo")} def testThatRunsInAnotherGroup() {}
-       @Test{val groups = Array("runMeToo")} def anotherTestThatRunsInAnotherGroup() {}
-       @Test{val groups = Array("runMeThree")} def yetAnotherTestThatRunsInYetAnotherGroup() {}
+       @Test(groups = Array("runMe")) def testThatRuns() {}
+       @Test(groups = Array("runMeToo")) def testThatRunsInAnotherGroup() {}
+       @Test(groups = Array("runMeToo")) def anotherTestThatRunsInAnotherGroup() {}
+       @Test(groups = Array("runMeThree")) def yetAnotherTestThatRunsInYetAnotherGroup() {}
      }
    }
 }

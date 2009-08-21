@@ -15,12 +15,29 @@
  */
 package org.scalatest.fixture
 
+import org.scalatest._
 import scala.collection.immutable.ListSet
 import java.util.ConcurrentModificationException
 import java.util.concurrent.atomic.AtomicReference
 import org.scalatest.StackDepthExceptionHelper.getStackDepth
 import org.scalatest.events._
-import Suite.anErrorThatShouldCauseAnAbort
+import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
+import org.scalatest.DuplicateTestNameException
+import org.scalatest.Informer
+import org.scalatest.PendingNothing
+import org.scalatest.Tag
+import org.scalatest.TestRegistrationClosedException
+import org.scalatest.Reporter
+import org.scalatest.Tracker
+import org.scalatest.Stopper
+import org.scalatest.Filter
+import org.scalatest.Resources
+import org.scalatest.TestRerunner
+import org.scalatest.MessageRecordingInformer
+import org.scalatest.TestPendingException
+import org.scalatest.Rerunner
+import org.scalatest.Distributor
+import org.scalatest.ConcurrentInformer
 
 /**
  * A sister trait to <code>org.scalatest.FunSuite</code> that can pass a fixture object into its tests.

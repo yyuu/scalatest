@@ -16,7 +16,6 @@
 package org.scalatest
 
 import org.scalatest.events._
-import org.scalatest.mytags._
 
 class WordSpecSpec extends Spec with SharedHelpers with GivenWhenThen {
 
@@ -68,7 +67,7 @@ class WordSpecSpec extends Spec with SharedHelpers with GivenWhenThen {
 
         class MySpec extends WordSpec {
           "should blow up" in {
-            "should never run" taggedAs(SlowAsMolasses) in {
+            "should never run" taggedAs(mytags.SlowAsMolasses) in {
               assert(1 === 2)
             }
           }
@@ -109,7 +108,7 @@ class WordSpecSpec extends Spec with SharedHelpers with GivenWhenThen {
 
         class MySpec extends WordSpec {
           "should blow up" in {
-            "should never run" taggedAs(SlowAsMolasses) ignore {
+            "should never run" taggedAs(mytags.SlowAsMolasses) ignore {
               assert(1 === 2)
             }
           }
@@ -302,8 +301,8 @@ class WordSpecSpec extends Spec with SharedHelpers with GivenWhenThen {
       }
 
       val e = new WordSpec {
-        "should test this" taggedAs(SlowAsMolasses) in {}
-        "should test that" taggedAs(SlowAsMolasses) ignore {}
+        "should test this" taggedAs(mytags.SlowAsMolasses) in {}
+        "should test that" taggedAs(mytags.SlowAsMolasses) ignore {}
       }
       expect(Map("should test this" -> Set("org.scalatest.SlowAsMolasses"), "should test that" -> Set("org.scalatest.Ignore", "org.scalatest.SlowAsMolasses"))) {
         e.tags
@@ -315,8 +314,8 @@ class WordSpecSpec extends Spec with SharedHelpers with GivenWhenThen {
       }
 
       val g = new WordSpec {
-        "should test this" taggedAs(SlowAsMolasses, WeakAsAKitten) in {}
-        "should test that" taggedAs(SlowAsMolasses) in {}
+        "should test this" taggedAs(mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+        "should test that" taggedAs(mytags.SlowAsMolasses) in {}
       }
       expect(Map("should test this" -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"), "should test that" -> Set("org.scalatest.SlowAsMolasses"))) {
         g.tags

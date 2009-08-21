@@ -15,6 +15,8 @@
  */
 package org.scalatestexamples.featurespec
 
+import org.scalatestexamples._
+
 class GivenWhenThenArithmeticFeatureSpec
 
 import org.scalatest.FeatureSpec

@@ -1,5 +1,7 @@
 package org.scalatest.events
 
+import org.scalatest._
+
 /**
  * Abstract class for the optimal formatter objects that must be passed to the <code>Event</code>s reported
  * during a ScalaTest run.

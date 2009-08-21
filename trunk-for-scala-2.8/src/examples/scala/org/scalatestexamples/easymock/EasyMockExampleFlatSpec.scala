@@ -15,6 +15,7 @@
  */
 package org.scalatestexamples.easymock
 
+import org.scalatestexamples._
 import org.easymock.EasyMock._
 import org.junit.Assert._
 
@@ -25,8 +26,8 @@ import org.easymock.IAnswer
 import org.junit.Before
 import org.junit.Test
 import org.scalatest.verb.ShouldVerb
-import scalatest.mock.EasyMockSugar
-import scalatest.{BeforeAndAfterEach, FlatSpec}
+import org.scalatest.mock.EasyMockSugar
+import org.scalatest.{BeforeAndAfterEach, FlatSpec}
 class EasyMockExampleFlatSpec extends FlatSpec with ShouldVerb with BeforeAndAfterEach with EasyMockSugar {
 
   // Sorry about the nulls and vars, this was ported from Java from an EasyMock example

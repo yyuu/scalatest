@@ -1,6 +1,8 @@
 package org.scalatest.events
 
+import org.scalatest._
 import java.util.Date
+import org.scalatest.Rerunner
 
 /**
  * A base class for the events that can be passed to the report function passed

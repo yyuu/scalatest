@@ -1,5 +1,7 @@
 package org.scalatest.events
 
+import org.scalatest._
+
 /**
  * Class that holds information about names for an <code>InfoProvided</code> event.
  *

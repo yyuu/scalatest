@@ -16,12 +16,13 @@
 
 package org.scalatestexamples.concurrent
 
+import org.scalatestexamples._
 import org.scalatest.fixture.FixtureFunSuite
 import org.scalatest.matchers.ShouldMatchers
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{TimeUnit, Semaphore, ArrayBlockingQueue}
 import org.scalatest.matchers.ShouldMatchers
-import scalatest.concurrent.ConductorFixture
+import org.scalatest.concurrent.ConductorFixture
 
 class ConductorExamples extends FixtureFunSuite with ConductorFixture with ShouldMatchers {
   

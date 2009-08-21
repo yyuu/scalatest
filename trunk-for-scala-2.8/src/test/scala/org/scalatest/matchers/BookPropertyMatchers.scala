@@ -15,6 +15,7 @@
  */
 package org.scalatest.matchers
 
+import org.scalatest._
 import org.scalatest.prop.Checkers
 import org.scalacheck._
 import Arbitrary._
@@ -64,7 +65,7 @@ trait BookPropertyMatchers { this: Matchers =>
       val firstFailure = propertyMatchResults.find(_.matches == false)
       firstFailure match {
         case Some(failure) =>
-          new HavePropertyMatchResult(false, "book1." + failure.propertyName, failure.expectedValue, failure.actualValue)
+          new HavePropertyMatchResult(false, "book1." + failure.propertyName, failure.expectedValue.asInstanceOf[Book], failure.actualValue.asInstanceOf[Book])
         case None =>
           new HavePropertyMatchResult(true, "book1", null, null) // What to do here?
       }

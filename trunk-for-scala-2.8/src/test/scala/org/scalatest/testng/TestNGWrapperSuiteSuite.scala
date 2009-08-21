@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.scalatest._
 import org.scalatest.testng._
 import org.scalatest.jmock._
 import java.io.File

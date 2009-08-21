@@ -15,6 +15,9 @@
  */
 package org.scalatest.verb
 
+import org.scalatest._
+import org.scalatest.PendingNothing
+
 trait SubjectVerbStringTaggedAs[T] {
 
   // "A Stack" should "bla bla" taggedAs(SlowTest) in {

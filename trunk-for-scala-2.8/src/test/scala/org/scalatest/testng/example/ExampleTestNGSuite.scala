@@ -15,6 +15,8 @@
  */
 package org.scalatest.testng.example;
 
+import org.scalatest._
+import org.scalatest.testng._
 import org.testng.annotations.Test
 import org.testng.annotations.BeforeMethod
 import org.testng.annotations.BeforeClass
@@ -37,6 +39,7 @@ class ExampleTestNGSuite extends TestNGSuite {
   @AfterClass def passAfterClass(){}
   @AfterSuite def passAfterSuite(){}
   
+/*
   @Test{val invocationCount = 10} def thisTestRunsTenTimes = {}
   
   @Test{val groups = Array("runMe")} 
@@ -58,5 +61,29 @@ class ExampleTestNGSuite extends TestNGSuite {
   def testAndStates(a: String, b: String){
     println("a=" + a + ", b=" + b)
   }
+*/
+
+ @Test(invocationCount = 10) def thisTestRunsTenTimes = {}
+ 
+  @Test(groups = Array("runMe"))
+  def testWithException(){
+    throw new Exception("exception!!!")
+  }
+ 
+  @Test(groups = Array("runMe")) def testWithAssertFail = assert( 1 === 2, "assert fail!!!" )
+
+  @Test(dependsOnMethods = Array("testWithException")) def testToGetSkipped = {}
+
+  @DataProvider(name = "andValues")
+  def andValues = {
+    val and = Array("0", "1")
+    for( x <- and; y <- and ) yield Array(x,y)
+  }
+ 
+  @Test(dataProvider = "andValues")
+  def testAndStates(a: String, b: String){
+    println("a=" + a + ", b=" + b)
+  }
+
 }
 

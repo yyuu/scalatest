@@ -1,6 +1,8 @@
 
 package org.scalatest.tools
 
+import org.scalatest._
+
 class PrintReporterSuite extends FunSuite {
 
   import PrintReporter.makeDurationString
