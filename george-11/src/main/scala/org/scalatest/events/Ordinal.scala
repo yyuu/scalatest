@@ -283,4 +283,6 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
     41 * (
       41 + runStamp
     ) + Arrays.hashCode(stamps)
+
+  override def toString: String = "" + toList
 }

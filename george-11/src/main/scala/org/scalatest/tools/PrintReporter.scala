@@ -291,6 +291,7 @@ private[scalatest] abstract class PrintReporter(pw: PrintWriter, presentAllDurat
 
         val stringToPrint = stringToPrintWhenNoError("testStarting", formatter, suiteName, Some(testName))
 
+        System.out.println("gcbx pr TestStarting [" + stringToPrint + "]");
         stringToPrint match {
           case Some(string) => printPossiblyInColor(string, ansiGreen)
           case None =>
@@ -300,6 +301,7 @@ private[scalatest] abstract class PrintReporter(pw: PrintWriter, presentAllDurat
 
         val stringToPrint = stringToPrintWhenNoError("testSucceeded", formatter, suiteName, Some(testName), duration)
 
+        System.out.println("gcbx pr TestSucceeded [" + stringToPrint + "]");
         stringToPrint match {
           case Some(string) => printPossiblyInColor(string, ansiGreen)
           case None =>
