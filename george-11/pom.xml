@@ -25,13 +25,13 @@
     </dependency>
   </dependencies>
 
-<!--
   <distributionManagement>
     <repository>
       <id>scala-tools.org</id>
       <url>
       http://nexus.scala-tools.org/content/repositories/releases/</url>
     </repository>
+
     <snapshotRepository>
       <id>scala-tools.org</id>
       <url>
@@ -39,18 +39,4 @@
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
--->
-
-  <distributionManagement>
-    <repository>
-      <id>nexus-poppy</id>
-      <url>http://localhost:8081/nexus/content/repositories/releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>nexus-poppy</id>
-      <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
-
 </project>

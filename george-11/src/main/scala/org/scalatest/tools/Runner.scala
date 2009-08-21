@@ -1171,7 +1171,23 @@ object Runner {
           )
 
       case FileReporterConfiguration(configSet, fileName) =>
-        new XmlReporter
+        if (configSetMinusNonFilterParams(configSet).isEmpty)
+          new FileReporter(
+            fileName,
+            configSet.contains(PresentAllDurations),
+            !configSet.contains(PresentWithoutColor),
+            configSet.contains(PresentTestFailedExceptionStackTraces)
+          )
+        else
+          new FilterReporter(
+            new FileReporter(
+              fileName,
+              configSet.contains(PresentAllDurations),
+              !configSet.contains(PresentWithoutColor),
+              configSet.contains(PresentTestFailedExceptionStackTraces)
+            ),
+            configSet
+          )
 
         case HtmlReporterConfiguration(configSet, fileName) =>
           if (configSetMinusNonFilterParams(configSet).isEmpty)
