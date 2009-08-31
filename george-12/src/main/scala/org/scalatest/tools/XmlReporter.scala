@@ -18,6 +18,7 @@ package org.scalatest.tools
 import org.scalatest.events._
 
 import java.io.IOException
+import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Enumeration
 import java.net.UnknownHostException
@@ -64,7 +65,18 @@ private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
 
     for (testsuite <- testsuites) {
       val xmlStr = xmlify(testsuite, propertiesXml)
-        System.out.println("gcbx xmlStr [" + xmlStr + "]");
+      val filespec = dirSpec + "/" + testsuite.name + ".xml"
+
+      try {
+        val out = new PrintWriter(filespec)
+        out.print(xmlStr)
+        out.close()
+      }
+      catch {
+        case e =>
+          throw new RuntimeException("could not write xml output file [" +
+                                     filespec + "]", e)
+      }
     }
   }
 
@@ -104,7 +116,7 @@ private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
   }
 
   //
-  // Generates xml elem for TestFailed event, if option isn't None.
+  // Generates <failure> xml for TestFailed event, if Option value isn't None.
   //
   private def failureXml(failureOption: Option[TestFailed]): xml.NodeSeq = {
     if (failureOption != None) {
@@ -135,6 +147,9 @@ private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
     }
   }
 
+  //
+  // Returns toString value of option contents if Some, or empty string if None.
+  //
   private def strVal(option: Option[Any]): String = {
     option match {
       case Some(x) => "" + x
@@ -153,7 +168,6 @@ private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
       case e: UnknownHostException =>
         throw new RuntimeException("unexpected unknown host")
       }
-    println("gcbx Hostname [" + localMachine.getHostName() + "]");
     localMachine.getHostName
   }
 
