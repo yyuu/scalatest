@@ -25,8 +25,7 @@ import java.net.InetAddress
 
 import scala.collection.mutable.Set
 import scala.collection.mutable.ListBuffer
-import scala.xml.PrettyPrinter
-import scala.xml.Elem
+import scala.xml
 
 /**
  * A <code>Reporter</code> that prints test status information in XML format.
@@ -145,15 +144,46 @@ private[scalatest] class XmlReporter() extends Reporter {
                 name      = { "" + testcase.name              }
                 classname = { "" + strVal(testcase.className) }
                 time      = { "" + testcase.time / 1000.0     }
-              />
+              >
+              {
+                if (testcase.failure != None) {
+                  val failure =
+                    (testcase.failure: @unchecked) match { case Some(x) => x }
+
+                  val (throwableType, throwableText) =
+                    if (failure.throwable != None) {
+                      val throwable =
+                        (failure.throwable: @unchecked) match
+                        { case Some(x) => x }
+
+                      val throwableType = "" + throwable.getClass
+                      val throwableText =
+                        "" + throwable + "\nat " +
+                        Array.concat(throwable.getStackTrace).mkString("", "\n",
+                                                                       "\n")
+                      (throwableType, throwableText)
+                    }
+                    else ("", "")
+                  
+                  <failure message = { failure.message }
+                           type    = { throwableType   } >
+                    { throwableText }
+                  </failure>
+                }
+                else
+                  xml.NodeSeq.Empty
+              }
+              </testcase>
             }
           }
+            <system-out><![CDATA[]]></system-out>
+            <system-err><![CDATA[]]></system-err>
           </testsuite>
         }
       }
       </testsuites>
 
-    val prettified = (new PrettyPrinter(76, 2)).format(xmlVal)
+    val prettified = (new xml.PrettyPrinter(76, 2)).format(xmlVal)
     System.err.println("gcbx prettified [" + prettified + "]");
 
     "<?xml version=\"1.0\" encoding=]\"UTF-8\" ?>\n" + prettified
@@ -178,7 +208,7 @@ private[scalatest] class XmlReporter() extends Reporter {
     localMachine.getHostName
   }
 
-  private def genPropertiesXml: Elem = {
+  private def genPropertiesXml: xml.Elem = {
     val sysprops = System.getProperties
 
     <properties>
