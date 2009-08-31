@@ -28,7 +28,7 @@ import scala.collection.mutable.ListBuffer
 import scala.xml
 
 /**
- * A <code>Reporter</code> that prints test status information in XML format.
+ * A <code>Reporter</code> that writes test status information in XML format.
  *
  * A separate file is written for each test suite, named TEST-[classname].xml.
  *
@@ -36,157 +36,103 @@ import scala.xml
  *
  * @author Bill Venners
  */
-private[scalatest] class XmlReporter() extends Reporter {
+private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
   val events = Set.empty[Event]
 
+  //
+  // Record events in 'events' set.  Generate xml from events upon receipt of
+  // RunCompleted event.
+  //
   def apply(event: Event) {
     events += event
 
     event match {
-      case RunStarting(ordinal, testCount, configMap, formatter, payload,
-                       threadName, timeStamp) => 
-
-        System.out.println("gcbx RunStarting [" + event + "]");
-
       case RunCompleted(ordinal, duration, summary, formatter, payload,
                         threadName, timeStamp) => 
+        writeXmlFiles(events)
 
-        System.out.println("gcbx RunCompleted [" + event + "]");
-        val xml = xmlify(events)
-
-      case RunStopped(ordinal, duration, summary, formatter, payload,
-                      threadName, timeStamp) =>
-
-        System.out.println("gcbx RunStopped [" + event + "]");
-
-      case RunAborted(ordinal, message, throwable, duration, summary,
-                      formatter, payload, threadName, timeStamp) => 
-
-        System.out.println("gcbx RunAborted [" + event + "]");
-
-      case SuiteStarting(ordinal, suiteName, suiteClassName, formatter,
-                         rerunnable, payload, threadName, timeStamp) =>
-
-        System.out.println("gcbx SuiteStarting [" + event + "]");
-
-      case SuiteCompleted(ordinal, suiteName, suiteClassName, duration,
-                          formatter, rerunnable, payload, threadName,
-                          timeStamp) => 
-
-        System.out.println("gcbx SuiteCompleted [" + event + "]");
-
-      case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable,
-                        duration, formatter, rerunnable, payload, threadName,
-                        timeStamp) => 
-
-        System.out.println("gcbx SuiteAborted [" + event + "]");
-
-      case TestStarting(ordinal, suiteName, suiteClassName, testName, formatter,
-                        rerunnable, payload, threadName, timeStamp) =>
-
-        System.out.println("gcbx TestStarting [" + event + "]");
-
-      case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration,
-                         formatter, rerunnable, payload, threadName,
-                         timeStamp) => 
-
-        System.out.println("gcbx TestSucceeded [" + event + "]");
-    
-      case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter,
-                       payload, threadName, timeStamp) => 
-
-        System.out.println("gcbx TestIgnored [" + event + "]");
-
-      case TestFailed(ordinal, message, suiteName, suiteClassName, testName,
-                      throwable, duration, formatter, rerunnable, payload,
-                      threadName, timeStamp) => 
-
-        System.out.println("gcbx TestFailed [" + event + "]");
-
-      case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest,
-                        throwable, formatter, payload, threadName, timeStamp) =>
-
-        System.out.println("gcbx InfoProvided [" + event + "]");
-
-      case TestPending(ordinal, suiteName, suiteClassName, testName, formatter,
-                       payload, threadName, timeStamp) =>
-
-        System.out.println("gcbx TestPending [" + event + "]");
-
-      case _ => 
-
-        System.out.println("gcbx _ [" + event + "]");
+      case _ =>
     }
   }
 
-  def xmlify(events: Set[Event]): String = {
+  //
+  // Writes an xml file 
+  //
+  def writeXmlFiles(events: Set[Event]) {
     val testsuites    = collateEvents(events)
     val propertiesXml = genPropertiesXml
 
+    for (testsuite <- testsuites) {
+      val xmlStr = xmlify(testsuite, propertiesXml)
+        System.out.println("gcbx xmlStr [" + xmlStr + "]");
+    }
+  }
+
+  def xmlify(testsuite: Testsuite, propertiesXml: xml.Elem): String = {
+    val time = testsuite.time / 1000.0
+
     val xmlVal =
-      <testsuites>
+      <testsuite
+        errors    = { "" + testsuite.errors   }
+        failures  = { "" + testsuite.failures }
+        hostname  = { "" + findHostname       }
+        name      = { "" + testsuite.name     }
+        tests     = { "" + testsuite.tests    }
+        time      = { "" + time               }
+        timestamp = { "" + formatTimeStamp(testsuite.timeStamp) }>
+      { propertiesXml }
       {
-        for (testsuite <- testsuites) yield {
-          val time = testsuite.time / 1000.0
-
-          <testsuite
-            errors    = { "" + testsuite.errors   }
-            failures  = { "" + testsuite.failures }
-            hostname  = { "" + findHostname       }
-            name      = { "" + testsuite.name     }
-            tests     = { "" + testsuite.tests    }
-            time      = { "" + time               }
-            timestamp = { "" + formatTimeStamp(testsuite.timeStamp) }>
-          { propertiesXml }
+        for (testcase <- testsuite.testcases) yield {
+          <testcase
+            name      = { "" + testcase.name              }
+            classname = { "" + strVal(testcase.className) }
+            time      = { "" + testcase.time / 1000.0     }
+          >
           {
-            for (testcase <- testsuite.testcases) yield {
-              <testcase
-                name      = { "" + testcase.name              }
-                classname = { "" + strVal(testcase.className) }
-                time      = { "" + testcase.time / 1000.0     }
-              >
-              {
-                if (testcase.failure != None) {
-                  val failure =
-                    (testcase.failure: @unchecked) match { case Some(x) => x }
-
-                  val (throwableType, throwableText) =
-                    if (failure.throwable != None) {
-                      val throwable =
-                        (failure.throwable: @unchecked) match
-                        { case Some(x) => x }
-
-                      val throwableType = "" + throwable.getClass
-                      val throwableText =
-                        "" + throwable + "\nat " +
-                        Array.concat(throwable.getStackTrace).mkString("", "\n",
-                                                                       "\n")
-                      (throwableType, throwableText)
-                    }
-                    else ("", "")
-                  
-                  <failure message = { failure.message }
-                           type    = { throwableType   } >
-                    { throwableText }
-                  </failure>
-                }
-                else
-                  xml.NodeSeq.Empty
-              }
-              </testcase>
-            }
+            failureXml(testcase.failure)
           }
-            <system-out><![CDATA[]]></system-out>
-            <system-err><![CDATA[]]></system-err>
-          </testsuite>
+          </testcase>
         }
       }
-      </testsuites>
+        <system-out><![CDATA[]]></system-out>
+        <system-err><![CDATA[]]></system-err>
+      </testsuite>
 
     val prettified = (new xml.PrettyPrinter(76, 2)).format(xmlVal)
-    System.err.println("gcbx prettified [" + prettified + "]");
 
     "<?xml version=\"1.0\" encoding=]\"UTF-8\" ?>\n" + prettified
+  }
+
+  //
+  // Generates xml elem for TestFailed event, if option isn't None.
+  //
+  private def failureXml(failureOption: Option[TestFailed]): xml.NodeSeq = {
+    if (failureOption != None) {
+      val failure = (failureOption: @unchecked) match { case Some(x) => x }
+
+      val (throwableType, throwableText) =
+        if (failure.throwable != None) {
+          val throwable =
+            (failure.throwable: @unchecked) match
+            { case Some(x) => x }
+
+          val throwableType = "" + throwable.getClass
+          val throwableText =
+            "" + throwable + "\nat " +
+            Array.concat(throwable.getStackTrace).mkString("", "\n",
+                                                           "\n")
+          (throwableType, throwableText)
+        }
+        else ("", "")
+      
+      <failure message = { failure.message }
+               type    = { throwableType   } >
+        { throwableText }
+      </failure>
+    }
+    else {
+      xml.NodeSeq.Empty
+    }
   }
 
   private def strVal(option: Option[Any]): String = {
@@ -196,6 +142,9 @@ private[scalatest] class XmlReporter() extends Reporter {
     }
   }
 
+  //
+  // Determines hostname of local machine.
+  //
   private def findHostname: String = {
     val localMachine =
       try {
@@ -208,17 +157,24 @@ private[scalatest] class XmlReporter() extends Reporter {
     localMachine.getHostName
   }
 
+  //
+  // Generates <properties> element of xml.
+  //
   private def genPropertiesXml: xml.Elem = {
     val sysprops = System.getProperties
 
-    <properties>
-    {
-      for (name <- asList(sysprops.propertyNames.asInstanceOf[Enumeration[String]]))
-        yield <property name={ name } value = { sysprops.getProperty(name) }/>
+    <properties> {
+      for (name <-
+           asList(sysprops.propertyNames.asInstanceOf[Enumeration[String]]))
+        yield
+          <property name={ name } value = { sysprops.getProperty(name) }/>
     }
     </properties>
   }
 
+  //
+  // Converts an Enumeration of strings into a list of strings.
+  //
   private def asList(enumeration: Enumeration[String]): List[String] = {
     val listBuf = new ListBuffer[String]
 
@@ -228,6 +184,9 @@ private[scalatest] class XmlReporter() extends Reporter {
     listBuf.toList
   }
 
+  //
+  // Formats timestamp into a string for display, e.g. "2009-08-31T14:59:37"
+  //
   private def formatTimeStamp(timeStamp: Long): String = {
     val dateFmt = new SimpleDateFormat("yyyy-MM-DD")
     val timeFmt = new SimpleDateFormat("HH:mm:ss")
@@ -377,15 +336,6 @@ private[scalatest] class XmlReporter() extends Reporter {
     }
     testsuites.toList
   }
-
-  private val xmlHeader =
-    """|<?xml version="1.0" encoding="UTF-8" ?>
-       |<testsuites>
-       |""".stripMargin
-    
-  private val xmlFooter =
-    """|</testsuites>
-       |""".stripMargin
 
   private case class Testsuite(name: String, timeStamp: Long) {
     var errors   = 0
