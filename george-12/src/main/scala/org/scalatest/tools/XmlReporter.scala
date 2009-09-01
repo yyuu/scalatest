@@ -31,13 +31,14 @@ import scala.xml
 /**
  * A <code>Reporter</code> that writes test status information in XML format.
  *
- * A separate file is written for each test suite, named TEST-[classname].xml.
+ * A separate file is written for each test suite, named TEST-[classname].xml,
+ * to the directory specified.
  *
  * @exception IOException if unable to open the file for writing
  *
  * @author Bill Venners
  */
-private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
+private[scalatest] class XmlReporter(directory: String) extends Reporter {
   val events = Set.empty[Event]
 
   //
@@ -65,7 +66,7 @@ private[scalatest] class XmlReporter(dirSpec: String) extends Reporter {
 
     for (testsuite <- testsuites) {
       val xmlStr = xmlify(testsuite, propertiesXml)
-      val filespec = dirSpec + "/" + testsuite.name + ".xml"
+      val filespec = directory + "/TEST-" + testsuite.name + ".xml"
 
       try {
         val out = new PrintWriter(filespec)
