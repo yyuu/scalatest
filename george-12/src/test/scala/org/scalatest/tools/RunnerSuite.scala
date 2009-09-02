@@ -217,6 +217,24 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml")
     )
+    // Test -u option
+    verify(
+      Array("-c", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-p",
+          "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-u", "directory/",
+          "-n", "One Two Three", "-x", "SlowTests", "-s", "SuiteOne",
+          "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
+      List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\""),
+      List("-g", "-g", "-u", "directory/"),
+      List("-s", "SuiteOne"),
+      Nil,
+      List("-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188"),
+      List("-n", "One Two Three"),
+      List("-x", "SlowTests"),
+      List("-c"),
+      List("-m", "com.example.webapp"),
+      List("-w", "com.example.root"),
+      List("-t", "some/path/file.xml")
+    )
   }
 
   def testParseCompoundArgIntoSet() {
@@ -234,6 +252,9 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     }
     intercept[IllegalArgumentException] {
       Runner invokePrivate parseConfigSet("-fJ")
+    }
+    intercept[IllegalArgumentException] {
+      Runner invokePrivate parseConfigSet("-uJ")
     }
     intercept[IllegalArgumentException] {
       Runner invokePrivate parseConfigSet("-oYZTFUPBISARG-")
@@ -277,6 +298,9 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     }
     expect(Set[ReporterConfigParam]()) {
       Runner invokePrivate parseConfigSet("-f")
+    }
+    expect(Set[ReporterConfigParam]()) {
+      Runner invokePrivate parseConfigSet("-u")
     }
 
     expect(Set(FilterInfoProvided, PresentWithoutColor)) {
@@ -334,6 +358,9 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Runner.parseReporterArgsIntoConfigurations(List("-f")) // Can't have -f last, because need a file name
     }
     intercept[IllegalArgumentException] {
+      Runner.parseReporterArgsIntoConfigurations(List("-u")) // Can't have -u last, because need a directory name
+    }
+    intercept[IllegalArgumentException] {
       Runner.parseReporterArgsIntoConfigurations(List("-r")) // Can't have -r last, because need a reporter class
     }
     expect(new ReporterConfigurations(None, Nil, Nil, None, None, Nil, Nil)) {
@@ -359,6 +386,12 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     }
     expect(new ReporterConfigurations(None, List(new FileReporterConfiguration(Set(), "theFilename")), Nil, None, None, Nil, Nil)) {
       Runner.parseReporterArgsIntoConfigurations(List("-f", "theFilename"))
+    }
+    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "target")), None, None, Nil, Nil)) {
+      Runner.parseReporterArgsIntoConfigurations(List("-u", "target"))
+    }
+    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "target")), None, None, Nil, Nil)) {
+      Runner.parseReporterArgsIntoConfigurations(List("-uN", "target"))
     }
     expect(new ReporterConfigurations(None, List(new FileReporterConfiguration(Set(FilterTestStarting), "theFilename")), Nil, None, None, Nil, Nil)) {
       Runner.parseReporterArgsIntoConfigurations(List("-fN", "theFilename"))
