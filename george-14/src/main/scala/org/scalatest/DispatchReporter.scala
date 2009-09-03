@@ -43,9 +43,9 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
 
   private case object Dispose
 
-  private val julia = actor {
+  private var alive = true // local variable, right? Only written by the Actor's thread, so no need for synchronization
 
-    var alive = true // local variable, right? Only used by the Actor's thread, so no need for synchronization
+  private val julia = actor {
 
     class Counter {
       var testsSucceededCount = 0
@@ -179,7 +179,15 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
   // a dispose method and handles it by printing an error message to the
   // standard error stream.
   //
-  def dispatchDispose() = julia ! Dispose
+  // Waits for actor to set alive flag false before returning, so all reporters
+  // get notified before this method completes.
+  //
+  def dispatchDispose() = {
+    julia ! Dispose
+
+    while (alive)
+      Thread.sleep(1)
+  }
 
   def apply(event: Event) {
     julia ! event

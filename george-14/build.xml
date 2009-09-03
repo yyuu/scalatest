@@ -646,5 +646,18 @@
             </classpath>
         </junit>
     </target>
+
+
+    <target name="gcbtest" depends="taskdefscalatest">
+        <scalatest fork="true" runpath="target/tests" concurrent="true" haltonfailure="true">
+            <jvmarg value="-XX:MaxPermSize=128m"/>
+            <reporter type="xml" directory="."/>
+            <reporter type="stdout" config="D"/>
+            <suite classname="org.scalatest.SuiteSuite" />
+            <suite classname="org.scalatest.FunSuiteSuite" />
+        </scalatest>
+    </target>
+
+
 </project>
 
