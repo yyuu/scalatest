@@ -15,6 +15,7 @@
  */
 package org.scalatest
 
+import java.util.concurrent.CountDownLatch
 import scala.actors.Exit
 import scala.actors.Actor
 import scala.actors.Actor.actor
@@ -43,9 +44,12 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
 
   private case object Dispose
 
-  private var alive = true // local variable, right? Only written by the Actor's thread, so no need for synchronization
+
+  private val latch = new CountDownLatch(1)
 
   private val julia = actor {
+
+    var alive = true // local variable. Only used by the Actor's thread, so no need for synchronization
 
     class Counter {
       var testsSucceededCount = 0
@@ -164,7 +168,10 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
               out.println(stringToPrint)
               e.printStackTrace(out)
           }
-          alive = false
+          finally {
+            alive = false
+            latch.countDown()
+          }
       }
     }
   }
@@ -173,39 +180,29 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
   def this(reporter: Reporter) = this(List(reporter), System.out)
 
   // Invokes dispose on each Reporter in this DispatchReporter's reporters list.
-  // This method attempts to invoke dispose on each contained Reporter,
-  // even if some Reporter's dispose methods throw
+  // This method fires an event at the actor that is taking care of serializing
+  // events, and at some time later the actor's thread will attempts to invoke
+  // dispose on each contained Reporter, even if some Reporter's dispose methods throw
   // Exceptions. This method catches any Exception thrown by
   // a dispose method and handles it by printing an error message to the
-  // standard error stream.
+  // standard error stream. Once finished with that, the actor's thread will return.
   //
-  // Waits for actor to set alive flag false before returning, so all reporters
-  // get notified before this method completes.
+  // This method will not return until the actor's thread has exited.
   //
-  def dispatchDispose() = {
+  def dispatchDispose() {
     julia ! Dispose
-
-    while (alive)
-      Thread.sleep(1)
+    latch.await()
   }
 
   def apply(event: Event) {
     julia ! event
   }
-
-/*
-  private def dispatch(methodName: String, methodCall: (Reporter) => Unit) {
- 
-    try {
-      reporters.foreach(methodCall)
-    }
-    catch {
-      case e: Exception => handleReporterException(e, methodName, out)
-    }
-  }
-*/
 }
 
+// TODO: Not a real problem, but if a DispatchReporter ever got itself in
+// its list of reporters, this would end up being an infinite loop. But
+// That first part, a DispatchReporter getting itself in there would be the real
+// bug.
 private[scalatest] object DispatchReporter {
 
   def propagateDispose(reporter: Reporter) {
