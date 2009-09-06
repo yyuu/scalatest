@@ -1498,7 +1498,7 @@ object Runner {
       }
     }
     finally {
-      dispatch.dispatchDispose()
+      dispatch.dispatchDisposeAndWaitUntilDone()
       doneListener.done()
     }
   }
@@ -1517,7 +1517,7 @@ object Runner {
           f(loader, dispatchReporter)
         }
         finally {
-          dispatchReporter.dispatchDispose()
+          dispatchReporter.dispatchDisposeAndWaitUntilDone()
         }
       }
       catch {

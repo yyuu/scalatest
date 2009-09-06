@@ -189,7 +189,7 @@ private[scalatest] class DispatchReporter(val reporters: List[Reporter], out: Pr
   //
   // This method will not return until the actor's thread has exited.
   //
-  def dispatchDispose() {
+  def dispatchDisposeAndWaitUntilDone() {
     julia ! Dispose
     latch.await()
   }
@@ -207,7 +207,7 @@ private[scalatest] object DispatchReporter {
 
   def propagateDispose(reporter: Reporter) {
     reporter match {
-      case dispatchReporter: DispatchReporter => dispatchReporter.dispatchDispose()
+      case dispatchReporter: DispatchReporter => dispatchReporter.dispatchDisposeAndWaitUntilDone()
       case catchReporter: CatchReporter => catchReporter.catchDispose()
       case resourcefulReporter: ResourcefulReporter => resourcefulReporter.dispose()
       case _ =>
