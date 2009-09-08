@@ -363,10 +363,10 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   private def propertyNames(props: Properties): List[String] = {
     val listBuf = new ListBuffer[String]
 
-    val enumeration = props.propertyNames.asInstanceOf[Enumeration[String]]
+    val enumeration = props.propertyNames
 
     while (enumeration.hasMoreElements)
-      listBuf += enumeration.nextElement.asInstanceOf[String]
+      listBuf += "" + enumeration.nextElement
 
     listBuf.toList
   }
