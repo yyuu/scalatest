@@ -734,9 +734,8 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     refreshEventsJList()
   }
 
-  private def reorderEventsJList() {
+  private def reorderCollectedEvents() {
     collectedEvents = collectedEvents.sort((a,b)=>a.event.ordinal>b.event.ordinal)
-    refreshEventsJList()
   }
 
   private def refreshEventsJList() {
@@ -852,9 +851,10 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
           // and that looks bad and is wrong to boot.
+          reorderCollectedEvents()
           usingEventDispatchThread {
             registerEvent(event)
-            reorderEventsJList()
+            refreshEventsJList()
           }
   
         case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
