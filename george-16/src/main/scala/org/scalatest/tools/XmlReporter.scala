@@ -52,14 +52,10 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
     events += event
 
     event match {
-      case e: SuiteCompleted => 
-        System.out.println("gcbx SuiteCompleted [" + e.suiteName + "][" + e.ordinal.toList + "]");
+      case e: SuiteCompleted =>
+        writeSuiteFile(e)
 
-      case e: SuiteStarting => 
-        System.out.println("gcbx SuiteStarting [" + e.suiteName + "][" + e.ordinal.toList + "]");
-
-      case e =>
-        System.out.println("gcbx e [" + e.getClass.getName.replaceAll(".*\\.", "") + "][" + e.ordinal.toList + "]")
+      case _ =>
     }
   }
 
@@ -86,15 +82,22 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   // associated with the specified suite.  Removes events from
   // the class's events Set as they are consumed.
   //
+  // Only looks at events that have the same ordinal prefix as the
+  // end event being processed (where an event's ordinal prefix is its
+  // ordinal list with last element removed).  Events with the same
+  // prefix get processed serially, so filtering this way eliminates
+  // events from any nested suites that may be processed concurrently
+  // and not yet completed when the parent's SuiteCompleted event is
+  // processed.
+  //
   private def getTestsuite(endEvent: SuiteCompleted): Testsuite = {
-        System.out.println("gcbx getTestSuite [" + "]");
     val ordinalPrefix = endEvent.ordinal.toList.dropRight(1)
 
-    val sameThreadEvents = 
+    val sameSequenceEvents = 
       events.toList.filter(
         e => e.ordinal.toList.dropRight(1) == ordinalPrefix)
 
-    val orderedEvents = sameThreadEvents.sort((a,b)=>a<b).toArray
+    val orderedEvents = sameSequenceEvents.sort((a,b)=>a<b).toArray
 
     val (startIndex, endIndex) = locateSuite(orderedEvents, endEvent)
 
@@ -190,8 +193,6 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
     }
     assert(endIndex > 0)
     assert(orderedEvents(startIndex).isInstanceOf[SuiteStarting])
-        System.out.println("gcbx endEvent.suiteName [" + endEvent.suiteName + "]");
-        System.out.println("gcbx orderedEvents(startIndex).asInstanceOf[SuiteStarting].suiteName [" + orderedEvents(startIndex).asInstanceOf[SuiteStarting].suiteName + "]");
     assert(endEvent.suiteName == 
            orderedEvents(startIndex).asInstanceOf[SuiteStarting].suiteName)
 
@@ -215,6 +216,7 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
 
     while ((idx < orderedEvents.size) && (endIndex == 0)) {
       val event = orderedEvents(idx)
+      events -= event
 
       event match {
         case e: TestSucceeded =>
@@ -249,7 +251,6 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   // Creates an xml string describing a run of a test suite.
   //
   def xmlify(testsuite: Testsuite): String = {
-        System.out.println("xmlify getTestSuite [" + "]");
     val xmlVal =
       <testsuite
         errors    = { "" + testsuite.errors         }
