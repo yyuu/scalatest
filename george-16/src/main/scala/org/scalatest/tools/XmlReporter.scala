@@ -45,8 +45,8 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   private val propertiesXml = genPropertiesXml
 
   //
-  // Record events in 'events' set.  Generate xml from events upon receipt of
-  // SuiteCompleted events.
+  // Records events in 'events' set.  Generates xml from events upon receipt
+  // of SuiteCompleted events.
   //
   def apply(event: Event) {
     events += event
@@ -85,19 +85,19 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   // Only looks at events that have the same ordinal prefix as the
   // end event being processed (where an event's ordinal prefix is its
   // ordinal list with last element removed).  Events with the same
-  // prefix get processed serially, so filtering this way eliminates
-  // events from any nested suites that may be processed concurrently
-  // and not yet completed when the parent's SuiteCompleted event is
-  // processed.
+  // prefix get processed sequentially, so filtering this way eliminates
+  // events from any nested suites being processed concurrently
+  // that have not yet completed when the parent's SuiteCompleted event
+  // is processed.
   //
   private def getTestsuite(endEvent: SuiteCompleted): Testsuite = {
     val ordinalPrefix = endEvent.ordinal.toList.dropRight(1)
 
-    val sameSequenceEvents = 
+    val samePrefixEvents = 
       events.toList.filter(
         e => e.ordinal.toList.dropRight(1) == ordinalPrefix)
 
-    val orderedEvents = sameSequenceEvents.sort((a,b)=>a<b).toArray
+    val orderedEvents = samePrefixEvents.sort((a,b)=>a<b).toArray
 
     val (startIndex, endIndex) = locateSuite(orderedEvents, endEvent)
 
@@ -156,18 +156,19 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   // SuiteCompleted event.
   //
   // Searches sequentially through the array to find the specified
-  // SuiteCompleted event and its preceding SuiteStarting event.  The
-  // sequencing of events should ensure that the last SuiteStarting event
-  // preceding the SuiteCompleted event in the array is its associated start
-  // event -- any nested Suite events will be removed by processing
-  // that occurs when their SuiteCompleted events are received.
+  // SuiteCompleted event and its preceding SuiteStarting event.
+  //
+  // (The orderedEvents array does not contain any SuiteStarting events
+  // from nested suites running concurrently because of the ordinal-prefix
+  // filtering performed in getTestsuite().  It does not contain any from
+  // nested suites running sequentially because those get removed when they
+  // are processed upon occurrence of their corresponding SuiteCompleted
+  // events.)
   //
   private def locateSuite(orderedEvents: Array[Event],
                           endEvent: SuiteCompleted):
   (Int, Int) = {
     require(orderedEvents.size > 0)
-
-    val EndEventOrdinalPrefix = endEvent.ordinal.toList.dropRight(1)
 
     var startIndex = 0
     var endIndex   = 0
@@ -177,12 +178,8 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
       val event = orderedEvents(idx)
 
       event match {
-        case e: SuiteStarting  =>
-          e.ordinal.toList.dropRight(1) match {
-            case EndEventOrdinalPrefix =>
-              startIndex = idx
-            case _ =>
-          }
+        case e: SuiteStarting =>
+          startIndex = idx
 
         case e: SuiteCompleted =>
           if (event == endEvent) endIndex = idx
@@ -204,7 +201,8 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   //
   // Accepts a TestStarting event and its index within orderedEvents.
   // Returns a Testcase object plus the index to its corresponding
-  // test completion event.
+  // test completion event.  Removes events from class's events Set
+  // as they are processed.
   //
   private def processTest(orderedEvents: Array[Event],
                           startEvent: TestStarting, startIndex: Int):
@@ -309,7 +307,8 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   }
 
   //
-  // Generates <failure> xml for TestFailed event, if Option contains one.
+  // Generates <failure> xml for TestFailed event, if specified Option
+  // contains one.
   //
   private def failureXml(failureOption: Option[TestFailed]): xml.NodeSeq = {
     failureOption match {
@@ -322,13 +321,8 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
             case None => ("", "")
 
             case Some(throwable) =>
-              val throwable =
-                (failure.throwable: @unchecked) match
-                { case Some(x) => x }
-            
               val throwableType = "" + throwable.getClass
               val throwableText = getStackTrace(throwable)
-
               (throwableType, throwableText)
           }
         
@@ -380,7 +374,7 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   }
 
   //
-  // Returns a list of the names of a properties in a Properties object.
+  // Returns a list of the names of properties in a Properties object.
   //
   private def propertyNames(props: Properties): List[String] = {
     val listBuf = new ListBuffer[String]
