@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.scalatest._
 import org.scalatest.testng._
 import org.scalatest.jmock._
 import java.io.File
-import org.apache.commons.io.FileUtils
 import org.jmock.Mockery
 import org.jmock.Expectations
 import org.scalatest.events.Ordinal
@@ -84,8 +82,14 @@ package org.scalatest.testng {
     }
     
     def createSuite( suiteNode: scala.xml.Elem ) : String = {
+      def write(file: File, text: String): Unit = {
+        import _root_.java.io.FileWriter
+        val fw = new FileWriter(file)
+        try {fw.write(text)}
+        finally {fw.close}
+      }
       val tmp = File.createTempFile("testng", "wrapper")
-      FileUtils.writeStringToFile(tmp, suiteNode.toString)
+      write(tmp, suiteNode.toString)
       tmp.getAbsolutePath
     }
   }
