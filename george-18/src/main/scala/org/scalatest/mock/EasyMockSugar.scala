@@ -16,7 +16,9 @@
 package org.scalatest.mock
 
 import org.scalatest._
-import org.easymock.{IExpectationSetters, EasyMock}
+import org.easymock.IExpectationSetters
+import org.easymock.classextension.EasyMock
+import org.easymock.EasyMock.{expect => easyMockExpect, expectLastCall}
 import scala.reflect.Manifest
 
 /**
@@ -178,7 +180,7 @@ trait EasyMockSugar {
    *
    * @param value - the result of invoking a method on mock prior to invoking <code>replay</code>.
    */
-  implicit def call[T](value: T): IExpectationSetters[T] = EasyMock.expect(value)
+  implicit def call[T](value: T): IExpectationSetters[T] = easyMockExpect(value)
 
   /**
    * Invokes the <code>expectLastCall</code> method on the <code>EasyMock</code> companion object (<em>i.e.</em>, the
@@ -211,7 +213,7 @@ trait EasyMockSugar {
    *
    * @param value - the result of invoking a method on mock prior to invoking <code>replay</code>.
    */
-  def lastCall[T]: IExpectationSetters[T] = EasyMock.expectLastCall()
+  def lastCall[T]: IExpectationSetters[T] = expectLastCall()
 
   /**
    * Invokes the <code>createMock</code> method on the <code>EasyMock</code> companion object (<em>i.e.</em>, the
