@@ -63,12 +63,54 @@ class EasyMockSugarSpec extends FlatSpec with ShouldMatchers with SharedHelpers 
           twoFishMock.eat("blue fish")
         }
       }
+
+      def testThatShouldFailWithClass() {
+        class OneFish {
+          def eat(food: String) = ()
+        }
+        class TwoFish {
+          def eat(food: String) = ()
+        }
+        val oneFishMock = mock[OneFish]
+        val twoFishMock = mock[TwoFish]
+
+        expecting {
+          oneFishMock.eat("red fish")
+          twoFishMock.eat("blue fish")
+        }
+
+        whenExecuting(oneFishMock, twoFishMock) {
+          oneFishMock.eat("red fish")
+          twoFishMock.eat("green fish")
+        }
+      }
+
+      def testThatShouldSucceedWithClass() {
+        class OneFish {
+          def eat(food: String) = ()
+        }
+        class TwoFish {
+          def eat(food: String) = ()
+        }
+        val oneFishMock = mock[OneFish]
+        val twoFishMock = mock[TwoFish]
+
+        expecting {
+          oneFishMock.eat("red fish")
+          twoFishMock.eat("blue fish")
+        }
+
+        whenExecuting(oneFishMock, twoFishMock) {
+          oneFishMock.eat("red fish")
+          twoFishMock.eat("blue fish")
+        }
+      }
     }
     val rep = new EventRecordingReporter
     a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
     val tf = rep.testFailedEventsReceived
-    tf.size should be === 1
+    tf.size should be === 2
     val ts = rep.testSucceededEventsReceived
-    ts.size should be === 1
+    ts.size should be === 2
   }
 }
