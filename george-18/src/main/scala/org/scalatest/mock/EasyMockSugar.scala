@@ -217,7 +217,7 @@ trait EasyMockSugar {
 
   /**
    * Invokes the <code>createMock</code> method on the <code>EasyMock</code> companion object (<em>i.e.</em>, the
-   * static <code>createMock</code> method in Java class <code>org.easymock.EasyMock</code>).
+   * static <code>createMock</code> method in Java class <code>org.easymock.classextension.EasyMock</code>).
    *
    * <p>
    * Using the EasyMock API directly, you create a mock with:
@@ -237,6 +237,54 @@ trait EasyMockSugar {
    */
   def mock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
     EasyMock.createMock(manifest.erasure.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Invokes the <code>createStrictMock</code> method on the <code>EasyMock</code> companion object (<em>i.e.</em>, the
+   * static <code>createStrictMock</code> method in Java class <code>org.easymock.classextension.EasyMock</code>).
+   *
+   * <p>
+   * Using the EasyMock API directly, you create a strict mock with:
+   * </p>
+   *
+   * <pre>
+   * val mockCollaborator = createStrictMock(classOf[Collaborator])
+   * </pre>
+   *
+   * <p>
+   * Using this trait, you can shorten that to:
+   * </p>
+   *
+   * <pre>
+   * val mockCollaborator = strictMock[Collaborator]
+   * </pre>
+   */
+  def strictMock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
+    EasyMock.createStrictMock(manifest.erasure.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Invokes the <code>createNiceMock</code> method on the <code>EasyMock</code> companion object (<em>i.e.</em>, the
+   * static <code>createNiceMock</code> method in Java class <code>org.easymock.classextension.EasyMock</code>).
+   *
+   * <p>
+   * Using the EasyMock API directly, you create a nice mock with:
+   * </p>
+   *
+   * <pre>
+   * val mockCollaborator = createNiceMock(classOf[Collaborator])
+   * </pre>
+   *
+   * <p>
+   * Using this trait, you can shorten that to:
+   * </p>
+   *
+   * <pre>
+   * val mockCollaborator = niceMock[Collaborator]
+   * </pre>
+   */
+  def niceMock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
+    EasyMock.createNiceMock(manifest.erasure.asInstanceOf[Class[T]])
   }
 
   /**
