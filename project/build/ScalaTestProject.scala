@@ -38,8 +38,8 @@ class ScalaTestProject(info: ProjectInfo) extends ParentProject(info) {
       exclude("org.scalatest.testng.example",
               "org.scalatest.testng.testpackage",
               "org.scalatest.tools",
-              "org.scalatest.junit.helpers") &&
-      name.startsWith("org.scalatest.PackageAccess")
+              "org.scalatest.junit.helpers",
+              "org.scalatest.PackageAccess")
     }
   }
 
