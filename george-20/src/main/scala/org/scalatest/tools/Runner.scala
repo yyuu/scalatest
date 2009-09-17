@@ -546,6 +546,7 @@ object Runner {
     val tagsToInclude: Set[String] = parseCompoundArgIntoSet(includesArgsList, "-n")
     val tagsToExclude: Set[String] = parseCompoundArgIntoSet(excludesArgsList, "-l")
     val concurrent: Boolean = !concurrentList.isEmpty
+    val numThreads: Int = parseConcurrentNumArg(concurrentList)
     val membersOnlyList: List[String] = parseSuiteArgsIntoNameStrings(membersOnlyArgsList, "-m")
     val wildcardList: List[String] = parseSuiteArgsIntoNameStrings(wildcardArgsList, "-w")
     val testNGList: List[String] = parseSuiteArgsIntoNameStrings(testNGArgsList, "-t")
@@ -604,7 +605,7 @@ object Runner {
         withClassLoaderAndDispatchReporter(runpathList, reporterConfigs, None, passFailReporter) {
           (loader, dispatchReporter) => {
             doRunRunRunADoRunRun(dispatchReporter, suitesList, junitsList, new Stopper {}, filter,
-                propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, runpathList, loader, new RunDoneListener {}, 1) 
+                propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, runpathList, loader, new RunDoneListener {}, 1, numThreads) 
           }
         }
       }
@@ -639,6 +640,27 @@ object Runner {
       Some("Unrecognized argument" + (if (argsList.isEmpty) ": " else "s: ") + argsList.mkString("", ", ", "."))
     else
       None
+  }
+
+  //
+  // Examines concurrent option arg to see if it contains an optional numeric
+  // value representing the number of threads to use, e.g. -c10 for 10 threads.
+  //
+  private[scalatest] val ConcurrentNumberPattern =
+    Pattern.compile("""-c(\d+)""")
+  private[scalatest] def parseConcurrentNumArg(concurrentList: List[String]):
+  Int = {
+    var num = 0
+    var idx = 0
+
+    while ((num == 0) && (idx < concurrentList.size)) {
+      val arg = concurrentList(idx)
+      val matcher = ConcurrentNumberPattern.matcher(arg)
+      if (matcher.matches)
+        num = matcher.group(1).toInt
+      idx += 1
+    }
+    num
   }
 
   private[scalatest] def parseArgs(args: Array[String]) = {
@@ -1342,7 +1364,8 @@ object Runner {
     runpath: List[String],
     loader: ClassLoader,
     doneListener: RunDoneListener,
-    runStamp: Int
+    runStamp: Int,
+    numThreads: Int
   ) = {
 
     // TODO: add more, and to RunnerThread too
@@ -1469,7 +1492,7 @@ object Runner {
           dispatch(RunStarting(tracker.nextOrdinal(), expectedTestCount, configMap))
 
           if (concurrent) {
-            val distributor = new ConcurrentDistributor(dispatch, stopRequested, filter, configMap)
+            val distributor = new ConcurrentDistributor(dispatch, stopRequested, filter, configMap, numThreads)
             for (suite <- suiteInstances) {
               distributor.apply(suite, tracker.nextTracker())
             }

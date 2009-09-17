@@ -1360,7 +1360,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
         (loader, dispatchReporter) => {
           try {
             Runner.doRunRunRunADoRunRun(dispatchReporter, suitesList, junitsList, stopper, filter,
-                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, runpathList, loader, RunnerJFrame.this, nextRunStamp) 
+                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, runpathList, loader, RunnerJFrame.this, nextRunStamp, 0) 
           }
           finally {
             stopper.reset()
