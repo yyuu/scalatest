@@ -596,7 +596,7 @@ object Runner {
         val abq = new ArrayBlockingQueue[RunnerJFrame](1)
         usingEventDispatchThread {
           val rjf = new RunnerJFrame(graphicEventsToPresent, reporterConfigs, suitesList, junitsList, runpathList,
-            filter, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, passFailReporter)
+            filter, propertiesMap, concurrent, membersOnlyList, wildcardList, testNGList, passFailReporter, numThreads)
           rjf.setLocation(RUNNER_JFRAME_START_X, RUNNER_JFRAME_START_Y)
           rjf.setVisible(true)
           rjf.prepUIForRunning()
