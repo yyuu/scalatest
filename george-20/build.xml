@@ -28,7 +28,7 @@
     <property name="jdoc" value="${build}/jdoc" />
     <property name="zipper" value="zipper" />
     <property name="project.name" value="ScalaTest" />
-    <property name="release" value="1.0-SNAPSHOT" />
+    <property name="release" value="1.0-CLICKDEMO" />
     <property name="demo" value="${build}/demo" />
     <property name="demodoc" value="${demo}/example/javadoc" />
     <property name="example" value="${demo}/example" />
@@ -229,7 +229,7 @@
                 <attribute name="Class-Path" value="junit-4.1.jar" />
             </manifest>
         </jar>
-        <jar jarfile="${dist}/lib/scalatest-wbt.jar" basedir="${build.tests}" includes="org/scalatest/*.class" />
+        <jar jarfile="${dist}/lib/scalatest-wbt.jar" basedir="${build.tests}" includes="org/scalatest/**/*.class" />
 
         <echo message="All finished building ${project.name}!" />
     </target>

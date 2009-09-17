@@ -33,7 +33,9 @@ private[scalatest] class ConcurrentDistributor(dispatchReporter: DispatchReporte
   // by the Runtime's availableProcessors method.
   private val poolSize =
     if (numThreads > 0) numThreads
-    else                Runtime.getRuntime.availableProcessors * 2
+    else Runtime.getRuntime.availableProcessors
+
+  println("THREAD POOL SIZE: " + poolSize)
 
   private val execSvc: ExecutorService = Executors.newFixedThreadPool(poolSize)
   private val futureQueue = new LinkedBlockingQueue[Future[T] forSome { type T }]
