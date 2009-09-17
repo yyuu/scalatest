@@ -646,5 +646,14 @@
             </classpath>
         </junit>
     </target>
+
+    <target name="gcbtest" depends="taskdefscalatest">
+        <scalatest runpath="${build.tests} ${classes}" haltonfailure="true">
+            <reporter type="stdout" config="NFW"/>
+
+            <suite classname="org.scalatest.SuiteSuite" />
+            <suite classname="org.scalatest.FunSuiteSuite" />
+        </scalatest>
+    </target>
 </project>
 
