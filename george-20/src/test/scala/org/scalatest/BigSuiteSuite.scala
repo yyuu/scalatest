@@ -132,8 +132,4 @@ class BigSuiteSuite extends FunSuite with SharedHelpers {
     val bs = new BigSuite()
     assert(bs.nestedSuites.size === 4)
   }
-  test("A BigSuite() sends info provided messages") {
-    System.setProperty("org.scalatest.BigSuite.size", "3")
-    ensureTestFailedEventReceivedOrNot(new BigSuite(None), 0)
-  }
 }
