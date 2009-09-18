@@ -65,7 +65,7 @@ class BigSuiteSuite extends FunSuite with SharedHelpers {
     val testFailedEvents = reporter.testFailedEventsReceived
     assert(testFailedEvents.size === shouldReceiveCount)
     if (shouldReceiveCount > 0)
-      assert(testFailedEvents(0).testName === "number 1")
+      assert(testFailedEvents(0).testName === "testNumber1")
   }
   test("A BigSuite(Some(0)) has one test failure if somefailures property defined") {
     System.setProperty("org.scalatest.BigSuite.someFailures", "true")
