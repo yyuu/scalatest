@@ -31,7 +31,10 @@ class BigSuite(nestedSuiteCount: Option[Int]) extends FunSuite {
     }
 
   test("number 1") {
-    assert(1 + 1 === 2)
+    nestedSuiteCount match {
+      case Some(0) => assert(1 + 1 === 3)
+      case _ => assert(1 + 1 === 2)
+    }
   }
 
   test("number 2") {

@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-class BigSuiteSuite extends FunSuite {
+class BigSuiteSuite extends FunSuite with SharedHelpers {
   test("a BigSuite(Some(0)) has 100 tests") {
     val bs = new BigSuite(Some(0))
     assert(bs.expectedTestCount(Filter()) === 100)
@@ -58,5 +58,20 @@ class BigSuiteSuite extends FunSuite {
           assert(s3.nestedSuites.size === 0)
       }
     }
+  }
+  def ensureTestFailedEventReceivedOrNot(suite: Suite, shouldReceiveCount: Int) {
+    val reporter = new EventRecordingReporter
+    suite.run(None, reporter, new Stopper {}, Filter(), Map(), None, new Tracker)
+    val testFailedEvents = reporter.testFailedEventsReceived
+    assert(testFailedEvents.size === shouldReceiveCount)
+    assert(testFailedEvents(0).testName === "number 1")
+  }
+  test("A BigSuite(Some(0)) has one test failure") {
+   ensureTestFailedEventReceivedOrNot(new BigSuite(Some(0)), 1)
+  }
+  test("A BigSuite(Some(n > 0)) has no test failures") {
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(1)), 1)
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(2)), 2)
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(3)), 6)
   }
 }
