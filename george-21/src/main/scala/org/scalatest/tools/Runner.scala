@@ -312,6 +312,14 @@ import org.scalatest.junit.JUnitWrapperSuite
  * </p>
  *
  * <p>
+ * The <code>-c</code> option may optionally be appended with a number (e.g.
+ * "<code>-c10</code>" -- no intervening space) to specify the number of
+ * threads to be created in the thread pool.  If no number (or 0) is
+ * specified, the number of threads will be decided based on the number of
+ * processors available.
+ * </p>
+ *
+ * <p>
  * <strong>Specifying <code>Suite</code>s</strong>
  * </p>
  *
@@ -646,21 +654,19 @@ object Runner {
   // Examines concurrent option arg to see if it contains an optional numeric
   // value representing the number of threads to use, e.g. -c10 for 10 threads.
   //
-  private[scalatest] val ConcurrentNumberPattern =
-    Pattern.compile("""-c(\d+)""")
+  // It's possible for user to specify the -c option multiple times on the
+  // command line, although it isn't particularly useful.  This method scans
+  // through multiples until it finds one with a number appended and uses
+  // that.  If none have a number it just returns 0.
+  //
   private[scalatest] def parseConcurrentNumArg(concurrentList: List[String]):
   Int = {
-    var num = 0
-    var idx = 0
+    val opt = concurrentList.find(_.matches("-c\\d+"))
 
-    while ((num == 0) && (idx < concurrentList.size)) {
-      val arg = concurrentList(idx)
-      val matcher = ConcurrentNumberPattern.matcher(arg)
-      if (matcher.matches)
-        num = matcher.group(1).toInt
-      idx += 1
+    opt match {
+      case Some(arg) => arg.replace("-c", "").toInt
+      case None      => 0
     }
-    num
   }
 
   private[scalatest] def parseArgs(args: Array[String]) = {

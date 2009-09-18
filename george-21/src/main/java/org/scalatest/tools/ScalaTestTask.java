@@ -168,6 +168,12 @@ import org.apache.tools.ant.taskdefs.Java;
  * </pre>
  *
  * <p>
+ * Use attribute parallel="true" to specify parallel execution of Suites.
+ * When parallel is true, use optional numthreads attribute to specify number
+ * of threads to be included in thread pool (e.g. numthreads="10").
+ * </p>
+ *
+ * <p>
  * Use attribute haltonfailure="true" to cause ant to fail the
  * build if there's a test failure.
  * </p>
@@ -210,6 +216,7 @@ public class ScalaTestTask extends Task {
     private boolean concurrent;
     private boolean haltonfailure;
     private boolean fork;
+    private int numthreads;
     private ArrayList<String> runpath = new ArrayList<String>();
     private ArrayList<String> jvmArgs = new ArrayList<String>();
     private ArrayList<String> suites = new ArrayList<String>();
@@ -304,7 +311,7 @@ public class ScalaTestTask extends Task {
     //
     private void addConcurrentArg(ArrayList<String> args) {
         if (concurrent) {
-            args.add("-c");
+            args.add("-c" + ((numthreads > 0) ? "" + numthreads : ""));
         }
     }
 
@@ -550,6 +557,13 @@ public class ScalaTestTask extends Task {
     //
     public void setConcurrent(boolean concurrent) {
         this.concurrent = concurrent;
+    }
+
+    //
+    // Sets value of 'numthreads' attribute.
+    //
+    public void setNumthreads(int numthreads) {
+        this.numthreads = numthreads;
     }
 
     //
