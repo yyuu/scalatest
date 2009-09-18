@@ -17,18 +17,32 @@ package org.scalatest
 
 class BigSuite(nestedSuiteCount: Option[Int]) extends FunSuite {
 
-  override def nestedSuites =
+  def this() = this(None)
+  
+  override def nestedSuites = {
+
+    def makeList(remaining: Int, soFar: List[Suite], nestedCount: Int): List[Suite] =
+      if (remaining == 0) soFar
+      else makeList(remaining - 1, (new BigSuite(Some(nestedCount - 1)) :: soFar), nestedCount)
+
     nestedSuiteCount match {
-      case None => List()
+      case None =>
+        val sizeString = System.getProperty("org.scalatest.BigSuite.size", "0")
+        val size =
+          try {
+            sizeString.toInt
+          }
+          catch {
+            case e: NumberFormatException => 0
+          }
+        makeList(size, Nil, size)
       case Some(n) =>
         if (n == 0) List()
         else {
-          def makeList(remaining: Int, soFar: List[Suite]): List[Suite] =
-            if (remaining == 0) soFar
-            else makeList(remaining - 1, (new BigSuite(Some(n - 1)) :: soFar))
-          makeList(n, Nil)
+          makeList(n, Nil, n)
         }
     }
+  }
 
   test("number 1") {
     nestedSuiteCount match {

@@ -74,4 +74,52 @@ class BigSuiteSuite extends FunSuite with SharedHelpers {
     ensureTestFailedEventReceivedOrNot(new BigSuite(Some(2)), 2)
     ensureTestFailedEventReceivedOrNot(new BigSuite(Some(3)), 6)
   }
+  test("A BigSuite(None) has no nested suites if the config map is empty") {
+    val bs = new BigSuite(Some(0))
+    assert(bs.nestedSuites.size === 0)
+  }
+  test("A BigSuite() has no nested suites if a system property is empty") {
+    val bs = new BigSuite()
+    assert(bs.nestedSuites.size === 0)
+  }
+  test("A BigSuite(None) has 1 nested suite if a system property says so") {
+    System.setProperty("org.scalatest.BigSuite.size", "1")
+    val bs = new BigSuite(None)
+    assert(bs.nestedSuites.size === 1)
+  }
+  test("A BigSuite() has 1 nested suite if a system property says so") {
+    System.setProperty("org.scalatest.BigSuite.size", "1")
+    val bs = new BigSuite()
+    assert(bs.nestedSuites.size === 1)
+  }
+  test("A BigSuite(None) has no nested suites if a system property is not parsable as an Int") {
+    System.setProperty("org.scalatest.BigSuite.size", "bob")
+    val bs = new BigSuite(None)
+    assert(bs.nestedSuites.size === 0)
+  }
+  test("A BigSuite() has no nested suites if a system property is not parsable as an Int") {
+    System.setProperty("org.scalatest.BigSuite.size", "bob")
+    val bs = new BigSuite()
+    assert(bs.nestedSuites.size === 0)
+  }
+  test("A BigSuite(None) has 2 nested suites if a system property says 2") {
+    System.setProperty("org.scalatest.BigSuite.size", "2")
+    val bs = new BigSuite(None)
+    assert(bs.nestedSuites.size === 2)
+  }
+  test("A BigSuite() has 2 nested suites if a system property says 2") {
+    System.setProperty("org.scalatest.BigSuite.size", "2")
+    val bs = new BigSuite()
+    assert(bs.nestedSuites.size === 2)
+  }
+  test("A BigSuite(None) has 4 nested suites if a system property says 4") {
+    System.setProperty("org.scalatest.BigSuite.size", "4")
+    val bs = new BigSuite(None)
+    assert(bs.nestedSuites.size === 4)
+  }
+  test("A BigSuite() has 4 nested suites if a system property says 4") {
+    System.setProperty("org.scalatest.BigSuite.size", "4")
+    val bs = new BigSuite()
+    assert(bs.nestedSuites.size === 4)
+  }
 }
