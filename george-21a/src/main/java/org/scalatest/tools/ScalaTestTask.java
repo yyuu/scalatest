@@ -213,7 +213,7 @@ public class ScalaTestTask extends Task {
     private String includes;
     private String excludes;
     private String maxMemory;
-    private boolean concurrent;
+    private boolean parallel;
     private boolean haltonfailure;
     private boolean fork;
     private int numthreads;
@@ -241,7 +241,7 @@ public class ScalaTestTask extends Task {
         addExcludesArgs(args);
         addRunpathArgs(args);
         addTestNGSuiteArgs(args);
-        addConcurrentArg(args);
+        addParallelArg(args);
 
         String[] argsArray = args.toArray(new String[args.size()]);
 
@@ -306,11 +306,11 @@ public class ScalaTestTask extends Task {
     }
     
     //
-    // Adds '-c' arg to args list if 'concurrent' attribute was
+    // Adds '-c' arg to args list if 'parallel' attribute was
     // specified true for task.
     //
-    private void addConcurrentArg(ArrayList<String> args) {
-        if (concurrent) {
+    private void addParallelArg(ArrayList<String> args) {
+        if (parallel) {
             args.add("-c" + ((numthreads > 0) ? "" + numthreads : ""));
         }
     }
@@ -555,8 +555,12 @@ public class ScalaTestTask extends Task {
     //
     // Sets value of 'concurrent' attribute.
     //
+    // DEPRECATED in 1.0
+    //
     public void setConcurrent(boolean concurrent) {
-        this.concurrent = concurrent;
+        System.err.println("WARNING: 'concurrent' attribute is deprecated " +
+                           "- please use 'parallel' instead");
+        this.parallel = concurrent;
     }
 
     //
@@ -564,6 +568,13 @@ public class ScalaTestTask extends Task {
     //
     public void setNumthreads(int numthreads) {
         this.numthreads = numthreads;
+    }
+
+    //
+    // Sets value of 'parallel' attribute.
+    //
+    public void setParallel(boolean parallel) {
+        this.parallel = parallel;
     }
 
     //
