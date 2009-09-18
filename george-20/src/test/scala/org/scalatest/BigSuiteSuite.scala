@@ -64,15 +64,25 @@ class BigSuiteSuite extends FunSuite with SharedHelpers {
     suite.run(None, reporter, new Stopper {}, Filter(), Map(), None, new Tracker)
     val testFailedEvents = reporter.testFailedEventsReceived
     assert(testFailedEvents.size === shouldReceiveCount)
-    assert(testFailedEvents(0).testName === "number 1")
+    if (shouldReceiveCount > 0)
+      assert(testFailedEvents(0).testName === "number 1")
   }
-  test("A BigSuite(Some(0)) has one test failure") {
-   ensureTestFailedEventReceivedOrNot(new BigSuite(Some(0)), 1)
+  test("A BigSuite(Some(0)) has one test failure if somefailures property defined") {
+    System.setProperty("org.scalatest.BigSuite.someFailures", "true")
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(0)), 1)
   }
-  test("A BigSuite(Some(n > 0)) has no test failures") {
+  test("A BigSuite(Some(n > 0)) has no test failures if somefailures property defined") {
+    System.setProperty("org.scalatest.BigSuite.someFailures", "true")
     ensureTestFailedEventReceivedOrNot(new BigSuite(Some(1)), 1)
     ensureTestFailedEventReceivedOrNot(new BigSuite(Some(2)), 2)
     ensureTestFailedEventReceivedOrNot(new BigSuite(Some(3)), 6)
+  }
+  test("A BigSuite() has no test failures if somefailures property is not defined") {
+    System.setProperty("org.scalatest.BigSuite.someFailures", "")
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(0)), 0)
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(1)), 0)
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(2)), 0)
+    ensureTestFailedEventReceivedOrNot(new BigSuite(Some(3)), 0)
   }
   test("A BigSuite(None) has no nested suites if the config map is empty") {
     val bs = new BigSuite(Some(0))
@@ -121,5 +131,9 @@ class BigSuiteSuite extends FunSuite with SharedHelpers {
     System.setProperty("org.scalatest.BigSuite.size", "4")
     val bs = new BigSuite()
     assert(bs.nestedSuites.size === 4)
+  }
+  test("A BigSuite() sends info provided messages") {
+    System.setProperty("org.scalatest.BigSuite.size", "3")
+    ensureTestFailedEventReceivedOrNot(new BigSuite(None), 0)
   }
 }

@@ -15,15 +15,20 @@
  */
 package org.scalatest
 
-class BigSuite(nestedSuiteCount: Option[Int]) extends FunSuite {
+import events._
+import Suite.formatterForSuiteAborted
+import Suite.formatterForSuiteCompleted
+import Suite.formatterForSuiteStarting
 
-  def this() = this(None)
+class BigSuite(nestedSuiteCount: Option[Int], reportDuration: Boolean) extends FunSuite { thisSuite =>
+
+  def this() = this(None, false)
   
   override def nestedSuites = {
 
     def makeList(remaining: Int, soFar: List[Suite], nestedCount: Int): List[Suite] =
       if (remaining == 0) soFar
-      else makeList(remaining - 1, (new BigSuite(Some(nestedCount - 1)) :: soFar), nestedCount)
+      else makeList(remaining - 1, (new BigSuite(Some(nestedCount - 1), nestedSuiteCount.isEmpty) :: soFar), nestedCount)
 
     nestedSuiteCount match {
       case None =>
@@ -45,10 +50,30 @@ class BigSuite(nestedSuiteCount: Option[Int]) extends FunSuite {
   }
 
   test("number 1") {
+    val someFailures = System.getProperty("org.scalatest.BigSuite.someFailures", "")
     nestedSuiteCount match {
-      case Some(0) => assert(1 + 1 === 3)
+      case Some(0) if someFailures == "true" => assert(1 + 1 === 3)
       case _ => assert(1 + 1 === 2)
     }
+  }
+
+  override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
+              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+
+    val suiteStartTime = System.currentTimeMillis
+
+    super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
+
+    val duration = System.currentTimeMillis - suiteStartTime
+
+    if (reportDuration)
+      reporter(
+        InfoProvided(
+          tracker.nextOrdinal(),
+          "Nested suite completed in: " + duration + " ms.",
+          Some(NameInfo(suiteName, Some(thisSuite.getClass.getName), None))
+        )
+      )
   }
 
   test("number 2") {
