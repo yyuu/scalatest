@@ -1,5 +1,9 @@
 ScalaTest 1.0-SNAPSHOT
 
+This version of ScalaTest was built with the following 2.8 nightly build:
+
+scala-2.8.0.r18678-b20090910020815
+
 ScalaTest is a free, open-source testing toolkit for Scala and
 Java programmers.  Because different developers take different approaches to creating
 software, no single approach to testing is a good fit for everyone. In light of

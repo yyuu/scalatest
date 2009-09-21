@@ -58,8 +58,8 @@ private[tools] case class ReporterConfigurations(
   // Need to add the null pointer checks, or later, NotNull
 
   override def length = reporterConfigurationList.length
-  override def elements = reporterConfigurationList.elements
-  // override def iterator = reporterConfigurationList.iterator // For 2.8
+  // override def elements = reporterConfigurationList.elements
+  override def iterator = reporterConfigurationList.iterator // For 2.8
   override def apply(i: Int) = reporterConfigurationList(i)
 }
 
