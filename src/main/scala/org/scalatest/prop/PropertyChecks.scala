@@ -25,7 +25,11 @@ trait PropertyChecks {
     fun
   }
 
-  def forAll[A, B, C](table: Table3[A, B, C])(fun: (A, B, C) => Unit) {
+  def forAll[A, B, C](table: TableFor3[A, B, C])(fun: (A, B, C) => Unit) {
+    table(fun)
+  }
+
+  def forAll[A, B, C, D](table: TableFor4[A, B, C, D])(fun: (A, B, C, D) => Unit) {
     table(fun)
   }
 }
