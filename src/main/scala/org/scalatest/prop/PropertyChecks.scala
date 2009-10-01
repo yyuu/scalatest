@@ -19,7 +19,14 @@ import org.scalatest._
 
 trait PropertyChecks {
 
+  def whenever(condition: Boolean)(fun: => Unit) {
+    if (!condition)
+      throw new UnmetConditionException
+    fun
+  }
+
   def forAll[A, B, C](table: Table3[A, B, C])(fun: (A, B, C) => Unit) {
     table(fun)
   }
 }
+

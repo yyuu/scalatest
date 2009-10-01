@@ -20,7 +20,12 @@ import org.scalatest._
 class Table3[A, B, C](heading: (String, String, String), rows: (A, B, C)*) {
   def apply(fun: (A, B, C) => Unit) {
     for ((a, b, c) <- rows) {
-      fun(a, b, c)
+      try {
+        fun(a, b, c)
+      }
+      catch {
+        case _: UnmetConditionException =>
+      }
     }
   }
 }
