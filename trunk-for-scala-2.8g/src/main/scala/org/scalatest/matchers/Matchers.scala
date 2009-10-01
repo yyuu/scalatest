@@ -2886,6 +2886,7 @@ trait Matchers extends Assertions { matchers =>
   class ResultOfNotWordForIterable[E, T <: Iterable[E]](left: T, shouldBeTrue: Boolean)
       extends ResultOfNotWordForAnyRef(left, shouldBeTrue) {
 
+
     /**
      * This method enables the following syntax:
      *
@@ -3128,7 +3129,8 @@ trait Matchers extends Assertions { matchers =>
   }
 
   /**
-   * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
+   * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html">
+<code>MustMatchers</code></a> for an overview of
    * the matchers DSL.
    *
    * @author Bill Venners
@@ -3140,8 +3142,8 @@ trait Matchers extends Assertions { matchers =>
      * This method enables the following syntax:
      *
      * <pre>
-     * iterable should not contain ("one")
-     *                     ^
+     * Array("two", "three") should not contain ("one")
+     *                                  ^
      * </pre>
      */
     def contain(expectedElement: E) {
@@ -3161,8 +3163,8 @@ trait Matchers extends Assertions { matchers =>
      * This method enables the following syntax:
      *
      * <pre>
-     * collection should not have size (3)
-     *                       ^
+     * Array(1, 2) should not have size (3)
+     *                        ^
      * </pre>
      */
     def have(resultOfSizeWordApplication: ResultOfSizeWordApplication) {
@@ -3182,8 +3184,8 @@ trait Matchers extends Assertions { matchers =>
      * This method enables the following syntax:
      *
      * <pre>
-     * List(1, 2) should not have length (12)
-     *                       ^
+     * Array(1, 2) should not have length (12)
+     *                        ^
      * </pre>
      */
     def have(resultOfLengthWordApplication: ResultOfLengthWordApplication) {
