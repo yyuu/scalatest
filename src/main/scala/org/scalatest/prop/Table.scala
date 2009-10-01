@@ -17,6 +17,19 @@ package org.scalatest.prop
 
 import org.scalatest._
 
+class TableFor2[A, B](heading: (String, String), rows: (A, B)*) {
+  def apply(fun: (A, B) => Unit) {
+    for ((a, b) <- rows) {
+      try {
+        fun(a, b)
+      }
+      catch {
+        case _: UnmetConditionException =>
+      }
+    }
+  }
+}
+
 class TableFor3[A, B, C](heading: (String, String, String), rows: (A, B, C)*) {
   def apply(fun: (A, B, C) => Unit) {
     for ((a, b, c) <- rows) {
@@ -44,6 +57,8 @@ class TableFor4[A, B, C, D](heading: (String, String, String, String), rows: (A,
 }
 
 object Table {
+  def apply[A, B](heading: (String, String), rows: (A, B)*) =
+    new TableFor2(heading, rows: _*)
   def apply[A, B, C](heading: (String, String, String), rows: (A, B, C)*) =
     new TableFor3(heading, rows: _*)
   def apply[A, B, C, D](heading: (String, String, String, String), rows: (A, B, C, D)*) =

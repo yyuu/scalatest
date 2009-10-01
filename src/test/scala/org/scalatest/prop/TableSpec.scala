@@ -49,11 +49,11 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
 
       val examples =
         Table(
-          ("n", "d", "numer", "denom"),
-          (     1,     2,     1,     2),
-          (     1,     2,     1,     3), // Should fail
-          (    -1,     2,    -1,     2),
-          (     1,    -2,     1,    -2)
+          (     "n",     "d", "numer", "denom"),
+          (       1,       2,       1,       2),
+          (       1,       2,       1,       3), // Should fail
+          (      -1,       2,      -1,       2),
+          (       1,      -2,       1,      -2)
         )
 
       evaluating {
@@ -69,6 +69,40 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
           val r = new Rational(n, d)
           r.numer should equal (numer)
           r.denom should equal (denom)
+        }
+      }
+    }
+
+    "work properly with 2 columns" in {
+
+      val examples =
+        Table(
+          (   "n",   "d"),
+          (     1,     2),
+          (    -1,     0), // Should fail
+          (    -1,     2),
+          (     1,    -2)
+        )
+
+      evaluating {
+        forAll (examples) { (n: Int, d: Int) =>
+          def gcd(a: Int, b: Int): Int =
+            if (b == 0) a else gcd(b, a % b)
+          val g = gcd(n.abs, d.abs)
+          val r = new Rational(n, d)
+          r.numer should equal (n / g)
+          r.denom should equal (d / g)
+        }
+      } should produce [IllegalArgumentException]
+
+      forAll (examples) { (n: Int, d: Int) =>
+        whenever (d != 0) {
+          def gcd(a: Int, b: Int): Int =
+            if (b == 0) a else gcd(b, a % b)
+          val g = gcd(n.abs, d.abs)
+          val r = new Rational(n, d)
+          r.numer should equal (n / g)
+          r.denom should equal (d / g)
         }
       }
     }
