@@ -16,12 +16,17 @@
 package org.scalatest.prop
 
 import org.scalatest._
+import org.scalacheck.Arbitrary
+import org.scalacheck.Shrink
+import org.scalacheck.Arg
+import org.scalacheck.Prop
+import org.scalacheck.Test
 
-trait PropertyChecks {
+trait PropertyChecks extends Checkers { this: Suite =>
 
-  def whenever(condition: Boolean)(fun: => Unit) {
+  def whenever(condition: => Boolean)(fun: => Unit) {
     if (!condition)
-      throw new UnmetConditionException
+      throw new UnmetConditionException(condition _)
     fun
   }
 
@@ -35,6 +40,15 @@ trait PropertyChecks {
 
   def forAll[A, B, C, D](table: TableFor4[A, B, C, D])(fun: (A, B, C, D) => Unit) {
     table(fun)
+  }
+
+  def forAll[A, B](fun: (A, B) => Unit)
+    (implicit
+      p: Boolean => Prop,
+      a1: Arbitrary[A], s1: Shrink[A],
+      a2: Arbitrary[B], s2: Shrink[B]
+    ) {
+    check((a: A, b: B) => true)
   }
 }
 

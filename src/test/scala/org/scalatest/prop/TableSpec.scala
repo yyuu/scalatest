@@ -17,6 +17,8 @@ package org.scalatest.prop
 
 import org.scalatest._
 import org.scalatest.matchers.ShouldMatchers
+import org.scalacheck.Arbitrary._
+import org.scalacheck.Prop._
 
 class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
 
@@ -96,6 +98,20 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
       } should produce [IllegalArgumentException]
 
       forAll (examples) { (n: Int, d: Int) =>
+        whenever (d != 0) {
+          def gcd(a: Int, b: Int): Int =
+            if (b == 0) a else gcd(b, a % b)
+          val g = gcd(n.abs, d.abs)
+          val r = new Rational(n, d)
+          r.numer should equal (n / g)
+          r.denom should equal (d / g)
+        }
+      }
+    }
+
+    "work properly with no columns" ignore {
+
+      forAll { (n: Int, d: Int) =>
         whenever (d != 0) {
           def gcd(a: Int, b: Int): Int =
             if (b == 0) a else gcd(b, a % b)
