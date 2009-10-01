@@ -1833,8 +1833,7 @@ trait Matchers extends Assertions { matchers =>
     new Matcher[java.util.Collection[T]] {
       def apply(left: java.util.Collection[T]) = {
         val iterable = new Iterable[T] {
-          // override def iterator = new Iterator[T] { // For 2.8
-          def elements = new Iterator[T] { // For 2.7
+          override def iterator = new Iterator[T] { // For 2.8
             private val javaIterator = left.iterator
             def next: T = javaIterator.next
             def hasNext: Boolean = javaIterator.hasNext
@@ -1860,7 +1859,6 @@ trait Matchers extends Assertions { matchers =>
       def apply(left: java.util.Map[K, V]) = {
         // Even though the java map is mutable I just wrap it it to a plain old Scala map, because
         // I have no intention of mutating it.
-/* For 2.8
         class MapWrapper[Z](javaMap: java.util.Map[K, Z]) extends scala.collection.Map[K, Z] {
           override def size: Int = javaMap.size
           def get(key: K): Option[Z] =
@@ -1888,24 +1886,6 @@ trait Matchers extends Assertions { matchers =>
         }
         val scalaMap = new MapWrapper[V](left)
         mapMatcher.apply(scalaMap)
-*/
-// Start For 2.7
-        val scalaMap = new scala.collection.Map[K, V] {
-          def size: Int = left.size
-          def get(key: K): Option[V] =
-            if (left.containsKey(key)) Some(left.get(key)) else None
-          def elements = new Iterator[(K, V)] {
-            private val javaIterator = left.keySet.iterator
-            def next: (K, V) = {
-              val nextKey = javaIterator.next
-              (nextKey, left.get(nextKey))
-            }
-            def hasNext: Boolean = javaIterator.hasNext
-          }
-          override def toString = left.toString
-        }
-        mapMatcher.apply(scalaMap)
-// End For 2.7
       }
     }
 
@@ -2906,7 +2886,6 @@ trait Matchers extends Assertions { matchers =>
   class ResultOfNotWordForIterable[E, T <: Iterable[E]](left: T, shouldBeTrue: Boolean)
       extends ResultOfNotWordForAnyRef(left, shouldBeTrue) {
 
-
     /**
      * This method enables the following syntax:
      *
@@ -3125,6 +3104,79 @@ trait Matchers extends Assertions { matchers =>
    */
   class ResultOfNotWordForSeq[E, T <: Seq[E]](left: T, shouldBeTrue: Boolean)
       extends ResultOfNotWordForCollection[E, T](left, shouldBeTrue) {
+
+    /**
+     * This method enables the following syntax:
+     *
+     * <pre>
+     * List(1, 2) should not have length (12)
+     *                       ^
+     * </pre>
+     */
+    def have(resultOfLengthWordApplication: ResultOfLengthWordApplication) {
+      val right = resultOfLengthWordApplication.expectedLength
+      if ((left.length == right) != shouldBeTrue) {
+          throw newTestFailedException(
+            FailureMessages(
+             if (shouldBeTrue) "didNotHaveExpectedLength" else "hadExpectedLength",
+              left,
+              right
+            )
+          )
+      }
+    }
+  }
+
+  /**
+   * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
+   * the matchers DSL.
+   *
+   * @author Bill Venners
+   */
+  class ResultOfNotWordForArray[E](left: Array[E], shouldBeTrue: Boolean)
+      extends ResultOfNotWordForAnyRef(left, shouldBeTrue) {
+
+    /**
+     * This method enables the following syntax:
+     *
+     * <pre>
+     * iterable should not contain ("one")
+     *                     ^
+     * </pre>
+     */
+    def contain(expectedElement: E) {
+      val right = expectedElement
+      if ((left.exists(_ == right)) != shouldBeTrue) {
+        throw newTestFailedException(
+          FailureMessages(
+            if (shouldBeTrue) "didNotContainExpectedElement" else "containedExpectedElement",
+              left,
+              right
+            )
+          )
+      }
+    }
+
+    /**
+     * This method enables the following syntax:
+     *
+     * <pre>
+     * collection should not have size (3)
+     *                       ^
+     * </pre>
+     */
+    def have(resultOfSizeWordApplication: ResultOfSizeWordApplication) {
+      val right = resultOfSizeWordApplication.expectedSize
+      if ((left.size == right) != shouldBeTrue) {
+        throw newTestFailedException(
+          FailureMessages(
+            if (shouldBeTrue) "didNotHaveExpectedSize" else "hadExpectedSize",
+              left,
+              right
+            )
+          )
+      }
+    }
 
     /**
      * This method enables the following syntax:

@@ -60,8 +60,7 @@ package org.scalatest.junit {
 
       assert(startingEventsTestA.size === 1)
 
-      val startingEventTestA = startingEventsTestA.toArray(0) // For 2.7
-      // val startingEventTestA = startingEventsTestA.toArray.apply(0) // For 2.8
+      val startingEventTestA = startingEventsTestA.toArray.apply(0) // For 2.8
 
       assert(startingEventTestA.suiteName === "JUnit3TestCase")
       assert(startingEventTestA.suiteClassName.get ===
@@ -76,8 +75,7 @@ package org.scalatest.junit {
 
       assert(successEventsTestA.size === 1)
 
-      val successEventTestA = successEventsTestA.toArray(0) // For 2.7
-      // val successEventTestA = successEventsTestA.toArray.apply(0) // For 2.8
+      val successEventTestA = successEventsTestA.toArray.apply(0) // For 2.8
 
       assert(successEventTestA.suiteName === "JUnit3TestCase")
       assert(successEventTestA.suiteClassName.get ===
