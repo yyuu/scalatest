@@ -39,7 +39,7 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
        } should produce [TestFailedException]
 
        forAll (examples) { (start: Int, eat: Int, left: Int) =>
-         whenever(left != 8) {
+         whenever (left != 8) {
            start - eat should equal (left)
          }
        }
