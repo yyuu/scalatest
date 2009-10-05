@@ -216,6 +216,27 @@
 -->
     </target>
 
+    <target name="dist-main" depends="compile-main">
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist}/lib" />
+        <delete file="${dist}/lib/scalatest.jar" />
+
+        <copy file="${resources}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
+        <copy todir="${jar.contents}/images">
+            <fileset dir="${images}" />
+        </copy>
+
+        <!-- Put everything in ${jar.contents} into the MyProject-${DSTAMP}.jar file -->
+        <jar jarfile="${dist}/lib/scalatest.jar" basedir="${jar.contents}">
+            <manifest>
+                <attribute name="Main-Class" value="org.scalatest.tools.Runner" />
+                <attribute name="Class-Path" value="junit-4.1.jar" />
+            </manifest>
+        </jar>
+
+        <echo message="All finished building ${project.name}!" />
+    </target>
+
     <target name="dist" depends="compile">
         <!-- Create the distribution directory -->
         <mkdir dir="${dist}/lib" />
