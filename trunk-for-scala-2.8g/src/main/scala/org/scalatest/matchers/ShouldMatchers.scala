@@ -1794,9 +1794,14 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      *       ^
      * </pre>
      */
+    def should(haveWord: HaveWord): ResultOfHaveWordForArray[T] = {
+      new ResultOfHaveWordForArray(left, true)
+    }
+/*
     def should(haveWord: HaveWord): ResultOfHaveWordForSeq[T] = {
       new ResultOfHaveWordForSeq(left, true)
     }
+*/
 
     /**
      * This method enables syntax such as the following:
@@ -1806,6 +1811,8 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      *       ^
      * </pre>
      */
+//    def should(notWord: NotWord): ResultOfNotWordForSeq[T, Array[T]] =
+//      new ResultOfNotWordForSeq(left, false)
     def should(notWord: NotWord): ResultOfNotWordForArray[T] =
       new ResultOfNotWordForArray(left, false)
   }
