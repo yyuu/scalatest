@@ -15,10 +15,9 @@ object API {
         val test = testClass.newInstance
         val reporter = new ScalaTestReporter
         test.run(None, reporter, new Stopper {}, Filter(), Map.empty, None, new Tracker)
-        if (reporter.succeeded) Result.Passed else Result.Failed
+        reporter.results
       }
-      else
-        Result.Passed
+      else throw new IllegalArgumentException("class is not an org.scalatest.Suite or something: " + testClassName)
     }
 
 
@@ -44,6 +43,8 @@ object API {
     {
       import org.scalatest.events._
       var succeeded = true
+
+      var results: Array[TestResult] = Array()
 
       def apply(event: Event) {
         event match {
