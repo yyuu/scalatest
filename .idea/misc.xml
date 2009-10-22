@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DependencyValidationManager">
+    <option name="SKIP_IMPORT_STATEMENTS" value="false" />
+  </component>
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="Scala">
+        <modules>
+          <module name="Test1">
+            <files>
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/FeatureSpecStackBehaviors.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/FlatStackBehaviors.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/ParallelTestExecutionExampleSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/SharedTestExampleSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackCanWordSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackFixtureCreationMethods.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackMustWordSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackShorthandFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackShouldWordSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/StackSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/TVFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/WordStackBehaviors.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/concurrent/ConductorExamples.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/easymock/EasyMockExampleFixtureFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/easymock/EasyMockExampleFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/easymock/EasyMockExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/featurespec/ArithmeticFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/featurespec/GivenWhenThenArithmeticFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/featurespec/InfoArithmeticFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/featurespec/PendingArithmeticFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/featurespec/PendingGivenWhenThenArithmeticSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/MultiFixtureFunSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/TVFixtureFeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/funsuite/WithTempFileExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/funsuite/WithTempFileFromConfigMapExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/suite/CaseClassFixtureSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/fixture/suite/TupleFixtureSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/BeforeAndAfterEachExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/CreateFixtureExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/ExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/ImmutableSharedFixtureExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/WithFixtureExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/funsuite/WithTempFileExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/helpers/Stack.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/jmock/JMockExampleFixtureFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/junit/ErrorJUnitSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/junit/JUnit3ExampleSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/junit/JUnitTestCaseSuite.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/matchers/ShouldStackFlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/matchers/ShouldStackSpec.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/scalaarchetypesimple/ScalaTestExamples.scala" />
+              <file url="file://$PROJECT_DIR$/maven-scalatest-plugin/src/it/scalatestexamples/src/test/scala/org/scalatestexamples/testng/ErrorTestNGSuite.scala" />
+            </files>
+          </module>
+          <module name="Main">
+            <files>
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/FeatureSpec.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/FlatSpec.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/FunSuite.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/Spec.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/WordSpec.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/matchers/Matchers.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/tools/ScalaTestAntTask.scala" />
+              <file url="file://$PROJECT_DIR$/app/src/main/scala/org/scalatest/tools/XmlReporter.scala" />
+            </files>
+          </module>
+          <module name="Test">
+            <files>
+              <file url="file://$PROJECT_DIR$/app/src/test/scala/org/scalatest/concurrent/TestThreadsStartingCounterSpec.scala" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
+    </autodetection-disabled>
+  </component>
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" />
+    <option name="OPTION_SCOPE" value="protected" />
+    <option name="OPTION_HIERARCHY" value="true" />
+    <option name="OPTION_NAVIGATOR" value="true" />
+    <option name="OPTION_INDEX" value="true" />
+    <option name="OPTION_SEPARATE_INDEX" value="true" />
+    <option name="OPTION_DOCUMENT_TAG_USE" value="false" />
+    <option name="OPTION_DOCUMENT_TAG_AUTHOR" value="false" />
+    <option name="OPTION_DOCUMENT_TAG_VERSION" value="false" />
+    <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="true" />
+    <option name="OPTION_DEPRECATED_LIST" value="true" />
+    <option name="OTHER_OPTIONS" value="" />
+    <option name="HEAP_SIZE" />
+    <option name="LOCALE" />
+    <option name="OPEN_IN_BROWSER" value="true" />
+  </component>
+  <component name="ProjectDetails">
+    <option name="projectName" value="ScalaTest" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchMap">
+                <map>
+                  <entry key="https://scalatest.dev.java.net/svn/scalatest/branches">
+                    <value>
+                      <list>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1255822401331" />
+                          <option name="revision" value="2126" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-sbt-interfaces" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1255133511248" />
+                          <option name="revision" value="2120" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/app" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1254715959863" />
+                          <option name="revision" value="2091" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/bv-codecamp2" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1254429319480" />
+                          <option name="revision" value="2083" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/codecamp" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1253888999880" />
+                          <option name="revision" value="2017" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-sbt-2" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1253020941340" />
+                          <option name="revision" value="1937" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-conductor-docs-2" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1252943795490" />
+                          <option name="revision" value="1931" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-conductor-docs" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1248572519187" />
+                          <option name="revision" value="1631" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-conductor-testing" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1247528247402" />
+                          <option name="revision" value="1546" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-sbt" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1247449018832" />
+                          <option name="revision" value="1527" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-10" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1246128830583" />
+                          <option name="revision" value="1367" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-9" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1244422087566" />
+                          <option name="revision" value="1268" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/release-0.9.5-for-2.8" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1243786036427" />
+                          <option name="revision" value="1256" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/release0.9.5WithPlugin" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1242112400920" />
+                          <option name="revision" value="1222" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/bv-refactorReporter" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1237688451805" />
+                          <option name="revision" value="1153" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/jason-1" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1222418087430" />
+                          <option name="revision" value="522" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/release-0.9.3" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1216004761664" />
+                          <option name="revision" value="494" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-8" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1207360334130" />
+                          <option name="revision" value="210" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-7" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1206927967652" />
+                          <option name="revision" value="185" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-6" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1205635119356" />
+                          <option name="revision" value="170" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-5" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1205203756203" />
+                          <option name="revision" value="129" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-4" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1202668086548" />
+                          <option name="revision" value="74" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-3" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1202086525519" />
+                          <option name="revision" value="54" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-2" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1201666899554" />
+                          <option name="revision" value="35" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/josh-1" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1199074303017" />
+                          <option name="revision" value="1" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/branches/README" />
+                        </SvnBranchItem>
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="https://scalatest.dev.java.net/svn/scalatest/tags">
+                    <value>
+                      <list>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1255340163582" />
+                          <option name="revision" value="2124" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-1.0" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1254860657978" />
+                          <option name="revision" value="2116" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-1.0-RC1" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1249927264585" />
+                          <option name="revision" value="1697" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.6-snapshot-10aug2009" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1236199897954" />
+                          <option name="revision" value="1124" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.5" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1230166227344" />
+                          <option name="revision" value="704" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.4" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1212373966616" />
+                          <option name="revision" value="401" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.3" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1210402285528" />
+                          <option name="revision" value="235" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.2" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1201366130541" />
+                          <option name="revision" value="20" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/release-0.9.1" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1199074303017" />
+                          <option name="revision" value="1" />
+                          <option name="url" value="https://scalatest.dev.java.net/svn/scalatest/tags/README" />
+                        </SvnBranchItem>
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://scalatest.dev.java.net/svn/scalatest/branches" />
+                  <option value="https://scalatest.dev.java.net/svn/scalatest/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://scalatest.dev.java.net/svn/scalatest/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="mySupportsUserInfoFilter" value="true" />
+  </component>
+</project>
+
