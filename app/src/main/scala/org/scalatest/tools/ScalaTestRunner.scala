@@ -1,4 +1,4 @@
-package org.scalatest.sbt
+package org.scalatest.tools
 
 import org.scalatools.testing._
 import org.scalatest._
