@@ -27,6 +27,7 @@
       <root url="jar://$PROJECT_DIR$/app/lib/antlr-2.7.7.jar!/" />
       <root url="jar://$PROJECT_DIR$/app/lib/easymockclassextension-2.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/app/lib/asm-tree-3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/app/lib/test-interface-0.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
