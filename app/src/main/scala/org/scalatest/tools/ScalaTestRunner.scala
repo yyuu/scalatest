@@ -4,7 +4,7 @@ import org.scalatools.testing._
 import org.scalatest._
 
 /**The test runner for ScalaTest suites. It is compiled in a second step after the rest of sbt.*/
-class ScalaTestRunner(testLoader: ClassLoader, loggers: Array[Logger]) extends Runner
+class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) extends Runner
 {
   def run(testClassName: String, fingerprint: TestFingerprint, args: Array[String]): Array[Event] = {
     val testClass = Class.forName(testClassName, true, testLoader).asSubclass(classOf[Suite])
