@@ -21,6 +21,7 @@ import org.scalacheck.Shrink
 import org.scalacheck.Arg
 import org.scalacheck.Prop
 import org.scalacheck.Test
+import org.scalacheck.Prop._
 
 trait PropertyChecks extends Checkers { this: Suite =>
 
@@ -48,7 +49,19 @@ trait PropertyChecks extends Checkers { this: Suite =>
       a1: Arbitrary[A], s1: Shrink[A],
       a2: Arbitrary[B], s2: Shrink[B]
     ) {
-    check((a: A, b: B) => true)
+    check((a: A, b: B) => {
+      val (unmetCondition, exception) =
+        try {
+          fun(a, b)
+          (false, None)
+        }
+        catch {
+          case e: UnmetConditionException => (true, None)
+          case e => (false, Some(e))
+        }
+        !unmetCondition ==> (if (exception.isEmpty) true else throw exception.get)
+      }
+    )
   }
 }
 

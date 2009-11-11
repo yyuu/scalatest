@@ -109,7 +109,7 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
       }
     }
 
-    "work properly with no columns" ignore {
+    "work properly with no columns" in {
 
       forAll { (n: Int, d: Int) =>
         whenever (d != 0) {
@@ -120,6 +120,13 @@ class TableSpec extends WordSpec with ShouldMatchers with PropertyChecks {
           r.numer should equal (n / g)
           r.denom should equal (d / g)
         }
+      }
+    }
+
+    "fail for sure" in {
+      forAll { (a: String, b: String) => 
+        (a + b).length should be > a.length
+        (a + b).length should be > b.length
       }
     }
   }
