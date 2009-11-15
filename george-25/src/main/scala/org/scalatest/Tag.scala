@@ -124,10 +124,21 @@ package org.scalatest
  * </pre>
  *
  * @author Bill Venners
+ * @author George Berger
  */
 class Tag(val name: String)
 
+/**
+ * Companion object for <code>Tag</code>, which offers a factory method.
+ *
+ * @author George Berger
+ * @author Bill Venners
+ */
 object Tag {
+
+  /**
+   * Factory method for creating new <code>Tag</code> objects.
+   */
   def apply(name: String): Tag = {
     new Tag(name)
   }
