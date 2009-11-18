@@ -18,9 +18,12 @@ package org.scalatest.tools {
 import org.scalatest.FunSuite
 import org.scalatools.testing.{Event, Result, Logger}
 
+object AntSkipTest extends Tag("AntSkipTest") // skip during ant builds
+
   // testing runner.run:
   // def run(testClassName: String, fingerprint: TestFingerprint, args: Array[String]): Array[Event]
   class ScalaTestRunnerSuite extends FunSuite {
+
     test("call with simple class") {
       val results = runner.run("org.scalatest.tools.SimpleTest", fingerprint, Array())
       assert(results.size === 1)
@@ -99,8 +102,8 @@ import org.scalatools.testing.{Event, Result, Logger}
 
   private class ThreeTestsTest extends FunSuite {
     test("hello, world") {"hello, world"}
-    test("throw") {throw new Exception("baah")}
-    test("assert bad") {assert(1 === 3)}
+    test("throw", AntSkipTest) {throw new Exception("baah")}
+    test("assert bad", AntSkipTest) {assert(1 === 3)}
   }
 
   private class PrivateConstructor private() extends FunSuite
@@ -112,7 +115,7 @@ import org.scalatools.testing.{Event, Result, Logger}
   import org.scalatest.testng.TestNGSuite
   private class SuiteWithSkippedTest extends TestNGSuite {
     import org.testng.annotations.Test
-    @Test{val groups = Array("run")} def dependeeThatFails() { throw new Exception("fail") }
+    @Test{val groups = Array("run", "AntSkipTest")} def dependeeThatFails() { throw new Exception("fail") }
     @Test{val dependsOnGroups = Array("run")} def depender() {}
     /* For 2.8
       @Test(groups = Array("run")) def dependeeThatFails() { throw new Exception("fail") }
