@@ -657,6 +657,24 @@
         </artifact:deploy>
     </target>
 
+    <target name="deploy-xsbt" depends="jar">
+        <path id="maven-ant-tasks.classpath"
+              path="lib/maven-ant-tasks-2.0.10.jar" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+                 uri="antlib:org.apache.maven.artifact.ant"
+                 classpathref="maven-ant-tasks.classpath" />
+
+        <copy file="pom-xsbt.xml" tofile="${build}/pom.xml" overwrite="true">
+            <filterset>
+                <filter token="RELEASE" value="${release}" />
+            </filterset>
+        </copy>
+
+        <artifact:deploy file="${dist}/lib/scalatest-xsbt.jar">
+            <pom file="${build}/pom.xml"/>
+        </artifact:deploy>
+    </target>
+
     <target name="test-junit">
         <junit>
            <batchtest fork="yes" todir="target/argh">
