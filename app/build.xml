@@ -197,7 +197,12 @@
     </target>
 
     <target name="jartests" depends="compile">
-      <jar jarfile="${build.tests.jar}" basedir="${build.tests}" includes="org/scalatest/**/*.class" />
+      <jar jarfile="${build.tests.jar}" basedir="${build.tests}" includes="org/scalatest/**/*.class">
+        <exclude name="org/scalatest/tools/ScalaTestRunnerSuite.*"/>
+        <exclude name="org/scalatest/tools/ScalaTestRunnerSuite$*"/>
+        <exclude name="org/scalatest/tools/ScalaTestFrameworkSuite.*"/>
+        <exclude name="org/scalatest/tools/ScalaTestFrameworkSuite$*"/>
+      </jar>
     </target>
 
     <target name="doc" depends="compile-main">
@@ -227,12 +232,24 @@
             <fileset dir="${images}" />
         </copy>
 
-        <!-- Put everything in ${jar.contents} into the MyProject-${DSTAMP}.jar file -->
+        <!-- Put everything in ${jar.contents} into the scalatest.jar file
+           - except the xsbt classes. -->
         <jar jarfile="${dist}/lib/scalatest.jar" basedir="${jar.contents}">
             <manifest>
                 <attribute name="Main-Class" value="org.scalatest.tools.Runner" />
                 <attribute name="Class-Path" value="junit-4.1.jar" />
             </manifest>
+            <exclude name="org/scalatest/tools/ScalaTestRunner.*"/>
+            <exclude name="org/scalatest/tools/ScalaTestRunner$*"/>
+            <exclude name="org/scalatest/tools/ScalaTestFramework.*"/>
+            <exclude name="org/scalatest/tools/ScalaTestFramework$*"/>
+        </jar>
+        <!-- Put the xsbt classes into scalatest-xsbt.jar -->
+        <jar jarfile="${dist}/lib/scalatest-xsbt.jar" basedir="${jar.contents}">
+            <include name="org/scalatest/tools/ScalaTestRunner.*"/>
+            <include name="org/scalatest/tools/ScalaTestRunner$*"/>
+            <include name="org/scalatest/tools/ScalaTestFramework.*"/>
+            <include name="org/scalatest/tools/ScalaTestFramework$*"/>
         </jar>
         <jar jarfile="${dist}/lib/scalatest-wbt.jar" basedir="${build.tests}" includes="org/scalatest/*.class" />
 
