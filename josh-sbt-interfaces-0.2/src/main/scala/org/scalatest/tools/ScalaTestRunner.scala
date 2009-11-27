@@ -45,7 +45,9 @@ class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) e
     def newEvent(tn: String, r: Result, e: Option[Throwable]) = {
       r match {
         case Result.Skipped => logInfo("Test Skipped: " + tn)
-        case Result.Failure => logError("Test Failed: " + tn)
+	case Result.Failure =>
+          logError("Test Failed: " + tn)
+          if(e.isDefined){ logError(e.get.getMessage); e.get.printStackTrace }
         case Result.Success => logInfo("Test Passed: " + tn)
       }
       eventListener.handle(new org.scalatools.testing.Event {
