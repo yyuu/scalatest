@@ -17,7 +17,7 @@ package org.scalatest.tools
 
 import org.scalatest._
 
-class RunnerSuite() extends Suite with PrivateMethodTester {
+class RunnerSuite extends Suite with PrivateMethodTester {
 
   def testParseArgsIntoLists() {
 
@@ -248,66 +248,66 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     val parseConfigSet = PrivateMethod[Set[ReporterConfigParam]]('parseConfigSet)
 
     intercept[NullPointerException] {
-      Runner invokePrivate parseConfigSet(null)
+      Runner.parseConfigSet(null)
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-fJ")
+      Runner.parseConfigSet("-fJ")
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-uJ")
+      Runner.parseConfigSet("-uJ")
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-oYZTFUPBISARG-")
+      Runner.parseConfigSet("-oYZTFUPBISARG-")
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-")
+      Runner.parseConfigSet("-")
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("")
+      Runner.parseConfigSet("")
     }
 
     expect(Set(FilterTestStarting)) {
-      Runner invokePrivate parseConfigSet("-oN")
+      Runner.parseConfigSet("-oN")
     }
     expect(Set(FilterTestSucceeded)) {
-      Runner invokePrivate parseConfigSet("-oC")
+      Runner.parseConfigSet("-oC")
     }
     expect(Set(FilterTestIgnored)) {
-      Runner invokePrivate parseConfigSet("-oX")
+      Runner.parseConfigSet("-oX")
     }
     expect(Set(FilterTestPending)) {
-      Runner invokePrivate parseConfigSet("-oE")
+      Runner.parseConfigSet("-oE")
     }
     expect(Set(FilterSuiteStarting)) {
-      Runner invokePrivate parseConfigSet("-oH")
+      Runner.parseConfigSet("-oH")
     }
     expect(Set(FilterSuiteCompleted)) {
-      Runner invokePrivate parseConfigSet("-oL")
+      Runner.parseConfigSet("-oL")
     }
     expect(Set(FilterInfoProvided)) {
-      Runner invokePrivate parseConfigSet("-oO")
+      Runner.parseConfigSet("-oO")
     }
     expect(Set(PresentWithoutColor)) {
-      Runner invokePrivate parseConfigSet("-oW")
+      Runner.parseConfigSet("-oW")
     }
     expect(Set(PresentAllDurations)) {
-      Runner invokePrivate parseConfigSet("-oD")
+      Runner.parseConfigSet("-oD")
     }
     expect(Set(PresentTestFailedExceptionStackTraces)) {
-      Runner invokePrivate parseConfigSet("-oF")
+      Runner.parseConfigSet("-oF")
     }
     expect(Set[ReporterConfigParam]()) {
-      Runner invokePrivate parseConfigSet("-f")
+      Runner.parseConfigSet("-f")
     }
     expect(Set[ReporterConfigParam]()) {
-      Runner invokePrivate parseConfigSet("-u")
+      Runner.parseConfigSet("-u")
     }
 
     expect(Set(FilterInfoProvided, PresentWithoutColor)) {
-      Runner invokePrivate parseConfigSet("-oOW")
+      Runner.parseConfigSet("-oOW")
     }
     expect(Set(FilterInfoProvided, PresentWithoutColor)) {
-      Runner invokePrivate parseConfigSet("-oWO") // Just reverse the order of the params
+      Runner.parseConfigSet("-oWO") // Just reverse the order of the params
     }
     val allOpts = Set(
       FilterInfoProvided,
@@ -322,7 +322,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       PresentTestFailedExceptionStackTraces
     )
     expect(allOpts) {
-      Runner invokePrivate parseConfigSet("-oNCXEHLOWDF")
+      Runner.parseConfigSet("-oNCXEHLOWDF")
     }
   }
                                          

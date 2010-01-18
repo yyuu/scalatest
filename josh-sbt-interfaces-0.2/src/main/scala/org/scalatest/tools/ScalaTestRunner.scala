@@ -4,14 +4,24 @@ import org.scalatools.testing._
 import org.scalatest._
 
 /**The test runner for ScalaTest suites. It is compiled in a second step after the rest of sbt.*/
-class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) extends Runner
-{
+class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) extends Runner with ArgParser{
+
   def run(testClassName: String, fingerprint: TestFingerprint, eventListener: EventHandler, args: Array[String]){
     val testClass = Class.forName(testClassName, true, testLoader).asSubclass(classOf[Suite])
 
     if (isAccessibleSuite(testClass)) {
-      val test = testClass.newInstance
-      test.run(None, new ScalaTestReporter(eventListener), new Stopper {}, Filter(), Map.empty, None, new Tracker)
+
+	    val ( propertiesArgsList, includesArgsList,
+	          excludesArgsList/*testNGArgsList*/) = parsePropsAndTags(args.filter(! _.equals("")))
+	    val propertiesMap: Map[String, String] = parsePropertiesArgsIntoMap(propertiesArgsList)
+	    val tagsToInclude: Set[String] = parseCompoundArgIntoSet(includesArgsList, "-n")
+      val tagsToExclude: Set[String] = parseCompoundArgIntoSet(excludesArgsList, "-l")
+	    val filter = org.scalatest.Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExclude)
+
+	    //  def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
+			//              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+      testClass.newInstance.run(None, new ScalaTestReporter(eventListener), new Stopper {},
+	                              filter, propertiesMap, None, new Tracker)
     }
     else throw new IllegalArgumentException("class is not an org.scalatest.Suite or something: " + testClassName)
   }
@@ -46,9 +56,9 @@ class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) e
     def newEvent(tn: String, r: Result, e: Option[Throwable]) = {
       r match {
         case Result.Skipped => logInfo("Test Skipped: " + tn)
-	case Result.Failure =>
+				case Result.Failure =>
           logError("Test Failed: " + tn)
-          if(e.isDefined){ logTrace(e) }
+          e.foreach{logTrace(_)}
         case Result.Success => logInfo("Test Passed: " + tn)
       }
       eventListener.handle(new org.scalatools.testing.Event {
@@ -84,6 +94,46 @@ class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) e
         case ra: RunAborted =>
       }
     }
+  }
+
+
+	private[scalatest] def parsePropsAndTags(args: Array[String]) = {
+
+		import collection.mutable.ListBuffer
+		
+    val props = new ListBuffer[String]()
+    val includes = new ListBuffer[String]()
+    val excludes = new ListBuffer[String]()
+
+    val it = args.elements
+    while (it.hasNext) {
+
+      val s = it.next
+
+      if (s.startsWith("-D")) {
+         props += s
+      }
+      else if (s.startsWith("-n")) {
+        includes += s
+        if (it.hasNext)
+          includes += it.next
+      }
+      else if (s.startsWith("-l")) {
+        excludes += s
+        if (it.hasNext)
+          excludes += it.next
+      }
+//      else if (s.startsWith("-t")) {
+//
+//        testNGXMLFiles += s
+//        if (it.hasNext)
+//          testNGXMLFiles += it.next
+//      }
+      else {
+        throw new IllegalArgumentException("Unrecognized argument: " + s)
+      }
+    }
+		(props.toList, includes.toList, excludes.toList)
   }
 }
 
