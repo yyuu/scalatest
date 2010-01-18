@@ -32,6 +32,7 @@ class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) e
     }
   }
 
+  private def logTrace(t:Throwable) = loggers.foreach(_ trace t)
   private def logError(msg: String) = loggers.foreach(_ error msg)
   private def logWarn(msg: String) = loggers.foreach(_ warn msg)
   private def logInfo(msg: String) = loggers.foreach(_ info msg)
@@ -47,7 +48,7 @@ class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) e
         case Result.Skipped => logInfo("Test Skipped: " + tn)
 	case Result.Failure =>
           logError("Test Failed: " + tn)
-          if(e.isDefined){ logError(e.get.getMessage); e.get.printStackTrace }
+          if(e.isDefined){ logTrace(e) }
         case Result.Success => logInfo("Test Passed: " + tn)
       }
       eventListener.handle(new org.scalatools.testing.Event {
