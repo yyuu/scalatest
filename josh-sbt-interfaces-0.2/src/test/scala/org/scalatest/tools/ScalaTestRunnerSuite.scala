@@ -16,7 +16,7 @@
 package org.scalatest.tools {
 
 import org.scalatest.FunSuite
-import org.scalatools.testing.{Event, EventHandler, Result, Logger}
+import org.scalatools.testing.{Event, EventHandler, Result, Logger, Runner}
 
   // testing runner.run:
   // def run(testClassName: String, fingerprint: TestFingerprint, args: Array[String]): Array[Event]
@@ -131,8 +131,8 @@ import org.scalatools.testing.{Event, EventHandler, Result, Logger}
 
 	  val framework = new ScalaTestFramework
 
-	  val runner: ScalaTestRunner = {
-		  framework.testRunner(currentThread.getContextClassLoader, Array(new TestLogger)).asInstanceOf[ScalaTestRunner]
+	  val runner: Runner = {
+		  framework.testRunner(currentThread.getContextClassLoader, Array(new TestLogger))
 	  }
 
 	  val fingerprint = {
