@@ -1427,11 +1427,7 @@ trait Spec extends Suite { thisSuite =>
   private def handleFailedTest(throwable: Throwable, hasPublicNoArgConstructor: Boolean, testName: String,
       specText: String, formattedSpecText: String, rerunnable: Option[Rerunner], report: Reporter, tracker: Tracker, duration: Long) {
 
-    val message =
-      if (throwable.getMessage != null) // [bv: this could be factored out into a helper method]
-        throwable.getMessage
-      else
-        throwable.toString
+    val message = throwable.toString
 
     val formatter = IndentedText(formattedSpecText, specText, 1)
     report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, Some(thisSuite.getClass.getName), testName, Some(throwable), Some(duration), Some(formatter), rerunnable))

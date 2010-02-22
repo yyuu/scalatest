@@ -191,12 +191,7 @@ if a StackDepth and no F specified, then show the truncated form.
       }
 
     // If there's a message, put it on the next line, indented two spaces, unless this is an IndentedText
-    val possiblyEmptyMessage =
-      formatter match {
-        case Some(IndentedText(_, _, _)) => ""
-        case _ =>
-          Reporter.messageOrThrowablesDetailMessage(message, throwable)
-      }
+    val possiblyEmptyMessage = Reporter.messageOrThrowablesDetailMessage(message, throwable)
 
     // I don't want to put a second line out there if the event's message contains the throwable's message,
     // or if niether the event message or throwable message has any message in it.
