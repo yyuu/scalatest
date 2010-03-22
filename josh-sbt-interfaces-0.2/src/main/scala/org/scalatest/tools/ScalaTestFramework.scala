@@ -17,9 +17,10 @@ class ScalaTestFramework extends Framework
   }
 
   /**The test runner for ScalaTest suites. It is compiled in a second step after the rest of sbt.*/
-  private[tools] class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) extends Runner with ArgParser {
+  private[tools] class ScalaTestRunner(val testLoader: ClassLoader, val loggers: Array[Logger]) extends Runner {
 
     import org.scalatest._
+    import ArgParser._
 
     def run(testClassName: String, fingerprint: TestFingerprint, eventListener: EventHandler, args: Array[String]) {
       val testClass = Class.forName(testClassName, true, testLoader).asSubclass(classOf[Suite])

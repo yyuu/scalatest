@@ -5,10 +5,10 @@ import collection.mutable.ListBuffer
 import org.scalatest._
 import java.io.File
 
-trait ArgParser {
+private[tools] object ArgParser {
 
 	// Returns an Option[String]. Some is an error message. None means no error.
-	private[scalatest] def checkArgsForValidity(args: Array[String]) = {
+	def checkArgsForValidity(args: Array[String]) = {
 
 		val lb = new ListBuffer[String]
 		val it = args.elements
@@ -41,7 +41,7 @@ trait ArgParser {
 	// through multiples until it finds one with a number appended and uses
 	// that.  If none have a number it just returns 0.
 	//
-	private[scalatest] def parseConcurrentNumArg(concurrentList: List[String]):
+	def parseConcurrentNumArg(concurrentList: List[String]):
 	Int = {
 		val opt = concurrentList.find(_.matches("-c\\d+"))
 
@@ -51,7 +51,7 @@ trait ArgParser {
 		}
 	}
 
-	private[scalatest] def parseArgs(args: Array[String]) = {
+	def parseArgs(args: Array[String]) = {
 
 		val runpath = new ListBuffer[String]()
 		val reporters = new ListBuffer[String]()
@@ -189,7 +189,7 @@ trait ArgParser {
 	 * If no configuration options are specified, this method returns an
 	 * empty ConfigSet. This method never returns null.
 	 */
-	private[scalatest] def parseConfigSet(reporterArg: String): Set[ReporterConfigParam] = {
+	def parseConfigSet(reporterArg: String): Set[ReporterConfigParam] = {
 
 		if (reporterArg == null)
 			throw new NullPointerException("reporterArg was null")
@@ -238,7 +238,7 @@ trait ArgParser {
 		set
 	}
 
-	private[scalatest] def parseReporterArgsIntoConfigurations(args: List[String]) = {
+	def parseReporterArgsIntoConfigurations(args: List[String]) = {
 		//
 		// Checks to see if any args are smaller than two characters in length.
 		// Allows a one-character arg if it's a directory-name parameter, to
@@ -406,7 +406,7 @@ trait ArgParser {
 	}
 
 	// Used to parse -s, -j, -m, and -w args, one of which will be passed as a String as dashArg
-	private[scalatest] def parseSuiteArgsIntoNameStrings(args: List[String], dashArg: String) = {
+	def parseSuiteArgsIntoNameStrings(args: List[String], dashArg: String) = {
 
 		if (args == null)
 			throw new NullPointerException("args was null")
@@ -436,12 +436,12 @@ trait ArgParser {
 		lb.toList
 	}
 
-	private[scalatest] def parseCompoundArgIntoSet(args: List[String], expectedDashArg: String): Set[String] =
+	def parseCompoundArgIntoSet(args: List[String], expectedDashArg: String): Set[String] =
 			Set() ++ parseCompoundArgIntoList(args, expectedDashArg)
 
-	private[scalatest] def parseRunpathArgIntoList(args: List[String]): List[String] = parseCompoundArgIntoList(args, "-p")
+	def parseRunpathArgIntoList(args: List[String]): List[String] = parseCompoundArgIntoList(args, "-p")
 
-	private[scalatest] def parseCompoundArgIntoList(args: List[String], expectedDashArg: String): List[String] = {
+	def parseCompoundArgIntoList(args: List[String], expectedDashArg: String): List[String] = {
 
 		if (args == null)
 			throw new NullPointerException("args was null")
@@ -526,7 +526,7 @@ trait ArgParser {
 		matcher.matches() || (token(token.length - 1) != '\\')
 	}
 
-	private[scalatest] def parsePropertiesArgsIntoMap(args: List[String]) = {
+	def parsePropertiesArgsIntoMap(args: List[String]) = {
 
 		if (args == null)
 			throw new NullPointerException("args was null")

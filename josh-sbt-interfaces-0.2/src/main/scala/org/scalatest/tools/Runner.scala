@@ -421,7 +421,9 @@ import org.scalatest.junit.JUnitWrapperSuite
  * @author George Berger
  * @author Josh Cough
  */
-object Runner extends ArgParser{
+object Runner {
+
+  import ArgParser._
 
   private val RUNNER_JFRAME_START_X: Int = 150
   private val RUNNER_JFRAME_START_Y: Int = 100
