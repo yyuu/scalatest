@@ -137,7 +137,8 @@ import org.scalatools.testing.{Event, EventHandler, Result, Logger, Runner}
 
 	  val fingerprint = {
 		  val fingerprints = framework.tests
-		  fingerprints(0)
+		  fingerprints(0).
+                    asInstanceOf[org.scalatools.testing.TestFingerprint]
 	  }
 
 	  def run(classname: String): Array[Event] = run(classname, Array[String]())

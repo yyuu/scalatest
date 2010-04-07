@@ -133,6 +133,7 @@
                 <pathelement location="${lib}/commons-io-1.3.2.jar" />
                 <pathelement location="${lib}/jmock-legacy-2.5.1.jar" />
                 <pathelement location="${lib}/objenesis-1.0.jar" />
+                <pathelement location="${lib}/test-interface-0.5.jar" />
             </classpath>
         </taskdef>
     </target>
@@ -439,7 +440,9 @@
             <reporter type="graphic"/>
             <reporter type="stdout" config="NF"/>
 
-            <suite classname="org.scalatest.SuiteSuite7" />
+            <suite classname="org.scalatest.tools.RunnerSuite" />
+            <suite classname="org.scalatest.tools.ScalaTestRunnerSuite" />
+            <suite classname="org.scalatest.tools.ScalaTestFrameworkSuite" />
 <!--
             <suite classname="org.scalatest.FunSuiteSuite" />
 

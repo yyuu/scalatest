@@ -28,8 +28,12 @@ class ScalaTestFrameworkSuite extends FunSuite{
     val framework = new ScalaTestFramework
     val fingerprints = framework.tests
     assert(fingerprints.size === 1)
-    assert(fingerprints(0).isModule === false)
-    assert(fingerprints(0).superClassName === "org.scalatest.Suite")
+
+    val fingerprint =
+      fingerprints(0).asInstanceOf[org.scalatools.testing.TestFingerprint]
+
+    assert(fingerprint.isModule === false)
+    assert(fingerprint.superClassName === "org.scalatest.Suite")
   }
 
   test("creates runner with given arguments"){
