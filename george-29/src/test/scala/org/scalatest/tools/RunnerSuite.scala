@@ -387,11 +387,11 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     expect(new ReporterConfigurations(None, List(new FileReporterConfiguration(Set(), "theFilename")), Nil, None, None, Nil, Nil)) {
       Runner.parseReporterArgsIntoConfigurations(List("-f", "theFilename"))
     }
-    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "target")), None, None, Nil, Nil)) {
-      Runner.parseReporterArgsIntoConfigurations(List("-u", "target"))
+    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "xmlout")), None, None, Nil, Nil)) {
+      Runner.parseReporterArgsIntoConfigurations(List("-u", "xmlout"))
     }
-    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "target")), None, None, Nil, Nil)) {
-      Runner.parseReporterArgsIntoConfigurations(List("-uN", "target"))
+    expect(new ReporterConfigurations(None, Nil, List(new XmlReporterConfiguration(Set(), "xmlout")), None, None, Nil, Nil)) {
+      Runner.parseReporterArgsIntoConfigurations(List("-uN", "xmlout"))
     }
     expect(new ReporterConfigurations(None, List(new FileReporterConfiguration(Set(FilterTestStarting), "theFilename")), Nil, None, None, Nil, Nil)) {
       Runner.parseReporterArgsIntoConfigurations(List("-fN", "theFilename"))
