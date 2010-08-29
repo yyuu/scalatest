@@ -42,26 +42,24 @@ import org.scalatest.junit.JUnitWrapperSuite
  * All of these arguments are described in more detail below. Here's a summary:
  * </p>
  *
- * <p>
- * <code>scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner [-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] [-n &lt;includes&gt;] [-l &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; [...]] [-j &lt;junit class name&gt; [...]] [-m &lt;members-only suite path&gt; [...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file path&gt; [...]]</code>
- * </p>
- *
+ * <pre>
+ * scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner [-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] [-n &lt;includes&gt;] [-l &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; [...]] [-j &lt;junit class name&gt; [...]] [-m &lt;members-only suite path&gt; [...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file path&gt; [...]]
+</pre>
+ * 
  * <p>
  * The simplest way to start <code>Runner</code> is to specify the directory containing your compiled tests as the sole element of the runpath, for example:
  * </p>
  *
- * <p>
- * <code>scala -classpath scalatest-&lt;version&gt;.jar org.scalatest.tools.Runner -p compiled_tests</code>
- * </p>
+ * <pre>
+ * scala -classpath scalatest-&lt;version&gt;.jar org.scalatest.tools.Runner -p compiled_tests
+ * </pre>
  *
  * <p>
  * Given the previous command, <code>Runner</code> will discover and execute all <code>Suite</code>s in the <code>compiled_tests</code> directory and its subdirectories,
  * and show results in graphical user interface (GUI).
  * </p>
  *
- * <p>
- * <a name="configMapSection"><strong>Specifying the config map</strong></a>
- * </p>
+ * <a name="configMapSection"><h2>Specifying the config map</h2></a>
  *
  * <p>
  * A <em>config map</em> contains pairs consisting of a string key and a value that may be of any type. (Keys that start with
@@ -71,13 +69,11 @@ import org.scalatest.junit.JUnitWrapperSuite
  * For example:
  * </p>
  *
- * <p>
- * <code>-Ddbname=testdb -Dserver=192.168.1.188</code>
- * </p>
+ * <pre>
+ * -Ddbname=testdb -Dserver=192.168.1.188
+ * </pre>
  *
- * <p>
- * <strong>Specifying a runpath</strong>
- * </p>
+ * <h2>Specifying a runpath</h2>
  *
  * <p>
  * A runpath is the list of filenames, directory paths, and/or URLs that <code>Runner</code>
@@ -98,13 +94,11 @@ import org.scalatest.junit.JUnitWrapperSuite
  * place a backslash (\) in front of the space. Here's an example:
  * </p>
  *
- * <p>
- * <code>-p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar target/class\ files"</code>
- * </p>
+ * <pre>
+ * -p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar target/class\ files"
+ * </pre>
  *
- * <p>
- * <strong>Specifying reporters</strong>
- * </p>
+ * <h2>Specifying reporters</h2>
  *
  * <p>
  * Reporters can be specified  on the command line in any of the following
@@ -149,9 +143,9 @@ import org.scalatest.junit.JUnitWrapperSuite
  * writing to a file named <code>"test.out"</code>, you would type:
  * </p>
  *
- * <p>
- * <code>java -jar scalatest.jar -p mydir <b>-g -f test.out</b> -s MySuite</code>
- * </p>
+ * <pre>
+ * java -jar scalatest.jar -p mydir <b>-g -f test.out</b> -s MySuite
+ * </pre>
  *
  * <p>
  * The <code><b>-g</b></code>, <code><b>-o</b></code>, or <code><b>-e</b></code> options can
@@ -173,9 +167,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * executed suites.
  * </p>
  *
- * <p>
- * <strong>Configuring Reporters</strong>
- * </p>
+ * <h2>Configuring Reporters</h2>
  *
  * <p>
  * Each reporter option on the command line can include configuration characters. Configuration characters
@@ -263,9 +255,9 @@ import org.scalatest.junit.JUnitWrapperSuite
  * pending, suite starting, suite completed, and info provided events, you would type:
  * </p>
  *
- * <p>
- * <code>scala -classpath scalatest-&lt;version&gt;.jar -p mydir <strong>-g -eNDXEHLO</strong> -s MySuite</code>
- * </p>
+ * <pre>
+ * scala -classpath scalatest-&lt;version&gt;.jar -p mydir <strong>-g -eNDXEHLO</strong> -s MySuite
+ * </pre>
  *
  * <p>
  * Note that no white space is allowed between the reporter option and the initial configuration
@@ -273,9 +265,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * <code>"-eNDXEHLO"</code> will work.
  * </p>
  *
- * <p>
- * <strong>Specifying tags to include and exclude</strong>
- * </p>
+ * <h2>Specifying tags to include and exclude</h2>
  *
  * <p>
  * You can specify tag names of tests to include or exclude from a run. To specify tags to include,
@@ -299,9 +289,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * </ul>
  * </p>
  *
- * <p>
- * <strong>Executing <code>Suite</code>s concurrently</strong>
- * </p>
+ * <h2>Executing <code>Suite</code>s concurrently</h2>
  *
  * <p>
  * With the proliferation of multi-core architectures, and the often parallelizable nature of tests, it is useful to be able to run
@@ -320,18 +308,16 @@ import org.scalatest.junit.JUnitWrapperSuite
  * processors available.
  * </p>
  *
- * <p>
- * <strong>Specifying <code>Suite</code>s</strong>
- * </p>
+ * <h2>Specifying <code>Suite</code>s</h2>
  *
  * <p>
  * Suites are specified on the command line with a <b>-s</b> followed by the fully qualified
  * name of a <code>Suite</code> subclass, as in:
  * </p>
  *
- * <p>
- * <code>-s com.artima.serviceuitest.ServiceUITestkit</code>
- * </p>
+ * <pre>
+ * -s com.artima.serviceuitest.ServiceUITestkit
+ * </pre>
  *
  * <p>
  * Each specified suite class must be public, a subclass of
@@ -356,9 +342,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * so client software can count on them being available.
  * </p>
  *
- * <p>
- * <strong>Specifying "members-only" and "wildcard" <code>Suite</code> paths</strong>
- * </p>
+ * <h2>Specifying "members-only" and "wildcard" <code>Suite</code> paths</h2>
  *
  * <p>
  * If you specify <code>Suite</code> path names with <code>-m</code> or <code>-w</code>, <code>Runner</code> will automatically
@@ -391,9 +375,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * in the runpath.
  * </p>
  *
- * <p>
- * <strong>Specifying TestNG XML config file paths</strong>
- * </p>
+ * <h2>Specifying TestNG XML config file paths</h2>
  *
  * <p>
  * If you specify one or more file paths with <code>-t</code>, <code>Runner</code> will create a <code>org.scalatest.testng.TestNGWrapperSuite</code>,
@@ -404,9 +386,7 @@ import org.scalatest.junit.JUnitWrapperSuite
  * <code>-s</code>, <code>-m</code>, or </code>-w</code> parameters.
  * </p>
  *
- * <p>
- * <strong>Specifying JUnit tests</strong>
- * </p>
+ * <h2>Specifying JUnit tests</h2>
  *
  * <p>
  * JUnit tests, including ones written in Java, may be run by specifying
