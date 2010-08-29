@@ -31,15 +31,15 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * Here <code>object</code> is a variable, and can be of any type. If the object is an
- * <code>Int</code> with the value 3, execution will continue (<em>i.e.</em>, the expression will result
+ * <code> Int</code> with the value 3, execution will continue (<em>i.e.</em>, the expression will result
  * in the unit value, <code>()</code>). Otherwise, a <code>TestFailedException</code>
  * will be thrown with a detail message that explains the problem, such as <code>"7 did not equal 3"</code>.
  * This <code>TestFailedException</code> will cause the test to fail.
  * </p>
- * 
+ *    
  * <p>
- * The <code>left should equal (right)</code> syntax works by calling <code>==</code>  on the <code>left</code>
- * value, passing in the <code>right</code> value, on every type except arrays. If <code>left</code> is an array, <code>deepEquals</code>
+ * The <code>left should equal (right)</code> syntax works by calling <code>==</code>  on the <code>left </code>
+ * value, passing in the <code>right</code> value, on every type except arrays. If <code>left</code> is an array, <code>deepEquals </code>
  * will be invoked on <code>left</code>, passing in <code>right</code>. Thus, even though this expression
  * will yield false, because <code>Array</code>'s <code>equals</code> method compares object identity:
  * </p>
@@ -81,10 +81,10 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  * 
  * <p>
- * The <code>length</code> syntax can be used with any object that has a field or method named <code>length</code>
+ * The <code>length</code> syntax can be used with any object that has a field or method named <code>length </code>
  * or a method named <code>getLength</code>.   Similarly, the <code>size</code> syntax can be used with any
  * object that has a field or method named <code>size</code> or a method named <code>getSize</code>.
- * The type of a <code>length</code> or <code>size</code> field, or return type of a method, must be either <code>Int</code>
+ * The type of a <code>length</code> or <code>size</code> field, or return type of a method, must be either <code>Int </code>
  * or <code>Long</code>. Any such method must take no parameters. (The Scala compiler will ensure at compile time that
  * the object on which <code>should</code> is being invoked has the appropriate structure.)
  * </p>
@@ -120,7 +120,7 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  * 
  * <p>
- * The regular expression passed following the <code>regex</code> token can be either a <code>String</code>
+ * The regular expression passed following the <code>regex</code> token can be either a <code>String </code>
  * or a <code>scala.util.matching.Regex</code>.
  * </p>
  *
@@ -137,11 +137,11 @@ import org.scalatest.verb.ShouldVerb
  * one should be >= (0)
  * </pre>
  * 
- * <h2>Checking equality with <code>be ===</code></h2>
+ * <h2>Checking equality with <code>be</code> <code>=</code><code>=</code><code>=</code></h2>
  *
  * <p>
- * An alternate way to check for equality of two objects is to use <code>be</code> with
- * <code>===</code>. Here's an example:
+ * An alternate way to check for equality of two objects is to use <code>be</code> with 
+ * <code> ===</code>. Here's an example:
  * </p>
  *
  * <pre>
@@ -150,15 +150,15 @@ import org.scalatest.verb.ShouldVerb
  *
  * <p>
  * Here <code>object</code> is a variable, and can be of any type. If the object is an
- * <code>Int</code> with the value 3, execution will continue (<em>i.e.</em>, the expression will result
- * in the unit value, <code>()</code>). Otherwise, a <code>TestFailedException</code>
+ * <code> Int</code> with the value 3, execution will continue (<em>i.e.</em>, the expression will result
+ * in the unit value, <code>()</code>). Otherwise, a <code>TestFailedException </code>
  * will be thrown with a detail message that explains the problem, such as <code>"7 was not equal to 3"</code>.
  * This <code>TestFailedException</code> will cause the test to fail.
  * </p>
  *
  * <p>
- * The <code>left should be === (right)</code> syntax works by calling <code>==</code>  on the <code>left</code>
- * value, passing in the <code>right</code> value, on every type except arrays. If <code>left</code> is an array, <code>deepEquals</code>
+ * The <code>left should be === (right)</code> syntax works by calling <code>==</code>  on the <code>left </code>
+ * value, passing in the <code>right</code> value, on every type except arrays. If <code>left</code> is an array, <code>deepEquals </code>
  * will be invoked on <code>left</code>, passing in <code>right</code>. Thus, even though this expression
  * will yield false, because <code>Array</code>'s <code>equals</code> method compares object identity:
  * </p>
@@ -178,7 +178,7 @@ import org.scalatest.verb.ShouldVerb
  *
  * <p>
  * If you ever do want to verify that two arrays are actually the same object (have the same identity), you can use the
- * <code>be theSameInstanceAs</code> syntax, described below.
+ * <code> be theSameInstanceAs</code> syntax, described below.
  * </p>
  *
  * <h2>Checking <code>Boolean</code> properties with <code>be</code></h2>
@@ -189,7 +189,7 @@ import org.scalatest.verb.ShouldVerb
  * of the method (excluding an optional prefix of "<code>is</code>"). A symbol literal
  * in Scala begins with a tick mark and ends at the first non-identifier character. Thus,
  * <code>'empty</code> results in a <code>Symbol</code> object at runtime, as does
- * <code>'defined</code> and <code>'file</code>. Here's an example:
+ * <code> 'defined</code> and <code>'file</code>. Here's an example:
  * </p>
  * 
  * <pre class="indent">
@@ -197,10 +197,10 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  * 
  * Given this code, ScalaTest will use reflection to look on the object referenced from
- * <code>emptySet</code> for a method that takes no parameters and results in <code>Boolean</code>,
+ * <code> emptySet</code> for a method that takes no parameters and results in <code>Boolean</code>,
  * with either the name <code>empty</code> or <code>isEmpty</code>. If found, it will invoke
  * that method. If the method returns <code>true</code>, execution will continue. But if it returns
- * <code>false</code>, a <code>TestFailedException</code> will be thrown that will contain a detail message, such as:
+ * <code> false</code>, a <code>TestFailedException</code> will be thrown that will contain a detail message, such as:
  * 
  * <pre class="indent">
  * Set(1, 2, 3) was not empty
@@ -208,7 +208,7 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * This <code>be</code> syntax can be used with any type.  If the object does
- * not have an appropriately named predicate method, you'll get a <code>TestFailedException</code>
+ * not have an appropriately named predicate method, you'll get a <code>TestFailedException </code>
  * at runtime with a detail message that explains the problem.
  * (For the details on how a field or method is selected during this
  * process, see the documentation for <a href="Matchers.BeWord.html"><code>BeWord</code></a>.)
@@ -216,8 +216,8 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * If you think it reads better, you can optionally put <code>a</code> or <code>an</code> after
- * <code>be</code>. For example, <code>java.io.File</code> has two predicate methods,
- * <code>isFile</code> and <code>isDirectory</code>. Thus with a <code>File</code> object
+ * <code> be</code>. For example, <code>java.io.File</code> has two predicate methods,
+ * <code> isFile</code> and <code>isDirectory</code>. Thus with a <code>File</code> object
  * named <code>temp</code>, you could write:
  * </p>
  * 
@@ -257,7 +257,7 @@ import org.scalatest.verb.ShouldVerb
  * <h2>Using custom <code>BeMatchers</code></h2>
  *
  * If you want to create a new way of using <code>be</code>, which doesn't map to an actual property on the
- * type you care about, you can create a <code>BeMatcher</code>. You could use this, for example, to create <code>BeMatcher[Int]</code>
+ * type you care about, you can create a <code>BeMatcher</code>. You could use this, for example, to create <code>BeMatcher[Int] </code>
  * called <code>odd</code>, which would match any odd <code>Int</code>, and <code>even</code>, which would match
  * any even <code>Int</code>. 
  * Given this pair of <code>BeMatcher</code>s, you could check whether an <code>Int</code> was odd or even with expressions like:
@@ -439,7 +439,7 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  * 
  * <p>
- * (Hopefully you won't write that too much given <code>null</code> is error prone, and <code>Option</code>
+ * (Hopefully you won't write that too much given <code>null</code> is error prone, and <code>Option </code>
  * is usually a better, well, option.) 
  * Here are some other examples of <code>be</code> used for equality comparison:
  * </p>
@@ -467,7 +467,7 @@ import org.scalatest.verb.ShouldVerb
  * potential point of confusion in the event of a failure is determining whether <code>be</code> was being used as an equality comparison or
  * in some other way, such as a property assertion. To make it more obvious when <code>be</code> is being used for equality, the failure
  * messages generated for those equality checks will include the word <code>equal</code> in them. For example, if this expression fails with a
- * <code>TestFailedException</code>:
+ * <code> TestFailedException</code>:
  * </p>
  *
  * <pre class="indent">
@@ -475,7 +475,7 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  *
  * <p>
- * The detail message in that <code>TestFailedException</code> will include the words <code>"equal to"</code> to signify <code>be</code>
+ * The detail message in that <code>TestFailedException</code> will include the words <code>"equal to"</code> to signify <code>be </code>
  * was in this case being used for equality comparison:
  * </p>
  *
@@ -534,7 +534,7 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * Two differences exist between expressions composed of these <code>and</code> and <code>or</code> operators and the expressions you can write
- * on regular <code>Boolean</code>s using its <code>&&</code> and <code>||</code> operators. First, expressions with <code>and</code>
+ * on regular <code>Boolean</code>s using its <code>&&</code> and <code>||</code> operators. First, expressions with <code>and </code>
  * and <code>or</code> do not short-circuit. The following contrived expression, for example, would print <code>"hello, world!"</code>:
  * </p>
  *
@@ -569,8 +569,8 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * If <code>map</code> is <code>null</code>, the test will indeed fail, but with a <code>NullPointerException</code>, not a
- * <code>TestFailedException</code>. Here, the <code>NullPointerException</code> is the visible right-hand side effect. To get a
- * <code>TestFailedException</code>, you would need to check each assertion separately:
+ * <code> TestFailedException</code>. Here, the <code>NullPointerException</code> is the visible right-hand side effect. To get a
+ * <code> TestFailedException</code>, you would need to check each assertion separately:
  * </p>
  *
  * <pre class="indent">
@@ -585,7 +585,7 @@ import org.scalatest.verb.ShouldVerb
  *
  * <p>
  * The other difference with <code>Boolean</code> operators is that although <code>&&</code> has a higher precedence than <code>||</code>,
- * <code>and</code> and <code>or</code>
+ * <code> and</code> and <code>or </code>
  * have the same precedence. Thus although the <code>Boolean</code> expression <code>(a || b && c)</code> will evaluate the <code>&&</code> expression
  * before the <code>||</code> expression, like <code>(a || (b && c))</code>, the following expression:
  * </p>
@@ -646,7 +646,7 @@ import org.scalatest.verb.ShouldVerb
  * 
  * <p>
  * Using <code>have</code>, you can check properties of any type, where a <em>property</em> is an attribute of any
- * object that can be retrieved either by a public field, method, or JavaBean-style <code>get</code>
+ * object that can be retrieved either by a public field, method, or JavaBean-style <code>get </code>
  * or <code>is</code> method, like this:
  * </p>
  * 
@@ -659,7 +659,7 @@ import org.scalatest.verb.ShouldVerb
  * </pre>
  * 
  * <p>
- * This expression will use reflection to ensure the <code>title</code>, <code>author</code>, and <code>pubYear</code> properties of object <code>book</code>
+ * This expression will use reflection to ensure the <code>title</code>, <code>author</code>, and <code>pubYear</code> properties of object <code>book </code>
  * are equal to the specified values. For example, it will ensure that <code>book</code> has either a public Java field or method
  * named <code>title</code>, or a public method named <code>getTitle</code>, that when invoked (or accessed in the field case) results
  * in a the string <code>"Programming in Scala"</code>. If all specified properties exist and have their expected values, respectively,
