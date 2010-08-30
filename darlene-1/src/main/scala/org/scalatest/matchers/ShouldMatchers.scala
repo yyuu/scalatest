@@ -36,7 +36,7 @@ import org.scalatest.verb.ShouldVerb
  * will be thrown with a detail message that explains the problem, such as <code>"7 did not equal 3"</code>.
  * This <code>TestFailedException</code> will cause the test to fail.
  * </p>
- *    
+ *
  * <p>
  * The <code>left should equal (right)</code> syntax works by calling <code>==</code>  on the <code>left </code>
  * value, passing in the <code>right</code> value, on every type except arrays. If <code>left</code> is an array, <code>deepEquals </code>
@@ -813,10 +813,14 @@ import org.scalatest.verb.ShouldVerb
  *   'title <span style="color: #CC3300; font-weight: bold">(</span>"Programming in Scala"<span style="color: #CC3300; font-weight: bold">)</span>,
  *   'author <span style="color: #CC3300; font-weight: bold">(</span>List("Odersky", "Spoon", "Venners")<span style="color: #CC3300; font-weight: bold">)</span>,
  *   'pubYear <span style="color: #CC3300; font-weight: bold">(</span>2008<span style="color: #CC3300; font-weight: bold">)</span>
+ *
  * )
  * option should be <span style="color: #CC3300; font-weight: bold">(</span>'defined<span style="color: #CC3300; font-weight: bold">)</span>
+ *
  * catMap should (contain key <span style="color: #CC3300; font-weight: bold">(</span>9<span style="color: #CC3300; font-weight: bold">)</span> and contain value <span style="color: #CC3300; font-weight: bold">(</span>"lives"<span style="color: #CC3300; font-weight: bold">)</span>)</span>
+ *
  * keyEvent should be an <span style="color: #CC3300; font-weight: bold">(</span>'actionKey<span style="color: #CC3300; font-weight: bold">)</span>
+ *
  * javaSet should have size <span style="color: #CC3300; font-weight: bold">(</span>90<span style="color: #CC3300; font-weight: bold">)</span>
  * </pre>
  *
@@ -828,10 +832,13 @@ import org.scalatest.verb.ShouldVerb
  * <pre class="indent">
  * file should (exist and have <span style="color: #CC3300; font-weight: bold">(</span>'name ("temp.txt")<span style="color: #CC3300; font-weight: bold">)</span>)
  * book should have <span style="color: #CC3300; font-weight: bold">(</span>
+ *
  *   title ("Programming in Scala"),
  *   author (List("Odersky", "Spoon", "Venners")),
  *   pubYear (2008)
+ *
  * <span style="color: #CC3300; font-weight: bold">)</span>
+ *
  * javaList should have length (9) // parens optional for length and size
  * </pre>
  *
@@ -841,6 +848,7 @@ import org.scalatest.verb.ShouldVerb
  *
  * <pre class="indent">
  * catMap should <span style="color: #CC3300; font-weight: bold">(</span>contain key (9) and contain value ("lives")<span style="color: #CC3300; font-weight: bold">)</span>
+ *
  * number should <span style="color: #CC3300; font-weight: bold">(</span>equal (2) or equal (4) or equal (8)<span style="color: #CC3300; font-weight: bold">)</span>
  * </pre>
  * 
