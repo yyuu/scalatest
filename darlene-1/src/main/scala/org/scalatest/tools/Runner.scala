@@ -33,18 +33,14 @@ import org.scalatest.events._
 import org.scalatest.junit.JUnitWrapperSuite
 
 /**
-<style type="text/css">
-p.normal {line-height:120%;}
-p.padding {padding-bottom:.25cm;}
-</style>
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Application that runs a suite of tests.
  * The application accepts command line arguments that specify optional <em>config map</em> (key-value pairs), an optional 
  * <em>runpath</em>, zero to many <code>Reporter</code>s, optional lists of tags to include and/or exclude, zero to many
  * <code>Suite</code> class names, zero to many "members-only" <code>Suite</code> paths, zero to many "wildcard" <code>Suite</code> paths,
  * and zero to many TestNG XML config file paths.
  * All of these arguments are described in more detail below. Here's a summary:
- * </span></p>
+ * </p>
  *
  * <pre>
  * scala [-classpath scalatest-<version>.jar:...] org.scalatest.tools.Runner 
@@ -54,28 +50,28 @@ p.padding {padding-bottom:.25cm;}
 [-t <TestNG config file path> [...]]
 </pre>
  * 
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The simplest way to start <code>Runner</code> is to specify the directory containing your compiled tests as the sole element of the runpath, for example:
- * </span></p>
+ * </p>
  *
  * <pre>
  * scala -classpath scalatest-<version>.jar org.scalatest.tools.Runner -p compiled_tests
  * </pre>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Given the previous command, <code>Runner</code> will discover and execute all <code>Suite</code>s in the <code>compiled_tests</code> directory and its subdirectories,
  * and show results in graphical user interface (GUI).
- * </span></p>
+ * </p>
  *
  * <a name="configMapSection"><h2>Specifying the config map</h2></a>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * A <em>config map</em> contains pairs consisting of a string key and a value that may be of any type. (Keys that start with
  * "org.scalatest." are reserved for ScalaTest. Configuration values that are themselves strings may be specified on the
  * <code>Runner</code> command line.
  * Each configuration pair is denoted with a "-D", followed immediately by the key string, an "=", and the value string.
  * For example:
- * </span></p>
+ * </p>
  *
  * <pre>
  * -Ddbname=testdb -Dserver=192.168.1.188
@@ -83,7 +79,7 @@ p.padding {padding-bottom:.25cm;}
  *
  * <h2>Specifying a runpath</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * A runpath is the list of filenames, directory paths, and/or URLs that <code>Runner</code>
  * uses to load classes for the running test. If runpath is specified, <code>Runner</code> creates
  * a custom class loader to load classes available on the runpath.
@@ -91,16 +87,16 @@ p.padding {padding-bottom:.25cm;}
  * by creating and using a new instance of the custom class loader for each run.
  * The classes that comprise the test may also be made available on
  * the classpath, in which case no runpath need be specified.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The runpath is specified with the <span style="font-weight: bold">-p</span> option. The <span style="font-weight: bold">-p</span> must be followed by a space,
  * a double quote (<code>"</code>), a white-space-separated list of
  * paths and URLs, and a double quote. If specifying only one element in the runpath, you can leave off
  * the double quotes, which only serve to combine a white-space separated list of strings into one
  * command line argument. If you have path elements that themselves have a space in them, you must
  * place a backslash (\) in front of the space. Here's an example:
- * </span></p>
+ * </p>
  *
  * <pre>
  * -p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar target/class\ 
@@ -109,10 +105,10 @@ files"
  *
  * <h2>Specifying reporters</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Reporters can be specified  on the command line in any of the following
  * ways:
- * </span></p>
+ * </p>
  *
  * <ul>
  * <li> <code><span style="font-weight: bold">-g[configs...]</span></code> - causes display of a graphical user interface that allows
@@ -129,11 +125,11 @@ files"
  *     an instance of the specified fully qualified <code>Reporter</code> class name
  * </ul>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The <code><span style="font-weight: bold">[configs...]</span></code> parameter, which is used to configure reporters, is described in the next section.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The <code><span style="font-weight: bold">-r</span></code> option causes the reporter specified in
  * <code><span style="font-weight: bold"><reporterclass></span></code> to be
  * instantiated.
@@ -144,19 +140,19 @@ files"
  * deployed on the classpath. If a runpath is specified with the
  * <code>-p</code> option, the specified reporter classes may also be loaded from the runpath.
  * All specified reporter classes will be loaded and instantiated via their no-arg constructor.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * For example, to run a suite named <code>MySuite</code> from the <code>mydir</code> directory
  * using two reporters, the graphical reporter and a file reporter
  * writing to a file named <code>"test.out"</code>, you would type:
- * </span></p>
+ * </p>
  *
  * <pre>
  * java -jar scalatest.jar -p mydir <span style="font-weight: bold">-g -f test.out</span> -s MySuite
  * </pre>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The <code><span style="font-weight: bold">-g</span></code>, <code><span style="font-weight: bold">-o</span></code>, or <code><span style="font-weight: bold">-e</span></code> options can
  * appear at most once each in any single command line.
  * Multiple appearances of <code><span style="font-weight: bold">-f</span></code> and <code><span style="font-weight: bold">-r</span></code> result in multiple reporters
@@ -164,9 +160,9 @@ files"
  * repeated. If any of <code><span style="font-weight: bold">-g</span></code>, <code><span style="font-weight: bold">-o</span></code>, <code><span style="font-weight: bold">-e</span></code>,
  * <code><span style="font-weight: bold"><filename></span></code> or <code><span style="font-weight: bold"><reporterclass></span></code> are repeated on
  * the command line, the <code>Runner</code> will print an error message and not run the tests.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * <code>Runner</code> adds the reporters specified on the command line to a <em>dispatch reporter</em>,
  * which will dispatch each method invocation to each contained reporter. <code>Runner</code> will pass
  * the dispatch reporter to executed suites. As a result, every
@@ -174,16 +170,16 @@ files"
  * If no reporters are specified, a graphical
  * runner will be displayed that provides a graphical report of
  * executed suites.
- * </span></p>
+ * </p>
  *
  * <h2>Configuring Reporters</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Each reporter option on the command line can include configuration characters. Configuration characters
  * are specified immediately following the <code><span style="font-weight: bold">-g</span></code>, <code><span style="font-weight: bold">-o</span></code>,
  * <code><span style="font-weight: bold">-e</span></code>, <code><span style="font-weight: bold">-f</span></code>, or <code><span style="font-weight: bold">-r</span></code>. The following configuration
  * characters, which cause reports to be dropped, are valid for any reporter:
- * </span></p>
+ * </p>
  *
  * <ul>
  * <li> <code><span style="font-weight: bold">N</span></code> - drop <code>TestStarting</code> events
@@ -195,15 +191,15 @@ files"
  * <li> <code><span style="font-weight: bold">O</span></code> - drop <code>InfoProvided</code> events
  * </ul>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * A dropped event will not be delivered to the reporter at all. So the reporter will not know about it and therefore not
  * present information about the event in its report. For example, if you specify <code>-oN</code>, the standard output reporter
  * will never receive any <code>TestStarting</code> events and will therefore never report them. The purpose of these
  * configuration parameters is to allow users to selectively remove events they find add clutter to the report without
  * providing essential information.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * <span style="font-weight: bold">Deprecation Note: Prior to 1.0, ScalaTest's <code>Runner</code> allowed you specify configuration parameters on reports that
  * indicated a particular event should be <em>presented</em>. This meant that people could opt to not show
  * test failures, suite aborted events, <em>etc</em>. To prevent important events from being dropped accidentally,
@@ -214,12 +210,12 @@ files"
  * and none of the new ones overlap with any of the old ones. So you have two releases to change your scripts to
  * use the new config parameters. Starting with 1.2, using the old parameters---Y, Z, T, F, G, U, P, B, I, S, A, R---will
  * cause <code>Runner</code> to abort with an error message and not run the tests.</span>
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The following three reporter configuration parameters may additionally be used on standard output (-o), standard error (-e),
  * and file (-f) reporters: 
- * </span></p>
+ * </p>
  *
  * <ul>
  * <li> <code><span style="font-weight: bold">W</span></code> - without color
@@ -227,18 +223,18 @@ files"
  * <li> <code><span style="font-weight: bold">F</span></code> - show <code>TestFailedException</code> stack traces
  * </ul>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * If you specify a W, D, or F for any reporter other than standard output, standard error, or file reporters, <code>Runner</code>
  * will complain with an error message and not perform the run.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Configuring a standard output, error, or file reporter with <code>D</code> will cause that reporter to
  * print a duration for each test and suite.  When running in the default mode, a duration will only be printed for
  * the entire run.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Configuring a standard output, error, or file reporter with <code>F</code> will cause that reporter to print full stack traces for all exceptions,
  * including <code>TestFailedExceptions</code>. Every <code>TestFailedException</code> contains a stack depth of the
  * line of test code that failed so that users won't need to search through a stack trace to find it. When running in the default,
@@ -246,9 +242,9 @@ files"
  * by production code. When a <code>TestFailedException</code> is thrown in default mode, only the source filename and
  * line number of the line of test code that caused the test to fail are printed along with the error message, not the full stack
  * trace. 
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * By default, a standard output, error, or file reporter inserts ansi escape codes into the output printed to change and later reset
  * terminal colors. Information printed as a result of run starting, completed, and stopped events
  * is printed in cyan. Information printed as a result of ignored or pending test events is shown in yellow. Information printed
@@ -256,27 +252,27 @@ files"
  * The purpose of these colors is to facilitate speedy reading of the output, especially the finding of failed tests, which can
  * get lost in a sea of passing tests. Configuring a standard output, error, or file reporter into without-color mode ('W') will
  * turn off this behavior. No ansi codes will be inserted.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * For example, to run a suite using two reporters, the graphical reporter configured to present every reported event
  * and a standard error reporter configured to present everything but test starting, test succeeded, test ignored, test
  * pending, suite starting, suite completed, and info provided events, you would type:
- * </span></p>
+ * </p>
  *
  * <pre>
  * scala -classpath scalatest-<version>.jar -p mydir <span style="font-weight: bold">-g -eNDXEHLO</span> -s MySuite
  * </pre>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Note that no white space is allowed between the reporter option and the initial configuration
  * parameters. So <code>"-e NDXEHLO"</code> will not work,
  * <code>"-eNDXEHLO"</code> will work.
- * </span></p>
+ * </p>
  *
  * <h2>Specifying tags to include and exclude</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * You can specify tag names of tests to include or exclude from a run. To specify tags to include,
  * use <code>-n</code> followed by a white-space-separated list of tag names to include, surrounded by
  * double quotes. (The double quotes are not needed if specifying just one tag.)  Similarly, to specify tags
@@ -288,47 +284,47 @@ files"
  * If tags to include is specified, then only those tests whose tags are mentioned in the argument following <code>-n</code>
  * and not mentioned in the tags to exclude, will be executed. For more information on test tags, see
  * the <a href="Suite.html">documentation for <code>Suite</code></a>. Here are some examples:
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * <ul>
  * <li><code>-n CheckinTests</code></li>
  * <li><code>-n FunctionalTests -l SlowTests</code></li>
  * <li><code>-n "CheckinTests FunctionalTests" -l "SlowTests NetworkTests"</code></li>
  * </ul>
- * </span></p>
+ * </p>
  *
  * <h2>Executing <code>Suite</code>s concurrently</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * With the proliferation of multi-core architectures, and the often parallelizable nature of tests, it is useful to be able to run
  * tests concurrently. If you include <code>-c</code> on the command line, <code>Runner</code> will pass a <code>Distributor</code> to 
  * the <code>Suite</code>s you specify with <code>-s</code>. <code>Runner</code> will set up a thread pool to execute any <code>Suite</code>s
  * passed to the <code>Distributor</code>'s <code>put</code> method concurrently. Trait <code>Suite</code>'s implementation of
  * <code>runNestedSuites</code> will place any nested <code>Suite</code>s into this <code>Distributor</code>. Thus, if you have a <code>Suite</code>
  * of tests that must be executed sequentially, you should override <code>runNestedSuites</code> as described in the <a href="Distributor.html">documentation for <code>Distributor</code></a>.
- * </span></p>
+ * </p>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * The <code>-c</code> option may optionally be appended with a number (e.g.
  * "<code>-c10</code>" -- no intervening space) to specify the number of
  * threads to be created in the thread pool.  If no number (or 0) is
  * specified, the number of threads will be decided based on the number of
  * processors available.
- * </span></p>
+ * </p>
  *
  * <h2>Specifying <code>Suite</code>s</h2>
  *
- * <p><span style="line-height:120%" "padding-bottom:.25cm;">
+ * <p>
  * Suites are specified on the command line with a <span style="font-weight: bold">-s</span> followed by the fully qualified
  * name of a <code>Suite</code> subclass, as in:
- * </span></p>
+ * </p>
  *
  * <pre>
  * -s com.artima.serviceuitest.ServiceUITestkit
  * </pre>
  *
- * <p class="normal">
+ * <p>
  * Each specified suite class must be public, a subclass of
  * <code>org.scalatest.Suite</code>, and contain a public no-arg constructor.
  * <code>Suite</code> classes must be specified with fully qualified names. 
@@ -338,12 +334,12 @@ files"
  * All specified <code>Suite</code> classes will be loaded and instantiated via their no-arg constructor.
  * </p>
  *
- * <p class="normal">
+ * <p>
  * The runner will invoke <code>execute</code> on each instantiated <code>org.scalatest.Suite</code>,
  * passing in the dispatch reporter to each <code>execute</code> method.
  * </p>
  *
- * <p class="normal">
+ * <p>
  * <code>Runner</code> is intended to be used from the command line. It is included in <code>org.scalatest</code>
  * package as a convenience for the user. If this package is incorporated into tools, such as IDEs, which take
  * over the role of runner, object <code>org.scalatest.tools.Runner</code> may be excluded from that implementation of the package.
@@ -353,7 +349,7 @@ files"
  *
  * <h2>Specifying "members-only" and "wildcard" <code>Suite</code> paths</h2>
  *
- * <p class="normal">
+ * <p>
  * If you specify <code>Suite</code> path names with <code>-m</code> or <code>-w</code>, <code>Runner</code> will automatically
  * discover and execute accessible <code>Suite</code>s in the runpath that are either a member of (in the case of <code>-m</code>)
  * or enclosed by (in the case of <code>-w</code>) the specified path. As used in this context, a <em>path</em> is a portion of a fully qualified name.
@@ -366,7 +362,7 @@ files"
  * they can be discovered.
  * </p>
  *
- * <p class="normal">
+ * <p>
  * For example, if you specify <code>-m com.example.webapp</code>
  * on the command line, and you've placed <code>com.example.webapp.RedSuite</code> and <code>com.example.webapp.BlueSuite</code>
  * on the runpath, then <code>Runner</code> will instantiate and execute both of those <code>Suite</code>s. The difference
@@ -379,14 +375,14 @@ files"
  * a member of <code>com.example.webapp.controllers</code>, not <code>com.example.webapp</code>.
  * </p>
  *
- * <p class="normal">
+ * <p>
  * If you specify no <code>-s</code>, <code>-m</code>, or <code>-w</code> arguments on the command line to <code>Runner</code>, it will discover and execute all accessible <code>Suite</code>s
  * in the runpath.
  * </p>
  *
  * <h2>Specifying TestNG XML config file paths</h2>
  *
- * <p class="normal">
+ * <p>
  * If you specify one or more file paths with <code>-t</code>, <code>Runner</code> will create a <code>org.scalatest.testng.TestNGWrapperSuite</code>,
  * passing in a <code>List</code> of the specified paths. When executed, the <code>TestNGWrapperSuite</code> will create one <code>TestNG</code> instance
  * and pass each specified file path to it for running. If you include <code>-t</code> arguments, you must include TestNG's jar file on the class path or runpath.
@@ -397,14 +393,14 @@ files"
  *
  * <h2>Specifying JUnit tests</h2>
  *
- * <p class="normal">
+ * <p>
  * JUnit tests, including ones written in Java, may be run by specifying
  * <code>-j classname</code>, where the classname is a valid JUnit class
  * such as a TestCase, TestSuite, or a class implementing a static suite()
  * method returning a TestSuite. 
  * </p>
  *
- * <p class="normal">
+ * <p>
  * To use this option you must include a JUnit jar file on your classpath.
  * </p>
  *
