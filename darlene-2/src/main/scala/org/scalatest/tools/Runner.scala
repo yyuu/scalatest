@@ -45,7 +45,14 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner [-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] [-n &lt;includes&gt;] [-l &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; [...]] [-j &lt;junit class name&gt; [...]] [-m &lt;members-only suite path&gt; [...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file path&gt; [...]]</code>
+ * <pre>
+ * scala [-classpath scalatest-&lt;version&gt;.jar:...] org.scalatest.tools.Runner 
+[-D&lt;key&gt;=&lt;value&gt; [...]] [-p &lt;runpath&gt;] [reporter [...]] 
+[-n &lt;includes&gt;] [-l &lt;excludes&gt;] [-c] [-s &lt;suite class name&gt; 
+[...]] [-j &lt;junit class name&gt; [...]] [-m &lt;members-only suite path&gt; 
+[...]] [-w &lt;wildcard suite path&gt; [...]] [-t &lt;TestNG config file 
+path&gt; [...]]
+ * </pre>
  * </p>
  *
  * <p>
@@ -53,7 +60,8 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>scala -classpath scalatest-&lt;version&gt;.jar org.scalatest.tools.Runner -p compiled_tests</code>
+ * <pre>scala -classpath scalatest-&lt;version&gt;.jar 
+org.scalatest.tools.Runner -p compiled_tests</pre>
  * </p>
  *
  * <p>
@@ -74,7 +82,7 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>-Ddbname=testdb -Dserver=192.168.1.188</code>
+ * <pre>-Ddbname=testdb -Dserver=192.168.1.188</pre>
  * </p>
  *
  * <p>
@@ -101,7 +109,8 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>-p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar target/class\ files"</code>
+ * <pre>-p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar 
+target/class\ files"</pre>
  * </p>
  *
  * <p>
@@ -152,7 +161,7 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>java -jar scalatest.jar -p mydir <b>-g -f test.out</b> -s MySuite</code>
+ * <pre>java -jar scalatest.jar -p mydir <b>-g -f test.out</b> -s MySuite</pre>
  * </p>
  *
  * <p>
@@ -332,7 +341,7 @@ import java.util.concurrent.ExecutorService
  * </p>
  *
  * <p>
- * <code>-s com.artima.serviceuitest.ServiceUITestkit</code>
+ * <pre>-s com.artima.serviceuitest.ServiceUITestkit</pre>
  * </p>
  *
  * <p>
