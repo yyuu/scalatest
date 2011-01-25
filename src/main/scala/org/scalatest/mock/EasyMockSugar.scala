@@ -17,7 +17,7 @@ package org.scalatest.mock
 
 import org.scalatest._
 import org.easymock.IExpectationSetters
-import org.easymock.classextension.EasyMock
+import org.easymock.EasyMock
 import org.easymock.EasyMock.{expect => easyMockExpect, expectLastCall}
 import scala.reflect.Manifest
 
