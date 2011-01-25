@@ -62,6 +62,7 @@ import org.scalatest.verb.ShouldVerb
  * <code>be theSameInstanceAs</code> syntax, described below.
  * </p>
  *
+ * <a name="checkingSizeLength"></a>
  * <h2>Checking size and length</h2>
  * 
  * <p>
@@ -89,6 +90,7 @@ import org.scalatest.verb.ShouldVerb
  * the object on which <code>should</code> is being invoked has the appropriate structure.)
  * </p>
  * 
+ * <a name="checkingStrings"></a>
  * <h2>Checking strings</h2>
  * 
  * <p>
@@ -124,6 +126,7 @@ import org.scalatest.verb.ShouldVerb
  * or a <code>scala.util.matching.Regex</code>.
  * </p>
  *
+ * <a name="greaterLessThan"></a>
  * <h2>Greater and less than</h2>
  * <p>
  * You can check whether any type that is, or can be implicitly converted to,
@@ -137,6 +140,7 @@ import org.scalatest.verb.ShouldVerb
  * one should be >= (0)
  * </pre>
  * 
+ * <a name="checkingEqualityWithTripleEquals"></a>
  * <h2>Checking equality with <code>be</code> <code>=</code><code>=</code><code>=</code></h2>
  *
  * <p>
@@ -181,6 +185,7 @@ import org.scalatest.verb.ShouldVerb
  * <code>be theSameInstanceAs</code> syntax, described below.
  * </p>
  *
+ * <a name="checkingBooleanWithBe"></a>
  * <h2>Checking <code>Boolean</code> properties with <code>be</code></h2>
  * 
  * <p>
@@ -254,6 +259,7 @@ import org.scalatest.verb.ShouldVerb
  * See the documentation for <a href="BePropertyMatcher.html"><code>BePropertyMatcher</code></a> for more information.
  * </p>
  *
+ * <a name="usingCustomBeMatchers"></a>
  * <h2>Using custom <code>BeMatchers</code></h2>
  *
  * If you want to create a new way of using <code>be</code>, which doesn't map to an actual property on the
@@ -270,6 +276,7 @@ import org.scalatest.verb.ShouldVerb
  *
  * For more information, see the documentation for <a href="BeMatcher.html"><code>BeMatcher</code></a>.
  *
+ * <a name="checkingObjectIdentity"></a>
  * <h2>Checking object identity</h2>
  * 
  * <p>
@@ -280,6 +287,7 @@ import org.scalatest.verb.ShouldVerb
  * ref1 should be theSameInstanceAs (ref2)
  * </pre>
  * 
+ * <a name="checkingNumbersAgainstRange"></a>
  * <h2>Checking numbers against a range</h2>
  * 
  * <p>
@@ -310,6 +318,7 @@ import org.scalatest.verb.ShouldVerb
  * seven should be (6 plusOrMinus 2)
  * </pre>
  * 
+ * <a name="iterablesCollectionsSeqsMaps"></a>
  * <h2>Iterables, collections, sequences, and maps</h2>
  * 
  * <p>
@@ -359,6 +368,7 @@ import org.scalatest.verb.ShouldVerb
  * map should contain value ("Howdy")
  * </pre>
  * 
+ * <a name="javaCollectionsMaps"></a>
  * <h2>Java collections and maps</h2>
  * 
  * <p>
@@ -418,6 +428,7 @@ import org.scalatest.verb.ShouldVerb
  * javaMap should contain value ("Howdy")
  * </pre>
  * 
+ * <a name="beAsEqualityComparison"></a>
  * <h2>Be as an equality comparison</h2>
  * 
  * <p>
@@ -483,6 +494,7 @@ import org.scalatest.verb.ShouldVerb
  * Some(2) was not equal to Some(1)
  * </pre>
  *
+ * <a name="beingNegative"></a>
  * <h2>Being negative</h2>
  * 
  * <p>
@@ -497,6 +509,7 @@ import org.scalatest.verb.ShouldVerb
  * string should not startWith ("Hello")
  * </pre>
  * 
+ * <a name="logicalExpressionsWithAndOr"></a>
  * <h2>Logical expressions with <code>and</code> and <code>or</code></h2>
  * 
  * <p>
@@ -610,6 +623,7 @@ import org.scalatest.verb.ShouldVerb
  * collection should (contain (7) or (contain (8) and have size (9)))
  * </pre>
  * 
+ * <a name="workingWithOptions"></a>
  * <h2>Working with <code>Option</code>s</h2>
  * 
  * <p>
@@ -642,6 +656,7 @@ import org.scalatest.verb.ShouldVerb
  * option should be ('defined)
  * </pre>
  * 
+ * <checkingArbitraryPropsWithHave></a>
  * <h2>Checking arbitrary properties with <code>have</code></h2>
  * 
  * <p>
@@ -729,6 +744,7 @@ import org.scalatest.verb.ShouldVerb
  * See the documentation for <a href="HavePropertyMatcher.html"><code>HavePropertyMatcher</code></a> for more information.
  * </p>
  *
+ * <a name="usingCustomMatchers"></a>
  * <h2>Using custom matchers</h2>
  * 
  * <p>
@@ -765,6 +781,7 @@ import org.scalatest.verb.ShouldVerb
  * For more information about how to create custom <code>Matcher</code>s, please see the documentation for the <a href="Matcher.html"><code>Matcher</code></a> trait.
  * </p>
  *
+ * <checkingExpectedExceptions></a>
  * <h2>Checking for expected exceptions</h2>
  *
  * <p>
@@ -791,6 +808,7 @@ import org.scalatest.verb.ShouldVerb
  * thrown.getMessage should equal ("String index out of range: -1")
  * </pre>
  *
+ * <a name="peskyParens"></a>
  * <h2>Those pesky parens</h2>
  * 
  * <p>
