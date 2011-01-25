@@ -77,6 +77,7 @@ path&gt; [...]]
  *
  * <pre>-Ddbname=testdb -Dserver=192.168.1.188</pre>
  *
+ * <a name="specifyingRunpath"></a>
  * <h2>Specifying a runpath</h2>
  *
  * <p>
@@ -100,6 +101,7 @@ path&gt; [...]]
  *
  * <pre>-p "serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar target/class\ files"</pre>
  *
+ * <a name="specifyingReporters"></a>
  * <h2>Specifying reporters</h2>
  *
  * <p>
@@ -167,6 +169,7 @@ path&gt; [...]]
  * executed suites.
  * </p>
  *
+ * <a name="configuringReporters"></a>
  * <h2>Configuring Reporters</h2>
  *
  * <p>
@@ -265,6 +268,7 @@ path&gt; [...]]
  * <code>"-eNDXEHLO"</code> will work.
  * </p>
  *
+ * <a name="specifyingTagsToIncludeExclude"></a>
  * <h2>Specifying tags to include and exclude</h2>
  *
  * <p>
@@ -289,6 +293,7 @@ path&gt; [...]]
  * </ul>
  * </p>
  *
+ * <a name="executingSuitesConcurrently"></a>
  * <h2>Executing <code>Suite</code>s concurrently</h2>
  *
  * <p>
@@ -308,6 +313,7 @@ path&gt; [...]]
  * processors available.
  * </p>
  *
+ * <a name="specifyingSuites"></a>
  * <h2>Specifying <code>Suite</code>s</h2>
  *
  * <p>
@@ -340,6 +346,7 @@ path&gt; [...]]
  * so client software can count on them being available.
  * </p>
  *
+ * <a name="specifyWildcardSuitePaths"></a>
  * <h2>Specifying "members-only" and "wildcard" <code>Suite</code> paths</h2>
  *
  * <p>
@@ -373,6 +380,7 @@ path&gt; [...]]
  * in the runpath.
  * </p>
  *
+ * <a name="specifyingTestNGPaths"></a>
  * <h2>Specifying TestNG XML config file paths</h2>
  *
  * <p>
@@ -384,6 +392,7 @@ path&gt; [...]]
  * <code>-s</code>, <code>-m</code>, or </code>-w</code> parameters.
  * </p>
  *
+ * <a name="specifyingJUnitTests"></a>
  * <h2>Specifying JUnit tests</h2>
  *
  * <p>
