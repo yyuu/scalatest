@@ -802,17 +802,13 @@ import org.scalatest.tools.StandardOutReporter
  * write in Java:
  * </p>
  *
- * <p><b>BECAUSE OF A SCALADOC BUG IN SCALA 2.8, I HAD TO PUT A SPACE AFTER THE AT SIGN IN ONE THE TARGET ANNOTATION EXAMPLE BELOW. IF YOU
- * WANT TO COPY AND PASTE FROM THIS EXAMPLE, YOU'LL NEED TO REMOVE THE SPACE BY HAND, OR COPY FROM
- * THE <a href="http://www.scalatest.org/scaladoc/doc-1.1/org/scalatest/Suite.html">SUITE SCALADOC FOR VERSION 1.1</a> INSTEAD, WHICH IS ALSO VALID FOR 1.3. - Bill Venners</b></p>
- *
  * <pre>
  * import java.lang.annotation.*; 
  * import org.scalatest.TagAnnotation
  * 
  * @TagAnnotation
  * @Retention(RetentionPolicy.RUNTIME)
- * @ Target({ElementType.METHOD, ElementType.TYPE})
+ * @Target({ElementType.METHOD, ElementType.TYPE})
  * public @interface SlowAsMolasses {}
  * </pre>
  *
