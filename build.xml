@@ -215,8 +215,8 @@
         <scaladoc addparams="-no-specialization" srcref="scaladoc.source.path" destdir="${doc}" classpathref="build.class.path" doctitle="ScalaTest ${release}">
             <include name="**/*.scala" />
         </scaladoc>
-        <delete file="${doc}/lib/template.css"/>
-        <copy file="${html}/template.css" todir="${doc}/lib" />
+        <!--<delete file="${doc}/lib/template.css"/>-->
+        <!--<copy file="${html}/template.css" todir="${doc}/lib" />-->
         <!--
       <javadoc sourcepath="${example}"
         destdir="${demodoc}"
