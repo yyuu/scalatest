@@ -705,7 +705,7 @@
    - Create .asc signature files for each of the jars that gets deployed.
    -
    - Requires passphrase to be stored in file ~/.gnupg/.passphrase.  
-   - (Could omit the --passphrase-file option to avoid this, but then
+   - (Could omit the -passphrase-file option to avoid this, but then
    - gpg would prompt for a passphrase for each signature being created.)
    -->
   <target name="sign">
