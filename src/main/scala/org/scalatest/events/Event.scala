@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2008 Artima, Inc.
+ * Copyright 2001-2011 Artima, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,11 @@ sealed abstract class Event extends Ordered[Event] {
    * how to present this event to the user.
    */
   val formatter: Option[Formatter]
+
+  /**
+   * An optional location in source code about which this event concerns.
+   */
+  val location: Option[Location]
 
   /**
    * An optional object that can be used to pass custom information to the reporter about this event.
@@ -104,6 +109,7 @@ sealed abstract class Event extends Ordered[Event] {
  * @param testName the name of the test that is starting
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that is starting (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
@@ -113,18 +119,19 @@ sealed abstract class Event extends Ordered[Event] {
  *
  * @author Bill Venners
  */
-final case class TestStarting (
+final case class TestStarting(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
 ) extends Event {
-    
+
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
@@ -135,6 +142,8 @@ final case class TestStarting (
     throw new NullPointerException("testName was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -155,6 +164,20 @@ final case class TestStarting (
  */
 object TestStarting {
 
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): TestStarting = {
+    new TestStarting(ordinal, suiteName, suiteClassName, testName, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
+
   /**
    * Constructs a new <code>TestStarting</code> event with the passed parameters, passing the current thread's
    * name as <code>threadname</code> and the current time as <code>timeStamp</code>.
@@ -166,6 +189,7 @@ object TestStarting {
    * @param testName the name of the test that is starting
    * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
    *        how to present this event to the user
+   * @param location an optional location in source code about which an event concerns
    * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that is starting (if <code>None</code>
    *        is passed, the test cannot be rerun)
    * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
@@ -268,6 +292,19 @@ object TestStarting {
   }
 }
 
+@deprecated("Use TestStarting instead")
+object DeprecatedTestStarting {
+
+  def unapply(event: TestStarting): Option[(Ordinal, String, Option[String], String, Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+    event match {
+      case e: TestStarting =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.testName, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
+
 /**
  * Event that indicates a suite (or other entity) has completed running a test that succeeded.
  *
@@ -304,6 +341,7 @@ object TestStarting {
  * @param duration an optional amount of time, in milliseconds, that was required to run the test that has succeeded
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has succeeded (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
@@ -313,13 +351,14 @@ object TestStarting {
  *
  * @author Bill Venners
  */
-final case class TestSucceeded (
+final case class TestSucceeded(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
   duration: Option[Long],
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
@@ -338,6 +377,8 @@ final case class TestSucceeded (
     throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -357,6 +398,21 @@ final case class TestSucceeded (
  * @author Bill Venners
  */
 object TestSucceeded {
+
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    duration: Option[Long],
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): TestSucceeded = {
+    new TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>TestSucceeded</code> event with the passed parameters, passing the current thread's
@@ -502,6 +558,19 @@ object TestSucceeded {
   }
 }
 
+@deprecated("Use TestSucceeded instead")
+object DeprecatedTestSucceeded {
+
+  def unapply(event: TestSucceeded): Option[(Ordinal, String, Option[String], String, Option[Long], Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+  
+    event match {
+      case e: TestSucceeded =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.testName, e.duration, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a suite (or other entity) has completed running a test that failed.
  *
@@ -540,6 +609,7 @@ object TestSucceeded {
  * @param duration an optional amount of time, in milliseconds, that was required to run the test that has failed
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has failed (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
@@ -549,7 +619,7 @@ object TestSucceeded {
  *
  * @author Bill Venners
  */
-final case class TestFailed (
+final case class TestFailed(
   ordinal: Ordinal,
   message: String,
   suiteName: String,
@@ -558,6 +628,7 @@ final case class TestFailed (
   throwable: Option[Throwable],
   duration: Option[Long],
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
@@ -580,6 +651,8 @@ final case class TestFailed (
     throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -599,6 +672,23 @@ final case class TestFailed (
  * @author Bill Venners
  */
 object TestFailed {
+
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    throwable: Option[Throwable],
+    duration: Option[Long],
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): TestFailed = {
+    new TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>TestFailed</code> event with the passed parameters, passing the current thread's
@@ -769,6 +859,19 @@ object TestFailed {
   }
 }
 
+@deprecated("Use TestFailed instead")
+object DeprecatedTestFailed {
+
+  def unapply(event: TestFailed): Option[(Ordinal, String, String, Option[String], String, Option[Throwable], Option[Long], Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+  
+    event match {
+      case e: TestFailed =>
+        Some(e.ordinal, e.message, e.suiteName, e.suiteClassName, e.testName, e.throwable, e.duration, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a suite (or other entity) has ignored a test.
  *
@@ -804,6 +907,7 @@ object TestFailed {
  * @param testName the name of the test that was ignored
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestIgnored</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -811,12 +915,13 @@ object TestFailed {
  *
  * @author Bill Venners
  */
-final case class TestIgnored (
+final case class TestIgnored(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -832,6 +937,8 @@ final case class TestIgnored (
     throw new NullPointerException("testName was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -849,6 +956,19 @@ final case class TestIgnored (
  * @author Bill Venners
  */
 object TestIgnored {
+
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): TestIgnored = {
+    new TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>TestIgnored</code> event with the passed parameters, passing the current thread's
@@ -929,6 +1049,19 @@ object TestIgnored {
   }
 }
 
+@deprecated("Use TestIgnored instead")
+object DeprecatedTestIgnored {
+
+  def unapply(event: TestIgnored): Option[(Ordinal, String, Option[String], String, Option[Formatter], Option[Any], String, Long)] = {
+    event match {
+      case e: TestIgnored =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.testName, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
+
 /**
  * Event that indicates a test is pending, <em>i.e.</em>, it hasn't yet been implemented.
  *
@@ -958,6 +1091,7 @@ object TestIgnored {
  * @param testName the name of the test that is pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestPending</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -965,12 +1099,13 @@ object TestIgnored {
  *
  * @author Bill Venners
  */
-final case class TestPending (
+final case class TestPending(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -986,6 +1121,8 @@ final case class TestPending (
     throw new NullPointerException("testName was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -1003,6 +1140,19 @@ final case class TestPending (
  * @author Bill Venners
  */
 object TestPending {
+
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    testName: String,
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): TestPending = {
+    new TestPending(ordinal, suiteName, suiteClassName, testName, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>TestPending</code> event with the passed parameters, passing the current thread's
@@ -1083,6 +1233,18 @@ object TestPending {
   }
 }
 
+@deprecated("Use TestPending instead")
+object DeprecatedTestPending {
+
+  def unapply(event: TestPending): Option[(Ordinal, String, Option[String], String, Option[Formatter], Option[Any], String, Long)] = {
+    event match {
+      case e: TestPending =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.testName, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a suite of tests is about to start executing.
  *
@@ -1117,6 +1279,7 @@ object TestPending {
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name of the suite that is starting
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that is starting (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
@@ -1126,11 +1289,12 @@ object TestPending {
  *
  * @author Bill Venners
  */
-final case class SuiteStarting (
+final case class SuiteStarting(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
@@ -1145,6 +1309,8 @@ final case class SuiteStarting (
     throw new NullPointerException("suiteClassName was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -1164,6 +1330,19 @@ final case class SuiteStarting (
  * @author Bill Venners
  */
 object SuiteStarting {
+
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): SuiteStarting = {
+    new SuiteStarting(ordinal, suiteName, suiteClassName, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>SuiteStarting</code> event with the passed parameters, passing the current thread's
@@ -1273,6 +1452,18 @@ object SuiteStarting {
   }
 }
 
+@deprecated("Use SuiteStarting instead")
+object DeprecatedSuiteStarting {
+
+  def unapply(event: SuiteStarting): Option[(Ordinal, String, Option[String], Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+    event match {
+      case e: SuiteStarting =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a suite of tests has completed executing.
  *
@@ -1308,6 +1499,7 @@ object SuiteStarting {
  * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has completed (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteCompleted</code> event
@@ -1317,12 +1509,13 @@ object SuiteStarting {
  *
  * @author Bill Venners
  */
-final case class SuiteCompleted (
+final case class SuiteCompleted(
   ordinal: Ordinal,
   suiteName: String,
   suiteClassName: Option[String],
   duration: Option[Long],
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
@@ -1339,6 +1532,8 @@ final case class SuiteCompleted (
     throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -1358,6 +1553,20 @@ final case class SuiteCompleted (
  * @author Bill Venners
  */
 object SuiteCompleted {
+
+  def apply(
+    ordinal: Ordinal,
+    suiteName: String,
+    suiteClassName: Option[String],
+    duration: Option[Long],
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): SuiteCompleted = {
+    new SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>SuiteCompleted</code> event with the passed parameters, passing the current thread's
@@ -1495,6 +1704,18 @@ object SuiteCompleted {
   }
 }
 
+@deprecated("Use SuiteCompleted instead")
+object DeprecatedSuiteCompleted {
+
+  def unapply(event: SuiteCompleted): Option[(Ordinal, String, Option[String], Option[Long], Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+    event match {
+      case e: SuiteCompleted =>
+        Some(e.ordinal, e.suiteName, e.suiteClassName, e.duration, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates the execution of a suite of tests has aborted, likely because of an error, prior
  * to completion.
@@ -1536,6 +1757,7 @@ object SuiteCompleted {
  * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has aborted
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has aborted (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteAborted</code> event
@@ -1545,7 +1767,7 @@ object SuiteCompleted {
  *
  * @author Bill Venners
  */
-final case class SuiteAborted (
+final case class SuiteAborted(
   ordinal: Ordinal,
   message: String,
   suiteName: String,
@@ -1553,6 +1775,7 @@ final case class SuiteAborted (
   throwable: Option[Throwable],
   duration: Option[Long],
   formatter: Option[Formatter],
+  location: Option[Location],
   rerunner: Option[Rerunner],
   payload: Option[Any],
   threadName: String,
@@ -1573,6 +1796,8 @@ final case class SuiteAborted (
     throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (rerunner == null)
     throw new NullPointerException("rerunner was null")
   if (payload == null)
@@ -1592,6 +1817,22 @@ final case class SuiteAborted (
  * @author Bill Venners
  */
 object SuiteAborted {
+
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    suiteName: String,
+    suiteClassName: Option[String],
+    throwable: Option[Throwable],
+    duration: Option[Long],
+    formatter: Option[Formatter],
+    rerunner: Option[Rerunner],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): SuiteAborted = {
+    new SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, None, rerunner, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>SuiteAborted</code> event with the passed parameters, passing the current thread's
@@ -1754,6 +1995,18 @@ object SuiteAborted {
   }
 }
 
+@deprecated("Use SuiteAborted instead")
+object DeprecatedSuiteAborted {
+
+  def unapply(event: SuiteAborted): Option[(Ordinal, String, String, Option[String], Option[Throwable], Option[Long], Option[Formatter], Option[Rerunner], Option[Any], String, Long)] = {
+    event match {
+      case e: SuiteAborted =>
+        Some(e.ordinal, e.message, e.suiteName, e.suiteClassName, e.throwable, e.duration, e.formatter, e.rerunner, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a runner is about run a suite of tests.
  *
@@ -1779,6 +2032,7 @@ object SuiteAborted {
  * @param configMap a <code>Map</code> of key-value pairs that can be used by custom <code>Reporter</code>s
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -1788,11 +2042,12 @@ object SuiteAborted {
  *
  * @author Bill Venners
  */
-final case class RunStarting (
+final case class RunStarting(
   ordinal: Ordinal,
   testCount: Int,
   configMap: Map[String, Any],
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -1806,6 +2061,8 @@ final case class RunStarting (
     throw new NullPointerException("configMap was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -1824,6 +2081,18 @@ final case class RunStarting (
  * @author Bill Venners
  */
 object RunStarting {
+
+  def apply(
+    ordinal: Ordinal,
+    testCount: Int,
+    configMap: Map[String, Any],
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): RunStarting = {
+    new RunStarting(ordinal, testCount, configMap, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>RunStarting</code> event with the passed parameters, passing the current thread's
@@ -1900,6 +2169,18 @@ object RunStarting {
   }
 }
 
+@deprecated("Use RunStarting instead")
+object DeprecatedRunStarting {
+
+  def unapply(event: RunStarting): Option[(Ordinal, Int, Map[String, Any], Option[Formatter], Option[Any], String, Long)] = {
+    event match {
+      case e: RunStarting =>
+        Some(e.ordinal, e.testCount, e.configMap, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a runner has completed running a suite of tests.
  *
@@ -1941,6 +2222,7 @@ object RunStarting {
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunCompleted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -1948,11 +2230,12 @@ object RunStarting {
  *
  * @author Bill Venners
  */
-final case class RunCompleted (
+final case class RunCompleted(
   ordinal: Ordinal,
   duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -1966,6 +2249,8 @@ final case class RunCompleted (
     throw new NullPointerException("summary was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -1983,6 +2268,18 @@ final case class RunCompleted (
  * @author Bill Venners
  */
 object RunCompleted {
+
+  def apply(
+    ordinal: Ordinal,
+    duration: Option[Long],
+    summary: Option[Summary],
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): RunCompleted = {
+    new RunCompleted(ordinal, duration, summary, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>RunCompleted</code> event with the passed parameters, passing the current thread's
@@ -2096,6 +2393,19 @@ object RunCompleted {
   }
 }
 
+@deprecated("Use RunCompleted instead")
+object DeprecatedRunCompleted {
+
+  def unapply(event: RunCompleted): Option[(Ordinal, Option[Long], Option[Summary], Option[Formatter], Option[Any], String, Long)] = {
+
+    event match {
+      case e: RunCompleted =>
+        Some(e.ordinal, e.duration, e.summary, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a runner has stopped running a suite of tests prior to completion, likely
  * because of a stop request.
@@ -2138,6 +2448,7 @@ object RunCompleted {
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunStopped</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -2145,11 +2456,12 @@ object RunCompleted {
  *
  * @author Bill Venners
  */
-final case class RunStopped (
+final case class RunStopped(
   ordinal: Ordinal,
   duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -2163,6 +2475,8 @@ final case class RunStopped (
     throw new NullPointerException("summary was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -2180,6 +2494,18 @@ final case class RunStopped (
  * @author Bill Venners
  */
 object RunStopped {
+
+  def apply(
+    ordinal: Ordinal,
+    duration: Option[Long],
+    summary: Option[Summary],
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): RunStopped = {
+    new RunStopped(ordinal, duration, summary, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>RunStopped</code> event with the passed parameters, passing the current thread's
@@ -2293,6 +2619,19 @@ object RunStopped {
   }
 }
 
+@deprecated("Use RunStopped instead")
+object DeprecatedRunStopped {
+
+  def unapply(event: RunStopped): Option[(Ordinal, Option[Long], Option[Summary], Option[Formatter], Option[Any], String, Long)] = {
+  
+    event match {
+      case e: RunStopped =>
+        Some(e.ordinal, e.duration, e.summary, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event that indicates a runner encountered an error while attempting to run a suite of tests.
  *
@@ -2328,6 +2667,7 @@ object RunStopped {
  * @param summary an optional summary of the number of tests that were reported as succeeded, failed, ignored, and pending
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>RunAborted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -2335,13 +2675,14 @@ object RunStopped {
  *
  * @author Bill Venners
  */
-final case class RunAborted (
+final case class RunAborted(
   ordinal: Ordinal,
   message: String,
   throwable: Option[Throwable],
   duration: Option[Long],
   summary: Option[Summary],
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -2359,6 +2700,8 @@ final case class RunAborted (
     throw new NullPointerException("summary was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -2376,6 +2719,20 @@ final case class RunAborted (
  * @author Bill Venners
  */
 object RunAborted {
+
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    throwable: Option[Throwable],
+    duration: Option[Long],
+    summary: Option[Summary],
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): RunAborted = {
+    new RunAborted(ordinal, message, throwable, duration, summary, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>RunAborted</code> event with the passed parameters, passing the current thread's
@@ -2514,6 +2871,18 @@ object RunAborted {
   }
 }
 
+@deprecated("Use RunAborted instead")
+object DeprecatedRunAborted {
+
+  def unapply(event: RunAborted): Option[(Ordinal, String, Option[Throwable], Option[Long], Option[Summary], Option[Formatter], Option[Any], String, Long)] = {
+    event match {
+      case e: RunAborted =>
+        Some(e.ordinal, e.message, e.throwable, e.duration, e.summary, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 /**
  * Event used to provide information that is not appropriate to report via any other <code>Event</code>.
  *
@@ -2545,6 +2914,7 @@ object RunAborted {
  * @param throwable an optional <code>Throwable</code>
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
+ * @param location an optional location in source code about which an event concerns
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>InfoProvided</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -2552,13 +2922,14 @@ object RunAborted {
  *
  * @author Bill Venners
  */
-final case class InfoProvided (
+final case class InfoProvided(
   ordinal: Ordinal,
   message: String,
   nameInfo: Option[NameInfo],
   aboutAPendingTest: Option[Boolean],
   throwable: Option[Throwable],
   formatter: Option[Formatter],
+  location: Option[Location],
   payload: Option[Any],
   threadName: String,
   timeStamp: Long
@@ -2574,6 +2945,8 @@ final case class InfoProvided (
     throw new NullPointerException("throwable was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -2591,6 +2964,20 @@ final case class InfoProvided (
  * @author Bill Venners
  */
 object InfoProvided {
+
+  def apply(
+    ordinal: Ordinal,
+    message: String,
+    nameInfo: Option[NameInfo],
+    aboutAPendingTest: Option[Boolean],
+    throwable: Option[Throwable],
+    formatter: Option[Formatter],
+    payload: Option[Any],
+    threadName: String,
+    timeStamp: Long
+  ): InfoProvided = {
+    new InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, None, payload, threadName, timeStamp)
+  }
 
   /**
    * Constructs a new <code>InfoProvided</code> event with the passed parameters, passing the current thread's
@@ -2732,4 +3119,17 @@ object InfoProvided {
     apply(ordinal, message, nameInfo, None, None, None, None, Thread.currentThread.getName, (new Date).getTime)
   }
 }
+
+@deprecated("Use InfoProvided instead")
+object DeprecatedInfoProvided {
+
+  def unapply(event: InfoProvided): Option[(Ordinal, String, Option[NameInfo], Option[Boolean], Option[Throwable], Option[Formatter], Option[Any], String, Long)] = {
+    event match {
+      case e: InfoProvided =>
+        Some(e.ordinal, e.message, e.nameInfo, e.aboutAPendingTest, e.throwable, e.formatter, e.payload, e.threadName, e.timeStamp)
+      case _ => None
+    }
+  }
+}
+
 

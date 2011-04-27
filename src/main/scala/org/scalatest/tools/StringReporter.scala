@@ -309,7 +309,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
 
     event match {
 
-      case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) => 
+      case DeprecatedRunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) => 
 
         if (testCount < 0)
           throw new IllegalArgumentException
@@ -317,20 +317,20 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
         val string = Resources("runStarting", testCount.toString)
         printPossiblyInColor(string, ansiCyan)
 
-      case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timeStamp) => 
+      case DeprecatedRunCompleted(ordinal, duration, summary, formatter, payload, threadName, timeStamp) => 
 
         makeFinalReport("runCompleted", duration, summary)
 
-      case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
+      case DeprecatedRunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
 
         makeFinalReport("runStopped", duration, summary)
 
-      case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
+      case DeprecatedRunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("abortedNote", "runAborted", message, throwable, formatter, None, None, duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
 
-      case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) =>
+      case DeprecatedSuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) =>
 
         val stringToPrint = stringToPrintWhenNoError("suiteStarting", formatter, suiteName, None)
 
@@ -339,7 +339,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           case None =>
         }
 
-      case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
+      case DeprecatedSuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
 
         val stringToPrint = stringToPrintWhenNoError("suiteCompleted", formatter, suiteName, None, duration)
 
@@ -348,12 +348,12 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           case None =>
         }
 
-      case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
+      case DeprecatedSuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("abortedNote", "suiteAborted", message, throwable, formatter, Some(suiteName), None, duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
 
-      case TestStarting(ordinal, suiteName, suiteClassName, testName, formatter, rerunnable, payload, threadName, timeStamp) =>
+      case DeprecatedTestStarting(ordinal, suiteName, suiteClassName, testName, formatter, rerunnable, payload, threadName, timeStamp) =>
 
         val stringToPrint = stringToPrintWhenNoError("testStarting", formatter, suiteName, Some(testName))
 
@@ -362,7 +362,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           case None =>
         }
 
-      case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
+      case DeprecatedTestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
 
         val stringToPrint = stringToPrintWhenNoError("testSucceeded", formatter, suiteName, Some(testName), duration)
 
@@ -371,7 +371,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           case None =>
         }
     
-      case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
+      case DeprecatedTestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
 
         val stringToPrint =
           formatter match {
@@ -385,12 +385,12 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           case None =>
         }
 
-      case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
+      case DeprecatedTestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("failedNote", "testFailed", message, throwable, formatter, Some(suiteName), Some(testName), duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
 
-      case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
+      case DeprecatedInfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
 
         val (suiteName, testName) =
           nameInfo match {
@@ -405,7 +405,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           }
         for (line <- lines) printPossiblyInColor(line, if (shouldBeYellow) ansiYellow else ansiGreen)
 
-      case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
+      case DeprecatedTestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
 
         val stringToPrint =
           formatter match {
