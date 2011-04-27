@@ -24,21 +24,32 @@ sealed abstract class Location
  * The location in a source file where the class whose by the fully qualified name
  * is passed as <code>className</code> is declared.
  */
-case class TopOfClass(className: String) extends Location
+final case class TopOfClass(className: String) extends Location
 
 /**
  * The location in a source file where the method whose name is passed as
  * <code>methodName</code> in the class whose fully qualified name is passed
  * as <code>className</code> is declared.
  */
-case class TopOfMethod(className: String, methodName: String) extends Location
+final case class TopOfMethod(className: String, methodName: String) extends Location
 
 /**
  * An arbitrary line number in a named source file.
  */
-case class LineInFile(
- className: Option[String],
- methodName: Option[String],
- fileName: String,
- lineNumber: Int
-) extends Location
+final case class LineInFile(stackDepth: Int) extends Location {
+
+  private val e = new Exception
+  private lazy val stackTraceElement = e.getStackTrace()(stackDepth + 1)
+
+  lazy val className: String = stackTraceElement.getClassName
+  lazy val methodName: String = stackTraceElement.getMethodName
+  lazy val fileName: Option[String] = Option(stackTraceElement.getFileName)
+  lazy val lineNumber: Option[Int] = Option(stackTraceElement.getLineNumber)
+}
+
+/**
+ * Indicates the location should be taken from the stack depth exception, included elsewhere in 
+ * the event that contained this location.
+ */
+final case object SeeStackDepthException
+
