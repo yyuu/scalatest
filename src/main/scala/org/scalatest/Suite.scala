@@ -2542,6 +2542,10 @@ used for test events like succeeded/failed, etc.
     report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(MotionToSuppress), rerunnable))
   }
 
+  def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, rerunnable: Option[Rerunner], location: Option[Location]) {
+    report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(MotionToSuppress), /* TODO: location,*/ rerunnable))
+  }
+
   def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, formatter: Formatter) {
     report(TestPending(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(formatter)))
   }

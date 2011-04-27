@@ -960,7 +960,7 @@ trait Spec extends Suite { thisSuite =>
      * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
      */
     def apply(specText: String, testTags: Tag*)(testFun: => Unit) {
-      registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", "Spec.scala", "apply", testTags: _*)
+      registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", "Spec.scala", "apply", Some(LineInFile(1)), testTags: _*)
     }
 
     /**

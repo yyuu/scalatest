@@ -96,7 +96,7 @@ trait StackDepth { this: Throwable =>
    */
   def failedCodeLineNumber: Option[Int] = {
     val lineNum = stackTraceElement.getLineNumber
-    if (lineNum > 0) {
+    if (lineNum >= 0) {
       Some(lineNum)
     }
     else None

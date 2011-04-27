@@ -22,6 +22,7 @@ import FunSuite.IgnoreTagName
 import org.scalatest.NodeFamily.TestLeaf
 import org.scalatest.Suite._
 import fixture.NoArgTestWrapper
+import org.scalatest.events.Location
 
 // T will be () => Unit for FunSuite and FixtureParam => Any for FixtureFunSuite
 private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResourceName: String, simpleClassName: String)  {
@@ -398,13 +399,31 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     currentBranch == Trunk
   }
 
-  def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*): String = { // returns testName
+  def registerTest(
+    testText: String,
+    testFun: T,
+    testRegistrationClosedResourceName: String,
+    sourceFileName: String,
+    methodName: String,
+    testTags: Tag*
+  ): String = { // returns testName
+    registerTest(testText, testFun, testRegistrationClosedResourceName, sourceFileName, methodName, None, testTags: _*)
+  }
+
+  def registerTest(
+    testText: String,
+    testFun: T,
+    testRegistrationClosedResourceName: String,
+    sourceFileName: String,
+    methodName: String,
+    location: Option[Location],
+    testTags: Tag*
+  ): String = { // returns testName
 
     checkRegisterTestParamsForNull(testText, testTags: _*)
 
     if (atomic.get.registrationClosed)
       throw new TestRegistrationClosedException(Resources(testRegistrationClosedResourceName), getStackDepth(sourceFileName, methodName))
-//    throw new TestRegistrationClosedException(Resources("testCannotAppearInsideAnotherTest"), getStackDepth(sourceFileName, "test"))
 
     val oldBundle = atomic.get
     var (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
