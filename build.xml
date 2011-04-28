@@ -6,7 +6,9 @@
              uri="antlib:org.apache.maven.artifact.ant"
              classpathref="maven-ant-tasks.classpath" />
 
-    <property name="scala.version" value="2.8.1" />
+    <artifact:pom id="pom" file="pom.xml" />
+
+    <property name="scala.version" value="${pom.properties.scala.version}" />
 
     <!-- set global properties for this build -->
     <property name="scalasrc" value="src/main/scala" />
@@ -37,7 +39,7 @@
     <property name="jdoc" value="${build}/jdoc" />
     <property name="zipper" value="zipper" />
     <property name="project.name" value="ScalaTest" />
-    <property name="release" value="1.5-SNAPSHOT" />
+    <property name="release" value="${pom.version}" />
     <property name="demo" value="${build}/demo" />
     <property name="demodoc" value="${demo}/example/javadoc" />
     <property name="example" value="${demo}/example" />
@@ -647,11 +649,7 @@
                  uri="antlib:org.apache.maven.artifact.ant"
                  classpathref="maven-ant-tasks.classpath" />
 
-        <copy file="pom.xml" tofile="${build}/pom.xml" overwrite="true">
-            <filterset>
-                <filter token="RELEASE" value="${release}" />
-            </filterset>
-        </copy>
+        <copy file="pom.xml" tofile="${build}/pom.xml" overwrite="true"/>
 
         <jar jarfile="${build}/scalatest-scaladoc.jar" basedir="${doc}"/>
         <jar jarfile="${build}/scalatest-javadoc.jar"  basedir="${jdoc}"/>
@@ -709,8 +707,6 @@
    - gpg would prompt for a passphrase for each signature being created.)
    -->
   <target name="sign">
-    <property environment="env"/>
-
     <delete file="${dist}/lib/scalatest.jar.asc"/>
     <delete file="${build.tests.jar}.asc"/>
     <delete file="${build}/scalatest-sources.jar.asc"/>
@@ -721,45 +717,44 @@
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${dist}/lib/scalatest.jar"/>
     </exec>
 
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${build.tests.jar}"/>
     </exec>
 
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${build}/scalatest-sources.jar"/>
     </exec>
 
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${build}/scalatest-test-sources.jar"/>
     </exec>
 
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${build}/scalatest-scaladoc.jar"/>
     </exec>
 
     <exec executable="gpg">
       <arg value="-ab"/>
       <arg value="--passphrase-file"/>
-      <arg value="${env.HOME}/.gnupg/.passphrase"/>
+      <arg value="${user.home}/.gnupg/.passphrase"/>
       <arg value="${build}/scalatest-javadoc.jar"/>
     </exec>
   </target>
-
 </project>
 
