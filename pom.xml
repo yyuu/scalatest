@@ -155,15 +155,17 @@
 
   <distributionManagement>
     <repository>
-      <id>scala-tools.org</id>
+      <id>sonatype-nexus-staging</id>
       <url>
-      http://nexus.scala-tools.org/content/repositories/releases/</url>
+        https://oss.sonatype.org/service/local/staging/deploy/maven2/
+      </url>
     </repository>
 
     <snapshotRepository>
-      <id>scala-tools.org</id>
+      <id>sonatype-nexus-snapshots</id>
       <url>
-      http://nexus.scala-tools.org/content/repositories/snapshots/</url>
+        https://oss.sonatype.org/content/repositories/snapshots/
+      </url>
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
