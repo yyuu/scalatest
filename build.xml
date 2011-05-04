@@ -6,23 +6,10 @@
              uri="antlib:org.apache.maven.artifact.ant"
              classpathref="maven-ant-tasks.classpath" />
 
-    <artifact:pom id="pom" file="pom.xml" />
-
-    <property name="scala.version"
-              value="${pom.properties.scala.version}" />
-    <property name="snapshot.repository"
-              value="${pom.distributionManagement.snapshotRepository.url}" />
-    <property name="release.repository"
-              value="${pom.distributionManagement.repository.url}" />
-    <property name="snapshot.repository.id"
-              value="${pom.distributionManagement.snapshotRepository.id}" />
-    <property name="release.repository.id"
-              value="${pom.distributionManagement.repository.id}" />
-    <property name="mvn.deploy.plugin"
-              value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
-
-
     <!-- set global properties for this build -->
+    <property name="release" value="1.5-SNAPSHOT" />
+    <property name="scala.version" value="2.8.1" />
+
     <property name="scalasrc" value="src/main/scala" />
     <property name="javasrc" value="src/main/java" />
     <property name="scalasrc.test" value="src/test/scala" />
@@ -51,7 +38,6 @@
     <property name="jdoc" value="${build}/jdoc" />
     <property name="zipper" value="zipper" />
     <property name="project.name" value="ScalaTest" />
-    <property name="release" value="${pom.version}" />
     <property name="demo" value="${build}/demo" />
     <property name="demodoc" value="${demo}/example/javadoc" />
     <property name="example" value="${demo}/example" />
@@ -78,9 +64,16 @@
         <mkdir dir="${jdoc}" />
         <mkdir dir="${jdoc}" />
 
-	    <artifact:dependencies pathId="lib.path" useScope="test">
-	      <pom file="pom.xml"/>
-	    </artifact:dependencies>
+        <copy file="pom_template.xml" tofile="${build}/pom.xml" overwrite="true">
+          <filterset>
+            <filter token="RELEASE" value="${release}" />
+            <filter token="SCALA_VERSION" value="${scala.version}" />
+          </filterset>
+        </copy>
+
+        <artifact:dependencies pathId="lib.path" useScope="test">
+          <pom file="${build}/pom.xml"/>
+        </artifact:dependencies>
 	
         <path id="build.class.path">
             <pathelement location="${classes}" />
@@ -654,7 +647,20 @@
       -   </servers>
       - 
       -->
-     <target name="deploy" depends="jar,jartests,jarsrc,jartestsrc,doc,sign">
+     <target name="deploy" depends="jar,jartests,jarsrc,jartestsrc,doc">
+      <artifact:pom id="pom" file="${build}/pom.xml" />
+
+      <property name="snapshot.repository"
+                value="${pom.distributionManagement.snapshotRepository.url}" />
+      <property name="release.repository"
+                value="${pom.distributionManagement.repository.url}" />
+      <property name="snapshot.repository.id"
+                value="${pom.distributionManagement.snapshotRepository.id}" />
+      <property name="release.repository.id"
+                value="${pom.distributionManagement.repository.id}" />
+      <property name="mvn.deploy.plugin"
+                value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+
       <condition property="maven.repository.url" value="${snapshot.repository}"
                  else="${release.repository}">
         <contains string="${release}" substring="-SNAPSHOT"/>
@@ -672,7 +678,7 @@
         <arg value="${mvn.deploy.plugin}" />
         <arg value="-Dfile=${dist}/lib/scalatest.jar" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />
@@ -683,7 +689,7 @@
         <arg value="-Dfile=${build.tests.jar}" />
         <arg value="-Dclassifier=tests" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />
@@ -694,7 +700,7 @@
         <arg value="-Dfile=${build}/scalatest-sources.jar" />
         <arg value="-Dclassifier=sources" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />
@@ -705,7 +711,7 @@
         <arg value="-Dfile=${build}/scalatest-test-sources.jar" />
         <arg value="-Dclassifier=test-sources" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />
@@ -716,7 +722,7 @@
         <arg value="-Dfile=${build}/scalatest-scaladoc.jar" />
         <arg value="-Dclassifier=scaladoc" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />
@@ -727,7 +733,7 @@
         <arg value="-Dfile=${build}/scalatest-javadoc.jar" />
         <arg value="-Dclassifier=javadoc" />
         <arg value="-Durl=${maven.repository.url}" />
-        <arg value="-DpomFile=pom.xml" />
+        <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
         <arg value="-DuniqueVersion=false" />
         <arg value="-Pgpg" />

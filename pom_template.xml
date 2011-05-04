@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <properties>
-    <scala.version>2.8.1</scala.version>
+    <scala.version>@SCALA_VERSION@</scala.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 	
   <groupId>org.scalatest</groupId>
-  <artifactId>scalatest</artifactId>
-  <version>1.5-SNAPSHOT</version>
+  <artifactId>scalatest_@SCALA_VERSION@</artifactId>
+  <version>@RELEASE@</version>
   <packaging>jar</packaging>
 
   <name>ScalaTest</name>
@@ -153,20 +153,20 @@
     </dependency>
   </dependencies>
 
-  <distributionManagement>
-    <repository>
-      <id>sonatype-nexus-staging</id>
-      <url>
-        https://oss.sonatype.org/service/local/staging/deploy/maven2/
-      </url>
-    </repository>
-
-    <snapshotRepository>
-      <id>sonatype-nexus-snapshots</id>
-      <url>
-        https://oss.sonatype.org/content/repositories/snapshots/
-      </url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
+   <distributionManagement>
+     <repository>
+       <id>scala-tools.org</id>
+       <url>
+         http://nexus.scala-tools.org/content/repositories/releases/
+       </url>
+     </repository>
+ 
+     <snapshotRepository>
+       <id>scala-tools.org</id>
+       <url>
+         http://nexus.scala-tools.org/content/repositories/snapshots/
+       </url>
+       <uniqueVersion>false</uniqueVersion>
+     </snapshotRepository>
+   </distributionManagement>
 </project>
