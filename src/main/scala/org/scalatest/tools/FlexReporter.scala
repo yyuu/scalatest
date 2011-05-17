@@ -36,10 +36,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def apply(event: Event) {
     if (!event.formatter.exists(f => f == MotionToSuppress))
       events += event
-
-        System.out.println("\ngcbx event.ordinal [" + event.ordinal + "]");
-    for (e <- getSortedEvents)
-        System.out.println("gcbx e.ordinal [" + e.ordinal + "]");
   }
 
   def getSortedEvents: List[Event] = {
