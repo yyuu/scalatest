@@ -93,7 +93,7 @@ import org.apache.tools.ant.taskdefs.Java
  *   <li>  <code>graphic</code>          </li>
  *   <li>  <code>file</code>             </li>
  *   <li>  <code>junitxml</code>         </li>
- *   <li>  <code>xml</code>              </li>
+ *   <li>  <code>flex</code>             </li>
  *   <li>  <code>stdout</code>           </li>
  *   <li>  <code>stderr</code>           </li>
  *   <li>  <code>reporterclass</code>    </li>
@@ -101,7 +101,7 @@ import org.apache.tools.ant.taskdefs.Java
  *
  * <p>
  * Each may include a <code>config</code> attribute to specify the reporter configuration.
- * Types <code>file</code>, <code>xml</code>, <code>junitxml</code> and <code>reporterclass</code> require additional attributes
+ * Types <code>file</code>, <code>junitxml</code>, <code>flex</code>, and <code>reporterclass</code> require additional attributes
  * <code>filename</code>, <code>directory</code>, and <code>classname</code>, respectively:
  * </p>
  *
@@ -109,8 +109,8 @@ import org.apache.tools.ant.taskdefs.Java
  *   &lt;scalatest&gt;
  *     &lt;reporter type="stdout"        config="FAB"/&gt;
  *     &lt;reporter type="file"          filename="test.out"/&gt;
- *     &lt;reporter type="xml"           directory="target"/&gt;
  *     &lt;reporter type="junitxml"      directory="target"/&gt;
+ *     &lt;reporter type="flex"          directory="target"/&gt;
  *     &lt;reporter type="reporterclass" classname="my.ReporterClass"/&gt;
  * </pre>
  *
@@ -396,6 +396,7 @@ class ScalaTestAntTask extends Task {
         case "file"          => addFileReporter(args, reporter)
         case "xml"           => addXmlReporter(args, reporter)
         case "junitxml"      => addJunitXmlReporter(args, reporter)
+        case "flex"          => addFlexReporter(args, reporter)
         case "html"          => addHtmlReporter(args, reporter)
         case "reporterclass" => addReporterClass(args, reporter)
 
@@ -439,6 +440,7 @@ class ScalaTestAntTask extends Task {
   //
   // Adds '-x' xml reporter option to args.  Adds reporter's
   // directory as additional argument, e.g. "-x", "directory".
+  // [disabled for now]
   //
   private def addXmlReporter(args: ListBuffer[String],
                              reporter: ReporterElement)
@@ -464,6 +466,22 @@ class ScalaTestAntTask extends Task {
     if (reporter.getDirectory == null)
       throw new BuildException(
         "reporter type 'junitxml' requires 'directory' attribute")
+
+    args += reporter.getDirectory
+  }
+
+  //
+  // Adds '-F' Flex reporter option to args.  Adds reporter's
+  // directory as additional argument, e.g. "-F", "directory".
+  //
+  private def addFlexReporter(args: ListBuffer[String],
+                              reporter: ReporterElement)
+  {
+    addReporterOption(args, reporter, "-F")
+
+    if (reporter.getDirectory == null)
+      throw new BuildException(
+        "reporter type 'flex' requires 'directory' attribute")
 
     args += reporter.getDirectory
   }
