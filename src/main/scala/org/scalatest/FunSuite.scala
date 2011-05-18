@@ -628,7 +628,7 @@ import Suite.checkRunTestParamsForNull
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackFunSuite).execute()
  * StackFunSuite:
  * - empty is invoked on an empty stack
@@ -792,7 +792,7 @@ import Suite.checkRunTestParamsForNull
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -800,7 +800,7 @@ import Suite.checkRunTestParamsForNull
  * It will run only <code>subtraction</code> and report that <code>addition</code> was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * MySuite:
  * - addition !!! IGNORED !!!
  * - subtraction
@@ -854,7 +854,7 @@ import Suite.checkRunTestParamsForNull
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -862,7 +862,7 @@ import Suite.checkRunTestParamsForNull
  * It will run both tests, but report that <code>subtraction</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * MySuite:
  * - addition
  * - subtraction (pending)
@@ -901,7 +901,7 @@ import Suite.checkRunTestParamsForNull
  * If you run this <code>Suite</code> from the interpreter, you will see the following message
  * included in the printed report:
  *
- * <pre>
+ * <pre class="stREPL">
  * MySuite:
  * - addition
  *   + Addition seems to work 

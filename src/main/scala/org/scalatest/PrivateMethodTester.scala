@@ -264,7 +264,7 @@ trait PrivateMethodTester {
  * an alternative to mixing it in. One use case is to import <code>PrivateMethodTester</code> members so you can use
  * them in the Scala interpreter:
  *
- * <pre>
+ * <pre class="stREPL">
  * $scala -classpath scalatest.jar
  * Welcome to Scala version 2.7.5.final (Java HotSpot(TM) Client VM, Java 1.5.0_16).
  * Type in expressions to have them evaluated.
