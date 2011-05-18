@@ -23,6 +23,7 @@ import java.io.PrintWriter
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.io.File
+import scala.collection.mutable.Stack
 
 import scala.collection.mutable.ListBuffer
 
@@ -40,8 +41,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   // have a MotionToSuppress formatter.
   //
   def apply(event: Event) {
-    if (!event.formatter.exists(f => f == MotionToSuppress))
-      events += event
+    // if (!event.formatter.exists(f => f == MotionToSuppress))
+    events += event
     event match {
       case _: RunCompleted => writeFiles()
       case _: RunStopped => writeFiles()
@@ -63,9 +64,20 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
     val sortedEvents = events.toList.sortWith((a, b) => a.ordinal < b.ordinal)
     val pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File(directory, "index.html")), BufferSize))
-    var currentLevel = 0
+    val stack = new Stack[Int]
 
     for (event <- sortedEvents) {
+      if (!stack.isEmpty) {
+        event.formatter match {
+          case Some(IndentedText(_, _, level)) =>
+            if (level == stack.head) {
+              stack.pop()
+              pw.println("<info/>")
+            }
+          case _ =>
+        }
+      }
+
       event match {
 
         case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) =>
@@ -90,10 +102,13 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) =>
 
           pw.println("<suite label=\"" + suiteName + ":\" level=\"" + getLevel(formatter) + "\">")
-          currentLevel = 0
 
         case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
    
+           while (!stack.isEmpty) {
+            stack.pop()
+            pw.println("<info/>")
+          }
           pw.println("</suite>")
 
         case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
@@ -104,7 +119,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
        
         case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
         
-          pw.println("<test label=\"- " + testName + ":\" level=\"" + getLevel(formatter) + "\">")
+          // Tests are always closed right away. It is infos that I close when level goes up then back. No, it is as soon as I see another one at
+          // the exact same level.
+          pw.println("<test label=\"- " + testName + ":\" level=\"" + getLevel(formatter) + "\"/>")
 
         case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
         
@@ -120,7 +137,11 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
  
         case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
       
-          pw.println("<info label=\"- " + message + "\">")
+          getLevel(formatter) match {
+            case Some(level) => stack.push(level)
+            case None =>
+          }
+          pw.println("<info label=\"- " + message + ":\" level=\"" + getLevel(formatter) + "\">")
       }
     }
     pw.flush()
