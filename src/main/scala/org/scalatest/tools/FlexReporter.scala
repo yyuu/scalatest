@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2008 Artima, Inc.
+ * Copyright 2001-2011 Artima, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,45 @@
  */
 package org.scalatest.tools
 
-import org.scalatest.events.Event
+import org.scalatest.events._
 import org.scalatest.Reporter
 import org.scalatest.events.MotionToSuppress
+import java.io.PrintWriter
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.io.File
 
 import scala.collection.mutable.ListBuffer
-
 
 /**
  * A <code>Reporter</code> that writes test status information in Flex format.
  */
 private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
+  final val BufferSize = 4096
+
   private val events = ListBuffer[Event]()
 
   //
-  // Records events in 'events' set, except for InfoProvided events that
+  // Records events in 'events' set, except for events that
   // have a MotionToSuppress formatter.
   //
   def apply(event: Event) {
     if (!event.formatter.exists(f => f == MotionToSuppress))
       events += event
+    event match {
+      case _: RunCompleted => writeFiles()
+      case _: RunAborted => writeFiles()
+      case _ =>
+    }
   }
 
-  def getSortedEvents: List[Event] = {
-    def ordinalLt(a: List[Int], b: List[Int]): Boolean = {
-      if (a.size == 0)
-        b.size > 0
-      else if (b.size == 0)
-        false
-      else if (a(0) == b(0))
-        ordinalLt(a.tail, b.tail)
-      else
-        a(0) < b(0)
+  def writeFiles() {
+    val sortedEvents = events.toList.sortWith((a, b) => a.ordinal > b.ordinal)
+    val pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File(directory, "index.html")), BufferSize))
+    for (eve <- sortedEvents) {
+      pw.println(eve)
     }
-
-    events.toList.sortWith((a, b) =>
-      ordinalLt(a.ordinal.toList, b.ordinal.toList))
   }
 }
+
