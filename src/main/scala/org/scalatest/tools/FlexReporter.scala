@@ -72,7 +72,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           case Some(IndentedText(_, _, level)) =>
             if (level == stack.head) {
               stack.pop()
-              pw.println("<info/>")
+              pw.println("</info>")
             }
           case _ =>
         }
@@ -107,7 +107,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
    
            while (!stack.isEmpty) {
             stack.pop()
-            pw.println("<info/>")
+            pw.println("</info>")
           }
           pw.println("</suite>")
 
@@ -121,7 +121,12 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         
           // Tests are always closed right away. It is infos that I close when level goes up then back. No, it is as soon as I see another one at
           // the exact same level.
-          pw.println("<test label=\"- " + testName + ":\" level=\"" + getLevel(formatter) + "\"/>")
+          val message =
+            formatter match {
+              case Some(IndentedText(_, rawText, _)) => rawText
+              case _ => testName
+            }
+          pw.println("<test label=\"" + message + "\"/>")
 
         case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
         
@@ -141,7 +146,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
             case Some(level) => stack.push(level)
             case None =>
           }
-          pw.println("<info label=\"- " + message + ":\" level=\"" + getLevel(formatter) + "\">")
+          pw.println("<info label=\"" + message + "\">")
       }
     }
     pw.flush()
