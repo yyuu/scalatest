@@ -16,6 +16,7 @@
 package org.scalatest.tools
 
 import org.scalatest.events._
+//import org.scalatest.ResourcefulReporter
 import org.scalatest.Reporter
 import org.scalatest.events.MotionToSuppress
 import java.io.PrintWriter
@@ -43,17 +44,87 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       events += event
     event match {
       case _: RunCompleted => writeFiles()
+      case _: RunStopped => writeFiles()
       case _: RunAborted => writeFiles()
       case _ =>
     }
   }
 
   def writeFiles() {
-    val sortedEvents = events.toList.sortWith((a, b) => a.ordinal > b.ordinal)
-    val pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File(directory, "index.html")), BufferSize))
-    for (eve <- sortedEvents) {
-      pw.println(eve)
+
+    def getLevel(formatter: Option[Formatter]): Option[Int] = {
+      formatter flatMap { f =>
+        f match {                  
+          case MotionToSuppress => None
+          case IndentedText(_, _, level) => Some(level)
+        }                                      
+      } 
     }
+
+    val sortedEvents = events.toList.sortWith((a, b) => a.ordinal < b.ordinal)
+    val pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File(directory, "index.html")), BufferSize))
+    var currentLevel = 0
+
+    for (event <- sortedEvents) {
+      event match {
+
+        case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) =>
+
+          if (testCount < 0)
+            throw new IllegalArgumentException
+
+          pw.println("<run/>")
+
+        case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
+
+          pw.println("<run/>")
+ 
+        case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
+ 
+          pw.println("<run/>")
+ 
+        case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) =>
+
+          pw.println("<run/>")
+
+        case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) =>
+
+          pw.println("<suite label=\"" + suiteName + ":\" level=\"" + getLevel(formatter) + "\">")
+          currentLevel = 0
+
+        case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
+   
+          pw.println("</suite>")
+
+        case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
+
+          pw.println("</suite>")
+ 
+        case TestStarting(ordinal, suiteName, suiteClassName, testName, formatter, rerunnable, payload, threadName, timeStamp) =>
+       
+        case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
+        
+          pw.println("<test label=\"- " + testName + ":\" level=\"" + getLevel(formatter) + "\">")
+
+        case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
+        
+          pw.println("<test label=\"- " + testName + "\">")
+
+        case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
+        
+          pw.println("<test label=\"- " + testName + "\">")
+
+        case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
+
+          pw.println("<test label=\"- " + testName + "\">")
+ 
+        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
+      
+          pw.println("<info label=\"- " + message + "\">")
+      }
+    }
+    pw.flush()
+    pw.close()
   }
 }
 
