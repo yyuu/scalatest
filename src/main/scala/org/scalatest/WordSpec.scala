@@ -144,7 +144,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Running the above <code>StackSpec</code> in the interpreter would yield:
  * </p>
  * 
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * A Stack (when empty) 
  * - should be empty 
@@ -278,7 +278,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Running the previous <code>WordSpec</code> in the Scala interpreter would yield:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ScalaTestGUISpec).execute()
  * The ScalaTest GUI (when the user clicks on an event report in the list box) 
  * - should display a blue background in the clicked-on row in the list box
@@ -865,7 +865,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new SharedTestExampleSpec).execute()
  * A Stack (when empty) 
  * - should be empty
@@ -1033,7 +1033,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>StackSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -1041,7 +1041,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run only the second test and report that the first test was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order !!! IGNORED !!!
  * - should throw NoSuchElementException if an empty stack is popped
@@ -1090,7 +1090,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * included in the printed report:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * The Scala language 
  * - should add correctly
@@ -1146,7 +1146,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * included in the printed report:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * The Scala language 
  * - should add correctly
@@ -1207,7 +1207,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>ArithmeticSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * </pre>
  *
@@ -1215,7 +1215,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run both tests but report that <code>The Scala language should subtract correctly</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * The Scala language
  * - should add correctly
  * - should subtract correctly (pending)
@@ -1259,7 +1259,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Would yield the following output when run in the interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * The Scala language
  * - should add correctly (pending)
  *   + Given two integers 
@@ -1842,7 +1842,7 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    * Running the previous <code>WordSpec</code> in the Scala interpreter would yield:
    * </p>
    *
-   * <pre>
+   * <pre class="stREPL">
    * scala> (new ScalaTestGUISpec).execute()
    * The ScalaTest GUI (when the user clicks on an event report in the list box) 
    * - should display a blue background in the clicked-on row in the list box
@@ -1905,7 +1905,7 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    * Running the previous <code>WordSpec</code> in the Scala interpreter would yield:
    * </p>
    *
-   * <pre>
+   * <pre class="stREPL">
    * scala> (new ScalaTestGUISpec).execute()
    * The ScalaTest GUI (when the user clicks on an event report in the list box) 
    * - should display a blue background in the clicked-on row in the list box

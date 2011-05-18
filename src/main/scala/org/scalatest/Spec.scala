@@ -96,7 +96,7 @@ import verb.BehaveWord
  * For example, if you ran <code>StackSpec</code> from within the Scala interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -104,7 +104,7 @@ import verb.BehaveWord
  * You would see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order
  * - should throw NoSuchElementException if an empty stack is popped
@@ -663,7 +663,7 @@ import verb.BehaveWord
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * A Stack (when empty) 
  * - should be empty
@@ -819,7 +819,7 @@ import verb.BehaveWord
  * If you run this version of <code>StackSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -827,7 +827,7 @@ import verb.BehaveWord
  * It will run only the second test and report that the first test was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order !!! IGNORED !!!
  * - should throw NoSuchElementException if an empty stack is popped
@@ -889,7 +889,7 @@ import verb.BehaveWord
  * If you run this version of <code>StackSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -897,7 +897,7 @@ import verb.BehaveWord
  * It will run both tests, but report that the test named "<code>A stack should pop values in last-in-first-out order</code>" is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack 
  * - should pop values in last-in-first-out order
  * - should throw NoSuchElementException if an empty stack is popped (pending)

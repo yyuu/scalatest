@@ -626,7 +626,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackFunSuite).execute()
  * Test Starting - StackFunSuite: empty is invoked on an empty stack
  * Test Succeeded - StackFunSuite: empty is invoked on an empty stack
@@ -811,7 +811,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -819,7 +819,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run only <code>subtraction</code> and report that <code>addition</code> was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Ignored - MySuite: addition
  * Test Starting - MySuite: subtraction
  * Test Succeeded - MySuite: subtraction
@@ -875,7 +875,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -883,7 +883,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run both tests, but report that <code>subtraction</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: addition
  * Test Succeeded - MySuite: addition
  * Test Starting - MySuite: subtraction
@@ -925,7 +925,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this <code>Suite</code> from the interpreter, you will see the following message
  * included in the printed report:
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: addition
  * Info Provided - MySuite.addition: Addition seems to work
  * Test Succeeded - MySuite: addition

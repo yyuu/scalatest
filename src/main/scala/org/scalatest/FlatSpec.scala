@@ -106,7 +106,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Running either of the two previous three versions of <code>StackSpec</code> in the Scala interpreter would yield:
  * </p>
  * 
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order
  * - should throw NoSuchElementException if an empty stack is popped
@@ -712,7 +712,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new SharedTestExampleSpec).execute()
  * A Stack (when empty) 
  * - should be empty
@@ -881,7 +881,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>StackSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -889,7 +889,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run only the first test and report that the second test was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order
  * - should throw NoSuchElementException if an empty stack is popped !!! IGNORED !!!
@@ -929,7 +929,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>StackSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackSpec).execute()
  * </pre>
  *
@@ -937,7 +937,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run only the second test and report that the first test was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * A Stack
  * - should pop values in last-in-first-out order !!! IGNORED !!!
  * - should throw NoSuchElementException if an empty stack is popped
@@ -984,7 +984,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * included in the printed report:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * The Scala language 
  * - must add correctly
@@ -1032,7 +1032,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * }
  * </pre>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * The Scala language 
  * - must add correctly
@@ -1091,7 +1091,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>ArithmeticSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticSpec).execute()
  * </pre>
  *
@@ -1099,7 +1099,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run both tests but report that <code>The Scala language must subtract correctly</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * The Scala language
  * - must add correctly
  * - must subtract correctly (pending)
@@ -1142,7 +1142,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Would yield the following output when run in the interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * The Scala language
  * - must add correctly (pending)
  *   + Given two integers 

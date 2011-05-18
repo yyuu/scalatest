@@ -142,7 +142,7 @@ import org.scalatest.tools.StandardOutReporter
  * to run <code>MySuite</code> from within the Scala interpreter, you could write:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -150,7 +150,7 @@ import org.scalatest.tools.StandardOutReporter
  * And you would see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: testAddition
  * Test Succeeded - MySuite: testAddition
  * Test Starting - MySuite: testSubtraction
@@ -161,7 +161,7 @@ import org.scalatest.tools.StandardOutReporter
  * Or, to run just the <code>testAddition</code> method, you could write:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute("testAddition")
  * </pre>
  *
@@ -169,7 +169,7 @@ import org.scalatest.tools.StandardOutReporter
  * And you would see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: testAddition
  * Test Succeeded - MySuite: testAddition
  * </pre>
@@ -433,7 +433,7 @@ import org.scalatest.tools.StandardOutReporter
  * If you now run <code>AlphabetSuite</code>, for example from the interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new AlphabetSuite).run()
  * </pre>
  *
@@ -891,7 +891,7 @@ import org.scalatest.tools.StandardOutReporter
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).run()
  * </pre>
  *
@@ -899,7 +899,7 @@ import org.scalatest.tools.StandardOutReporter
  * It will run only <code>testAddition</code> and report that <code>testSubtraction</code> was ignored. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: testAddition
  * Test Succeeded - MySuite: testAddition
  * Test Ignored - MySuite: testSubtraction
@@ -962,7 +962,7 @@ import org.scalatest.tools.StandardOutReporter
  * If you run this version of <code>MySuite</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).run()
  * </pre>
  *
@@ -970,7 +970,7 @@ import org.scalatest.tools.StandardOutReporter
  * It will run both tests but report that <code>testSubtraction</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Test Starting - MySuite: testAddition
  * Test Succeeded - MySuite: testAddition
  * Test Starting - MySuite: testSubtraction
@@ -1008,7 +1008,7 @@ import org.scalatest.tools.StandardOutReporter
  * If you run this <code>Suite</code> from the interpreter, you will see the message
  * included in the printed report:
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).run()
  * Test Starting - MySuite: testAddition(Reporter)
  * Info Provided - MySuite: testAddition(Reporter)

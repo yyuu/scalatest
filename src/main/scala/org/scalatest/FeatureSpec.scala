@@ -124,7 +124,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * For example, if you ran <code>StackFeatureSpec</code> from within the Scala interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackFeatureSpec).execute()
  * </pre>
  *
@@ -132,7 +132,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * You would see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Feature: The user can pop an element off the top of the stack 
  *   As a programmer 
  *   I want to be able to pop items off the stack 
@@ -781,7 +781,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * you'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new StackFeatureSpec).execute()
  * Feature: A Stack is pushed and popped 
  *   Scenario: empty is invoked on an empty stack
@@ -1019,7 +1019,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>ArithmeticFeatureSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticFeatureSpec).execute()
  * </pre>
  *
@@ -1027,7 +1027,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run only <code>subtraction</code> and report that <code>addition</code> was ignored:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Feature: Integer arithmetic 
  *   Scenario: addition !!! IGNORED !!!
  *   Scenario: subtraction
@@ -1075,7 +1075,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this <code>ArithmeticFeatureSpec</code> from the interpreter, you will see the following message
  * included in the printed report:
  *
- * <pre>
+ * <pre class="stREPL">
  * Feature: Integer arithmetic 
  *   Scenario: addition
  *     Addition seems to work 
@@ -1129,7 +1129,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * included in the printed report:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticFeatureSpec).execute()
  * Feature: Integer arithmetic 
  *   Scenario: addition
@@ -1193,7 +1193,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * If you run this version of <code>ArithmeticFeatureSpec</code> with:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new ArithmeticFeatureSpec).execute()
  * </pre>
  *
@@ -1201,7 +1201,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * It will run both tests, but report that <code>subtraction</code> is pending. You'll see:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Feature: Integer arithmetic 
  *   Scenario: addition
  *   Scenario: subtraction (pending)
@@ -1246,7 +1246,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Would yield the following output when run in the interpreter:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * Feature: Integer arithmetic 
  *   Scenario: addition (pending)
  *     Given two integers 
