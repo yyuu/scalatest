@@ -139,7 +139,7 @@
         <uptodate property="gentables.uptodate"
                   srcfile="src/generators/scala/GenTable.scala">
           <mapper type="merge" to=
-            "target/generated/src/main/scala/org/scalatest/prop/Table.scala">
+            "target/generated/src/main/scala/org/scalatest/prop/TableFor1.scala">
           </mapper>
         </uptodate>
 
