@@ -786,7 +786,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
  * import org.scalatest.Assertions._
  * &nbsp;
  * scala> assert(1 === 2)
- * <span class="stRed">org.scalatest.TestFailedException: 1 did not equal 2
+ * org.scalatest.TestFailedException: 1 did not equal 2
  * 	at org.scalatest.Assertions$class.assert(Assertions.scala:211)
  * 	at org.scalatest.Assertions$.assert(Assertions.scala:511)
  * 	at .<init>(<console>:7)
@@ -794,10 +794,10 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
  * 	at RequestResult$.<init>(<console>:3)
  * 	at RequestResult$.<clinit>(<console>)
  * 	at RequestResult$result(<console>)
- * 	at sun.reflect.NativeMethodAccessorImpl.invoke...</span>
+ * 	at sun.reflect.NativeMethodAccessorImpl.invoke...
  *&nbsp;
  * scala> expect(3) { 1 + 3 }
- * <span class="stRed">org.scalatest.TestFailedException: Expected 3, but got 4
+ * org.scalatest.TestFailedException: Expected 3, but got 4
  * 	at org.scalatest.Assertions$class.expect(Assertions.scala:447)
  * 	at org.scalatest.Assertions$.expect(Assertions.scala:511)
  * 	at .<init>(<console>:7)
@@ -805,10 +805,10 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
  * 	at RequestResult$.<init>(<console>:3)
  * 	at RequestResult$.<clinit>(<console>)
  * 	at RequestResult$result(<console>)
- * 	at sun.reflect.NativeMethodAccessorImpl.in...</span>
+ * 	at sun.reflect.NativeMethodAccessorImpl.in...
  *&nbsp;
  * scala> val caught = intercept[StringIndexOutOfBoundsException] { "hi".charAt(-1) }
- * <span class="stRed">caught: StringIndexOutOfBoundsException = java.lang.StringIndexOutOfBoundsException: String index out of range: -1</span>
+ * caught: StringIndexOutOfBoundsException = java.lang.StringIndexOutOfBoundsException: String index out of range: -1
  * <pre>
  *
  * @author Bill Venners
