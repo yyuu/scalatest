@@ -2298,7 +2298,7 @@ LATER: Well, I'm wondering if now that I've removed the be method in ShouldMetho
  * an alternative to mixing it the trait. One use case is to import <code>ShouldMatchers</code> members so you can use
  * them in the Scala interpreter:
  *
- * <pre>
+ * <pre class="stREPL">
  * $scala -classpath scalatest.jar
  * Welcome to Scala version 2.7.3.final (Java HotSpot(TM) Client VM, Java 1.5.0_16).
  * Type in expressions to have them evaluated.
