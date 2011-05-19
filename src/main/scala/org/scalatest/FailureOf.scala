@@ -80,7 +80,7 @@ trait FailureOf {
  * an alternative to mixing it in. One use case is to import <code>FailureOf</code>'s method so you can use
  * it in the Scala interpreter:
  *
- * <pre>
+ * <pre class="stREPL">
  * $scala -classpath scalatest.jar
  * Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_22).
  * Type in expressions to have them evaluated.
