@@ -45,7 +45,7 @@ import scala.collection.Traversable
  * will yield false, because <code>Array</code>'s <code>equals</code> method compares object identity:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * Array(1, 2) == Array(1, 2) // yields false
  * </pre>
  *
@@ -164,7 +164,7 @@ import scala.collection.Traversable
  * will yield false, because <code>Array</code>'s <code>equals</code> method compares object identity:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * Array(1, 2) == Array(1, 2) // yields false
  * </pre>
  *
@@ -319,7 +319,7 @@ import scala.collection.Traversable
  * like this:
  * </p>
  * 
- * <pre class="StExamples">
+ * <pre class="stExamples">
  * iterable should be ('empty)
  * </pre>
  * 
