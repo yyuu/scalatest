@@ -26,7 +26,7 @@ import scala.collection.Traversable
  * mix in trait <a href="MustMatchers.html"><code>MustMatchers</code></a>.) For example, if you mix <code>ShouldMatchers</code> into
  * a suite class, you can write an equality assertion in that suite like this:
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * object should equal (3)
  * </pre>
  * 
@@ -54,7 +54,7 @@ import scala.collection.Traversable
  * the two arrays structurally, taking into consideration the equality of the array's contents:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * Array(1, 2) should equal (Array(1, 2)) // succeeds (i.e., does not throw TestFailedException)
  * </pre>
  *
@@ -69,7 +69,7 @@ import scala.collection.Traversable
  * You can check the size or length of just about any type of object for which it
  * would make sense. Here's how checking for length looks:
  * </p>
- * <pre class="indent">
+ * <pre class="stExamples">
  * object should have length (3)
  * </pre>
  * 
@@ -77,7 +77,7 @@ import scala.collection.Traversable
  *Size is similar:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * object should have size (10)
  * </pre>
  * 
@@ -96,7 +96,7 @@ import scala.collection.Traversable
  * You can check for whether a string starts with, ends with, or includes a substring like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * string should startWith ("Hello")
  * string should endWith ("world")
  * string should include ("seven")
@@ -106,7 +106,7 @@ import scala.collection.Traversable
  * You can check for whether a string starts with, ends with, or includes a regular expression, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * string should startWith regex ("Hel*o")
  * string should endWith regex ("wo.ld")
  * string should include regex ("wo.ld")
@@ -116,7 +116,7 @@ import scala.collection.Traversable
  * And you can check whether a string fully matches a regular expression, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * string should fullyMatch regex ("""(-)?(\d+)(\.\d*)?""")
  * </pre>
  * 
@@ -131,7 +131,7 @@ import scala.collection.Traversable
  * an <code>Ordered[T]</code> is greater than, less than, greater than or equal, or less
  * than or equal to a value of type <code>T</code>. The syntax is:
  * </p>
- * <pre class="indent">
+ * <pre class="stExamples">
  * one should be < (7)
  * one should be > (0)
  * one should be <= (7)
@@ -145,7 +145,7 @@ import scala.collection.Traversable
  * <code>===</code>. Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * object should be === (3)
  * </pre>
  *
@@ -173,7 +173,7 @@ import scala.collection.Traversable
  * the two arrays structurally, taking into consideration the equality of the array's contents:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * Array(1, 2) should be === (Array(1, 2)) // succeeds (i.e., does not throw TestFailedException)
  * </pre>
  *
@@ -193,7 +193,7 @@ import scala.collection.Traversable
  * <code>'defined</code> and <code>'file</code>. Here's an example:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * emptySet should be ('empty)
  * </pre>
  * 
@@ -203,7 +203,7 @@ import scala.collection.Traversable
  * that method. If the method returns <code>true</code>, execution will continue. But if it returns
  * <code>false</code>, a <code>TestFailedException</code> will be thrown that will contain a detail message, such as:
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * Set(1, 2, 3) was not empty
  * </pre>
  * 
@@ -222,7 +222,7 @@ import scala.collection.Traversable
  * named <code>temp</code>, you could write:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * temp should be a ('file)
  * </pre>
  * 
@@ -232,7 +232,7 @@ import scala.collection.Traversable
  * an action key with:
  *</p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * keyEvent should be an ('actionKey)
  * </pre>
  * 
@@ -241,7 +241,7 @@ import scala.collection.Traversable
  * This would allow you to write expressions such as:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * emptySet should be (empty)
  * temp should be a (file)
  * keyEvent should be an (actionKey)
@@ -264,7 +264,7 @@ import scala.collection.Traversable
  * Given this pair of <code>BeMatcher</code>s, you could check whether an <code>Int</code> was odd or even with expressions like:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * num should be (odd)
  * num should not be (even)
  * </pre>
@@ -277,7 +277,7 @@ import scala.collection.Traversable
  * If you need to check that two references refer to the exact same object, you can write:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * ref1 should be theSameInstanceAs (ref2)
  * </pre>
  * 
@@ -288,7 +288,7 @@ import scala.collection.Traversable
  * can use <code>should equal</code>:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * sevenDotOh should equal (7.0)
  * </pre>
  * 
@@ -297,7 +297,7 @@ import scala.collection.Traversable
  * range. You can do that using <code>be</code> and <code>plusOrMinus</code>, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * sevenDotOh should be (6.9 plusOrMinus 0.2)
  * </pre>
  * 
@@ -307,7 +307,7 @@ import scala.collection.Traversable
  * You can also use <code>plusOrMinus</code> with integral types, for example:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * seven should be (6 plusOrMinus 2)
  * </pre>
  * 
@@ -319,7 +319,7 @@ import scala.collection.Traversable
  * like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="StExamples">
  * iterable should be ('empty)
  * </pre>
  * 
@@ -328,7 +328,7 @@ import scala.collection.Traversable
  * like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * array should have length (3)
  * list should have length (9)
  * </pre>
@@ -337,7 +337,7 @@ import scala.collection.Traversable
  * You can check the size of any <code>Traversable</code>, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should have size (20)
  * set should have size (90)
  * </pre>
@@ -347,7 +347,7 @@ import scala.collection.Traversable
  * element, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * iterable should contain ("five")
  * </pre>
  * 
@@ -355,7 +355,7 @@ import scala.collection.Traversable
  * You can also check whether a <code>Map</code> contains a particular key, or value, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should contain key (1)
  * map should contain value ("Howdy")
  * </pre>
@@ -368,7 +368,7 @@ import scala.collection.Traversable
  * like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * javaCollection should be ('empty)
  * javaMap should be ('empty)
  * </pre>
@@ -378,7 +378,7 @@ import scala.collection.Traversable
  * you can nevertheless check the length of a Java <code>List</code> (<code>java.util.List</code>) like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * javaList should have length (9)
  * </pre>
  * 
@@ -386,7 +386,7 @@ import scala.collection.Traversable
  * You can check the size of any Java <code>Collection</code> or <code>Map</code>, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * javaMap should have size (20)
  * javaSet should have size (90)
  * </pre>
@@ -396,7 +396,7 @@ import scala.collection.Traversable
  * element, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * javaCollection should contain ("five")
  * </pre>
  * 
@@ -414,7 +414,7 @@ import scala.collection.Traversable
  * You can, for example, check whether a Java <code>Map</code> contains a particular key, or value, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * javaMap should contain key (1)
  * javaMap should contain value ("Howdy")
  * </pre>
@@ -427,7 +427,7 @@ import scala.collection.Traversable
  * that sometimes sounds more natural. For example, instead of writing: 
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * result should equal (null)
  * </pre>
  * 
@@ -435,7 +435,7 @@ import scala.collection.Traversable
  * You can write:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * result should be (null)
  * </pre>
  * 
@@ -445,7 +445,7 @@ import scala.collection.Traversable
  * Here are some other examples of <code>be</code> used for equality comparison:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * sum should be (7.0)
  * boring should be (false)
  * fun should be (true)
@@ -460,7 +460,7 @@ import scala.collection.Traversable
  * the following expression would <em>not</em> throw a <code>TestFailedException</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * Array(1, 2) should be (Array(1, 2)) // succeeds (i.e., does not throw TestFailedException)
  * </pre>
  *
@@ -472,7 +472,7 @@ import scala.collection.Traversable
  * <code>TestFailedException</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * option should be (Some(1))
  * </pre>
  *
@@ -481,7 +481,7 @@ import scala.collection.Traversable
  * was in this case being used for equality comparison:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * Some(2) was not equal to Some(1)
  * </pre>
  *
@@ -492,7 +492,7 @@ import scala.collection.Traversable
  * Here are a few examples:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * object should not be (null)
  * sum should not be <= (10)
  * mylist should not equal (yourList)
@@ -507,7 +507,7 @@ import scala.collection.Traversable
  * this <code>and</code>-expression would not compile, because the parentheses are missing:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should contain key ("two") and not contain value (7) // ERROR, parentheses missing!
  * </pre>
  * 
@@ -515,7 +515,7 @@ import scala.collection.Traversable
  * Instead, you need to write:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should (contain key ("two") and not contain value (7))
  * </pre>
  * 
@@ -523,7 +523,7 @@ import scala.collection.Traversable
  * Here are some more examples:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * number should (be > (0) and be <= (10))
  * option should (equal (Some(List(1, 2, 3))) or be (None))
  * string should (
@@ -540,7 +540,7 @@ import scala.collection.Traversable
  * and <code>or</code> do not short-circuit. The following contrived expression, for example, would print <code>"hello, world!"</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * "yellow" should (equal ("blue") and equal { println("hello, world!"); "green" })
  * </pre>
  * 
@@ -555,7 +555,7 @@ import scala.collection.Traversable
  * expression, for example, would be:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * "yellow" did not equal "blue"
  * </pre>
  * 
@@ -565,7 +565,7 @@ import scala.collection.Traversable
  * that uses the variable, like this:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should (not be (null) and contain key ("ouch"))
  * </pre>
  * 
@@ -575,7 +575,7 @@ import scala.collection.Traversable
  * <code>TestFailedException</code>, you would need to check each assertion separately:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * map should not be (null)
  * map should contain key ("ouch")
  * </pre>
@@ -592,7 +592,7 @@ import scala.collection.Traversable
  * before the <code>||</code> expression, like <code>(a || (b && c))</code>, the following expression:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * traversable should (contain (7) or contain (8) and have size (9))
  * </pre>
  * 
@@ -600,7 +600,7 @@ import scala.collection.Traversable
  * Will evaluate left to right, as:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * traversable should ((contain (7) or contain (8)) and have size (9))
  * </pre>
  * 
@@ -608,7 +608,7 @@ import scala.collection.Traversable
  * If you really want the <code>and</code> part to be evaluated first, you'll need to put in parentheses, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * traversable should (contain (7) or (contain (8) and have size (9)))
  * </pre>
  * 
@@ -620,7 +620,7 @@ import scala.collection.Traversable
  * whether an option is <code>None</code>, you can write any of:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * option should equal (None)
  * option should be (None)
  * option should not be ('defined)
@@ -631,7 +631,7 @@ import scala.collection.Traversable
  * If you wish to check an option is defined, and holds a specific value, you can write either of:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * option should equal (Some("hi"))
  * option should be (Some("hi"))
  * </pre>
@@ -640,7 +640,7 @@ import scala.collection.Traversable
  * If you only wish to check that an option is defined, but don't care what it's value is, you can write:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * option should be ('defined)
  * </pre>
  * 
@@ -652,7 +652,7 @@ import scala.collection.Traversable
  * or <code>is</code> method, like this:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * book should have (
  *   'title ("Programming in Scala"),
  *   'author (List("Odersky", "Spoon", "Venners")),
@@ -677,7 +677,7 @@ import scala.collection.Traversable
  * still work as you'd expect. Thus instead of writing:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * array should have length (3)
  * set should have size (90)
  * </pre>
@@ -686,7 +686,7 @@ import scala.collection.Traversable
  * You can alternatively, write:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * array should have (length (3))
  * set should have (size (90))
  * </pre>
@@ -697,7 +697,7 @@ import scala.collection.Traversable
  * a <code>book</code> whose title is <code>Moby Dick</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * book should have ('title ("A Tale of Two Cities"))
  * </pre>
  *
@@ -705,7 +705,7 @@ import scala.collection.Traversable
  * You'll get a <code>TestFailedException</code> with this detail message:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * The title property had value "Moby Dick", instead of its expected value "A Tale of Two Cities",
  * on object Book("Moby Dick", "Melville", 1851)
  * </pre>
@@ -715,7 +715,7 @@ import scala.collection.Traversable
  * This would allow you to write expressions such as:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * book should have (
  *   title ("Programming in Scala"),
  *   author (List("Odersky", "Spoon", "Venners")),
@@ -741,7 +741,7 @@ import scala.collection.Traversable
  * you can call it using <code>be</code> with a symbol or <code>BePropertyMatcher</code>, yielding assertions like:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * file should be ('exists)  // using a symbol
  * file should be (inExistance)   // using a BePropertyMatcher
  * </pre>
@@ -753,7 +753,7 @@ import scala.collection.Traversable
  * named <code>exist</code>, which you could then use to write expressions like:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * // using a plain-old Matcher
  * file should exist
  * file should not (exist)
@@ -775,7 +775,7 @@ import scala.collection.Traversable
  * check for an expected exception like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * evaluating { s.charAt(-1) } should produce [IndexOutOfBoundsException]
  * </pre>
  *
@@ -788,7 +788,7 @@ import scala.collection.Traversable
  * example:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * val thrown = evaluating { s.charAt(-1) } should produce [IndexOutOfBoundsException]
  * thrown.getMessage should equal ("String index out of range: -1")
  * </pre>
@@ -808,7 +808,7 @@ import scala.collection.Traversable
  * around right-hand values, such as the <code>7</code> in <code>num should equal (7)</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * result should equal <span style="color: #CC3300; font-weight: bold">(</span>4<span style="color: #CC3300; font-weight: bold">)</span>
  * array should have length <span style="color: #CC3300; font-weight: bold">(</span>3<span style="color: #CC3300; font-weight: bold">)</span>
  * book should have (
@@ -827,7 +827,7 @@ import scala.collection.Traversable
  * the list of one or more property values following a <code>have</code>:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * file should (exist and have <span style="color: #CC3300; font-weight: bold">(</span>'name ("temp.txt")<span style="color: #CC3300; font-weight: bold">)</span>)
  * book should have <span style="color: #CC3300; font-weight: bold">(</span>
  *   title ("Programming in Scala"),
@@ -841,7 +841,7 @@ import scala.collection.Traversable
  * 3. You must always put parentheses around <code>and</code> and <code>or</code> expressions, as in:
  * </p>
  *
- * <pre class="indent">
+ * <pre class="stExamples">
  * catMap should <span style="color: #CC3300; font-weight: bold">(</span>contain key (9) and contain value ("lives")<span style="color: #CC3300; font-weight: bold">)</span>
  * number should <span style="color: #CC3300; font-weight: bold">(</span>equal (2) or equal (4) or equal (8)<span style="color: #CC3300; font-weight: bold">)</span>
  * </pre>
@@ -851,7 +851,7 @@ import scala.collection.Traversable
  * around custom <code>Matcher</code>s when they appear directly after <code>not</code>:
  * </p>
  * 
- * <pre class="indent">
+ * <pre class="stExamples">
  * file should exist
  * file should not <span style="color: #CC3300; font-weight: bold">(</span>exist<span style="color: #CC3300; font-weight: bold">)</span>
  * file should (exist and have ('name ("temp.txt")))
