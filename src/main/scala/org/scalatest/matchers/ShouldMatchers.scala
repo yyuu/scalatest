@@ -892,7 +892,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should equal (3)
      *        ^
      * </pre>
@@ -904,7 +904,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (3)
      *        ^
      * </pre>
@@ -932,7 +932,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * objectWithLength should equal (3)
      *                  ^
      * </pre>
@@ -944,7 +944,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should have length (3)
      *        ^
      * </pre>
@@ -955,7 +955,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should not have length (3)
      *        ^
      * </pre>
@@ -966,7 +966,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should be theSameInstanceAs anotherObject
      *        ^
      * </pre>
@@ -991,7 +991,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * objectWithSize should equal (3)
      *                ^
      * </pre>
@@ -1003,7 +1003,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should not have size (3)
      *        ^
      * </pre>
@@ -1014,7 +1014,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should have size (3)
      *        ^
      * </pre>
@@ -1026,7 +1026,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should be theSameInstanceAs anotherObject
      *        ^
      * </pre>
@@ -1050,7 +1050,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /* *
      * This method enables syntax such as the following in a <code>FlatSpec</code>:
      *
-     * <pre>
+     * <pre class="stExamples">
      * "A Stack (when empty)" should "be empty" in {
      *   assert(emptyStack.empty)
      * }
@@ -1074,7 +1074,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should equal ("hi")
      *        ^
      * </pre>
@@ -1086,7 +1086,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should be theSameInstanceAs anotherObject
      *        ^
      * </pre>
@@ -1096,7 +1096,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should have length (3)
      *        ^
      * </pre>
@@ -1108,7 +1108,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should include regex ("hi")
      *        ^
      * </pre>
@@ -1120,7 +1120,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should startWith regex ("hello")
      *        ^
      * </pre>
@@ -1132,7 +1132,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should endWith regex ("world")
      *        ^
      * </pre>
@@ -1144,7 +1144,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should fullyMatch regex ("""(-)?(\d+)(\.\d*)?""")
      *        ^
      * </pre>
@@ -1156,7 +1156,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * string should not have length (3)
      *        ^
      * </pre>
@@ -1182,7 +1182,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * aDouble should equal (8.8)
      *        ^
      * </pre>
@@ -1194,7 +1194,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (8.8)
      *        ^
      * </pre>
@@ -1220,7 +1220,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * aFloat should equal (3.3f)
      *       ^
      * </pre>
@@ -1232,7 +1232,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (8.8f)
      *        ^
      * </pre>
@@ -1258,7 +1258,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * aLong should equal (3L)
      *      ^
      * </pre>
@@ -1270,7 +1270,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (88L)
      *        ^
      * </pre>
@@ -1296,7 +1296,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * anInt should equal (3)
      *      ^
      * </pre>
@@ -1308,7 +1308,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (8)
      *        ^
      * </pre>
@@ -1334,7 +1334,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * aShort should equal (3.toShort)
      *        ^
      * </pre>
@@ -1346,7 +1346,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (8.toShort)
      *        ^
      * </pre>
@@ -1372,7 +1372,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * aByte should equal (3.toByte)
      *       ^
      * </pre>
@@ -1384,7 +1384,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * result should not equal (8.toByte)
      *        ^
      * </pre>
@@ -1410,7 +1410,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * map should equal (Map(1 -> "one", 2 -> "two"))
      *     ^
      * </pre>
@@ -1422,7 +1422,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * map should be theSameInstanceAs (anotherMap)
      *     ^
      * </pre>
@@ -1432,7 +1432,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * map should have size (3)
      *     ^
      * </pre>
@@ -1444,7 +1444,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * map should contain key (10)
      *     ^
      * </pre>
@@ -1456,7 +1456,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * map should not have size (3)
      *     ^
      * </pre>
@@ -1482,7 +1482,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * anyRef should equal (anotherObject)
      *        ^
      * </pre>
@@ -1494,7 +1494,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should not have length (3)
      *        ^
      * </pre>
@@ -1505,7 +1505,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * object should be theSameInstanceAs anotherObject
      *        ^
      * </pre>
@@ -1529,7 +1529,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * traversable should equal (Set(1, 2, 3))
      *             ^
      * </pre>
@@ -1541,7 +1541,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * traversable should have size (3)
      *             ^
      * </pre>
@@ -1552,7 +1552,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * traversable should be theSameInstanceAs anotherObject
      *             ^
      * </pre>
@@ -1562,7 +1562,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * traversable should not have size (3)
      *             ^
      * </pre>
@@ -1587,7 +1587,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaCollection should equal (aJavaSet)
      *                ^
      * </pre>
@@ -1599,7 +1599,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaCollection should have size (3)
      *                ^
      * </pre>
@@ -1610,7 +1610,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaCollection should be theSameInstanceAs anotherObject
      *                ^
      * </pre>
@@ -1620,7 +1620,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaCollection should not have size (3)
      *                ^
      * </pre>
@@ -1645,7 +1645,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaMap should equal (someJavaMap)
      *         ^
      * </pre>
@@ -1657,7 +1657,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaMap should contain value (3)
      *         ^
      * </pre>
@@ -1669,7 +1669,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaMap should have size (3)
      *         ^
      * </pre>
@@ -1681,7 +1681,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaMap should not have length (3)
      *         ^
      * </pre>
@@ -1693,7 +1693,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaMap should be theSameInstanceAs anotherObject
      *         ^
      * </pre>
@@ -1717,7 +1717,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * seq should equal (List(1, 2, 3))
      *     ^
      * </pre>
@@ -1729,7 +1729,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * seq should have length (3)
      *     ^
      * </pre>
@@ -1744,7 +1744,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * seq should not have length (3)
      *     ^
      * </pre>
@@ -1755,7 +1755,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * seq should be theSameInstanceAs anotherObject
      *     ^
      * </pre>
@@ -1779,7 +1779,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * array should equal (Array("one", "two"))
      *       ^
      * </pre>
@@ -1791,7 +1791,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * array should have length (3)
      *       ^
      * </pre>
@@ -1803,7 +1803,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * array should not have length (3)
      *       ^
      * </pre>
@@ -1830,7 +1830,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * list should equal (List(1, 2, 3))
      *      ^
      * </pre>
@@ -1842,7 +1842,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * list should be theSameInstanceAs anotherObject
      *      ^
      * </pre>
@@ -1852,7 +1852,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * list should have length (3)
      *      ^
      * </pre>
@@ -1863,7 +1863,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * list should not have length (3)
      *      ^
      * </pre>
@@ -1888,7 +1888,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaList should equal (someOtherJavaList)
      *          ^
      * </pre>
@@ -1900,7 +1900,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaList should have length (3)
      *          ^
      * </pre>
@@ -1912,7 +1912,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * javaList should not have length (3)
      *          ^
      * </pre>
@@ -1938,7 +1938,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     /**
      * This method enables syntax such as the following:
      *
-     * <pre>
+     * <pre class="stExamples">
      * evaluating { "hi".charAt(-1) } should produce [StringIndexOutOfBoundsException]
      *                                ^
      * </pre>
