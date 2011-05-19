@@ -154,7 +154,7 @@ import Suite.reportInfoProvided
  * to run <code>MySuite</code> from within the Scala interpreter, you could write:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute()
  * </pre>
  *
@@ -162,17 +162,17 @@ import Suite.reportInfoProvided
  * And you would see:
  * </p>
  *
- * <pre>
- * MySuite:
+ * <pre class="stREPL">
+ * <span class="stGreen">MySuite:
  * - testAddition
- * - testSubtraction
+ * - testSubtraction</span>
  * </pre>
  *
  * <p>
  * Or, to run just the <code>testAddition</code> method, you could write:
  * </p>
  *
- * <pre>
+ * <pre class="stREPL">
  * scala> (new MySuite).execute("testAddition")
  * </pre>
  *
@@ -180,9 +180,9 @@ import Suite.reportInfoProvided
  * And you would see:
  * </p>
  *
- * <pre>
- * MySuite:
- * - testAddition
+ * <pre class="stREPL">
+ * <span class="stGreen">MySuite:
+ * - testAddition</span>
  * </pre>
  *
  * <p>
