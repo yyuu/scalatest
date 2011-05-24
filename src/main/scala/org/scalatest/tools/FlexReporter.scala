@@ -53,6 +53,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
   def writeFiles() {
 
+    def escape(s: String): String =
+      scala.xml.Utility.escape(s).replaceAll("""\{""", """\\{""").replaceAll("""\}""", """\\}""")
+
     def getLevel(formatter: Option[Formatter]): Option[Int] = {
       formatter flatMap { f =>
         f match {                  
@@ -78,6 +81,12 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         }
       }
 
+      def testMessage(testName: String, formatter: Option[Formatter]): String =
+        formatter match {
+          case Some(IndentedText(_, rawText, _)) => rawText
+          case _ => testName
+        }
+
       event match {
 
         case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) =>
@@ -101,10 +110,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
         case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) =>
 
-          pw.println("<suite label=\"" + suiteName + ":\" level=\"" + getLevel(formatter) + "\">")
+          pw.println("<suite label=\"" + escape(suiteName) + ":\">")
 
         case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
-   
+
            while (!stack.isEmpty) {
             stack.pop()
             pw.println("</info>")
@@ -121,24 +130,19 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         
           // Tests are always closed right away. It is infos that I close when level goes up then back. No, it is as soon as I see another one at
           // the exact same level.
-          val message =
-            formatter match {
-              case Some(IndentedText(_, rawText, _)) => rawText
-              case _ => testName
-            }
-          pw.println("<test label=\"" + message + "\"/>")
+          pw.println("<test label=\"" + escape(testMessage(testName, formatter)) + "\"/>")
 
         case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
-        
-          pw.println("<test label=\"- " + testName + "\">")
+
+          pw.println("<test label=\"" + escape(testMessage(testName, formatter)) + "\"/>")
 
         case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
-        
-          pw.println("<test label=\"- " + testName + "\">")
+
+          pw.println("<test label=\"" + escape(testMessage(testName, formatter)) + "\"/>")
 
         case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
 
-          pw.println("<test label=\"- " + testName + "\">")
+          pw.println("<test label=\"" + escape(testMessage(testName, formatter)) + "\"/>")
  
         case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
       
@@ -146,7 +150,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
             case Some(level) => stack.push(level)
             case None =>
           }
-          pw.println("<info label=\"" + message + "\">")
+          pw.println("<info label=\"" + escape(message) + "\">")
       }
     }
     pw.flush()

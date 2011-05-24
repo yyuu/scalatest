@@ -330,7 +330,7 @@
             <!--<reporter type="junitxml" directory="target/junitxml"/>-->
             <!--<reporter type="xml" directory="target/xml"/>-->
             <reporter type="flex" directory="target/flex"/>
-            <reporter type="stdout" config="D"/>
+            <!--<reporter type="stdout" config="D"/>-->
             <membersonly package="org.scalatest" />
             <membersonly package="org.scalatest.fixture" />
             <membersonly package="org.scalatest.concurrent" />
@@ -548,6 +548,7 @@
             <!--<reporter type="graphic"/>-->
             <!--<reporter type="file" filename="test.out" config="ND"/>-->
             <reporter type="stdout" config="ND"/>
+            <reporter type="flex" directory="target/flex"/>
             <suite classname="${class}"/>
         </scalatest>
     </target>
