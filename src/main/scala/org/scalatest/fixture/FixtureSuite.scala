@@ -59,7 +59,7 @@ import org.scalatest.Suite._
  * Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureSuite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -127,7 +127,7 @@ import org.scalatest.Suite._
  * to encapsulate them in a tuple. Here's an example that takes the tuple approach:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureSuite
  * import scala.collection.mutable.ListBuffer
  *
@@ -168,7 +168,7 @@ import org.scalatest.Suite._
  * of each test method here with:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val (builder, buffer) = fixture
  * </pre>
  *
@@ -177,7 +177,7 @@ import org.scalatest.Suite._
  * to encapsulate them in a case class. Here's an example that takes the case class approach:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureSuite
  * import scala.collection.mutable.ListBuffer
  *
@@ -220,7 +220,7 @@ import org.scalatest.Suite._
  * of the fixture object, the test method code can just use them as unqualified identifiers:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * def testEasy(fixture: Fixture) {
  *   import fixture._
  *   builder.append("easy!")
@@ -237,7 +237,7 @@ import org.scalatest.Suite._
  * are part of the passed-in fixture:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * def testFun(fixture: Fixture) {
  *   fixture.builder.append("fun!")
  *   assert(fixture.builder.toString === "ScalaTest is fun!")
@@ -258,7 +258,7 @@ import org.scalatest.Suite._
  * Here's an example in which the name of a temp file is taken from the passed <code>configMap</code>:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureSuite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -325,7 +325,7 @@ import org.scalatest.Suite._
  * example of how it looks:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  *  import org.scalatest.fixture.FixtureSuite
  *  import org.scalatest.fixture.ConfigMapFixture
  *
@@ -366,7 +366,7 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
    * to <code>FixtureSuite</code>'s <code>withFixture</code> method, such as:
    * </p>
    *
-   * <pre>
+   * <pre class="stHighlight">
    * def testSomething(fixture: Fixture) {
    *   // ...
    * }
@@ -417,7 +417,7 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
      * whose <code>FixtureParam</code> is <code>StringBuilder</code>:
      * </p>
      *
-     * <pre>
+     * <pre class="stHighlight">
      * def withFixture(test: OneArgTest) {
      *   withFixture(test.toNoArgTest(new StringBuilder))
      * }

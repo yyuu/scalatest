@@ -55,7 +55,7 @@ import Suite.checkRunTestParamsForNull
  * Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureFunSuite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -123,7 +123,7 @@ import Suite.checkRunTestParamsForNull
  * to encapsulate them in a tuple. Here's an example that takes the tuple approach:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureFunSuite
  * import scala.collection.mutable.ListBuffer
  *
@@ -164,7 +164,7 @@ import Suite.checkRunTestParamsForNull
  * of each test here with:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val (builder, buffer) = fixture
  * </pre>
  *
@@ -173,7 +173,7 @@ import Suite.checkRunTestParamsForNull
  * to encapsulate them in a case class. Here's an example that takes the case class approach:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureFunSuite
  * import scala.collection.mutable.ListBuffer
  *
@@ -216,7 +216,7 @@ import Suite.checkRunTestParamsForNull
  * of the fixture object, the test code can just use them as unqualified identifiers:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * test("easy") { fixture =>
  *   import fixture._
  *   builder.append("easy!")
@@ -233,7 +233,7 @@ import Suite.checkRunTestParamsForNull
  * are part of the passed-in fixture:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * test("fun") { fixture =>
  *   fixture.builder.append("fun!")
  *   assert(fixture.builder.toString === "ScalaTest is fun!")
@@ -254,7 +254,7 @@ import Suite.checkRunTestParamsForNull
  * Here's an example in which the name of a temp file is taken from the passed <code>configMap</code>:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureFunSuite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -321,7 +321,7 @@ import Suite.checkRunTestParamsForNull
  * example of how it looks:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  *  import org.scalatest.fixture.FixtureFunSuite
  *  import org.scalatest.fixture.ConfigMapFixture
  *
@@ -465,7 +465,7 @@ trait FixtureFunSuite extends FixtureSuite { thisSuite =>
    * This method enables the following syntax for shared tests in a <code>FixtureFunSuite</code>:
    * </p>
    *
-   * <pre>
+   * <pre class="stHighlight">
    * testsFor(nonEmptyStack(lastValuePushed))
    * </pre>
    *

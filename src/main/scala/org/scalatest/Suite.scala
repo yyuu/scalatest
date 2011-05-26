@@ -127,7 +127,7 @@ import Suite.reportInfoProvided
  * can have any result type, but the most common result type is <code>Unit</code>. Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  *
  * class MySuite extends Suite {
@@ -200,7 +200,7 @@ import Suite.reportInfoProvided
  * such as:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val left = 2
  * val right = 1
  * assert(left == right)
@@ -220,7 +220,7 @@ import Suite.reportInfoProvided
  * a second argument to <code>assert</code>, as in:
  * </p>
  * 
- * <pre>
+ * <pre class="stHighlight">
  * val left = 2
  * val right = 1
  * assert(left == right, left + " did not equal " + right)
@@ -233,7 +233,7 @@ import Suite.reportInfoProvided
  * You use it like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val left = 2
  * val right = 1
  * assert(left === right)
@@ -265,7 +265,7 @@ import Suite.reportInfoProvided
  * the expected value in parentheses after <code>expect</code>, followed by curly braces containing code 
  * that should result in the expected value. For example:
  *
- * <pre>
+ * <pre class="stHighlight">
  * val a = 5
  * val b = 2
  * expect(2) {
@@ -285,7 +285,7 @@ import Suite.reportInfoProvided
  * as when invalid arguments are passed to the method. You can do this in the JUnit style, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val s = "hi"
  * try {
  *   s.charAt(-1)
@@ -308,7 +308,7 @@ import Suite.reportInfoProvided
  * method. You use it like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val s = "hi"
  * intercept[IndexOutOfBoundsException] {
  *   s.charAt(-1)
@@ -323,7 +323,7 @@ import Suite.reportInfoProvided
  * the exception has the expected values. Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * val s = "hi"
  * val caught =
  *   intercept[IndexOutOfBoundsException] {
@@ -340,7 +340,7 @@ import Suite.reportInfoProvided
  * write suites that look like:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import org.scalatest.matchers.ShouldMatchers
  *
@@ -374,7 +374,7 @@ import Suite.reportInfoProvided
  * imported, then used within a ScalaTest suite:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import org.junit.Assert._
  *
@@ -414,7 +414,7 @@ import Suite.reportInfoProvided
  * parameter. Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import org.scalatest.NestedSuites
  *
@@ -477,7 +477,7 @@ import Suite.reportInfoProvided
  * to <code>shared</code> is used by multiple test methods:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  *
  * class MySuite extends Suite {
@@ -512,7 +512,7 @@ import Suite.reportInfoProvided
  * test method that needs the fixture, storing the fixture object or objects in local variables. Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import scala.collection.mutable.ListBuffer
  *
@@ -559,7 +559,7 @@ import Suite.reportInfoProvided
  * For example, you could create a temporary file before each test, and delete it afterwords, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import org.scalatest.BeforeAndAfterEach
  * import java.io.FileReader
@@ -627,7 +627,7 @@ import Suite.reportInfoProvided
  * implementation of <code>withFixture(NoArgTest)</code> simply invokes the function, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
  *   test()
@@ -639,7 +639,7 @@ import Suite.reportInfoProvided
  * Thus, the previous temp file example could also be implemented without mixing in <code>BeforeAndAfterEach</code>, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -712,7 +712,7 @@ import Suite.reportInfoProvided
  * by overriding the <code>withFixture(OneArgTest)</code> method of a <code>FixtureSuite</code>, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.fixture.FixtureSuite
  * import java.io.FileReader
  * import java.io.FileWriter
@@ -832,7 +832,7 @@ import Suite.reportInfoProvided
  * WANT TO COPY AND PASTE FROM THIS EXAMPLE, YOU'LL NEED TO REMOVE THE SPACE BY HAND, OR COPY FROM
  * THE <a href="http://www.scalatest.org/scaladoc/doc-1.1/org/scalatest/Suite.html">SUITE SCALADOC FOR VERSION 1.1</a> INSTEAD, WHICH IS ALSO VALID FOR 1.3. - Bill Venners</b></p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import java.lang.annotation.*; 
  * import org.scalatest.TagAnnotation
  * 
@@ -847,7 +847,7 @@ import Suite.reportInfoProvided
  * (<em>i.e.</em>, tag it as being <code>SlowAsMolasses</code>) like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * @SlowAsMolasses
  * def testSleeping() = sleep(1000000)
  * </pre>
@@ -870,7 +870,7 @@ import Suite.reportInfoProvided
  * annotation for this purpose. You use it like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  * import org.scalatest.Ignore
  *
@@ -945,7 +945,7 @@ import Suite.reportInfoProvided
  * <code>org.scalatest.Spec</code>, you can also use it in <code>Suite</code>, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.Suite
  *
  * class MySuite extends Suite {
@@ -993,7 +993,7 @@ import Suite.reportInfoProvided
  * Here's an example:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest._
  * 
  * class MySuite extends Suite {
@@ -1581,7 +1581,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
   * method takes a <code>Informer</code>. Here are a few method signatures and the names that this trait's implementation assigns them:
   * </p>
   *
-  * <pre>
+  * <pre class="stHighlight">
   * def testCat() {}         // test name: "testCat"
   * def testCat(Informer) {} // test name: "testCat(Informer)"
   * def testDog() {}         // test name: "testDog"
@@ -2162,7 +2162,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
    * to be denoted by placing "<code>(pending)</code>" after the test name, as in:
    * </p>
    *
-   * <pre>
+   * <pre class="stHighlight">
    * test("that style rules are not laws") (pending)
    * </pre>
    *
