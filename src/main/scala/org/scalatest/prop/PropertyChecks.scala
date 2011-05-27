@@ -43,6 +43,15 @@ package prop
  *
  *   override def toString = numer + " / " + denom
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Fraction</span>(n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) {
+ * <br />  require(d != <span class="stLiteral">0</span>)
+ *   require(d != Integer.MIN_VALUE)
+ *   require(n != Integer.MIN_VALUE)
+ * <br />  <span class="stReserved">val</span> numer = <span class="stReserved">if</span> (d < <span class="stLiteral">0</span>) -<span class="stLiteral">1</span> * n <span class="stReserved">else</span> n
+ *   <span class="stReserved">val</span> denom = d.abs
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = numer + <span class="stQuotedString">" / "</span> + denom
+ * }
  * </pre>
  *
  * <p>
@@ -68,6 +77,20 @@ package prop
  *     f.denom should be > 0
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * forAll { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *       && n != Integer.MIN_VALUE) {
+ * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *       f.numer should be > <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *       f.numer should be < <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span>
+ *       f.numer should be === <span class="stLiteral">0</span>
+ * <br />    f.denom should be > <span class="stLiteral">0</span>
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -90,6 +113,21 @@ package prop
  *   evaluating {
  *     new Fraction(n, d)
  *   } should produce [IllegalArgumentException]
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> invalidCombos =
+ *   <span class="stType">Table</span>(
+ *     (<span class="stQuotedString">"n"</span>,               <span class="stQuotedString">"d"</span>),
+ *     (Integer.MIN_VALUE, Integer.MIN_VALUE),
+ *     (<span class="stLiteral">1</span>,                 Integer.MIN_VALUE),
+ *     (Integer.MIN_VALUE, <span class="stLiteral">1</span>),
+ *     (Integer.MIN_VALUE, <span class="stLiteral">0</span>),
+ *     (<span class="stLiteral">1</span>,                 <span class="stLiteral">0</span>)
+ *   )
+ * <br />forAll (invalidCombos) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ *   evaluating {
+ *     <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ *   } should produce [<span class="stType">IllegalArgumentException</span>]
  * }
  * </pre>
  *

@@ -86,6 +86,8 @@ sealed abstract class Event extends Ordered[Event] {
  *
  * <pre class="stHighlight">
  * report(TestStarting(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">TestStarting</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -285,6 +287,8 @@ object TestStarting {
  *
  * <pre class="stHighlight">
  * report(TestSucceeded(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">TestSucceeded</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -518,6 +522,8 @@ object TestSucceeded {
  *
  * <pre class="stHighlight">
  * report(TestFailed(ordinal, userFriendlyName, message, suiteName, Some(thisSuite.getClass.getName), testName))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">TestFailed</span>(ordinal, userFriendlyName, message, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -786,6 +792,8 @@ object TestFailed {
  *
  * <pre class="stHighlight">
  * report(TestIgnored(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">TestIgnored</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -940,6 +948,8 @@ object TestIgnored {
  *
  * <pre class="stHighlight">
  * report(TestPending(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName), testName))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">TestPending</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), testName))
  * </pre>
  *
  * <p>
@@ -1099,6 +1109,8 @@ object TestPending {
  *
  * <pre class="stHighlight">
  * report(SuiteStarting(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">SuiteStarting</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1290,6 +1302,8 @@ object SuiteStarting {
  *
  * <pre class="stHighlight">
  * report(SuiteCompleted(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">SuiteCompleted</span>(ordinal, userFriendlyName, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1513,6 +1527,8 @@ object SuiteCompleted {
  *
  * <pre class="stHighlight">
  * report(SuiteAborted(ordinal, userFriendlyName, message, suiteName, Some(thisSuite.getClass.getName)))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">SuiteAborted</span>(ordinal, userFriendlyName, message, suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName)))
  * </pre>
  *
  * <p>
@@ -1771,6 +1787,8 @@ object SuiteAborted {
  *
  * <pre class="stHighlight">
  * report(RunStarting(ordinal, testCount))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">RunStarting</span>(ordinal, testCount))
  * </pre>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -1933,6 +1951,8 @@ object RunStarting {
  *
  * <pre class="stHighlight">
  * report(RunCompleted(ordinal))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">RunCompleted</span>(ordinal))
  * </pre>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2130,6 +2150,8 @@ object RunCompleted {
  *
  * <pre class="stHighlight">
  * report(RunStopped(ordinal))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">RunStopped</span>(ordinal))
  * </pre>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2317,6 +2339,8 @@ object RunStopped {
  *
  * <pre class="stHighlight">
  * report(RunAborted(ordinal, message, Some(exception)))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">RunAborted</span>(ordinal, message, <span class="stType">Some</span>(exception)))
  * </pre>
  *
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
@@ -2525,6 +2549,8 @@ object RunAborted {
  *
  * <pre class="stHighlight">
  * report(InfoProvided(ordinal, message, Some(NameInfo(suiteName, Some(thisSuite.getClass.getName), Some(testName)))))
+ * </pre><pre class="stHighlighted">
+ * report(<span class="stType">InfoProvided</span>(ordinal, message, <span class="stType">Some</span>(<span class="stType">NameInfo</span>(suiteName, <span class="stType">Some</span>(thisSuite.getClass.getName), <span class="stType">Some</span>(testName)))))
  * </pre>
  *
  * <p>

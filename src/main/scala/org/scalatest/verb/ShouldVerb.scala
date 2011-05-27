@@ -30,6 +30,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (when empty)" should "be empty" in { ... }
  *                        ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> in { ... }
+ *                        ^
  * </pre>
  *
  * <p>
@@ -40,6 +43,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (with one item)" should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
  *                           ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (with one item)"</span> should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+ *                           ^
  * </pre>
  *
  * <p>
@@ -49,6 +55,9 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * "A Stack (when empty)" should { ...
+ *                        ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> should { ...
  *                        ^
  * </pre>
  *
@@ -62,6 +71,10 @@ import org.scalatest._
  *
  *   "The ScalaTest Matchers DSL" should provide {
  *                                ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+ * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> should provide {
+ *                              ^
  * </pre>
  *
  * <p>
@@ -127,6 +140,9 @@ trait ShouldVerb {
      * <pre class="stHighlight">
      * "A Stack (when empty)" should "be empty" in { ... }
      *                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> in { ... }
+     *                        ^
      * </pre>
      *
      * <p>
@@ -151,6 +167,9 @@ trait ShouldVerb {
      * <pre class="stHighlight">
      * "A Stack (with one item)" should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
      *                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (with one item)"</span> should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+     *                           ^
      * </pre>
      *
      * <p>
@@ -174,6 +193,9 @@ trait ShouldVerb {
      *
      * <pre class="stHighlight">
      * "A Stack (when empty)" should { ...
+     *                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (when empty)"</span> should { ...
      *                        ^
      * </pre>
      *
@@ -203,6 +225,10 @@ trait ShouldVerb {
      *
      *   "The ScalaTest Matchers DSL" should provide {
      *                                ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+     * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> should provide {
+     *                              ^
      * </pre>
      *
      * <p>

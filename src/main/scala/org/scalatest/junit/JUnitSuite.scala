@@ -63,6 +63,30 @@ import org.scalatest.events._
  *     assert(lb.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.junit.JUnitSuite
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <span class="stReserved">import</span> _root_.org.junit.Test
+ * <span class="stReserved">import</span> _root_.org.junit.Before
+ * <br /><span class="stReserved">class</span> <span class="stType">TwoSuite</span> <span class="stReserved">extends</span> <span class="stType">JUnitSuite</span> {
+ * <br />  <span class="stReserved">var</span> sb: <span class="stType">StringBuilder</span> = _
+ *   <span class="stReserved">var</span> lb: <span class="stType">ListBuffer[String]</span> = _
+ * <br />  @ <span class="stType">Before</span> <span class="stReserved">def</span> initialize() {
+ *     sb = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     lb = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   }
+ * <br />  @ <span class="stType">Test</span> <span class="stReserved">def</span> verifyEasy() {
+ *     sb.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(lb.isEmpty)
+ *     lb += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  @ <span class="stType">Test</span> <span class="stReserved">def</span> verifyFun() {
+ *     sb.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(lb.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>

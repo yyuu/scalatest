@@ -25,6 +25,8 @@ import java.lang.reflect.{InvocationTargetException, Method, Modifier}
  *
  * <pre class="stHighlight">
  * val decorateToStringValue = PrivateMethod[String]('decorateToStringValue)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> decorateToStringValue = <span class="stType">PrivateMethod[String]</span>(<span class="stQuotedString">'decorateToStringValue</span>)
  * </pre>
  *
  * <p>
@@ -36,6 +38,8 @@ import java.lang.reflect.{InvocationTargetException, Method, Modifier}
  *
  * <pre class="stHighlight">
  * targetObject invokePrivate decorateToStringValue(1)
+ * </pre><pre class="stHighlighted">
+ * targetObject invokePrivate decorateToStringValue(<span class="stLiteral">1</span>)
  * </pre>
  *
  * <p>

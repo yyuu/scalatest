@@ -66,6 +66,17 @@ import org.scalatest._
  *   val file = new FileBePropertyMatcher
  *   val directory = new DirectoryBePropertyMatcher
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">trait</span> <span class="stType">CustomMatchers</span> {
+ * <br />  <span class="stReserved">class</span> <span class="stType">FileBePropertyMatcher</span> <span class="stReserved">extends</span> <span class="stType">BePropertyMatcher[java.io.File]</span> {
+ *     <span class="stReserved">def</span> apply(left: <span class="stType">java.io.File</span>) = <span class="stType">BePropertyMatchResult</span>(left.isFile, <span class="stQuotedString">"file"</span>)
+ *   }
+ * <br />  <span class="stReserved">class</span> <span class="stType">DirectoryBePropertyMatcher</span> <span class="stReserved">extends</span> <span class="stType">BePropertyMatcher[java.io.File]</span> {
+ *     <span class="stReserved">def</span> apply(left: <span class="stType">java.io.File</span>) = <span class="stType">BePropertyMatchResult</span>(left.isDirectory, <span class="stQuotedString">"directory"</span>)
+ *   }
+ * <br />  <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">FileBePropertyMatcher</span>
+ *   <span class="stReserved">val</span> directory = <span class="stReserved">new</span> <span class="stType">DirectoryBePropertyMatcher</span>
+ * }
  * </pre>
  * 
  * <p>
@@ -91,6 +102,21 @@ import org.scalatest._
  *         tempFile should not be a (directory)
  *       }
  *       finally {
+ *         tempFile.delete()
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">ExampleSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> <span class="stReserved">with</span> <span class="stType">CustomMatchers</span> {
+ * <br />  describe(<span class="stQuotedString">"A temp file"</span>) {
+ * <br />    it(<span class="stQuotedString">"should be a file, not a directory"</span>) {
+ * <br />      <span class="stReserved">val</span> tempFile = java.io.File.createTempFile(<span class="stQuotedString">"delete"</span>, <span class="stQuotedString">"me"</span>)
+ * <br />      <span class="stReserved">try</span> {
+ *         tempFile should be a (file)
+ *         tempFile should not be a (directory)
+ *       }
+ *       <span class="stReserved">finally</span> {
  *         tempFile.delete()
  *       }
  *     }

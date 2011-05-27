@@ -50,6 +50,15 @@ import Suite.checkRunTestParamsForNull
  *
  *   override def toString = numer + " / " + denom
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Fraction</span>(n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) {
+ *   require(d != <span class="stLiteral">0</span>)
+ *   require(d != Integer.MIN_VALUE)
+ *   require(n != Integer.MIN_VALUE)
+ * <br />  <span class="stReserved">val</span> numer = <span class="stReserved">if</span> (d < <span class="stLiteral">0</span>) -<span class="stLiteral">1</span> * n <span class="stReserved">else</span> n
+ *   <span class="stReserved">val</span> denom = d.abs
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = numer + <span class="stQuotedString">" / "</span> + denom
+ * }
  * </pre>
  *
  * <p>
@@ -99,6 +108,43 @@ import Suite.checkRunTestParamsForNull
  *       evaluating {
  *         new Fraction(n, d)
  *       } should produce [IllegalArgumentException]
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.PropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">FractionSpec</span> <span class="stReserved">extends</span> <span class="stType">PropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  property(<span class="stQuotedString">"Fraction constructor normalizes numerator and denominator"</span>) {
+ * <br />    forAll { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ *       whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *           && n != Integer.MIN_VALUE) {
+ * <br />        <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />        <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *           f.numer should be > <span class="stLiteral">0</span>
+ *         <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *           f.numer should be < <span class="stLiteral">0</span>
+ *         <span class="stReserved">else</span>
+ *           f.numer should be === <span class="stLiteral">0</span>
+ * <br />        f.denom should be > <span class="stLiteral">0</span>
+ *       }
+ *     }
+ *   }
+ * <br />  property(<span class="stQuotedString">"Fraction constructor throws IAE on bad data."</span>) {
+ * <br />    <span class="stReserved">val</span> invalidCombos =
+ *       <span class="stType">Table</span>(
+ *         (<span class="stQuotedString">"n"</span>,               <span class="stQuotedString">"d"</span>),
+ *         (Integer.MIN_VALUE, Integer.MIN_VALUE),
+ *         (<span class="stLiteral">1</span>,                 Integer.MIN_VALUE),
+ *         (Integer.MIN_VALUE, <span class="stLiteral">1</span>),
+ *         (Integer.MIN_VALUE, <span class="stLiteral">0</span>),
+ *         (<span class="stLiteral">1</span>,                 <span class="stLiteral">0</span>)
+ *       )
+ * <br />    forAll (invalidCombos) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ *       evaluating {
+ *         <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ *       } should produce [<span class="stType">IllegalArgumentException</span>]
  *     }
  *   }
  * }
@@ -175,6 +221,10 @@ import Suite.checkRunTestParamsForNull
  *
  * object SlowTest extends Tag("com.mycompany.tags.SlowTest")
  * object DbTest extends Tag("com.mycompany.tags.DbTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Tag
+ * <br /><span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.tags.SlowTest"</span>)
+ * <span class="stReserved">object</span> <span class="stType">DbTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.tags.DbTest"</span>)
  * </pre>
  *
  * <p>
@@ -194,6 +244,18 @@ import Suite.checkRunTestParamsForNull
  *
  *   property("subtraction", SlowTest, DbTest) {
  *     forAll { (i: Int) => i - i should equal (0) }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.PropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MathSpec</span> <span class="stReserved">extends</span> <span class="stType">PropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  property(<span class="stQuotedString">"addition"</span>, <span class="stType">SlowTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *   }
+ * <br />  property(<span class="stQuotedString">"subtraction"</span>, <span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i - i should equal (<span class="stLiteral">0</span>) }
  *   }
  * }
  * </pre>
@@ -235,6 +297,18 @@ import Suite.checkRunTestParamsForNull
  *
  *   property("subtraction", SlowTest, DbTest) {
  *     forAll { (i: Int) => i - i should equal (0) }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.PropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MathSpec</span> <span class="stReserved">extends</span> <span class="stType">PropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  ignore(<span class="stQuotedString">"addition"</span>, <span class="stType">SlowTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *   }
+ * <br />  property(<span class="stQuotedString">"subtraction"</span>, <span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i - i should equal (<span class="stLiteral">0</span>) }
  *   }
  * }
  * </pre>
@@ -297,6 +371,16 @@ import Suite.checkRunTestParamsForNull
  *
  *   property("subtraction") (pending)
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.PropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MathSpec</span> <span class="stReserved">extends</span> <span class="stType">PropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  ignore(<span class="stQuotedString">"addition"</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *   }
+ * <br />  property(<span class="stQuotedString">"subtraction"</span>) (pending)
+ * }
  * </pre>
  *
  * <p>
@@ -349,6 +433,19 @@ import Suite.checkRunTestParamsForNull
  *
  *   property("subtraction", SlowTest, DbTest) {
  *     forAll { (i: Int) => i - i should equal (0) }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.PropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MathSpec</span> <span class="stReserved">extends</span> <span class="stType">PropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  property(<span class="stQuotedString">"addition"</span>, <span class="stType">SlowTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *     info(<span class="stQuotedString">"Addition seems to work"</span>)
+ *   }
+ * <br />  property(<span class="stQuotedString">"subtraction"</span>, <span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) {
+ *     forAll { (i: <span class="stType">Int</span>) => i - i should equal (<span class="stLiteral">0</span>) }
  *   }
  * }
  * </pre>
@@ -503,6 +600,8 @@ trait PropSpec extends Suite { thisSuite =>
    * </p>
    *
    * <pre class="stHighlight">
+   * propertiesFor(nonEmptyStack(lastValuePushed))
+   * </pre><pre class="stHighlighted">
    * propertiesFor(nonEmptyStack(lastValuePushed))
    * </pre>
    *

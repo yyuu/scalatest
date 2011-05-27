@@ -76,6 +76,41 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> {
+ * <br />  feature(<span class="stQuotedString">"The user can pop an element off the top of the stack"</span>) {
+ * <br />    info(<span class="stQuotedString">"As a programmer"</span>)
+ *     info(<span class="stQuotedString">"I want to be able to pop items off the stack"</span>)
+ *     info(<span class="stQuotedString">"So that I can get them in last-in-first-out order"</span>)
+ * <br />    scenario(<span class="stQuotedString">"pop is invoked on a non-empty stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"a non-empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       <span class="stReserved">val</span> oldSize = stack.size
+ * <br />      when(<span class="stQuotedString">"when pop is invoked on the stack"</span>)
+ *       <span class="stReserved">val</span> result = stack.pop()
+ * <br />      then(<span class="stQuotedString">"the most recently pushed element should be returned"</span>)
+ *       assert(result === <span class="stLiteral">2</span>)
+ * <br />      and(<span class="stQuotedString">"the stack should have one less item than before"</span>)
+ *       assert(stack.size === oldSize - <span class="stLiteral">1</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"pop is invoked on an empty stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an empty stack"</span>)
+ *       <span class="stReserved">val</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[String]</span>
+ * <br />      when(<span class="stQuotedString">"when pop is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"NoSuchElementException should be thrown"</span>)
+ *       intercept[<span class="stType">NoSuchElementException</span>] {
+ *         emptyStack.pop()
+ *       }
+ * <br />      and(<span class="stQuotedString">"the stack should still be empty"</span>)
+ *       assert(emptyStack.isEmpty)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -193,6 +228,22 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing immutable fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>) {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *       assert(diff === shared)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -236,6 +287,31 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       val (builder, lbuf) = createFixture
  *       builder.append("fun!")
  *       assert(builder.toString === "ScalaTest is fun!")
+ *       assert(lbuf.isEmpty)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stLineComment">// create objects needed by tests and return as a tuple</span>
+ *   <span class="stReserved">def</span> createFixture = (
+ *     <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>),
+ *     <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   )
+ * <br />  feature(<span class="stQuotedString">"The create-fixture approach"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"shared fixture objects are mutated by a test"</span>) {
+ *       <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *       builder.append(<span class="stQuotedString">"easy!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *       assert(lbuf.isEmpty)
+ *       lbuf += <span class="stQuotedString">"sweet"</span>
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"test gets a fresh copy of the shared fixture"</span>) {
+ *       <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *       builder.append(<span class="stQuotedString">"fun!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *       assert(lbuf.isEmpty)
  *     }
  *   }
@@ -314,6 +390,51 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">FileIoFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEach</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> beforeEach() {
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ *   }
+ * <br />  <span class="stLineComment">// Close and delete the temp file</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> afterEach() {
+ *     reader.close()
+ *     <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *     file.delete()
+ *   }
+ * <br />  feature(<span class="stQuotedString">"Reading and writing files"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"reading from a temp file"</span>) {
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"reading first char of a temp file"</span>) {
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"no fixture is passed"</span>) { 
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -334,6 +455,11 @@ import Suite.anErrorThatShouldCauseAnAbort
  * <pre class="stHighlight">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
+ *   test()
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// Default implementation</span>
+ * <span class="stReserved">protected</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
  *   test()
  * }
  * </pre>
@@ -399,6 +525,54 @@ import Suite.anErrorThatShouldCauseAnAbort
  * 
  *     scenario("no fixture is passed") { 
  *       assert(1 + 1 === 2)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">FileIoFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       test() <span class="stLineComment">// Invoke the test function</span>
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  feature(<span class="stQuotedString">"Reading and writing files"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"reading from a temp file"</span>) {
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"reading first char of a temp file"</span>) {
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"no fixture is passed"</span>) { 
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
  *     }
  *   }
  * }
@@ -479,6 +653,54 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFeatureSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureFeatureSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  feature(<span class="stQuotedString">"Reading and writing files"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"reading from a temp file"</span>) { reader =>
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"reading first char of a temp file"</span>) { reader =>
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"no fixture is passed"</span>) { () =>
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -549,6 +771,34 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   def size = buf.size
  *
  *   override def toString = buf.mkString("Stack(", ", ", ")")
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">Stack[T]</span> {
+ * <br />  <span class="stReserved">val</span> MAX = <span class="stLiteral">10</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> buf = <span class="stReserved">new</span> <span class="stType">ListBuffer[T]</span>
+ * <br />  <span class="stReserved">def</span> push(o: T) {
+ *     <span class="stReserved">if</span> (!full)
+ *       o +: buf
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't push onto a full stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> pop(): T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf.remove(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> peek: T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> full: <span class="stType">Boolean</span> = buf.size == MAX
+ *   <span class="stReserved">def</span> empty: <span class="stType">Boolean</span> = buf.size == <span class="stLiteral">0</span>
+ *   <span class="stReserved">def</span> size = buf.size
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = buf.mkString(<span class="stQuotedString">"Stack("</span>, <span class="stQuotedString">", "</span>, <span class="stQuotedString">")"</span>)
  * }
  * </pre>
  *
@@ -647,6 +897,61 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <span class="stReserved">import</span> org.scalatestexamples.helpers.Stack
+ * <br /><span class="stReserved">trait</span> <span class="stType">FeatureSpecStackBehaviors</span> { <span class="stReserved">this</span>: <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> =>
+ * <br />  <span class="stReserved">def</span> nonEmptyStack(createNonEmptyStack: => <span class="stType">Stack[Int]</span>, lastItemAdded: <span class="stType">Int</span>) {
+ * <br />    scenario(<span class="stQuotedString">"empty is invoked on this non-empty stack: "</span> + createNonEmptyStack.toString) {
+ * <br />      given(<span class="stQuotedString">"a non-empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = createNonEmptyStack
+ * <br />      when(<span class="stQuotedString">"empty is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"empty returns false"</span>)
+ *       assert(!stack.empty)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"peek is invoked on this non-empty stack: "</span> + createNonEmptyStack.toString) {
+ * <br />      given(<span class="stQuotedString">"a non-empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = createNonEmptyStack
+ *       <span class="stReserved">val</span> size = stack.size
+ * <br />      when(<span class="stQuotedString">"peek is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"peek returns the last item added"</span>)
+ *       assert(stack.peek === lastItemAdded)
+ * <br />      and(<span class="stQuotedString">"the size of the stack is the same as before"</span>)
+ *       assert(stack.size === size)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"pop is invoked on this non-empty stack: "</span> + createNonEmptyStack.toString) {
+ * <br />      given(<span class="stQuotedString">"a non-empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = createNonEmptyStack
+ *       <span class="stReserved">val</span> size = stack.size
+ * <br />      when(<span class="stQuotedString">"pop is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"pop returns the last item added"</span>)
+ *       assert(stack.pop === lastItemAdded)
+ * <br />      and(<span class="stQuotedString">"the size of the stack one less than before"</span>)
+ *       assert(stack.size === size - <span class="stLiteral">1</span>)
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> nonFullStack(createNonFullStack: => <span class="stType">Stack[Int]</span>) {
+ * <br />    scenario(<span class="stQuotedString">"full is invoked on this non-full stack: "</span> + createNonFullStack.toString) {
+ * <br />      given(<span class="stQuotedString">"a non-full stack"</span>)
+ *       <span class="stReserved">val</span> stack = createNonFullStack
+ * <br />      when(<span class="stQuotedString">"full is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"full returns false"</span>)
+ *       assert(!stack.full)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"push is invoked on this non-full stack: "</span> + createNonFullStack.toString) {
+ * <br />      given(<span class="stQuotedString">"a non-full stack"</span>)
+ *       <span class="stReserved">val</span> stack = createNonFullStack
+ *       <span class="stReserved">val</span> size = stack.size
+ * <br />      when(<span class="stQuotedString">"push is invoked on the stack"</span>)
+ *       stack.push(<span class="stLiteral">7</span>)
+ * <br />      then(<span class="stQuotedString">"the size of the stack is one greater than before"</span>)
+ *       assert(stack.size === size + <span class="stLiteral">1</span>)
+ * <br />      and(<span class="stQuotedString">"the top of the stack contains the pushed value"</span>)
+ *       assert(stack.peek === <span class="stLiteral">7</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -655,6 +960,9 @@ import Suite.anErrorThatShouldCauseAnAbort
  * </p>
  *
  * <pre class="stHighlight">
+ * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
+ * scenariosFor(nonFullStack(stackWithOneItem))
+ * </pre><pre class="stHighlighted">
  * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
  * scenariosFor(nonFullStack(stackWithOneItem))
  * </pre>
@@ -668,6 +976,9 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <pre class="stHighlight">
  * scenariosFor(nonEmptyStack) // assuming lastValuePushed is also in scope inside nonEmptyStack
+ * scenariosFor(nonFullStack)
+ * </pre><pre class="stHighlighted">
+ * scenariosFor(nonEmptyStack) <span class="stLineComment">// assuming lastValuePushed is also in scope inside nonEmptyStack</span>
  * scenariosFor(nonFullStack)
  * </pre>
  *
@@ -770,6 +1081,80 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       then("push throws IllegalStateException")
  *       intercept[IllegalStateException] {
  *         stack.push(10)
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <span class="stReserved">import</span> org.scalatestexamples.helpers.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> <span class="stReserved">with</span> <span class="stType">FeatureSpecStackBehaviors</span> {
+ * <br />  <span class="stLineComment">// Stack fixture creation methods</span>
+ *   <span class="stReserved">def</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ * <br />  <span class="stReserved">def</span> fullStack = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">0</span> until stack.MAX)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItem = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     stack.push(<span class="stLiteral">9</span>)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItemLessThanCapacity = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">1</span> to <span class="stLiteral">9</span>)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">val</span> lastValuePushed = <span class="stLiteral">9</span>
+ * <br />  feature(<span class="stQuotedString">"A Stack is pushed and popped"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"empty is invoked on an empty stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = emptyStack
+ * <br />      when(<span class="stQuotedString">"empty is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"empty returns true"</span>)
+ *       assert(stack.empty)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"peek is invoked on an empty stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = emptyStack
+ * <br />      when(<span class="stQuotedString">"peek is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"peek throws IllegalStateException"</span>)
+ *       intercept[<span class="stType">IllegalStateException</span>] {
+ *         stack.peek
+ *       }
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"pop is invoked on an empty stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an empty stack"</span>)
+ *       <span class="stReserved">val</span> stack = emptyStack
+ * <br />      when(<span class="stQuotedString">"pop is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"pop throws IllegalStateException"</span>)
+ *       intercept[<span class="stType">IllegalStateException</span>] {
+ *         emptyStack.pop
+ *       }
+ *     }
+ * <br />    scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
+ *     scenariosFor(nonFullStack(stackWithOneItem))
+ * <br />    scenariosFor(nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed))
+ *     scenariosFor(nonFullStack(stackWithOneItemLessThanCapacity))
+ * <br />    scenario(<span class="stQuotedString">"full is invoked on a full stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an full stack"</span>)
+ *       <span class="stReserved">val</span> stack = fullStack
+ * <br />      when(<span class="stQuotedString">"full is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"full returns true"</span>)
+ *       assert(stack.full)
+ *     }
+ * <br />    scenariosFor(nonEmptyStack(fullStack, lastValuePushed))
+ * <br />    scenario(<span class="stQuotedString">"push is invoked on a full stack"</span>) {
+ * <br />      given(<span class="stQuotedString">"an full stack"</span>)
+ *       <span class="stReserved">val</span> stack = fullStack
+ * <br />      when(<span class="stQuotedString">"push is invoked on the stack"</span>)
+ *       then(<span class="stQuotedString">"push throws IllegalStateException"</span>)
+ *       intercept[<span class="stType">IllegalStateException</span>] {
+ *         stack.push(<span class="stLiteral">10</span>)
  *       }
  *     }
  *   }
@@ -884,6 +1269,8 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <pre class="stHighlight">
  * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
+ * </pre><pre class="stHighlighted">
+ * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
  * </pre>
  *
  * <p>
@@ -901,6 +1288,8 @@ import Suite.anErrorThatShouldCauseAnAbort
  * </p>
  *
  * <pre class="stHighlight">
+ * scenariosFor(nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed))
+ * </pre><pre class="stHighlighted">
  * scenariosFor(nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed))
  * </pre>
  *
@@ -935,6 +1324,10 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * object SlowTest extends Tag("com.mycompany.groups.SlowTest")
  * object DbTest extends Tag("com.mycompany.groups.DbTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Tag
+ * <br /><span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.SlowTest"</span>)
+ * <span class="stReserved">object</span> <span class="stType">DbTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.DbTest"</span>)
  * </pre>
  *
  * <p>
@@ -958,6 +1351,22 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  *     scenario("subtraction", SlowTest, DbTest) {
  *       val diff = 7 - 2
+ *       assert(diff === shared)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>, <span class="stType">SlowTest</span>) {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>, <span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
  *       assert(diff === shared)
  *     }
  *   }
@@ -1005,6 +1414,22 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  *     scenario("subtraction") {
  *       val diff = 7 - 2
+ *       assert(diff === shared)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    ignore(<span class="stQuotedString">"addition"</span>) {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
  *       assert(diff === shared)
  *     }
  *   }
@@ -1064,6 +1489,21 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>) {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === <span class="stLiteral">5</span>)
+ *       info(<span class="stQuotedString">"Addition seems to work"</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *       assert(diff === <span class="stLiteral">5</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * If you run this <code>ArithmeticFeatureSpec</code> from the interpreter, you will see the following message
@@ -1113,6 +1553,31 @@ import Suite.anErrorThatShouldCauseAnAbort
  * 
  *       then("the result is the difference of the two numbers")
  *       assert(diff === 5)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> {
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>) {
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">2</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">3</span>
+ * <br />      when(<span class="stQuotedString">"they are added"</span>)
+ *       <span class="stReserved">val</span> sum = x + y
+ * <br />      then(<span class="stQuotedString">"the result is the sum of the two numbers"</span>)
+ *       assert(sum === <span class="stLiteral">5</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) {
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">7</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">2</span>
+ * <br />      when(<span class="stQuotedString">"one is subtracted from the other"</span>)
+ *       <span class="stReserved">val</span> diff = x - y
+ * <br />      then(<span class="stQuotedString">"the result is the difference of the two numbers"</span>)
+ *       assert(diff === <span class="stLiteral">5</span>)
  *     }
  *   }
  * }
@@ -1177,6 +1642,19 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     scenario("subtraction") (pending)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticFeatureSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>) {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) (pending)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -1232,6 +1710,15 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       pending
  *     }
  *     // ...
+ * </pre><pre class="stHighlighted">
+ * feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />  scenario(<span class="stQuotedString">"addition"</span>) {
+ *     given(<span class="stQuotedString">"two integers"</span>)
+ *     when(<span class="stQuotedString">"they are added"</span>)
+ *     then(<span class="stQuotedString">"the result is the sum of the two numbers"</span>)
+ *     pending
+ *   }
+ *   <span class="stLineComment">// ...</span>
  * </pre>
  *
  * <p>
@@ -1447,6 +1934,14 @@ trait FeatureSpec extends Suite { thisSuite =>
    *     scenario("(when not full) must allow me to push") {}
    *   }
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+   *   feature(<span class="stQuotedString">"A Stack"</span>) {
+   *     scenario(<span class="stQuotedString">"(when not empty) must allow me to pop"</span>) {}
+   *     scenario(<span class="stQuotedString">"(when not full) must allow me to push"</span>) {}
+   *   }
+   * }
    * </pre>
    *
    * <p>
@@ -1479,6 +1974,8 @@ trait FeatureSpec extends Suite { thisSuite =>
    * </p>
    *
    * <pre class="stHighlight">
+   * scenariosFor(nonEmptyStack(lastValuePushed))
+   * </pre><pre class="stHighlighted">
    * scenariosFor(nonEmptyStack(lastValuePushed))
    * </pre>
    *

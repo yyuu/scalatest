@@ -144,6 +144,20 @@ import Suite.reportInfoProvided
  *     assert(diff - 2 === 1)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     assert(sum === <span class="stLiteral">2</span>)
+ *     assert(sum + <span class="stLiteral">2</span> === <span class="stLiteral">4</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testSubtraction() {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *     assert(diff === <span class="stLiteral">3</span>)
+ *     assert(diff - <span class="stLiteral">2</span> === <span class="stLiteral">1</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -204,6 +218,10 @@ import Suite.reportInfoProvided
  * val left = 2
  * val right = 1
  * assert(left == right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
+ * assert(left == right)
  * </pre>
  *
  * <p>
@@ -224,6 +242,10 @@ import Suite.reportInfoProvided
  * val left = 2
  * val right = 1
  * assert(left == right, left + " did not equal " + right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
+ * assert(left == right, left + <span class="stQuotedString">" did not equal "</span> + right)
  * </pre>
  *
  * <p>
@@ -236,6 +258,10 @@ import Suite.reportInfoProvided
  * <pre class="stHighlight">
  * val left = 2
  * val right = 1
+ * assert(left === right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
  * assert(left === right)
  * </pre>
  *
@@ -271,6 +297,12 @@ import Suite.reportInfoProvided
  * expect(2) {
  *   a - b
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> a = <span class="stLiteral">5</span>
+ * <span class="stReserved">val</span> b = <span class="stLiteral">2</span>
+ * expect(<span class="stLiteral">2</span>) {
+ *   a - b
+ * }
  * </pre>
  *
  * <p>
@@ -294,6 +326,15 @@ import Suite.reportInfoProvided
  * catch {
  *   case _: IndexOutOfBoundsException => // Expected, so continue
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> s = <span class="stQuotedString">"hi"</span>
+ * <span class="stReserved">try</span> {
+ *   s.charAt(-<span class="stLiteral">1</span>)
+ *   fail()
+ * }
+ * <span class="stReserved">catch</span> {
+ *   <span class="stReserved">case</span> _: <span class="stType">IndexOutOfBoundsException</span> => <span class="stLineComment">// Expected, so continue</span>
+ * }
  * </pre>
  *
  * <p>
@@ -313,6 +354,11 @@ import Suite.reportInfoProvided
  * intercept[IndexOutOfBoundsException] {
  *   s.charAt(-1)
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> s = <span class="stQuotedString">"hi"</span>
+ * intercept[<span class="stType">IndexOutOfBoundsException</span>] {
+ *   s.charAt(-<span class="stLiteral">1</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -330,6 +376,13 @@ import Suite.reportInfoProvided
  *     s.charAt(-1)
  *   }
  * assert(caught.getMessage === "String index out of range: -1")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> s = <span class="stQuotedString">"hi"</span>
+ * <span class="stReserved">val</span> caught =
+ *   intercept[<span class="stType">IndexOutOfBoundsException</span>] {
+ *     s.charAt(-<span class="stLiteral">1</span>)
+ *   }
+ * assert(caught.getMessage === <span class="stQuotedString">"String index out of range: -1"</span>)
  * </pre>
  *
  * <h2>Using other assertions</h2>
@@ -356,6 +409,21 @@ import Suite.reportInfoProvided
  *     val diff = 4 - 1
  *     diff should equal (3)
  *     diff - 2 should equal (1)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     sum should equal (<span class="stLiteral">2</span>)
+ *     sum + <span class="stLiteral">2</span> should equal (<span class="stLiteral">4</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testSubtraction() {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *     diff should equal (<span class="stLiteral">3</span>)
+ *     diff - <span class="stLiteral">2</span> should equal (<span class="stLiteral">1</span>)
  *   }
  * }
  * </pre>
@@ -390,6 +458,21 @@ import Suite.reportInfoProvided
  *     val diff = 4 - 1
  *     assertEquals(3, diff)
  *     assertEquals(1, diff - 2)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> org.junit.Assert._
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     assertEquals(<span class="stLiteral">2</span>, sum)
+ *     assertEquals(<span class="stLiteral">4</span>, sum + <span class="stLiteral">2</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testSubtraction() {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *     assertEquals(<span class="stLiteral">3</span>, diff)
+ *     assertEquals(<span class="stLiteral">1</span>, diff - <span class="stLiteral">2</span>)
  *   }
  * }
  * </pre>
@@ -432,6 +515,23 @@ import Suite.reportInfoProvided
  *   new ASuite,
  *   new BSuite,
  *   new CSuite
+ * )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> org.scalatest.NestedSuites
+ * <br /><span class="stReserved">class</span> <span class="stType">ASuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ *   <span class="stReserved">def</span> testA() {}
+ * }
+ * <span class="stReserved">class</span> <span class="stType">BSuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ *   <span class="stReserved">def</span> testB() {}
+ * }
+ * <span class="stReserved">class</span> <span class="stType">CSuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ *   <span class="stReserved">def</span> testC() {}
+ * }
+ * <br /><span class="stReserved">class</span> <span class="stType">AlphabetSuite</span> <span class="stReserved">extends</span> <span class="stType">NestedSuites</span>(
+ *   <span class="stReserved">new</span> <span class="stType">ASuite</span>,
+ *   <span class="stReserved">new</span> <span class="stType">BSuite</span>,
+ *   <span class="stReserved">new</span> <span class="stType">CSuite</span>
  * )
  * </pre>
  *
@@ -495,6 +595,20 @@ import Suite.reportInfoProvided
  *     assert(diff === shared)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stLineComment">// Sharing immutable fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *     assert(sum === shared)
+ *   }
+ * <br />  <span class="stReserved">def</span> testSubtraction() {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *     assert(diff === shared)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -536,6 +650,29 @@ import Suite.reportInfoProvided
  *     val (builder, lbuf) = createFixture
  *     builder.append("fun!")
  *     assert(builder.toString === "ScalaTest is fun!")
+ *     assert(lbuf.isEmpty)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stLineComment">// create objects needed by tests and return as a tuple</span>
+ *   <span class="stReserved">def</span> createFixture = (
+ *     <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>),
+ *     <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   )
+ * <br />  <span class="stReserved">def</span> testEasy() {
+ *     <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(lbuf.isEmpty)
+ *     lbuf += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun() {
+ *     <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *     builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *     assert(lbuf.isEmpty)
  *   }
  * }
@@ -610,6 +747,49 @@ import Suite.reportInfoProvided
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEach</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> beforeEach() {
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ *   }
+ * <br />  <span class="stLineComment">// Close and delete the temp file</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> afterEach() {
+ *     reader.close()
+ *     <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *     file.delete()
+ *   }
+ * <br />  <span class="stReserved">def</span> testReadingFromTheTempFile() {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testFirstCharOfTheTempFile() {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testWithoutAFixture() {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -630,6 +810,11 @@ import Suite.reportInfoProvided
  * <pre class="stHighlight">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
+ *   test()
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// Default implementation</span>
+ * <span class="stReserved">protected</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
  *   test()
  * }
  * </pre>
@@ -692,6 +877,51 @@ import Suite.reportInfoProvided
  * 
  *   def testWithoutAFixture() {
  *     assert(1 + 1 === 2)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       test() <span class="stLineComment">// Invoke the test function</span>
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> testReadingFromTheTempFile() {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testFirstCharOfTheTempFile() {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testWithoutAFixture() {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
  *   }
  * }
  * </pre>
@@ -770,6 +1000,53 @@ import Suite.reportInfoProvided
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> {
+ * <br />  <span class="stLineComment">// No vars needed in this one</span>
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test, passing in the temp file reader</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> testReadingFromTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testFirstCharOfTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testWithoutAFixture() {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -840,6 +1117,13 @@ import Suite.reportInfoProvided
  * @Retention(RetentionPolicy.RUNTIME)
  * @ Target({ElementType.METHOD, ElementType.TYPE})
  * public @interface SlowAsMolasses {}
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> java.lang.annotation.*; 
+ * <span class="stReserved">import</span> org.scalatest.TagAnnotation
+ * <br />@<span class="stType">TagAnnotation</span>
+ * @<span class="stType">Retention</span>(RetentionPolicy.RUNTIME)
+ * @ <span class="stType">Target</span>({ElementType.METHOD, ElementType.TYPE})
+ * public @interface <span class="stType">SlowAsMolasses</span> {}
  * </pre>
  *
  * <p>
@@ -850,6 +1134,9 @@ import Suite.reportInfoProvided
  * <pre class="stHighlight">
  * @SlowAsMolasses
  * def testSleeping() = sleep(1000000)
+ * </pre><pre class="stHighlighted">
+ * @<span class="stType">SlowAsMolasses</span>
+ * <span class="stReserved">def</span> testSleeping() = sleep(<span class="stLiteral">1000000</span>)
  * </pre>
  *
  * <p>
@@ -887,6 +1174,22 @@ import Suite.reportInfoProvided
  *     val diff = 4 - 1
  *     assert(diff === 3)
  *     assert(diff - 2 === 1)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <span class="stReserved">import</span> org.scalatest.Ignore
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     assert(sum === <span class="stLiteral">2</span>)
+ *     assert(sum + <span class="stLiteral">2</span> === <span class="stLiteral">4</span>)
+ *   }
+ * <br />  @<span class="stType">Ignore</span>
+ *   <span class="stReserved">def</span> testSubtraction() {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *     assert(diff === <span class="stLiteral">3</span>)
+ *     assert(diff - <span class="stLiteral">2</span> === <span class="stLiteral">1</span>)
  *   }
  * }
  * </pre>
@@ -958,6 +1261,16 @@ import Suite.reportInfoProvided
  *
  *   def testSubtraction() { pending }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Suite
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ * <br />  <span class="stReserved">def</span> testAddition() {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     assert(sum === <span class="stLiteral">2</span>)
+ *     assert(sum + <span class="stLiteral">2</span> === <span class="stLiteral">4</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testSubtraction() { pending }
+ * }
  * </pre>
  *
  * <p>
@@ -1000,6 +1313,14 @@ import Suite.reportInfoProvided
  *   def testAddition(info: Informer) {
  *     assert(1 + 1 === 2)
  *     info("Addition seems to work")
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest._
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ *   <span class="stReserved">def</span> testAddition(info: <span class="stType">Informer</span>) {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     info(<span class="stQuotedString">"Addition seems to work"</span>)
  *   }
  * }
  * </pre>
@@ -1588,6 +1909,13 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
   * def testDog(Informer) {} // test name: "testDog(Informer)"
   * def test() {}            // test name: "test"
   * def test(Informer) {}    // test name: "test(Informer)"
+  * </pre><pre class="stHighlighted">
+  * <span class="stReserved">def</span> testCat() {}         <span class="stLineComment">// test name: "testCat"</span>
+  * <span class="stReserved">def</span> testCat(<span class="stType">Informer</span>) {} <span class="stLineComment">// test name: "testCat(Informer)"</span>
+  * <span class="stReserved">def</span> testDog() {}         <span class="stLineComment">// test name: "testDog"</span>
+  * <span class="stReserved">def</span> testDog(<span class="stType">Informer</span>) {} <span class="stLineComment">// test name: "testDog(Informer)"</span>
+  * <span class="stReserved">def</span> test() {}            <span class="stLineComment">// test name: "test"</span>
+  * <span class="stReserved">def</span> test(<span class="stType">Informer</span>) {}    <span class="stLineComment">// test name: "test(Informer)"</span>
   * </pre>
   *
   * <p>
@@ -2164,6 +2492,8 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
    *
    * <pre class="stHighlight">
    * test("that style rules are not laws") (pending)
+   * </pre><pre class="stHighlighted">
+   * test(<span class="stQuotedString">"that style rules are not laws"</span>) (pending)
    * </pre>
    *
    * <p>

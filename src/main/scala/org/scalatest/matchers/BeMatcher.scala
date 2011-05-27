@@ -63,6 +63,22 @@ import org.scalatest._
  * // Make them easy to import with:
  * // import CustomMatchers._
  * object CustomMatchers extends CustomMatchers
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">trait</span> <span class="stType">CustomMatchers</span> {
+ * <br />  <span class="stReserved">class</span> <span class="stType">OddMatcher</span> <span class="stReserved">extends</span> <span class="stType">BeMatcher[Int]</span> {
+ *     <span class="stReserved">def</span> apply(left: <span class="stType">Int</span>) =
+ *       <span class="stType">MatchResult</span>(
+ *         left % <span class="stLiteral">2</span> == <span class="stLiteral">1</span>,
+ *         left.toString + <span class="stQuotedString">" was even"</span>,
+ *         left.toString + <span class="stQuotedString">" was odd"</span>
+ *       )
+ *   }
+ *   <span class="stReserved">val</span> odd = <span class="stReserved">new</span> <span class="stType">OddMatcher</span>
+ *   <span class="stReserved">val</span> even = not (odd)
+ * }
+ * <br /><span class="stLineComment">// Make them easy to import with:</span>
+ * <span class="stLineComment">// import CustomMatchers._</span>
+ * <span class="stReserved">object</span> <span class="stType">CustomMatchers</span> <span class="stReserved">extends</span> <span class="stType">CustomMatchers</span>
  * </pre>
  *
  * <p>
@@ -91,6 +107,18 @@ import org.scalatest._
  *     val oddNum = 3
  *     oddNum must be (odd)
  *     doubleYourPleasure(oddNum) must be (odd) // This will fail
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">DoubleYourPleasureSuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> <span class="stReserved">with</span> <span class="stType">MustMatchers</span> <span class="stReserved">with</span> <span class="stType">CustomMatchers</span> {
+ * <br />  <span class="stReserved">def</span> doubleYourPleasure(i: <span class="stType">Int</span>): <span class="stType">Int</span> = i * <span class="stLiteral">2</span>
+ * <br />  test(<span class="stQuotedString">"The doubleYourPleasure method must return proper odd or even values"</span>)
+ * <br />    <span class="stReserved">val</span> evenNum = <span class="stLiteral">2</span>
+ *     evenNum must be (even)
+ *     doubleYourPleasure(evenNum) must be (even)
+ * <br />    <span class="stReserved">val</span> oddNum = <span class="stLiteral">3</span>
+ *     oddNum must be (odd)
+ *     doubleYourPleasure(oddNum) must be (odd) <span class="stLineComment">// This will fail</span>
  *   }
  * }
  * </pre>
@@ -155,6 +183,16 @@ trait BeMatcher[-T] extends Function1[T, MatchResult] { thisBeMatcher =>
    *         left.toString + " was odd"
    *       )
    *   }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> odd =
+   *   <span class="stReserved">new</span> <span class="stType">BeMatcher[Int]</span> {
+   *     <span class="stReserved">def</span> apply(left: <span class="stType">Int</span>) =
+   *       <span class="stType">MatchResult</span>(
+   *         left % <span class="stLiteral">2</span> == <span class="stLiteral">1</span>,
+   *         left.toString + <span class="stQuotedString">" was even"</span>,
+   *         left.toString + <span class="stQuotedString">" was odd"</span>
+   *       )
+   *   }
    * </pre>
    *
    * <p>
@@ -175,6 +213,8 @@ trait BeMatcher[-T] extends Function1[T, MatchResult] { thisBeMatcher =>
    *
    * <pre class="stHighlight">
    * val oddAsInt = odd compose { (s: String) => s.toInt }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> oddAsInt = odd compose { (s: <span class="stType">String</span>) => s.toInt }
    * </pre>
    *
    * <p>

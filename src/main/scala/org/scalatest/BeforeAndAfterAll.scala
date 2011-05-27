@@ -88,6 +88,41 @@ package org.scalatest
  *     file.delete()
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.SuperSuite
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterAll
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MasterSuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterAll</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">val</span> <span class="stType">FileNameKeyInGoodies</span> = <span class="stQuotedString">"tempFileName"</span>
+ * <br />  <span class="stLineComment">// Set up the temp file needed by the test, taking</span>
+ *   <span class="stLineComment">// a file name from the configMap</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> beforeAll(configMap: <span class="stType">Map[String, Any]</span>) {
+ * <br />    require(
+ *       configMap.isDefinedAt(<span class="stType">FileNameKeyInGoodies</span>),
+ *       <span class="stQuotedString">"must place a temp file name in the configMap under the key: "</span> + <span class="stType">FileNameKeyInGoodies</span>
+ *     )
+ * <br />    <span class="stReserved">val</span> fileName = configMap(tempFileName)
+ * <br />    <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(fileName)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, suite of tests!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ *   }
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> nestedSuites =
+ *     <span class="stType">List</span>(<span class="stReserved">new</span> <span class="stType">OneSuite</span>, <span class="stReserved">new</span> <span class="stType">TwoSuite</span>, <span class="stReserved">new</span> <span class="stType">RedSuite</span>, <span class="stReserved">new</span> <span class="stType">BlueSuite</span>)
+ * <br />  <span class="stLineComment">// Delete the temp file</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> afterAll(configMap: <span class="stType">Map[String, Any]</span>) {
+ *     <span class="stLineComment">// No need to require that configMap contains the key again because it won't get</span>
+ *     <span class="stLineComment">// here if it didn't contain the key in beforeAll </span>
+ *     <span class="stReserved">val</span> fileName = configMap(tempFileName))
+ *     <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(fileName)
+ *     file.delete()
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -97,12 +132,16 @@ package org.scalatest
  * </p>
  * <pre class="stHighlight">
  * class MySuite extends BeforeAndAfterAll with FunSuite
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">BeforeAndAfterAll</span> <span class="stReserved">with</span> <span class="stType">FunSuite</span>
  * </pre>
  * <p>
  * You'd need to turn it around, so that <code>FunSuite</code> is "super" to <code>BeforeAndAfterAll</code>, like this:
  * </p>
  * <pre class="stHighlight">
  * class MySuite extends FunSuite with BeforeAndAfterAll
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterAll</span>
  * </pre>
  *
  * <strong>Note: This trait does not currently ensure that the code in <code>afterAll</code> is executed after

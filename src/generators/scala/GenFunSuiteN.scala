@@ -72,6 +72,21 @@ $endif$
  *      // If need be, perform any cleanup (as in JUnit 3's tearDown method)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> FunSuite<i>num</i>[<i>exampleParams</i>] {
+ * <br />  testWithFixture(<span class="stQuotedString">"example test"</span>) {
+ *     (<i>exampleArgs</i>) => {
+ *       <span class="stLineComment">// test code that uses the passed fixture object<i>if</i> (<i>moreThanOne</i>)s<i>endif</i>...</span>
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> withFixture(f: (<i>exampleParams</i>) => <span class="stType">Unit</span>) {
+ * <br />     <span class="stLineComment">// Create the fixture objects (as in JUnit 3's setUp method)</span>
+ *      <i>argDefinitions</i>
+ * <br />     <span class="stLineComment">// Pass the fixture objects to the test function</span>
+ *      f(<i>exampleArgs</i>)
+ * <br />     <span class="stLineComment">// If need be, perform any cleanup (as in JUnit 3's tearDown method)</span>
+ *   }
+ * }
  * </pre>
  *
  * This is a contrived example, because normally you would only pass fixture objects in this manner if

@@ -42,6 +42,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * val equalSeven = equal (7)
  * val notEqualSeven = not (equalSeven)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> equalSeven = equal (<span class="stLiteral">7</span>)
+ * <span class="stReserved">val</span> notEqualSeven = not (equalSeven)
  * </pre>
  *
  * <p>

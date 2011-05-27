@@ -32,6 +32,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * val context = new Mockery
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> context = <span class="stReserved">new</span> <span class="stType">Mockery</span>
  * </pre>
  *
  * <p>
@@ -40,6 +42,8 @@ import scala.reflect.Manifest
  * </p>
  *
  * <pre class="stHighlight">
+ * context.setImposteriser(ClassImposteriser.INSTANCE)
+ * </pre><pre class="stHighlighted">
  * context.setImposteriser(ClassImposteriser.INSTANCE)
  * </pre>
  *
@@ -51,6 +55,9 @@ import scala.reflect.Manifest
  * <pre class="stHighlight">
  * val cycle = new JMockCycle
  * import cycle._
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> cycle = <span class="stReserved">new</span> <span class="stType">JMockCycle</span>
+ * <span class="stReserved">import</span> cycle._
  * </pre>
  *
  * <p>
@@ -59,6 +66,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = context.mock(classOf[Collaborator])
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = context.mock(classOf[<span class="stType">Collaborator</span>])
  * </pre>
  *
  * <p>
@@ -67,6 +76,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = mock[Collaborator]
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
  * </pre>
  *
  * <p>
@@ -80,6 +91,13 @@ import scala.reflect.Manifest
  *     exactly(3).of (mockCollaborator).documentChanged("Document")
  *    }
  *  )
+ * </pre><pre class="stHighlighted">
+ * context.checking(
+ *   <span class="stReserved">new</span> <span class="stType">Expectations</span>() {
+ *     oneOf (mockCollaborator).documentAdded(<span class="stQuotedString">"Document"</span>)
+ *     exactly(<span class="stLiteral">3</span>).of (mockCollaborator).documentChanged(<span class="stQuotedString">"Document"</span>)
+ *    }
+ *  )
  * </pre>
  *
  * <p>
@@ -90,6 +108,11 @@ import scala.reflect.Manifest
  * expecting { e => import e._
  *   oneOf (mockCollaborator).documentAdded("Document")
  *   exactly(3).of (mockCollaborator).documentChanged("Document")
+ * }
+ * </pre><pre class="stHighlighted">
+ * expecting { e => <span class="stReserved">import</span> e._
+ *   oneOf (mockCollaborator).documentAdded(<span class="stQuotedString">"Document"</span>)
+ *   exactly(<span class="stLiteral">3</span>).of (mockCollaborator).documentChanged(<span class="stQuotedString">"Document"</span>)
  * }
  * </pre>
  *
@@ -111,6 +134,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * oneOf (mockCollaborator).documentAdded(`with`("Document"))
+ * </pre><pre class="stHighlighted">
+ * oneOf (mockCollaborator).documentAdded(`<span class="stReserved">with</span>`(<span class="stQuotedString">"Document"</span>))
  * </pre>
  *
  * <p>
@@ -120,6 +145,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * oneOf (mockCollaborator).documentAdded(withArg("Document"))
+ * </pre><pre class="stHighlighted">
+ * oneOf (mockCollaborator).documentAdded(withArg(<span class="stQuotedString">"Document"</span>))
  * </pre>
  *
  * <p>
@@ -134,6 +161,12 @@ import scala.reflect.Manifest
  * classUnderTest.addDocument("Document", new Array[Byte](0))
  * classUnderTest.addDocument("Document", new Array[Byte](0))
  * context.assertIsSatisfied()
+ * </pre><pre class="stHighlighted">
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * context.assertIsSatisfied()
  * </pre>
  *
  * <p>
@@ -146,6 +179,13 @@ import scala.reflect.Manifest
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
+ * }
+ * </pre><pre class="stHighlighted">
+ * whenExecuting {
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
  * }
  * </pre>
  *
@@ -176,6 +216,20 @@ import scala.reflect.Manifest
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> cycle = <span class="stReserved">new</span> <span class="stType">JMockCycle</span>
+ * <span class="stReserved">import</span> cycle._
+ * <br /><span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
+ * <br />expecting { e => <span class="stReserved">import</span> e._
+ *   oneOf (mockCollaborator).documentAdded(<span class="stQuotedString">"Document"</span>)
+ *   exactly(<span class="stLiteral">3</span>).of (mockCollaborator).documentChanged(<span class="stQuotedString">"Document"</span>)
+ * }
+ * <br />whenExecuting {
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * }
  * </pre>
  *
  * <p>
@@ -201,6 +255,8 @@ final class JMockCycle {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = context.mock(classOf[Collaborator])
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = context.mock(classOf[<span class="stType">Collaborator</span>])
    * </pre>
    *
    * <p>
@@ -209,6 +265,8 @@ final class JMockCycle {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = mock[Collaborator]
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
    * </pre>
    */
   def mock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
@@ -229,6 +287,13 @@ final class JMockCycle {
    *     exactly(3).of (mockCollaborator).documentChanged("Document")
    *    }
    *  )
+   * </pre><pre class="stHighlighted">
+   * context.checking(
+   *   <span class="stReserved">new</span> <span class="stType">Expectations</span>() {
+   *     oneOf (mockCollaborator).documentAdded(<span class="stQuotedString">"Document"</span>)
+   *     exactly(<span class="stLiteral">3</span>).of (mockCollaborator).documentChanged(<span class="stQuotedString">"Document"</span>)
+   *    }
+   *  )
    * </pre>
    *
    * <p>
@@ -239,6 +304,11 @@ final class JMockCycle {
    * expecting { e => import e._
    *   oneOf (mockCollaborator).documentAdded("Document")
    *   exactly(3).of (mockCollaborator).documentChanged("Document")
+   * }
+   * </pre><pre class="stHighlighted">
+   * expecting { e => <span class="stReserved">import</span> e._
+   *   oneOf (mockCollaborator).documentAdded(<span class="stQuotedString">"Document"</span>)
+   *   exactly(<span class="stLiteral">3</span>).of (mockCollaborator).documentChanged(<span class="stQuotedString">"Document"</span>)
    * }
    * </pre>
    *
@@ -259,6 +329,8 @@ final class JMockCycle {
    *
    * <pre class="stHighlight">
    * oneOf (mockCollaborator).documentAdded(`with`("Document"))
+   * </pre><pre class="stHighlighted">
+   * oneOf (mockCollaborator).documentAdded(`<span class="stReserved">with</span>`(<span class="stQuotedString">"Document"</span>))
    * </pre>
    *
    * <p>
@@ -268,6 +340,8 @@ final class JMockCycle {
    *
    * <pre class="stHighlight">
    * oneOf (mockCollaborator).documentAdded(withArg("Document"))
+   * </pre><pre class="stHighlighted">
+   * oneOf (mockCollaborator).documentAdded(withArg(<span class="stQuotedString">"Document"</span>))
    * </pre>
    *
    * @param fun a function that sets expectations on the passed <code>JMockExpectations</code>
@@ -294,6 +368,12 @@ final class JMockCycle {
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * context.assertIsSatisfied()
+   * </pre><pre class="stHighlighted">
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * context.assertIsSatisfied()
    * </pre>
    *
    * <p>
@@ -306,6 +386,13 @@ final class JMockCycle {
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
+   * }
+   * </pre><pre class="stHighlighted">
+   * whenExecuting {
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
    * }
    * </pre>
    *

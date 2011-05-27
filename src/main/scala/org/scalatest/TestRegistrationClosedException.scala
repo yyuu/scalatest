@@ -34,6 +34,11 @@ package org.scalatest
  *   test("but this nested test is not allowed") {
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * test(<span class="stQuotedString">"this test is fine"</span>) {
+ *   test(<span class="stQuotedString">"but this nested test is not allowed"</span>) {
+ *   }
+ * }
  * </pre>
  *
  * <p>

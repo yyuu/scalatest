@@ -56,6 +56,21 @@ val scaladocForTableFor1VerbatimString = """
  *       8,
  *       9
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> examples =
+ *   <span class="stType">Table</span>(
+ *     <span class="stQuotedString">"a"</span>,
+ *       <span class="stLiteral">0</span>,
+ *       <span class="stLiteral">1</span>,
+ *       <span class="stLiteral">2</span>,
+ *       <span class="stLiteral">3</span>,
+ *       <span class="stLiteral">4</span>,
+ *       <span class="stLiteral">5</span>,
+ *       <span class="stLiteral">6</span>,
+ *       <span class="stLiteral">7</span>,
+ *       <span class="stLiteral">8</span>,
+ *       <span class="stLiteral">9</span>
+ *   )
  * </pre>
  *
  * <p>
@@ -85,6 +100,10 @@ val scaladocForTableFor1VerbatimString = """
  * forAll (examples) { (a) =>
  *   a should equal (a * 1)
  * }
+ * </pre><pre class="stHighlighted">
+ * forAll (examples) { (a) =>
+ *   a should equal (a * <span class="stLiteral">1</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -96,6 +115,10 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * for (row <- examples) yield {
  *   failureOf { row._1 should not equal (7) }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">for</span> (row <- examples) <span class="stReserved">yield</span> {
+ *   failureOf { row._1 should not equal (<span class="stLiteral">7</span>) }
  * }
  * </pre>
  *
@@ -109,6 +132,9 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * Vector(None, None, None, None, None, None, None,
  *     Some(org.scalatest.TestFailedException: 7 equaled 7), None, None)
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">Vector</span>(<span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>,
+ *     <span class="stType">Some</span>(<span class="stType">org.scalatest.TestFailedException</span>: <span class="stLiteral">7</span> equaled <span class="stLiteral">7</span>), <span class="stType">None</span>, <span class="stType">None</span>)
  * </pre>
  *
  * <p>
@@ -131,6 +157,9 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * val first14FiboNums =
  *   Table("n", 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> first14FiboNums =
+ *   <span class="stType">Table</span>(<span class="stQuotedString">"n"</span>, <span class="stLiteral">0</span>, <span class="stLiteral">1</span>, <span class="stLiteral">1</span>, <span class="stLiteral">2</span>, <span class="stLiteral">3</span>, <span class="stLiteral">5</span>, <span class="stLiteral">8</span>, <span class="stLiteral">13</span>, <span class="stLiteral">21</span>, <span class="stLiteral">34</span>, <span class="stLiteral">55</span>, <span class="stLiteral">89</span>, <span class="stLiteral">144</span>, <span class="stLiteral">233</span>)
  * </pre>
  *
  * <p>
@@ -142,6 +171,10 @@ val scaladocForTableFor1VerbatimString = """
  *  forAll (first14FiboNums) { n =>
  *    FiboGen.next should equal (n)
  *  }
+ * </pre><pre class="stHighlighted">
+ * forAll (first14FiboNums) { n =>
+ *   FiboGen.next should equal (n)
+ * }
  * </pre>
  *
  * @param heading a string name for the lone column of this table
@@ -204,6 +237,15 @@ import org.scalacheck.Test.Params
  *
  *   override def toString = numer + " / " + denom
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Fraction</span>(n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) {
+ * <br />  require(d != <span class="stLiteral">0</span>)
+ *   require(d != Integer.MIN_VALUE)
+ *   require(n != Integer.MIN_VALUE)
+ * <br />  <span class="stReserved">val</span> numer = <span class="stReserved">if</span> (d < <span class="stLiteral">0</span>) -<span class="stLiteral">1</span> * n <span class="stReserved">else</span> n
+ *   <span class="stReserved">val</span> denom = d.abs
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = numer + <span class="stQuotedString">" / "</span> + denom
+ * }
  * </pre>
  *
  * <p>
@@ -227,6 +269,20 @@ import org.scalacheck.Test.Params
  *       f.numer should be === 0
  *
  *     f.denom should be > 0
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * forAll { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *       && n != Integer.MIN_VALUE) {
+ * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *       f.numer should be > <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *       f.numer should be < <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span>
+ *       f.numer should be === <span class="stLiteral">0</span>
+ * <br />    f.denom should be > <span class="stLiteral">0</span>
  *   }
  * }
  * </pre>
@@ -270,6 +326,10 @@ import org.scalacheck.Test.Params
  * forAll ("a", "b") { (a: String, b: String) =>
  *   a.length + b.length should equal ((a + b).length + 1) // Should fail
  * }
+ * </pre><pre class="stHighlighted">
+ * forAll (<span class="stQuotedString">"a"</span>, <span class="stQuotedString">"b"</span>) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>) =>
+ *   a.length + b.length should equal ((a + b).length + <span class="stLiteral">1</span>) <span class="stLineComment">// Should fail</span>
+ * }
  * </pre>
  *
  * <p>
@@ -291,6 +351,10 @@ import org.scalacheck.Test.Params
  * <pre class="stHighlight">
  * forAll { (a: String, b: String) =>
  *   a.length + b.length should equal ((a + b).length + 1) // Should fail
+ * }
+ * </pre><pre class="stHighlighted">
+ * forAll { (a: <span class="stType">String</span>, b: <span class="stType">String</span>) =>
+ *   a.length + b.length should equal ((a + b).length + <span class="stLiteral">1</span>) <span class="stLineComment">// Should fail</span>
  * }
  * </pre>
  *
@@ -321,6 +385,9 @@ import org.scalacheck.Test.Params
  * import org.scalacheck.Gen
  *
  * val evenInts = for (n <- Gen.choose(-1000, 1000)) yield 2 * n
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalacheck.Gen
+ * <br /><span class="stReserved">val</span> evenInts = <span class="stReserved">for</span> (n <- Gen.choose(-<span class="stLiteral">1000</span>, <span class="stLiteral">1000</span>)) <span class="stReserved">yield</span> <span class="stLiteral">2</span> * n
  * </pre>
  *
  * <p>
@@ -329,6 +396,8 @@ import org.scalacheck.Test.Params
  *
  * <pre class="stHighlight">
  * forAll (evenInts) { (n) => n % 2 should equal (0) }
+ * </pre><pre class="stHighlighted">
+ * forAll (evenInts) { (n) => n % <span class="stLiteral">2</span> should equal (<span class="stLiteral">0</span>) }
  * </pre>
  *
  * <p>
@@ -342,6 +411,9 @@ import org.scalacheck.Test.Params
  * <pre class="stHighlight">
  *   whenever (d != 0 && d != Integer.MIN_VALUE
  *       && n != Integer.MIN_VALUE) { ...
+ * </pre><pre class="stHighlighted">
+ * whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *     && n != Integer.MIN_VALUE) { ...
  * </pre>
  *
  * <p>
@@ -353,6 +425,11 @@ import org.scalacheck.Test.Params
  *   for (n <- Gen.choose(Integer.MIN_VALUE + 1, Integer.MAX_VALUE)) yield n
  * val validDenoms =
  *   for (d <- validNumers if d != 0) yield d
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> validNumers =
+ *   <span class="stReserved">for</span> (n <- Gen.choose(Integer.MIN_VALUE + <span class="stLiteral">1</span>, Integer.MAX_VALUE)) <span class="stReserved">yield</span> n
+ * <span class="stReserved">val</span> validDenoms =
+ *   <span class="stReserved">for</span> (d <- validNumers <span class="stReserved">if</span> d != <span class="stLiteral">0</span>) <span class="stReserved">yield</span> d
  * </pre>
  *
  * <p>
@@ -375,6 +452,20 @@ import org.scalacheck.Test.Params
  *       f.numer should be === 0
  *
  *     f.denom should be > 0
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * forAll (validNumers, validDenoms) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *       && n != Integer.MIN_VALUE) {
+ * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *       f.numer should be > <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *       f.numer should be < <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span>
+ *       f.numer should be === <span class="stLiteral">0</span>
+ * <br />    f.denom should be > <span class="stLiteral">0</span>
  *   }
  * }
  * </pre>
@@ -411,6 +502,20 @@ import org.scalacheck.Test.Params
  *       f.numer should be === 0
  *
  *     f.denom should be > 0
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * forAll ((validNumers, <span class="stQuotedString">"n"</span>), (validDenoms, <span class="stQuotedString">"d"</span>)) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *       && n != Integer.MIN_VALUE) {
+ * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *       f.numer should be > <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *       f.numer should be < <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span>
+ *       f.numer should be === <span class="stLiteral">0</span>
+ * <br />    f.denom should be > <span class="stLiteral">0</span>
  *   }
  * }
  * </pre>
@@ -516,6 +621,9 @@ import org.scalacheck.Test.Params
  * <pre class="stHighlight">
  * implicit override val generatorDrivenConfig =
  *   PropertyCheckConfig(minSize = 10, maxSize = 20)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">override</span> <span class="stReserved">val</span> generatorDrivenConfig =
+ *   <span class="stType">PropertyCheckConfig</span>(minSize = <span class="stLiteral">10</span>, maxSize = <span class="stLiteral">20</span>)
  * </pre>
  *
  * <p>
@@ -525,6 +633,9 @@ import org.scalacheck.Test.Params
  * <pre class="stHighlight">
  * implicit val generatorDrivenConfig =
  *   PropertyCheckConfig(minSize = 10, maxSize = 20)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">val</span> generatorDrivenConfig =
+ *   <span class="stType">PropertyCheckConfig</span>(minSize = <span class="stLiteral">10</span>, maxSize = <span class="stLiteral">20</span>)
  * </pre>
  *
  * <p>
@@ -537,6 +648,8 @@ import org.scalacheck.Test.Params
  *
  * <pre class="stHighlight">
  * forAll (minSuccessful(500)) { (n: Int, d: Int) => ...
+ * </pre><pre class="stHighlighted">
+ * forAll (minSuccessful(<span class="stLiteral">500</span>)) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) => ...
  * </pre>
  *
  * <p>
@@ -547,6 +660,8 @@ import org.scalacheck.Test.Params
  * 
  * <pre class="stHighlight">
  * forAll (minSuccessful(500), maxDiscarded(300)) { (n: Int, d: Int) => ...
+ * </pre><pre class="stHighlighted">
+ * forAll (minSuccessful(<span class="stLiteral">500</span>), maxDiscarded(<span class="stLiteral">300</span>)) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) => ...
  * </pre>
  *
  * <p>
@@ -566,6 +681,16 @@ import org.scalacheck.Test.Params
  * // If providing (&lt;generators&gt;, &lt;name&gt;) pairs
  * forAll ((validNumers, "n"), (validDenoms, "d"), minSuccessful(500), maxDiscarded(300)) {
  *   (n: Int, d: Int) => ...
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// If providing argument names</span>
+ * forAll (<span class="stQuotedString">"n"</span>, <span class="stQuotedString">"d"</span>, minSuccessful(<span class="stLiteral">500</span>), maxDiscarded(<span class="stLiteral">300</span>)) {
+ *   (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) => ...
+ * <br /><span class="stLineComment">// If providing generators</span>
+ * forAll (validNumers, validDenoms, minSuccessful(<span class="stLiteral">500</span>), maxDiscarded(<span class="stLiteral">300</span>)) {
+ *   (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) => ...
+ * <br /><span class="stLineComment">// If providing (&lt;generators&gt;, &lt;name&gt;) pairs</span>
+ * forAll ((validNumers, <span class="stQuotedString">"n"</span>), (validDenoms, <span class="stQuotedString">"d"</span>), minSuccessful(<span class="stLiteral">500</span>), maxDiscarded(<span class="stLiteral">300</span>)) {
+ *   (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) => ...
  * </pre>
  *
  * <p>
@@ -616,6 +741,25 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String, d: String, e: String, f: String) =>
    *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>) =>
+   *   a.length should equal ((a).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>) =>
+   *   a.length + b.length should equal ((a + b).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length should equal ((a + b + c).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length should equal ((a + b + c + d).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length + e.length should equal ((a + b + c + d + e).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>, f: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
+   * }
    * </pre>
    *
    * @param configParams a variable length list of <code>PropertyCheckConfigParam</code> objects that should override corresponding
@@ -659,6 +803,25 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String, d: String, e: String, f: String) =>
    *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>) =>
+   *   a.length should equal ((a).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>) =>
+   *   a.length + b.length should equal ((a + b).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length should equal ((a + b + c).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length should equal ((a + b + c + d).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length + e.length should equal ((a + b + c + d + e).length)
+   * }
+   * <br />forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>, f: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
+   * }
    * </pre>
    *
    * <p>
@@ -667,6 +830,8 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * forAll (minSize(1), maxSize(10))
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>))
    * </pre>
    *
    * <p>
@@ -675,6 +840,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * { (a: String) =>
+   *   a.length should equal ((a).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * { (a: <span class="stType">String</span>) =>
    *   a.length should equal ((a).length)
    * }
    * </pre>
@@ -697,6 +866,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * forAll (minSize(1), maxSize(10)) { (a: String) =>
+   *   a.length should equal ((a).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>) =>
    *   a.length should equal ((a).length)
    * }
    * </pre>
@@ -738,6 +911,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String) =>
+   *   a.length + b.length should equal ((a + b).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>) =>
    *   a.length + b.length should equal ((a + b).length)
    * }
    * </pre>
@@ -782,6 +959,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String) =>
    *   a.length + b.length + c.length should equal ((a + b + c).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length should equal ((a + b + c).length)
+   * }
    * </pre>
    *
    * @param fun the property check function to apply to the generated arguments
@@ -823,6 +1004,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String, d: String) =>
+   *   a.length + b.length + c.length + d.length should equal ((a + b + c + d).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>) =>
    *   a.length + b.length + c.length + d.length should equal ((a + b + c + d).length)
    * }
    * </pre>
@@ -869,6 +1054,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String, d: String, e: String) =>
    *   a.length + b.length + c.length + d.length + e.length should equal ((a + b + c + d + e).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>) =>
+   *   a.length + b.length + c.length + d.length + e.length should equal ((a + b + c + d + e).length)
+   * }
    * </pre>
    *
    * @param fun the property check function to apply to the generated arguments
@@ -912,6 +1101,10 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
    *
    * <pre class="stHighlight">
    * forAll (minSize(1), maxSize(10)) { (a: String, b: String, c: String, d: String, e: String, f: String) =>
+   *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * forAll (minSize(<span class="stLiteral">1</span>), maxSize(<span class="stLiteral">10</span>)) { (a: <span class="stType">String</span>, b: <span class="stType">String</span>, c: <span class="stType">String</span>, d: <span class="stType">String</span>, e: <span class="stType">String</span>, f: <span class="stType">String</span>) =>
    *   a.length + b.length + c.length + d.length + e.length + f.length should equal ((a + b + c + d + e + f).length)
    * }
    * </pre>
@@ -962,6 +1155,10 @@ val propertyCheckForAllTemplate = """
    * forAll { ($namesAndTypes$) =>
    *   $sumOfArgLengths$ should equal (($sumOfArgs$).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * forAll { (<i>namesAndTypes</i>) =>
+   *   <i>sumOfArgLengths</i> should equal ((<i>sumOfArgs</i>).length)
+   * }
    * </pre>
    *
    * @param fun the property check function to apply to the generated arguments
@@ -1001,6 +1198,10 @@ $arbShrinks$
    * <pre class="stHighlight">
    * forAll ($argNames$) { ($namesAndTypes$) =>
    *   $sumOfArgLengths$ should equal (($sumOfArgs$).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * forAll (<i>argNames</i>) { (<i>namesAndTypes</i>) =>
+   *   <i>sumOfArgLengths</i> should equal ((<i>sumOfArgs</i>).length)
    * }
    * </pre>
    *
@@ -1049,6 +1250,15 @@ $arbShrinks$
    * forAll ($famousArgs$) { ($namesAndTypes$) =>
    *   $sumOfArgLengths$ should equal (($sumOfArgs$).length)
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalacheck.Gen
+   * <br /><span class="stLineComment">// Define your own string generator:</span>
+   * <span class="stReserved">val</span> famousLastWords = <span class="stReserved">for</span> {
+   *   s <- Gen.oneOf(<span class="stQuotedString">"the"</span>, <span class="stQuotedString">"program"</span>, <span class="stQuotedString">"compiles"</span>, <span class="stQuotedString">"therefore"</span>, <span class="stQuotedString">"it"</span>, <span class="stQuotedString">"should"</span>, <span class="stQuotedString">"work"</span>)
+   * } <span class="stReserved">yield</span> s
+   * <br />forAll (<i>famousArgs</i>) { (<i>namesAndTypes</i>) =>
+   *   <i>sumOfArgLengths</i> should equal ((<i>sumOfArgs</i>).length)
+   * }
    * </pre>
    *
    * @param fun the property check function to apply to the generated arguments
@@ -1095,6 +1305,15 @@ $shrinks$
    * 
    * forAll ($nameGenTuples$) { ($namesAndTypes$) =>
    *   $sumOfArgLengths$ should equal (($sumOfArgs$).length)
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalacheck.Gen
+   * <br /><span class="stLineComment">// Define your own string generator:</span>
+   * <span class="stReserved">val</span> famousLastWords = <span class="stReserved">for</span> {
+   *   s <- Gen.oneOf(<span class="stQuotedString">"the"</span>, <span class="stQuotedString">"program"</span>, <span class="stQuotedString">"compiles"</span>, <span class="stQuotedString">"therefore"</span>, <span class="stQuotedString">"it"</span>, <span class="stQuotedString">"should"</span>, <span class="stQuotedString">"work"</span>)
+   * } <span class="stReserved">yield</span> s
+   * <br />forAll (<i>nameGenTuples</i>) { (<i>namesAndTypes</i>) =>
+   *   <i>sumOfArgLengths</i> should equal ((<i>sumOfArgs</i>).length)
    * }
    * </pre>
    *

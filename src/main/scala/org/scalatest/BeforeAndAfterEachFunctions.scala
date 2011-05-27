@@ -51,6 +51,29 @@ import java.util.concurrent.atomic.AtomicReference
  *     assert(lb.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest._
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">BeforeAndAfterEachFunctions</span> {
+ * <br />  <span class="stLineComment">// Fixtures as reassignable variables and mutable objects</span>
+ *   <span class="stReserved">var</span> sb: <span class="stType">StringBuilder</span> = _
+ *   <span class="stReserved">val</span> lb = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />  beforeEach {
+ *     sb = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     lb.clear()
+ *   }
+ * <br />  <span class="stReserved">def</span> testEasy() {
+ *     sb.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(lb.isEmpty)
+ *     lb += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun() {
+ *     sb.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(lb.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -60,12 +83,16 @@ import java.util.concurrent.atomic.AtomicReference
  * </p>
  * <pre class="stHighlight">
  * class MySuite extends BeforeAndAfterEachFunctions with FunSuite 
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">BeforeAndAfterEachFunctions</span> <span class="stReserved">with</span> <span class="stType">FunSuite</span>
  * </pre>
  * <p>
  * You'd need to turn it around, so that <code>FunSuite</code> is "super" to <code>BeforeAndAfterEachFunctions</code>, like this:
  * </p>
  * <pre class="stHighlight">
  * class MySuite extends FunSuite with BeforeAndAfterEachFunctions
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEachFunctions</span>
  * </pre>
  *
  * <p>

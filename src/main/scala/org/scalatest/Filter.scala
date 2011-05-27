@@ -82,6 +82,12 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
    *     // ignore the test
    *   else
    *     // execute the test
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">for</span> ((testName, ignoreTest) <- filter(testNames, tags))
+   *   <span class="stReserved">if</span> (ignoreTest)
+   *     <span class="stLineComment">// ignore the test</span>
+   *   <span class="stReserved">else</span>
+   *     <span class="stLineComment">// execute the test</span>
    * </pre>
    *
    * @param testNames test names to be filtered
@@ -130,6 +136,13 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
    *     // ignore the test
    *   else
    *     // execute the test
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> (filterTest, ignoreTest) = filter(testName, tags)
+   * <span class="stReserved">if</span> (!filterTest)
+   *   <span class="stReserved">if</span> (ignoreTest)
+   *     <span class="stLineComment">// ignore the test</span>
+   *   <span class="stReserved">else</span>
+   *     <span class="stLineComment">// execute the test</span>
    * </pre>
    *
    * @param testName the test name to be filtered

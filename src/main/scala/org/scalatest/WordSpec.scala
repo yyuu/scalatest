@@ -59,6 +59,26 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"A Stack"</span> should {
+ * <br />    <span class="stQuotedString">"pop values in last-in-first-out order"</span> in {
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"throw NoSuchElementException if an empty stack is popped"</span> in {
+ *       <span class="stReserved">val</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[String]</span>
+ *       intercept[<span class="stType">NoSuchElementException</span>] {
+ *         emptyStack.pop()
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -89,6 +109,16 @@ import Suite.anErrorThatShouldCauseAnAbort
  * "A ShippingManifest" can {
  *   // ...
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack"</span> should {
+ *   <span class="stLineComment">// ...</span>
+ * }
+ * <span class="stQuotedString">"An Account"</span> must {
+ *   <span class="stLineComment">// ...</span>
+ * }
+ * <span class="stQuotedString">"A ShippingManifest"</span> can {
+ *   <span class="stLineComment">// ...</span>
+ * }
  * </pre>
  * 
  * <p>
@@ -107,6 +137,18 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   }
  *   "full" should {
  *     // ...
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack"</span> when {
+ *   <span class="stQuotedString">"empty"</span> should {
+ *     <span class="stLineComment">// ...</span>
+ *   }
+ *   <span class="stQuotedString">"non-empty"</span> should {
+ *     <span class="stLineComment">// ...</span>
+ *   }
+ *   <span class="stQuotedString">"full"</span> should {
+ *     <span class="stLineComment">// ...</span>
  *   }
  * }
  * </pre>
@@ -138,6 +180,31 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       }
  *       "complain on push" in {
  *         // ...
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ *   <span class="stQuotedString">"A Stack"</span> when {
+ *     <span class="stQuotedString">"empty"</span> should {
+ *       <span class="stQuotedString">"be empty"</span> in {
+ *         <span class="stLineComment">// ...</span>
+ *       }
+ *       <span class="stQuotedString">"complain on peek"</span> in {
+ *         <span class="stLineComment">// ...</span>
+ *       }
+ *       <span class="stQuotedString">"complain on pop"</span> in {
+ *         <span class="stLineComment">// ...</span>
+ *       }
+ *     }
+ *     <span class="stQuotedString">"full"</span> should {
+ *       <span class="stQuotedString">"be full"</span> in {
+ *         <span class="stLineComment">// ...</span>
+ *       }
+ *       <span class="stQuotedString">"complain on push"</span> in {
+ *         <span class="stLineComment">// ...</span>
  *       }
  *     }
  *   }
@@ -189,6 +256,20 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     "provide an or operator that throws a TestFailedException when evaluating false or false" in {}
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">AndOrSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"The ScalaTest Matchers DSL"</span> should {
+ *     <span class="stQuotedString">"provide an and operator that returns silently when evaluating true and true"</span> in {}
+ *     <span class="stQuotedString">"provide an and operator that throws a TestFailedException when evaluating true and false"</span> in {}
+ *     <span class="stQuotedString">"provide an and operator that throws a TestFailedException when evaluating false and true"</span> in {}
+ *     <span class="stQuotedString">"provide an and operator that throws a TestFailedException when evaluating false and false"</span> in {}
+ *     <span class="stQuotedString">"provide an or operator that returns silently when evaluating true or true"</span> in {}
+ *     <span class="stQuotedString">"provide an or operator that returns silently when evaluating true or false"</span> in {}
+ *     <span class="stQuotedString">"provide an or operator that returns silently when evaluating false or true"</span> in {}
+ *     <span class="stQuotedString">"provide an or operator that throws a TestFailedException when evaluating false or false"</span> in {}
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -212,6 +293,24 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       "returns silently when evaluating true or false" in {}
  *       "returns silently when evaluating false or true" in {}
  *       "throws a TestFailedException when evaluating false or false" in {}
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">AndOrSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"The ScalaTest Matchers DSL"</span> should {
+ *     <span class="stQuotedString">"provide an and operator"</span> that {
+ *       <span class="stQuotedString">"returns silently when evaluating true and true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating true and false"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating false and true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating false and false"</span> in {}
+ *     }
+ *     <span class="stQuotedString">"provide an or operator"</span> that {
+ *       <span class="stQuotedString">"returns silently when evaluating true or true"</span> in {}
+ *       <span class="stQuotedString">"returns silently when evaluating true or false"</span> in {}
+ *       <span class="stQuotedString">"returns silently when evaluating false or true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating false or false"</span> in {}
  *     }
  *   }
  * }
@@ -273,6 +372,25 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">AndOrSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />   <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+ * <br />  <span class="stQuotedString">"The ScalaTest Matchers DSL"</span> should provide {
+ *     <span class="stQuotedString">"an and operator"</span> that {
+ *       <span class="stQuotedString">"returns silently when evaluating true and true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating true and false"</span> in {}
+ *       <span class="stQuotedString">"that throws a TestFailedException when evaluating false and true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating false and false"</span> in {}
+ *     }
+ *     <span class="stQuotedString">"an or operator"</span> that {
+ *       <span class="stQuotedString">"returns silently when evaluating true or true"</span> in {}
+ *       <span class="stQuotedString">"returns silently when evaluating true or false"</span> in {}
+ *       <span class="stQuotedString">"returns silently when evaluating false or true"</span> in {}
+ *       <span class="stQuotedString">"throws a TestFailedException when evaluating false or false"</span> in {}
+ *     }
+ *   }
+ * }
  * </pre>
  * 
  *  <p>
@@ -320,6 +438,23 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       "a rerun button" that is {
  *         "enabled if the clicked-on event is rerunnable" in {}
  *         "disabled if the clicked-on event is not rerunnable" in {}
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ScalaTestGUISpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stReserved">def</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+ *   <span class="stReserved">def</span> display = afterWord(<span class="stQuotedString">"display"</span>)
+ *   <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+ * <br />  <span class="stQuotedString">"The ScalaTest GUI"</span> when theUser {
+ *     <span class="stQuotedString">"clicks on an event report in the list box"</span> should display {
+ *       <span class="stQuotedString">"a blue background in the clicked-on row in the list box"</span> in {}
+ *       <span class="stQuotedString">"the details for the event in the details area"</span> in {}
+ *       <span class="stQuotedString">"a rerun button"</span> that is {
+ *         <span class="stQuotedString">"enabled if the clicked-on event is rerunnable"</span> in {}
+ *         <span class="stQuotedString">"disabled if the clicked-on event is not rerunnable"</span> in {}
  *       }
  *     }
  *   }
@@ -398,6 +533,22 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing immutable fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br /> <span class="stQuotedString">"The Scala language"</span> should {
+ *     <span class="stQuotedString">"add correctly"</span> in {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    <span class="stQuotedString">"subtract correctly"</span> in {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *       assert(diff === shared)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -441,6 +592,31 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       val (builder, lbuf) = createFixture
  *       builder.append("fun!")
  *       assert(builder.toString === "ScalaTest is fun!")
+ *       assert(lbuf.isEmpty)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stLineComment">// create objects needed by tests and return as a tuple</span>
+ *   <span class="stReserved">def</span> createFixture = (
+ *     <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>),
+ *     <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   )
+ * <br /> <span class="stQuotedString">"ScalaTest"</span> should {
+ * <br />    <span class="stQuotedString">"be easy "</span> in {
+ *       <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *       builder.append(<span class="stQuotedString">"easy!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *       assert(lbuf.isEmpty)
+ *       lbuf += <span class="stQuotedString">"sweet"</span>
+ *     }
+ * <br />    <span class="stQuotedString">"be fun"</span> in {
+ *       <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *       builder.append(<span class="stQuotedString">"fun!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *       assert(lbuf.isEmpty)
  *     }
  *   }
@@ -518,6 +694,51 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEach</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> beforeEach() {
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ *   }
+ * <br />  <span class="stLineComment">// Close and delete the temp file</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> afterEach() {
+ *     reader.close()
+ *     <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *     file.delete()
+ *   }
+ * <br /> <span class="stQuotedString">"A FileReader"</span> must {
+ *     <span class="stQuotedString">"read in the contents of a file correctly"</span> in {
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"read in the first character of a file correctly"</span> in {
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"not be required"</span> in {
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -538,6 +759,11 @@ import Suite.anErrorThatShouldCauseAnAbort
  * <pre class="stHighlight">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
+ *   test()
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// Default implementation</span>
+ * <span class="stReserved">protected</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
  *   test()
  * }
  * </pre>
@@ -602,6 +828,54 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  *     "not be required" in {
  *       assert(1 + 1 === 2)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       test() <span class="stLineComment">// Invoke the test function</span>
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br /> <span class="stQuotedString">"A FileReader"</span> must {
+ *     <span class="stQuotedString">"read in the contents of a file correctly"</span> in {
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"read in the first character of a file correctly"</span> in {
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"not be required"</span> in {
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
  *     }
  *   }
  * }
@@ -681,6 +955,54 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br /> <span class="stQuotedString">"A FileReader"</span> must {
+ *     <span class="stQuotedString">"read in the contents of a file correctly"</span> in { reader =>
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"read in the first character of a file correctly"</span> in { reader =>
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"not be required"</span> in { () =>
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -749,6 +1071,34 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  *   override def toString = buf.mkString("Stack(", ", ", ")")
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">Stack[T]</span> {
+ * <br />  <span class="stReserved">val</span> MAX = <span class="stLiteral">10</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> buf = <span class="stReserved">new</span> <span class="stType">ListBuffer[T]</span>
+ * <br />  <span class="stReserved">def</span> push(o: T) {
+ *     <span class="stReserved">if</span> (!full)
+ *       o +: buf
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't push onto a full stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> pop(): T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf.remove(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> peek: T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> full: <span class="stType">Boolean</span> = buf.size == MAX
+ *   <span class="stReserved">def</span> empty: <span class="stType">Boolean</span> = buf.size == <span class="stLiteral">0</span>
+ *   <span class="stReserved">def</span> size = buf.size
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = buf.mkString(<span class="stQuotedString">"Stack("</span>, <span class="stQuotedString">", "</span>, <span class="stQuotedString">")"</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -808,6 +1158,38 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">trait</span> <span class="stType">StackBehaviors</span> { <span class="stReserved">this</span>: <span class="stType">WordSpec</span> =>
+ * <br />  <span class="stReserved">def</span> nonEmptyStack(stack: <span class="stType">Stack[Int]</span>, lastItemAdded: <span class="stType">Int</span>) {
+ * <br />    <span class="stQuotedString">"be non-empty"</span> in {
+ *       assert(!stack.empty)
+ *     }  
+ * <br />    <span class="stQuotedString">"return the top item on peek"</span> in {
+ *       assert(stack.peek === lastItemAdded)
+ *     }
+ * <br />    <span class="stQuotedString">"not remove the top item on peek"</span> in {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       assert(stack.peek === lastItemAdded)
+ *       assert(stack.size === size)
+ *     }
+ * <br />    <span class="stQuotedString">"remove the top item on pop"</span> in {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       assert(stack.pop === lastItemAdded)
+ *       assert(stack.size === size - <span class="stLiteral">1</span>)
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> nonFullStack(stack: <span class="stType">Stack[Int]</span>) {
+ * <br />    <span class="stQuotedString">"not be full"</span> in {
+ *       assert(!stack.full)
+ *     }
+ * <br />    <span class="stQuotedString">"add to the top on push"</span> in {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       stack.push(<span class="stLiteral">7</span>)
+ *       assert(stack.size === size + <span class="stLiteral">1</span>)
+ *       assert(stack.peek === <span class="stLiteral">7</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  *
@@ -817,6 +1199,9 @@ import Suite.anErrorThatShouldCauseAnAbort
  * </p>
  *
  * <pre class="stHighlight">
+ * behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+ * behave like nonFullStack(stackWithOneItem)
+ * </pre><pre class="stHighlighted">
  * behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
  * behave like nonFullStack(stackWithOneItem)
  * </pre>
@@ -830,6 +1215,9 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <pre class="stHighlight">
  * behave like nonEmptyStack // assuming lastValuePushed is also in scope inside nonEmptyStack
+ * behave like nonFullStack
+ * </pre><pre class="stHighlighted">
+ * behave like nonEmptyStack <span class="stLineComment">// assuming lastValuePushed is also in scope inside nonEmptyStack</span>
  * behave like nonFullStack
  * </pre>
  *
@@ -909,6 +1297,65 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">SharedTestExampleSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> <span class="stReserved">with</span> <span class="stType">StackBehaviors</span> {
+ * <br />  <span class="stLineComment">// Stack fixture creation methods</span>
+ *   <span class="stReserved">def</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ * <br />  <span class="stReserved">def</span> fullStack = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">0</span> until stack.MAX)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItem = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     stack.push(<span class="stLiteral">9</span>)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItemLessThanCapacity = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">1</span> to <span class="stLiteral">9</span>)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">val</span> lastValuePushed = <span class="stLiteral">9</span>
+ * <br />  <span class="stQuotedString">"A Stack"</span> when {
+ *     <span class="stQuotedString">"empty"</span> should {
+ *       <span class="stQuotedString">"be empty"</span> in {
+ *         assert(emptyStack.empty)
+ *       }
+ * <br />      <span class="stQuotedString">"complain on peek"</span> in {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           emptyStack.peek
+ *         }
+ *       }
+ * <br />      <span class="stQuotedString">"complain on pop"</span> in {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           emptyStack.pop
+ *         }
+ *       }
+ *     }
+ * <br />    <span class="stQuotedString">"it contains one item"</span> should {
+ *       behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+ *       behave like nonFullStack(stackWithOneItem)
+ *     }
+ * <br />    <span class="stQuotedString">"it contains one item less than capacity"</span> should {
+ *       behave like nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed)
+ *       behave like nonFullStack(stackWithOneItemLessThanCapacity)
+ *     }
+ * <br />    <span class="stQuotedString">"full"</span> should {
+ *       <span class="stQuotedString">"be full"</span> in {
+ *         assert(fullStack.full)
+ *       }
+ * <br />      behave like nonEmptyStack(fullStack, lastValuePushed)
+ * <br />      <span class="stQuotedString">"complain on a push"</span> in {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           fullStack.push(<span class="stLiteral">10</span>)
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -966,6 +1413,15 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   }
  * }
  * // ...
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack"</span> when {
+ *   <span class="stQuotedString">"empty"</span> should {
+ *     <span class="stQuotedString">"be empty"</span> in {
+ *       assert(emptyStack.empty)
+ *     }
+ *   }
+ * }
+ * <span class="stLineComment">// ...</span>
  * </pre>
  *
  * <p>
@@ -993,6 +1449,10 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * object SlowTest extends Tag("com.mycompany.groups.SlowTest")
  * object DbTest extends Tag("com.mycompany.groups.DbTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Tag
+ * <br /><span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.SlowTest"</span>)
+ * <span class="stReserved">object</span> <span class="stType">DbTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.DbTest"</span>)
  * </pre>
  *
  * <p>
@@ -1016,6 +1476,22 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       val diff = 4 - 1
  *       assert(diff === 3)
  *       assert(diff - 2 === 1)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"The Scala language"</span> should {
+ * <br />    <span class="stQuotedString">"add correctly"</span> taggedAs(<span class="stType">SlowTest</span>) in {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *       assert(sum === <span class="stLiteral">2</span>)
+ *       assert(sum + <span class="stLiteral">2</span> === <span class="stLiteral">4</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"subtract correctly"</span> taggedAs(<span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) in {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *       assert(diff === <span class="stLiteral">3</span>)
+ *       assert(diff - <span class="stLiteral">2</span> === <span class="stLiteral">1</span>)
  *     }
  *   }
  * }
@@ -1064,6 +1540,26 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     "throw NoSuchElementException if an empty stack is popped" in {
  *       val emptyStack = new Stack[String]
  *       intercept[NoSuchElementException] {
+ *         emptyStack.pop()
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"A Stack"</span> should {
+ * <br />    <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore {
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"throw NoSuchElementException if an empty stack is popped"</span> in {
+ *       <span class="stReserved">val</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[String]</span>
+ *       intercept[<span class="stType">NoSuchElementException</span>] {
  *         emptyStack.pop()
  *       }
  *     }
@@ -1124,6 +1620,21 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br /> <span class="stQuotedString">"The Scala language"</span> should {
+ *     <span class="stQuotedString">"add correctly"</span> in {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === <span class="stLiteral">5</span>)
+ *       info(<span class="stQuotedString">"addition seems to work"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"subtract correctly"</span> in {
+ *       <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *       assert(diff === <span class="stLiteral">5</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -1178,6 +1689,31 @@ import Suite.anErrorThatShouldCauseAnAbort
  * 
  *       then("the result is the difference of the two numbers")
  *       assert(diff === 5)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> {
+ * <br /> <span class="stQuotedString">"The Scala language"</span> should {
+ * <br />    <span class="stQuotedString">"add correctly"</span> in { 
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">2</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">3</span>
+ * <br />      when(<span class="stQuotedString">"they are added"</span>)
+ *       <span class="stReserved">val</span> sum = x + y
+ * <br />      then(<span class="stQuotedString">"the result is the sum of the two numbers"</span>)
+ *       assert(sum === <span class="stLiteral">5</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"subtract correctly"</span> in {
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">7</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">2</span>
+ * <br />      when(<span class="stQuotedString">"one is subtracted from the other"</span>)
+ *       <span class="stReserved">val</span> diff = x - y
+ * <br />      then(<span class="stQuotedString">"the result is the difference of the two numbers"</span>)
+ *       assert(diff === <span class="stLiteral">5</span>)
  *     }
  *   }
  * }
@@ -1242,6 +1778,19 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     "subtract correctly" is (pending)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stLineComment">// Sharing fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br /> <span class="stQuotedString">"The Scala language"</span> should {
+ *     <span class="stQuotedString">"add correctly"</span> in {
+ *       <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *       assert(sum === shared)
+ *     }
+ * <br />    <span class="stQuotedString">"subtract correctly"</span> is (pending)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -1294,6 +1843,15 @@ import Suite.anErrorThatShouldCauseAnAbort
  *       pending
  *     }
  *     // ...
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"The Scala language"</span> should {
+ *    <span class="stQuotedString">"add correctly"</span> in { 
+ *      given(<span class="stQuotedString">"two integers"</span>)
+ *      when(<span class="stQuotedString">"they are added"</span>)
+ *      then(<span class="stQuotedString">"the result is the sum of the two numbers"</span>)
+ *      pending
+ *    }
+ *    <span class="stLineComment">// ...</span>
  * </pre>
  *
  * <p>
@@ -1400,6 +1958,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) in { ... }
      *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
+     *                                       ^
      * </pre>
      *
      * <p>
@@ -1420,6 +1981,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) is (pending)
      *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
+     *                                       ^
      * </pre>
      *
      * <p>
@@ -1439,6 +2003,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) ignore { ... }
+     *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { ... }
      *                                       ^
      * </pre>
      *
@@ -1478,6 +2045,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * <pre class="stHighlight">
      * "complain on peek" in { ... }
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> in { ... }
+     *                    ^
      * </pre>
      *
      * <p>
@@ -1497,6 +2067,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * <pre class="stHighlight">
      * "complain on peek" ignore { ... }
+     *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> ignore { ... }
      *                    ^
      * </pre>
      *
@@ -1518,6 +2091,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * <pre class="stHighlight">
      * "complain on peek" is (pending)
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> is (pending)
+     *                    ^
      * </pre>
      *
      * <p>
@@ -1537,6 +2113,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) in { ... }
+     *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
      *                    ^
      * </pre>
      *
@@ -1558,6 +2137,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * <pre class="stHighlight">
      * "A Stack" when { ... }
+     *           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> when { ... }
      *           ^
      * </pre>
      *
@@ -1581,6 +2163,10 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * "A Stack" when theUser { ... }
      *           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">val</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+     * <br /><span class="stQuotedString">"A Stack"</span> when theUser { ... }
+     *           ^
      * </pre>
      *
      * <p>
@@ -1600,6 +2186,9 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      *
      * <pre class="stHighlight">
      * "a rerun button" that {
+     *                  ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"a rerun button"</span> that {
      *                  ^
      * </pre>
      *
@@ -1622,6 +2211,10 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * def is = afterWord("is")
      *
      * "a rerun button" that is {
+     *                  ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+     * <br /><span class="stQuotedString">"a rerun button"</span> that is {
      *                  ^
      * </pre>
      *
@@ -1664,6 +2257,23 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    *       "a rerun button" that is {
    *         "enabled if the clicked-on event is rerunnable" in {}
    *         "disabled if the clicked-on event is not rerunnable" in {}
+   *       }
+   *     }
+   *   }
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.WordSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">ScalaTestGUISpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+   * <br />  <span class="stReserved">def</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+   *   <span class="stReserved">def</span> display = afterWord(<span class="stQuotedString">"display"</span>)
+   *   <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+   * <br />  <span class="stQuotedString">"The ScalaTest GUI"</span> when theUser {
+   *     <span class="stQuotedString">"clicks on an event report in the list box"</span> should display {
+   *       <span class="stQuotedString">"a blue background in the clicked-on row in the list box"</span> in {}
+   *       <span class="stQuotedString">"the details for the event in the details area"</span> in {}
+   *       <span class="stQuotedString">"a rerun button"</span> that is {
+   *         <span class="stQuotedString">"enabled if the clicked-on event is rerunnable"</span> in {}
+   *         <span class="stQuotedString">"disabled if the clicked-on event is not rerunnable"</span> in {}
    *       }
    *     }
    *   }
@@ -1731,6 +2341,23 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    *     }
    *   }
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.WordSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">ScalaTestGUISpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+   * <br />  <span class="stReserved">def</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+   *   <span class="stReserved">def</span> display = afterWord(<span class="stQuotedString">"display"</span>)
+   *   <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+   * <br />  <span class="stQuotedString">"The ScalaTest GUI"</span> when theUser {
+   *     <span class="stQuotedString">"clicks on an event report in the list box"</span> should display {
+   *       <span class="stQuotedString">"a blue background in the clicked-on row in the list box"</span> in {}
+   *       <span class="stQuotedString">"the details for the event in the details area"</span> in {}
+   *       <span class="stQuotedString">"a rerun button"</span> that is {
+   *         <span class="stQuotedString">"enabled if the clicked-on event is rerunnable"</span> in {}
+   *         <span class="stQuotedString">"disabled if the clicked-on event is not rerunnable"</span> in {}
+   *       }
+   *     }
+   *   }
+   * }
    * </pre>
    *
    * <p>
@@ -1785,6 +2412,9 @@ one error found
    * <pre class="stHighlight">
    * "A Stack" should { ...
    *           ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack"</span> should { ...
+   *           ^
    * </pre>
    *
    * <p>
@@ -1811,6 +2441,10 @@ one error found
    * def provide = afterWord("provide")
    *
    * "The ScalaTest Matchers DSL" can provide { ... }
+   *                              ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+   * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> can provide { ... }
    *                              ^
    * </pre>
    *
@@ -1961,6 +2595,18 @@ one error found
    *     }
    *   }
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.WordSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> {
+   *   <span class="stQuotedString">"A Stack"</span> when {
+   *     <span class="stQuotedString">"not empty"</span> must {
+   *       <span class="stQuotedString">"allow me to pop"</span> in {}
+   *     }
+   *     <span class="stQuotedString">"not full"</span> must {
+   *       <span class="stQuotedString">"allow me to push"</span> in {}
+   *     }
+   *   }
+   * }
    * </pre>
    *
    * <p>
@@ -1992,6 +2638,9 @@ one error found
    * </p>
    *
    * <pre class="stHighlight">
+   * behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre><pre class="stHighlighted">
    * behave like nonFullStack(stackWithOneItem)
    * ^
    * </pre>

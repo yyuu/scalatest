@@ -63,6 +63,15 @@ import _root_.junit.framework.AssertionFailedError
  *
  *   // ...
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> junit.framework.TestCase
+ * <span class="stReserved">import</span> org.scalatest.junit.AssertionsForJUnit
+ * <br /><span class="stReserved">class</span> <span class="stType">MyTestCase</span> <span class="stReserved">extends</span> <span class="stType">TestCase</span> <span class="stReserved">with</span> <span class="stType">AssertionsForJUnit</span> {
+ * <br />  <span class="stReserved">def</span> testSomething() {
+ *     assert(<span class="stQuotedString">"hi"</span>.charAt(<span class="stLiteral">1</span>) === <span class="stQuotedString">'i'</span>)
+ *   }
+ * <br />  <span class="stLineComment">// ...</span>
+ * }
  * </pre>
  *
  * <p>
@@ -80,6 +89,15 @@ import _root_.junit.framework.AssertionFailedError
  *   }
  *
  *   // ...
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> junit.framework.TestCase
+ * <span class="stReserved">import</span> org.scalatest.junit.AssertionsForJUnit._
+ * <br /><span class="stReserved">class</span> <span class="stType">MyTestCase</span> <span class="stReserved">extends</span> <span class="stType">TestCase</span> {
+ * <br />  <span class="stReserved">def</span> testSomething() {
+ *     assert(<span class="stQuotedString">"hi"</span>.charAt(<span class="stLiteral">1</span>) === <span class="stQuotedString">'i'</span>)
+ *   }
+ * <br />  <span class="stLineComment">// ...</span>
  * }
  * </pre>
  *

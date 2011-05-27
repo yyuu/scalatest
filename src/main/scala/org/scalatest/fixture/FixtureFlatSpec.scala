@@ -115,6 +115,56 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFlatSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFlatSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureFlatSpec</span> {
+ * <br />  <span class="stLineComment">// 1. define type FixtureParam</span>
+ *   <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stLineComment">// 2. define the withFixture method</span>
+ *   <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// 3. write tests that take a fixture parameter</span>
+ *   it should <span class="stQuotedString">"read from the temp file"</span> in { reader =>
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  it should <span class="stQuotedString">"read the first char of the temp file"</span> in { reader =>
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  <span class="stLineComment">// (You can also write tests that don't take a fixture parameter.)</span>
+ *   it should <span class="stQuotedString">"work without a fixture"</span> in { () =>
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -156,6 +206,32 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     assert(buffer.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFlatSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFlatSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureFlatSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = (<span class="stType">StringBuilder</span>, <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(stringBuilder, listBuffer)
+ *   }
+ * <br />  it should <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  it should <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(buffer.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -166,6 +242,8 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <pre class="stHighlight">
  * val (builder, buffer) = fixture
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> (builder, buffer) = fixture
  * </pre>
  *
  * <p>
@@ -207,6 +285,32 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     assert(fixture.buffer.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFlatSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFlatSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureFlatSpec</span> {
+ * <br />  <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">FixtureHolder</span>(builder: <span class="stType">StringBuilder</span>, buffer: <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FixtureHolder</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(<span class="stType">FixtureHolder</span>(stringBuilder, listBuffer))
+ *   }
+ * <br />  it should <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *     <span class="stReserved">import</span> fixture._
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  it should <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *     fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(fixture.buffer.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -224,6 +328,14 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   assert(buffer.isEmpty)
  *   buffer += "sweet"
  * }
+ * </pre><pre class="stHighlighted">
+ * it should <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *   <span class="stReserved">import</span> fixture._
+ *   builder.append(<span class="stQuotedString">"easy!"</span>)
+ *   assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *   assert(buffer.isEmpty)
+ *   buffer += <span class="stQuotedString">"sweet"</span>
+ * }
  * </pre>
  *
  * <p>
@@ -237,6 +349,12 @@ import Suite.anErrorThatShouldCauseAnAbort
  * it should "get a fresh set of mutable fixture objects" in { fixture =>
  *   fixture.builder.append("fun!")
  *   assert(fixture.builder.toString === "ScalaTest is fun!")
+ *   assert(fixture.buffer.isEmpty)
+ * }
+ * </pre><pre class="stHighlighted">
+ * it should <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *   fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *   assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *   assert(fixture.buffer.isEmpty)
  * }
  * </pre>
@@ -312,6 +430,54 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     assert(reader.read() === 'H')
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFlatSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFlatSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureFlatSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    require(
+ *       test.configMap.contains(<span class="stQuotedString">"TempFileName"</span>),
+ *       <span class="stQuotedString">"This suite requires a TempFileName to be passed in the configMap"</span>
+ *     )
+ * <br />    <span class="stLineComment">// Grab the file name from the configMap</span>
+ *     <span class="stReserved">val</span> <span class="stType">FileName</span> = test.configMap(<span class="stQuotedString">"TempFileName"</span>).asInstanceOf[<span class="stType">String</span>]
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  it should <span class="stQuotedString">"read from the temp file"</span> in { reader =>
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  it should <span class="stQuotedString">"read the first char of the temp file"</span> in { reader =>
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -336,6 +502,18 @@ import Suite.anErrorThatShouldCauseAnAbort
  *      assert(configMap.contains("world"))
  *    }
  *  }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFlatSpec
+ * <span class="stReserved">import</span> org.scalatest.fixture.ConfigMapFixture
+ * <br /><span class="stReserved">class</span> <span class="stType">MyFlatSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureFlatSpec</span> <span class="stReserved">with</span> <span class="stType">ConfigMapFixture</span> {
+ * <br />  it should <span class="stQuotedString">"contain hello"</span> in { configMap =>
+ *     <span class="stLineComment">// Use the configMap passed to runTest in the test</span>
+ *     assert(configMap.contains(<span class="stQuotedString">"hello"</span>))
+ *   }
+ * <br />  it should <span class="stQuotedString">"contain world"</span> in { configMap =>
+ *     assert(configMap.contains(<span class="stQuotedString">"world"</span>))
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -395,6 +573,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * behavior of "A Stack"
    * ^
+   * </pre><pre class="stHighlighted">
+   * behavior of <span class="stQuotedString">"A Stack"</span>
+   * ^
    * </pre>
    *
    * <p>
@@ -414,6 +595,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * behavior of "A Stack"
+     *          ^
+     * </pre><pre class="stHighlighted">
+     * behavior of <span class="stQuotedString">"A Stack"</span>
      *          ^
      * </pre>
      *
@@ -438,6 +622,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * behavior of "A Stack"
    * ^
+   * </pre><pre class="stHighlighted">
+   * behavior of <span class="stQuotedString">"A Stack"</span>
+   * ^
    * </pre>
    *
    * <p>
@@ -460,6 +647,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
    *                                                                      ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
+   *                                                                      ^
    * </pre>
    *
    * <p>
@@ -469,6 +659,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" taggedAs(SlowTest) ignore { ... }
    *                                                                      ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { ... }
+   *                                                                      ^
    * </pre>
    *
    * <p>
@@ -477,6 +670,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" taggedAs(SlowTest) is (pending)
+   *                                                                      ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
    *                                                                      ^
    * </pre>
    *
@@ -496,6 +692,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) in { () => ... }
+     *                                                                    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { () => ... }
      *                                                                    ^
      * </pre>
      *
@@ -518,6 +717,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) in { fixture => ... }
      *                                                                    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { fixture => ... }
+     *                                                                    ^
      * </pre>
      *
      * <p>
@@ -538,6 +740,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) is (pending)
+     *                                                                    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
      *                                                                    ^
      * </pre>
      *
@@ -560,6 +765,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) ignore { () => ... }
+     *                                                                    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { () => ... }
      *                                                                    ^
      * </pre>
      *
@@ -584,6 +792,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) ignore { fixture => ... }
      *                                                                    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { fixture => ... }
+     *                                                                    ^
      * </pre>
      *
      * <p>
@@ -607,6 +818,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" in { ... }
    *                                                   ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   *                                                   ^
    * </pre>
    *
    * <p>
@@ -615,6 +829,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" ignore { ... }
+   *                                                   ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore { ... }
    *                                                   ^
    * </pre>
    *
@@ -625,6 +842,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" is (pending)
    *                                                   ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> is (pending)
+   *                                                   ^
    * </pre>
    *
    * <p>
@@ -633,6 +853,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
+   *                                                   ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
    *                                                   ^
    * </pre>
    *
@@ -652,6 +875,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" in { () => ... }
+     *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { () => ... }
      *                                                 ^
      * </pre>
      *
@@ -674,6 +900,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" in { fixture => ... }
      *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { fixture => ... }
+     *                                                 ^
      * </pre>
      *
      * <p>
@@ -694,6 +923,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" is (pending)
+     *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> is (pending)
      *                                                 ^
      * </pre>
      *
@@ -716,6 +948,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" ignore { () => ... }
      *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore { () => ... }
+     *                                                 ^
      * </pre>
      *
      * <p>
@@ -737,6 +972,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" ignore { fixture => ... }
      *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore { fixture => ... }
+     *                                                 ^
      * </pre>
      *
      * <p>
@@ -757,6 +995,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
+     *                                                 ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
      *                                                 ^
      * </pre>
      *
@@ -781,6 +1022,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" in { ... }
    * ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   * ^
    * </pre>
    *
    * <p>
@@ -788,6 +1032,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * </p>
    *
    * <pre class="stHighlight">
+   * it should behave like nonEmptyStack(lastItemPushed)
+   * ^
+   * </pre><pre class="stHighlighted">
    * it should behave like nonEmptyStack(lastItemPushed)
    * ^
    * </pre>
@@ -809,6 +1056,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it should "pop values in last-in-first-out order" in { ... }
      *    ^
+     * </pre><pre class="stHighlighted">
+     * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+     *    ^
      * </pre>
      *
      * <p>
@@ -827,6 +1077,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * it must "pop values in last-in-first-out order" in { ... }
+     *    ^
+     * </pre><pre class="stHighlighted">
+     * it must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
      *    ^
      * </pre>
      *
@@ -847,6 +1100,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it can "pop values in last-in-first-out order" in { ... }
      *    ^
+     * </pre><pre class="stHighlighted">
+     * it can <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+     *    ^
      * </pre>
      *
      * <p>
@@ -864,6 +1120,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      *
      * <pre class="stHighlight">
+     * it should behave like nonFullStack(stackWithOneItem)
+     *    ^
+     * </pre><pre class="stHighlighted">
      * it should behave like nonFullStack(stackWithOneItem)
      *    ^
      * </pre>
@@ -885,6 +1144,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * it must behave like nonFullStack(stackWithOneItem)
      *    ^
+     * </pre><pre class="stHighlighted">
+     * it must behave like nonFullStack(stackWithOneItem)
+     *    ^
      * </pre>
      *
      * <p>
@@ -902,6 +1164,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      *
      * <pre class="stHighlight">
+     * it can behave like nonFullStack(stackWithOneItem)
+     *    ^
+     * </pre><pre class="stHighlighted">
      * it can behave like nonFullStack(stackWithOneItem)
      *    ^
      * </pre>
@@ -924,6 +1189,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * it should "pop values in last-in-first-out order" in { ... }
    * ^
+   * </pre><pre class="stHighlighted">
+   * it should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   * ^
    * </pre>
    *
    * <p>
@@ -931,6 +1199,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * </p>
    *
    * <pre class="stHighlight">
+   * it should behave like nonEmptyStack(lastItemPushed)
+   * ^
+   * </pre><pre class="stHighlighted">
    * it should behave like nonEmptyStack(lastItemPushed)
    * ^
    * </pre>
@@ -953,6 +1224,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
    *                                                                          ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
+   *                                                                          ^
    * </pre>
    *
    * <p>
@@ -961,6 +1235,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" taggedAs(SlowTest) is (pending)
+   *                                                                          ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
    *                                                                          ^
    * </pre>
    *
@@ -989,6 +1266,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" taggedAs(SlowTest) in { () => ... }
      *                                                                        ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { () => ... }
+     *                                                                        ^
      * </pre>
      *
      * <p>
@@ -1012,6 +1292,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" taggedAs(SlowTest) in { fixture => ... }
      *                                                                        ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { fixture => ... }
+     *                                                                        ^
      * </pre>
      *
      * <p>
@@ -1033,6 +1316,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" taggedAs(SlowTest) is (pending)
+     *                                                                        ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
      *                                                                        ^
      * </pre>
      *
@@ -1066,6 +1352,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" in { ... }
    *                                                       ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   *                                                       ^
    * </pre>
    *
    * <p>
@@ -1074,6 +1363,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" is (pending)
+   *                                                       ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> is (pending)
    *                                                       ^
    * </pre>
    *
@@ -1088,6 +1380,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
+   *                                                       ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
    *                                                       ^
    * </pre>
    *
@@ -1108,6 +1403,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" in { () => ... }
+     *                                                     ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { () => ... }
      *                                                     ^
      * </pre>
      *
@@ -1131,6 +1429,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" in { fixture => ... }
      *                                                     ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { fixture => ... }
+     *                                                     ^
      * </pre>
      *
      * <p>
@@ -1151,6 +1452,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" is (pending)
+     *                                                     ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> is (pending)
      *                                                     ^
      * </pre>
      *
@@ -1181,6 +1485,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" taggedAs(SlowTest) in { ... }
      *                                                     ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { ... }
+     *                                                     ^
      * </pre>
      *
      * <p>
@@ -1206,6 +1513,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" in { ... }
    * ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   * ^
    * </pre>
    *
    * <p>
@@ -1224,6 +1534,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * ignore should "pop values in last-in-first-out order" in { ... }
+     *        ^
+     * </pre><pre class="stHighlighted">
+     * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
      *        ^
      * </pre>
      *
@@ -1244,6 +1557,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * ignore must "pop values in last-in-first-out order" in { ... }
      *        ^
+     * </pre><pre class="stHighlighted">
+     * ignore must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+     *        ^
      * </pre>
      *
      * <p>
@@ -1262,6 +1578,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * ignore can "pop values in last-in-first-out order" in { ... }
+     *        ^
+     * </pre><pre class="stHighlighted">
+     * ignore can <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
      *        ^
      * </pre>
      *
@@ -1283,6 +1602,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * ignore should "pop values in last-in-first-out order" in { ... }
    * ^
+   * </pre><pre class="stHighlighted">
+   * ignore should <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { ... }
+   * ^
    * </pre>
    *
    * <p>
@@ -1303,6 +1625,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * "A Stack (when empty)" should "be empty" in { ... }
    *                                          ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> in { ... }
+   *                                          ^
    * </pre>
    *
    * <p>
@@ -1312,6 +1637,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * "A Stack (when empty)" should "be empty" ignore { ... }
+   *                                          ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> ignore { ... }
    *                                          ^
    * </pre>
    *
@@ -1346,6 +1674,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" in { () => ... }
      *                                                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { () => ... }
+     *                                                        ^
      * </pre>
      *
      * <p>
@@ -1366,6 +1697,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" ignore { () => ... }
+     *                                                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore { () => ... }
      *                                                        ^
      * </pre>
      *
@@ -1388,6 +1722,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" in { fixture => ... }
      *                                                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> in { fixture => ... }
+     *                                                        ^
      * </pre>
      *
      * <p>
@@ -1408,6 +1745,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" ignore { fixture => ... }
+     *                                                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> ignore { fixture => ... }
      *                                                        ^
      * </pre>
      *
@@ -1440,6 +1780,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * "A Stack (when empty)" should "be empty" taggedAs() in { ... }
    *                                                     ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> taggedAs() in { ... }
+   *                                                     ^
    * </pre>
    *
    * <p>
@@ -1449,6 +1792,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * "A Stack (when empty)" should "be empty" taggedAs(SlowTest) ignore { ... }
+   *                                                             ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { ... }
    *                                                             ^
    * </pre>
    *
@@ -1484,6 +1830,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" taggedAs(SlowTest) in { () => ... }
      *                                                                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { () => ... }
+     *                                                                           ^
      * </pre>
      *
      * <p>
@@ -1504,6 +1853,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" taggedAs(SlowTest) ignore { () => ... }
+     *                                                                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { () => ... }
      *                                                                           ^
      * </pre>
      *
@@ -1528,6 +1880,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" taggedAs(SlowTest) in { fixture => ... }
      *                                                                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) in { fixture => ... }
+     *                                                                           ^
      * </pre>
      *
      * <p>
@@ -1548,6 +1903,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "A Stack" must "pop values in last-in-first-out order" taggedAs(SlowTest) ignore { fixture => ... }
+     *                                                                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { fixture => ... }
      *                                                                           ^
      * </pre>
      *
@@ -1580,6 +1938,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * "A Stack (when empty)" should "be empty" in { ... }
+   *                        ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> in { ... }
    *                        ^
    * </pre>
    *
@@ -1625,6 +1986,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * <pre class="stHighlight">
    * "A Stack (with one item)" should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+   *                           ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (with one item)"</span> should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
    *                           ^
    * </pre>
    *
@@ -1800,6 +2164,9 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * </p>
    *
    * <pre class="stHighlight">
+   * it should behave like nonFullStack(stackWithOneItem)
+   *           ^
+   * </pre><pre class="stHighlighted">
    * it should behave like nonFullStack(stackWithOneItem)
    *           ^
    * </pre>

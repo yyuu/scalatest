@@ -89,6 +89,12 @@ final case object MotionToSuppress extends Formatter
  *     rawText = "A Stack (when newly created)",
  *     indentationLevel = 0
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">IndentedText</span>(
+ *   formattedText = <span class="stQuotedString">"A Stack (when newly created)"</span>,
+ *   rawText = <span class="stQuotedString">"A Stack (when newly created)"</span>,
+ *   indentationLevel = <span class="stLiteral">0</span>
+ * )
  * </pre>
  * </li>
  * <li><code>TestSucceeded</code> reported with an:
@@ -98,6 +104,12 @@ final case object MotionToSuppress extends Formatter
  *     rawText = "should be empty",
  *     indentationLevel = 1
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">IndentedText</span>(
+ *   formattedText = <span class="stQuotedString">"- should be empty"</span>,
+ *   rawText = <span class="stQuotedString">"should be empty"</span>,
+ *   indentationLevel = <span class="stLiteral">1</span>
+ * )
  * </pre>
  * </li>
  * <li><code>TestSucceeded</code> reported with an:
@@ -107,6 +119,12 @@ final case object MotionToSuppress extends Formatter
  *     rawText = "should complain when popped",
  *     indentationLevel = 1
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">IndentedText</span>(
+ *   formattedText = <span class="stQuotedString">"- should complain when popped"</span>,
+ *   rawText = <span class="stQuotedString">"should complain when popped"</span>,
+ *   indentationLevel = <span class="stLiteral">1</span>
+ * )
  * </pre>
  * </li>
  * </ul>

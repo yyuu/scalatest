@@ -74,6 +74,30 @@ import org.scalatest._
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.MultipleFixtureWordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">MultipleFixtureWordSpec</span> {
+ * <br />  <span class="stLineComment">// A test that takes a String fixture</span>
+ *   <span class="stReserved">implicit</span> <span class="stReserved">def</span> withStringFixture(testFun: <span class="stType">String</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *     configMap => testFun(<span class="stQuotedString">"howdy"</span>)
+ * <br />  <span class="stLineComment">// The "with-fixture" method for tests that take a List[Int] fixture</span>
+ *   <span class="stReserved">implicit</span> <span class="stReserved">def</span> withListFixture(testFun: <span class="stType">List[Int]</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *     configMap => testFun(<span class="stType">List</span>(configMap.size))
+ * <br />  <span class="stQuotedString">"Tests in a MultipleFixtureWordSpec"</span> should {
+ * <br />    <span class="stLineComment">// A test that takes a String fixture</span>
+ *     <span class="stQuotedString">"take a string fixture"</span> in { (s: <span class="stType">String</span>) =>
+ *       assert(s === <span class="stQuotedString">"howdy"</span>)
+ *     }
+ * <br />    <span class="stLineComment">// A test that takes a List[Int] fixture</span>
+ *     <span class="stQuotedString">"take a list fixture"</span> in { (list: <span class="stType">List[Int]</span>) =>
+ *       assert(list.size === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    <span class="stLineComment">// A test that takes no fixture</span>
+ *     <span class="stQuotedString">"take no fixture"</span> in { () =>
+ *       assert(<span class="stLiteral">1</span> === <span class="stLiteral">1</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -84,6 +108,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * implicit def withStringFixture(testFun: String => Unit): FixtureParam => Unit =
  *   configMap => testFun("howdy")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">def</span> withStringFixture(testFun: <span class="stType">String</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *   configMap => testFun(<span class="stQuotedString">"howdy"</span>)
  * </pre>
  * 
  * <p>
@@ -105,6 +132,10 @@ import org.scalatest._
  * "take a string fixture" in { (s: String) =>
  *   assert(s === "howdy")
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"take a string fixture"</span> in { (s: <span class="stType">String</span>) =>
+ *   assert(s === <span class="stQuotedString">"howdy"</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -122,6 +153,13 @@ import org.scalatest._
  *     assert(s === "howdy")
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// after the implicit withStringFixture method is applied by the compiler</span>
+ * <span class="stQuotedString">"take a string fixture"</span> in {
+ *   withStringFixture { (s: <span class="stType">String</span>) =>
+ *     assert(s === <span class="stQuotedString">"howdy"</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -137,6 +175,10 @@ import org.scalatest._
  * "take a list fixture" in { (list: List[Int]) =>
  *   assert(list.size === 1)
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"take a list fixture"</span> in { (list: <span class="stType">List[Int]</span>) =>
+ *   assert(list.size === <span class="stLiteral">1</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -150,6 +192,12 @@ import org.scalatest._
  *     assert(list.size === 1)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"take a list fixture"</span> in {
+ *   withListFixture { (list: <span class="stType">List[Int]</span>) =>
+ *     assert(list.size === <span class="stLiteral">1</span>)
+ *   }
+ * }
  * </pre>
  * 
  * <p>
@@ -161,6 +209,10 @@ import org.scalatest._
  * "take a list fixture" in { (list: List[Int]) =>
  *   assert(list.size === 1)
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"take a list fixture"</span> in { (list: <span class="stType">List[Int]</span>) =>
+ *   assert(list.size === <span class="stLiteral">1</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -171,6 +223,11 @@ import org.scalatest._
  * // won't compile, because list is inferred to be of type FixtureParam
  * "take a list fixture" in { list =>
  *   assert(list.size === 1)
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// won't compile, because list is inferred to be of type FixtureParam</span>
+ * <span class="stQuotedString">"take a list fixture"</span> in { list =>
+ *   assert(list.size === <span class="stLiteral">1</span>)
  * }
  * </pre>
  *

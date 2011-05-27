@@ -76,6 +76,45 @@ import org.scalatest.fixture.FixtureSuite
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureFunSuite
+ * <span class="stReserved">import</span> org.scalatest.concurrent.ConductorFixture
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> java.util.concurrent.ArrayBlockingQueue
+ * <br /><span class="stReserved">class</span> <span class="stType">ArrayBlockingQueueSuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureFunSuite</span> <span class="stReserved">with</span> <span class="stType">ConductorFixture</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  test(<span class="stQuotedString">"calling put on a full queue blocks the producer thread"</span>) { conductor => <span class="stReserved">import</span> conductor._
+ * <br />    <span class="stReserved">val</span> buf = <span class="stReserved">new</span> <span class="stType">ArrayBlockingQueue[Int]</span>(<span class="stLiteral">1</span>)
+ * <br />    thread(<span class="stQuotedString">"producer"</span>) {
+ *       buf put <span class="stLiteral">42</span>
+ *       buf put <span class="stLiteral">17</span>
+ *       beat should be (<span class="stLiteral">1</span>)
+ *     }
+ * <br />    thread(<span class="stQuotedString">"consumer"</span>) {
+ *       waitForBeat(<span class="stLiteral">1</span>)
+ *       buf.take should be (<span class="stLiteral">42</span>)
+ *       buf.take should be (<span class="stLiteral">17</span>)
+ *     }
+ * <br />    whenFinished {
+ *       buf should be (<span class="stQuotedString">'empty</span>)
+ *     }
+ *   }
+ * <br />  test(<span class="stQuotedString">"calling take on an empty queue blocks the consumer thread"</span>) { conductor => <span class="stReserved">import</span> conductor._
+ * <br />    <span class="stReserved">val</span> buf = <span class="stReserved">new</span> <span class="stType">ArrayBlockingQueue[Int]</span>(<span class="stLiteral">1</span>)
+ * <br />    thread(<span class="stQuotedString">"producer"</span>) {
+ *       waitForBeat(<span class="stLiteral">1</span>)
+ *       buf put <span class="stLiteral">42</span>
+ *       buf put <span class="stLiteral">17</span>
+ *     }
+ * <br />    thread(<span class="stQuotedString">"consumer"</span>) {
+ *       buf.take should be (<span class="stLiteral">42</span>)
+ *       buf.take should be (<span class="stLiteral">17</span>)
+ *       beat should be (<span class="stLiteral">1</span>)
+ *     }
+ * <br />    whenFinished {
+ *       buf should be (<span class="stQuotedString">'empty</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>

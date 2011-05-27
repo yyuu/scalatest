@@ -28,6 +28,8 @@ import reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = mock(classOf[Collaborator])
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = mock(classOf[<span class="stType">Collaborator</span>])
  * </pre>
  *
  * <p>
@@ -36,6 +38,8 @@ import reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = mock[Collaborator]
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
  * </pre>
  *
  * @author Bill Venners
@@ -52,6 +56,8 @@ trait MockitoSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = mock(classOf[Collaborator])
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = mock(classOf[<span class="stType">Collaborator</span>])
    * </pre>
    *
    * <p>
@@ -60,6 +66,8 @@ trait MockitoSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = mock[Collaborator]
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
    * </pre>
    */
   def mock[T <: AnyRef](implicit manifest: Manifest[T]): T = {

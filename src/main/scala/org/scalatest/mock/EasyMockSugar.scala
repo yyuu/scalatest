@@ -30,6 +30,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = createMock(classOf[Collaborator])
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = createMock(classOf[<span class="stType">Collaborator</span>])
  * </pre>
  *
  * <p>
@@ -38,6 +40,8 @@ import scala.reflect.Manifest
  *
  * <pre class="stHighlight">
  * val mockCollaborator = mock[Collaborator]
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
  * </pre>
  *
  * <p>
@@ -48,6 +52,10 @@ import scala.reflect.Manifest
  * mockCollaborator.documentAdded("Document")
  * mockCollaborator.documentChanged("Document")
  * expectLastCall().times(3)
+ * </pre><pre class="stHighlighted">
+ * mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+ * mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+ * expectLastCall().times(<span class="stLiteral">3</span>)
  * </pre>
  *
  * <p>
@@ -61,6 +69,12 @@ import scala.reflect.Manifest
  *   mockCollaborator.documentAdded("Document")
  *   mockCollaborator.documentChanged("Document")
  *   lastCall.times(3)
+ * }
+ * </pre><pre class="stHighlighted">
+ * expecting {
+ *   mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+ *   mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+ *   lastCall.times(<span class="stLiteral">3</span>)
  * }
  * </pre>
  *
@@ -85,6 +99,13 @@ import scala.reflect.Manifest
  * classUnderTest.addDocument("Document", new Array[Byte](0))
  * classUnderTest.addDocument("Document", new Array[Byte](0))
  * verify(mockCollaborator)
+ * </pre><pre class="stHighlighted">
+ * replay(mockCollaborator)
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * verify(mockCollaborator)
  * </pre>
  *
  * <p>
@@ -97,6 +118,13 @@ import scala.reflect.Manifest
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
+ * }
+ * </pre><pre class="stHighlighted">
+ * whenExecuting(mockCollaborator) {
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
  * }
  * </pre>
  *
@@ -126,6 +154,19 @@ import scala.reflect.Manifest
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
+ * <br />expecting {
+ *   mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+ *   mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+ *   lastCall.times(<span class="stLiteral">3</span>)
+ * }
+ * <br />whenExecuting(mockCollaborator) {
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * }
  * </pre>
  *
  * <p>
@@ -149,6 +190,19 @@ import scala.reflect.Manifest
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  *   classUnderTest.addDocument("Document", new Array[Byte](0))
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">val</span> mocks = <span class="stType">MockObjects</span>(mock[<span class="stType">Collaborator</span>])
+ * <br />expecting {
+ *   mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+ *   mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+ *   lastCall.times(<span class="stLiteral">3</span>)
+ * }
+ * <br />whenExecuting {
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+ * }
  * </pre>
  *
  * <p>
@@ -171,6 +225,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * import org.easymock.EasyMock.{expect => easyMockExpect, _}
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.easymock.EasyMock.{expect => easyMockExpect, _}
    * </pre>
    *
    * <p>
@@ -184,6 +240,10 @@ trait EasyMockSugar {
    * <pre class="stHighlight">
    * expecting {
    *   call(mock.getName).andReturn("Ben Franklin")
+   * }
+   * </pre><pre class="stHighlighted">
+   * expecting {
+   *   call(mock.getName).andReturn(<span class="stQuotedString">"Ben Franklin"</span>)
    * }
    * </pre>
    *
@@ -203,6 +263,10 @@ trait EasyMockSugar {
    * <pre class="stHighlight">
    * expecting {
    *   mock.getName.andReturn("Ben Franklin")
+   * }
+   * </pre><pre class="stHighlighted">
+   * expecting {
+   *   mock.getName.andReturn(<span class="stQuotedString">"Ben Franklin"</span>)
    * }
    * </pre>
    *
@@ -226,6 +290,11 @@ trait EasyMockSugar {
    *   mock.getName.andReturn("Ben Franklin")
    *   expectLastCall.times(3)
    * }
+   * </pre><pre class="stHighlighted">
+   * expecting {
+   *   mock.getName.andReturn(<span class="stQuotedString">"Ben Franklin"</span>)
+   *   expectLastCall.times(<span class="stLiteral">3</span>)
+   * }
    * </pre>
    *
    * <p>
@@ -236,6 +305,11 @@ trait EasyMockSugar {
    * expecting {
    *   mock.getName.andReturn("Ben Franklin")
    *   lastCall.times(3)
+   * }
+   * </pre><pre class="stHighlighted">
+   * expecting {
+   *   mock.getName.andReturn(<span class="stQuotedString">"Ben Franklin"</span>)
+   *   lastCall.times(<span class="stLiteral">3</span>)
    * }
    * </pre>
    */
@@ -251,6 +325,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = createMock(classOf[Collaborator])
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = createMock(classOf[<span class="stType">Collaborator</span>])
    * </pre>
    *
    * <p>
@@ -259,6 +335,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = mock[Collaborator]
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = mock[<span class="stType">Collaborator</span>]
    * </pre>
    */
   def mock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
@@ -275,6 +353,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = createStrictMock(classOf[Collaborator])
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = createStrictMock(classOf[<span class="stType">Collaborator</span>])
    * </pre>
    *
    * <p>
@@ -283,6 +363,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = strictMock[Collaborator]
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = strictMock[<span class="stType">Collaborator</span>]
    * </pre>
    */
   def strictMock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
@@ -299,6 +381,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = createNiceMock(classOf[Collaborator])
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = createNiceMock(classOf[<span class="stType">Collaborator</span>])
    * </pre>
    *
    * <p>
@@ -307,6 +391,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * val mockCollaborator = niceMock[Collaborator]
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> mockCollaborator = niceMock[<span class="stType">Collaborator</span>]
    * </pre>
    */
   def niceMock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
@@ -325,6 +411,10 @@ trait EasyMockSugar {
    * mockCollaborator.documentAdded("Document")
    * mockCollaborator.documentChanged("Document")
    * expectLastCall().times(3)
+   * </pre><pre class="stHighlighted">
+   * mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+   * mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+   * expectLastCall().times(<span class="stLiteral">3</span>)
    * </pre>
    *
    * <p>
@@ -337,6 +427,12 @@ trait EasyMockSugar {
    *   mockCollaborator.documentAdded("Document")
    *   mockCollaborator.documentChanged("Document")
    *   lastCall.times(3)
+   * }
+   * </pre><pre class="stHighlighted">
+   * expecting {
+   *   mockCollaborator.documentAdded(<span class="stQuotedString">"Document"</span>)
+   *   mockCollaborator.documentChanged(<span class="stQuotedString">"Document"</span>)
+   *   lastCall.times(<span class="stLiteral">3</span>)
    * }
    * </pre>
    *
@@ -374,6 +470,13 @@ trait EasyMockSugar {
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * verify(mock)
+   * </pre><pre class="stHighlighted">
+   * replay(mock)
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * verify(mock)
    * </pre>
    *
    * <p>
@@ -387,6 +490,13 @@ trait EasyMockSugar {
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    * }
+   * </pre><pre class="stHighlighted">
+   * whenExecuting(mockCollaborator) {
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * }
    * </pre>
    *
    * <p>
@@ -397,6 +507,10 @@ trait EasyMockSugar {
    * <pre class="stHighlight">
    * whenExecuting(mock1, mock2, mock3) {
    *   // ...
+   * }
+   * </pre><pre class="stHighlighted">
+   * whenExecuting(mock1, mock2, mock3) {
+   *   <span class="stLineComment">// ...</span>
    * }
    * </pre>
    *
@@ -457,6 +571,13 @@ trait EasyMockSugar {
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * classUnderTest.addDocument("Document", new Array[Byte](0))
    * verify(mock)
+   * </pre><pre class="stHighlighted">
+   * replay(mock)
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * verify(mock)
    * </pre>
    *
    * <p>
@@ -472,6 +593,14 @@ trait EasyMockSugar {
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    *   classUnderTest.addDocument("Document", new Array[Byte](0))
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">implicit</span> <span class="stReserved">val</span> mocks = <span class="stType">MockObjects</span>(mockCollaborator)
+   * <br />whenExecuting {
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   *   classUnderTest.addDocument(<span class="stQuotedString">"Document"</span>, <span class="stReserved">new</span> <span class="stType">Array[Byte]</span>(<span class="stLiteral">0</span>))
+   * }
    * </pre>
    *
    * <p>
@@ -481,6 +610,8 @@ trait EasyMockSugar {
    *
    * <pre class="stHighlight">
    * implicit val mocks = MockObjects(mock1, mock2, mock3)
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">implicit</span> <span class="stReserved">val</span> mocks = <span class="stType">MockObjects</span>(mock1, mock2, mock3)
    * </pre>
    *
    * <p>

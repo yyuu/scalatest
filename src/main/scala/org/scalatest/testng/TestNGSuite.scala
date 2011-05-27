@@ -69,6 +69,33 @@ import org.testng.TestListenerAdapter
  *     assert(lb.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.testng.TestNGSuite
+ * <span class="stReserved">import</span> org.testng.annotations.Test
+ * <span class="stReserved">import</span> org.testng.annotations.Configuration
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">TestNGSuite</span> {
+ * <br />  <span class="stReserved">var</span> sb: <span class="stType">StringBuilder</span> = _
+ *   <span class="stReserved">var</span> lb: <span class="stType">ListBuffer[String]</span> = _
+ * <br />  @ <span class="stType">Configuration</span>(beforeTestMethod = <span class="stReserved">true</span>)
+ *   <span class="stReserved">def</span> setUpFixture() {
+ *     sb = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     lb = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   }
+ * <br />  @ <span class="stType">Test</span>(invocationCount = <span class="stLiteral">3</span>)
+ *   <span class="stReserved">def</span> easyTest() {
+ *     sb.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(lb.isEmpty)
+ *     lb += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  @ <span class="stType">Test</span>(groups = <span class="stType">Array</span>(<span class="stQuotedString">"com.mycompany.groups.SlowTest"</span>))
+ *   <span class="stReserved">def</span> funTest() {
+ *     sb.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(lb.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>

@@ -29,6 +29,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * assert(1 + 1 === 3, "this is a clue")
+ * </pre><pre class="stHighlighted">
+ * assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">3</span>, <span class="stQuotedString">"this is a clue"</span>)
  * </pre>
  *
  * <p>
@@ -37,6 +39,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * expect(3, "this is a clue") { 1 + 1 }
+ * </pre><pre class="stHighlighted">
+ * expect(<span class="stLiteral">3</span>, <span class="stQuotedString">"this is a clue"</span>) { <span class="stLiteral">1</span> + <span class="stLiteral">1</span> }
  * </pre>
  *
  * <p>
@@ -52,6 +56,12 @@ package org.scalatest
  *     "hi".charAt(-1)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * withClue(<span class="stQuotedString">"this is a clue"</span>) {
+ *   intercept[<span class="stType">IndexOutOfBoundsException</span>] {
+ *     <span class="stQuotedString">"hi"</span>.charAt(-<span class="stLiteral">1</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -63,6 +73,10 @@ package org.scalatest
  * <pre class="stHighlight">
  * withClue("this is a clue") {
  *   1 + 1 should be === 3
+ * }
+ * </pre><pre class="stHighlighted">
+ * withClue(<span class="stQuotedString">"this is a clue"</span>) {
+ *   <span class="stLiteral">1</span> + <span class="stLiteral">1</span> should be === <span class="stLiteral">3</span>
  * }
  * </pre>
  *

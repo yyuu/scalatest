@@ -59,6 +59,26 @@ import Suite.reportTestIgnored
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  describe(<span class="stQuotedString">"A Stack"</span>) {
+ * <br />    it(<span class="stQuotedString">"should pop values in last-in-first-out order"</span>) {
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should throw NoSuchElementException if an empty stack is popped"</span>) {
+ *       <span class="stReserved">val</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[String]</span>
+ *       intercept[<span class="stType">NoSuchElementException</span>] {
+ *         emptyStack.pop()
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -158,6 +178,20 @@ import Suite.reportTestIgnored
  *     assert(diff === shared)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  <span class="stLineComment">// Sharing immutable fixture objects via instance variables</span>
+ *   <span class="stReserved">val</span> shared = <span class="stLiteral">5</span>
+ * <br />  it(<span class="stQuotedString">"should add correctly"</span>) {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">2</span> + <span class="stLiteral">3</span>
+ *     assert(sum === shared)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should subtract correctly"</span>) {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">7</span> - <span class="stLiteral">2</span>
+ *     assert(diff === shared)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -199,6 +233,29 @@ import Suite.reportTestIgnored
  *     val (builder, lbuf) = createFixture
  *     builder.append("fun!")
  *     assert(builder.toString === "ScalaTest is fun!")
+ *     assert(lbuf.isEmpty)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  <span class="stLineComment">// create objects needed by tests and return as a tuple</span>
+ *   <span class="stReserved">def</span> createFixture = (
+ *     <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>),
+ *     <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   )
+ * <br />  it(<span class="stQuotedString">"should mutate shared fixture objects"</span>) {
+ *     <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(lbuf.isEmpty)
+ *     lbuf += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  it(<span class="stQuotedString">"should get a fresh set of mutable fixture objects"</span>) {
+ *     <span class="stReserved">val</span> (builder, lbuf) = createFixture
+ *     builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *     assert(lbuf.isEmpty)
  *   }
  * }
@@ -273,6 +330,49 @@ import Suite.reportTestIgnored
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEach</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> beforeEach() {
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ *   }
+ * <br />  <span class="stLineComment">// Close and delete the temp file</span>
+ *   <span class="stReserved">override</span> <span class="stReserved">def</span> afterEach() {
+ *     reader.close()
+ *     <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *     file.delete()
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read from a temp file"</span>) {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read the first char of a temp file"</span>) {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should work without a fixture"</span>) {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -293,6 +393,11 @@ import Suite.reportTestIgnored
  * <pre class="stHighlight">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
+ *   test()
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// Default implementation</span>
+ * <span class="stReserved">protected</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
  *   test()
  * }
  * </pre>
@@ -356,6 +461,52 @@ import Suite.reportTestIgnored
  * 
  *   it("should work without a fixture") {
  *     assert(1 + 1 === 2)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> org.scalatest.BeforeAndAfterEach
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  <span class="stReserved">private</span> <span class="stReserved">var</span> reader: <span class="stType">FileReader</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> withFixture(test: <span class="stType">NoArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       test() <span class="stLineComment">// Invoke the test function</span>
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read from a temp file"</span>) {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read the first char of a temp file"</span>) {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should work without a fixture"</span>) {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
  *   }
  * }
  * </pre>
@@ -432,6 +583,52 @@ import Suite.reportTestIgnored
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read from a temp file"</span>) { reader =>
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should read the first char of a temp file"</span>) { reader =>
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should work without a fixture"</span>) { () =>
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -502,6 +699,34 @@ import Suite.reportTestIgnored
  *
  *   override def toString = buf.mkString("Stack(", ", ", ")")
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">Stack[T]</span> {
+ * <br />  <span class="stReserved">val</span> MAX = <span class="stLiteral">10</span>
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> buf = <span class="stReserved">new</span> <span class="stType">ListBuffer[T]</span>
+ * <br />  <span class="stReserved">def</span> push(o: T) {
+ *     <span class="stReserved">if</span> (!full)
+ *       o +: buf
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't push onto a full stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> pop(): T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf.remove(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> peek: T = {
+ *     <span class="stReserved">if</span> (!empty)
+ *       buf(<span class="stLiteral">0</span>)
+ *     <span class="stReserved">else</span>
+ *       <span class="stReserved">throw</span> <span class="stReserved">new</span> <span class="stType">IllegalStateException</span>(<span class="stQuotedString">"can't pop an empty stack"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> full: <span class="stType">Boolean</span> = buf.size == MAX
+ *   <span class="stReserved">def</span> empty: <span class="stType">Boolean</span> = buf.size == <span class="stLiteral">0</span>
+ *   <span class="stReserved">def</span> size = buf.size
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = buf.mkString(<span class="stQuotedString">"Stack("</span>, <span class="stQuotedString">", "</span>, <span class="stQuotedString">")"</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -557,6 +782,38 @@ import Suite.reportTestIgnored
  *       stack.push(7)
  *       assert(stack.size === size + 1)
  *       assert(stack.peek === 7)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">trait</span> <span class="stType">StackBehaviors</span> { <span class="stReserved">this</span>: <span class="stType">Spec</span> =>
+ * <br />  <span class="stReserved">def</span> nonEmptyStack(stack: <span class="stType">Stack[Int]</span>, lastItemAdded: <span class="stType">Int</span>) {
+ * <br />    it(<span class="stQuotedString">"should be non-empty"</span>) {
+ *       assert(!stack.empty)
+ *     }  
+ * <br />    it(<span class="stQuotedString">"should return the top item on peek"</span>) {
+ *       assert(stack.peek === lastItemAdded)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should not remove the top item on peek"</span>) {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       assert(stack.peek === lastItemAdded)
+ *       assert(stack.size === size)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should remove the top item on pop"</span>) {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       assert(stack.pop === lastItemAdded)
+ *       assert(stack.size === size - <span class="stLiteral">1</span>)
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> nonFullStack(stack: <span class="stType">Stack[Int]</span>) {
+ * <br />    it(<span class="stQuotedString">"should not be full"</span>) {
+ *       assert(!stack.full)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should add to the top on push"</span>) {
+ *       <span class="stReserved">val</span> size = stack.size
+ *       stack.push(<span class="stLiteral">7</span>)
+ *       assert(stack.size === size + <span class="stLiteral">1</span>)
+ *       assert(stack.peek === <span class="stLiteral">7</span>)
  *     }
  *   }
  * }
@@ -663,6 +920,65 @@ import Suite.reportTestIgnored
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">SharedTestExampleSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> <span class="stReserved">with</span> <span class="stType">StackBehaviors</span> {
+ * <br />  <span class="stLineComment">// Stack fixture creation methods</span>
+ *   <span class="stReserved">def</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ * <br />  <span class="stReserved">def</span> fullStack = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">0</span> until stack.MAX)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItem = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     stack.push(<span class="stLiteral">9</span>)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">def</span> stackWithOneItemLessThanCapacity = {
+ *     <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *     <span class="stReserved">for</span> (i <- <span class="stLiteral">1</span> to <span class="stLiteral">9</span>)
+ *       stack.push(i)
+ *     stack
+ *   }
+ * <br />  <span class="stReserved">val</span> lastValuePushed = <span class="stLiteral">9</span>
+ * <br />  describe(<span class="stQuotedString">"A Stack"</span>) {
+ * <br />    describe(<span class="stQuotedString">"(when empty)"</span>) {
+ * <br />      it(<span class="stQuotedString">"should be empty"</span>) {
+ *         assert(emptyStack.empty)
+ *       }
+ * <br />      it(<span class="stQuotedString">"should complain on peek"</span>) {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           emptyStack.peek
+ *         }
+ *       }
+ * <br />      it(<span class="stQuotedString">"should complain on pop"</span>) {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           emptyStack.pop
+ *         }
+ *       }
+ *     }
+ * <br />    describe(<span class="stQuotedString">"(with one item)"</span>) {
+ *       it should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+ *       it should behave like nonFullStack(stackWithOneItem)
+ *     }
+ * <br />    describe(<span class="stQuotedString">"(with one item less than capacity)"</span>) {
+ *       it should behave like nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed)
+ *       it should behave like nonFullStack(stackWithOneItemLessThanCapacity)
+ *     }
+ * <br />    describe(<span class="stQuotedString">"(full)"</span>) {
+ * <br />      it(<span class="stQuotedString">"should be full"</span>) {
+ *         assert(fullStack.full)
+ *       }
+ * <br />      it should behave like nonEmptyStack(fullStack, lastValuePushed)
+ * <br />      it(<span class="stQuotedString">"should complain on a push"</span>) {
+ *         intercept[<span class="stType">IllegalStateException</span>] {
+ *           fullStack.push(<span class="stLiteral">10</span>)
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -716,6 +1032,13 @@ import Suite.reportTestIgnored
  *         assert(emptyStack.empty)
  *       }
  *       // ...
+ * </pre><pre class="stHighlighted">
+ * describe(<span class="stQuotedString">"A Stack"</span>) {
+ * <br />  describe(<span class="stQuotedString">"(when empty)"</span>) {
+ * <br />    it(<span class="stQuotedString">"should be empty"</span>) {
+ *       assert(emptyStack.empty)
+ *     }
+ *     <span class="stLineComment">// ...</span>
  * </pre>
  *
  * <p>
@@ -743,6 +1066,10 @@ import Suite.reportTestIgnored
  *
  * object SlowTest extends Tag("com.mycompany.groups.SlowTest")
  * object DbTest extends Tag("com.mycompany.groups.DbTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Tag
+ * <br /><span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.SlowTest"</span>)
+ * <span class="stReserved">object</span> <span class="stType">DbTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.groups.DbTest"</span>)
  * </pre>
  *
  * <p>
@@ -764,6 +1091,20 @@ import Suite.reportTestIgnored
  *     val diff = 4 - 1
  *     assert(diff === 3)
  *     assert(diff - 2 === 1)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  it(<span class="stQuotedString">"should add correctly"</span>, <span class="stType">SlowTest</span>) {
+ *     <span class="stReserved">val</span> sum = <span class="stLiteral">1</span> + <span class="stLiteral">1</span>
+ *     assert(sum === <span class="stLiteral">2</span>)
+ *     assert(sum + <span class="stLiteral">2</span> === <span class="stLiteral">4</span>)
+ *   }
+ * <br />  it(<span class="stQuotedString">"should subtract correctly"</span>, <span class="stType">SlowTest</span>, <span class="stType">DbTest</span>) {
+ *     <span class="stReserved">val</span> diff = <span class="stLiteral">4</span> - <span class="stLiteral">1</span>
+ *     assert(diff === <span class="stLiteral">3</span>)
+ *     assert(diff - <span class="stLiteral">2</span> === <span class="stLiteral">1</span>)
  *   }
  * }
  * </pre>
@@ -811,6 +1152,26 @@ import Suite.reportTestIgnored
  *     it("should throw NoSuchElementException if an empty stack is popped") {
  *       val emptyStack = new Stack[String]
  *       intercept[NoSuchElementException] {
+ *         emptyStack.pop()
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  describe(<span class="stQuotedString">"A Stack"</span>) {
+ * <br />    ignore(<span class="stQuotedString">"should pop values in last-in-first-out order"</span>) {
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should throw NoSuchElementException if an empty stack is popped"</span>) {
+ *       <span class="stReserved">val</span> emptyStack = <span class="stReserved">new</span> <span class="stType">Stack[String]</span>
+ *       intercept[<span class="stType">NoSuchElementException</span>] {
  *         emptyStack.pop()
  *       }
  *     }
@@ -880,6 +1241,21 @@ import Suite.reportTestIgnored
  *     }
  *
  *     it("should throw NoSuchElementException if an empty stack is popped") (pending)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <span class="stReserved">import</span> scala.collection.mutable.Stack
+ * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  describe(<span class="stQuotedString">"A Stack"</span>) {
+ * <br />    it(<span class="stQuotedString">"should pop values in last-in-first-out order"</span>) {
+ *       <span class="stReserved">val</span> stack = <span class="stReserved">new</span> <span class="stType">Stack[Int]</span>
+ *       stack.push(<span class="stLiteral">1</span>)
+ *       stack.push(<span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">2</span>)
+ *       assert(stack.pop() === <span class="stLiteral">1</span>)
+ *     }
+ * <br />    it(<span class="stQuotedString">"should throw NoSuchElementException if an empty stack is popped"</span>) (pending)
  *   }
  * }
  * </pre>
@@ -1087,6 +1463,18 @@ trait Spec extends Suite { thisSuite =>
    *     }
    *     describe("(when not full)") {
    *       it("must allow me to push") {}
+   *     }
+   *   }
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.Spec
+   * <br /><span class="stReserved">class</span> <span class="stType">StackSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span>{
+   *   describe(<span class="stQuotedString">"A Stack"</span>) {
+   *     describe(<span class="stQuotedString">"(when not empty)"</span>) {
+   *       it(<span class="stQuotedString">"must allow me to pop"</span>) {}
+   *     }
+   *     describe(<span class="stQuotedString">"(when not full)"</span>) {
+   *       it(<span class="stQuotedString">"must allow me to push"</span>) {}
    *     }
    *   }
    * }

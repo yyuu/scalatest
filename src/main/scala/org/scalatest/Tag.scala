@@ -22,6 +22,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * object SlowTest extends Tag("SlowTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"SlowTest"</span>)
  * </pre>
  *
  * then you can tag a test as a <code>SlowTest</code> in a <code>FunSuite</code> or <code>FixtureFunSuite</code> like this:
@@ -32,6 +34,13 @@ package org.scalatest
  *
  *   test("my test", SlowTest) {
  *     Thread.sleep(1000)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FunSuite
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> {
+ * <br />  test(<span class="stQuotedString">"my test"</span>, <span class="stType">SlowTest</span>) {
+ *     Thread.sleep(<span class="stLiteral">1000</span>)
  *   }
  * }
  * </pre>
@@ -49,6 +58,13 @@ package org.scalatest
  *     Thread.sleep(1000)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.Spec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> {
+ * <br />  it(<span class="stQuotedString">"should sleep for a second"</span>, <span class="stType">SlowTest</span>) {
+ *     Thread.sleep(<span class="stLiteral">1000</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -62,6 +78,13 @@ package org.scalatest
  *
  *   it should "sleep for a second" taggedAs(SlowTest) in {
  *     Thread.sleep(1000)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FlatSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">FlatSpec</span> {
+ * <br />  it should <span class="stQuotedString">"sleep for a second"</span> taggedAs(<span class="stType">SlowTest</span>) in {
+ *     Thread.sleep(<span class="stLiteral">1000</span>)
  *   }
  * }
  * </pre>
@@ -79,6 +102,13 @@ package org.scalatest
  *     Thread.sleep(1000)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.WordSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+ * <br />  <span class="stQuotedString">"should sleep for a second"</span> taggedAs(<span class="stType">SlowTest</span>) in {
+ *     Thread.sleep(<span class="stLiteral">1000</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -94,6 +124,13 @@ package org.scalatest
  *     Thread.sleep(1000)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <br /><span class="stReserved">class</span> <span class="stType">MySpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> {
+ * <br />  scenario(<span class="stQuotedString">"should sleep for a second"</span>, <span class="stType">SlowTest</span>) {
+ *     Thread.sleep(<span class="stLiteral">1000</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -103,6 +140,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  *   scenario("should sleep for a second", new Tag("SlowTest"))
+ * </pre><pre class="stHighlighted">
+ * scenario(<span class="stQuotedString">"should sleep for a second"</span>, <span class="stReserved">new</span> <span class="stType">Tag</span>(<span class="stQuotedString">"SlowTest"</span>))
  * </pre>
  *
  * <p>
@@ -111,6 +150,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  *   scenario("should sleep for a second", Tag("SlowTest"))
+ * </pre><pre class="stHighlighted">
+ * scenario(<span class="stQuotedString">"should sleep for a second"</span>, <span class="stType">Tag</span>(<span class="stQuotedString">"SlowTest"</span>))
  * </pre>
  *
  * If you have created Java annotation interfaces for use as tag names in direct subclasses of <code>org.scalatest.Suite</code>,
@@ -121,6 +162,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * object SlowTest extends Tag("com.mycompany.testtags.SlowTest")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">object</span> <span class="stType">SlowTest</span> <span class="stReserved">extends</span> <span class="stType">Tag</span>(<span class="stQuotedString">"com.mycompany.testtags.SlowTest"</span>)
  * </pre>
  *
  * @author Bill Venners

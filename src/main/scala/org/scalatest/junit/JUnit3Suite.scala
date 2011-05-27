@@ -68,6 +68,28 @@ import Suite.getIndentedText
  *     assert(lb.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.junit.JUnit3Suite
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">BlastFromThePastSuite</span> <span class="stReserved">extends</span> <span class="stType">JUnit3Suite</span> {
+ * <br />  <span class="stReserved">var</span> sb: <span class="stType">StringBuilder</span> = _
+ *   <span class="stReserved">var</span> lb: <span class="stType">ListBuffer[String]</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> setUp() {
+ *     sb = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     lb = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testEasy() { <span class="stLineComment">// Uses JUnit-style assertions</span>
+ *     sb.append(<span class="stQuotedString">"easy!"</span>)
+ *     assertEquals(<span class="stQuotedString">"ScalaTest is easy!"</span>, sb.toString)
+ *     assertTrue(lb.isEmpty)
+ *     lb += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun() { <span class="stLineComment">// Uses ScalaTest assertions</span>
+ *     sb.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(sb.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(lb.isEmpty)
+ *   }
+ * }
  * </pre>
  * 
  * <p>
@@ -104,6 +126,29 @@ import Suite.getIndentedText
  *     listBuffer must be ('empty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.junit.JUnit3Suite
+ * <span class="stReserved">import</span> org.scalatest.junit.MustMatchersForJUnit
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">BlastFromThePastSuite</span> <span class="stReserved">extends</span> <span class="stType">JUnit3Suite</span> <span class="stReserved">with</span> <span class="stType">MustMatchersForJUnit</span> {
+ * <br />  <span class="stReserved">var</span> stringBuilder: <span class="stType">StringBuilder</span> = _
+ *   <span class="stReserved">var</span> listBuffer: <span class="stType">ListBuffer[String]</span> = _
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> setUp() {
+ *     stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testEasy() {
+ *     stringBuilder.append(<span class="stQuotedString">"easy!"</span>)
+ *     stringBuilder.toString must be (<span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     listBuffer must be (<span class="stQuotedString">'empty</span>)
+ *     listBuffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun() {
+ *     stringBuilder.append(<span class="stQuotedString">"fun!"</span>)
+ *     stringBuilder.toString must be (<span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     listBuffer must be (<span class="stQuotedString">'empty</span>)
+ *   }
+ * }
  * </pre>
  * 
  * <p>
@@ -121,6 +166,10 @@ import Suite.getIndentedText
  * def testGoodIdea() { // result type will be Unit
  *   // ...
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> testGoodIdea() { <span class="stLineComment">// result type will be Unit</span>
+ *   <span class="stLineComment">// ...</span>
+ * }
  * </pre>
  *
  * <p>
@@ -130,6 +179,10 @@ import Suite.getIndentedText
  * <pre class="stHighlight">
  * def testBadIdea() = { // result type will be inferred
  *   // ...
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> testBadIdea() = { <span class="stLineComment">// result type will be inferred</span>
+ *   <span class="stLineComment">// ...</span>
  * }
  * </pre>
  *

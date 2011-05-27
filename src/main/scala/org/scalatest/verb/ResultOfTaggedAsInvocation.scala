@@ -29,6 +29,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (when empty)" should "be empty" taggedAs() is (pending)
  *                                                     ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> taggedAs() is (pending)
+ *                                                     ^
  * </pre>
  *
  * <p>
@@ -38,6 +41,9 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * "A Stack (when empty)" should "be empty" taggedAs() in { ... }
+ *                                                     ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> should <span class="stQuotedString">"be empty"</span> taggedAs() in { ... }
  *                                                     ^
  * </pre>
  *
@@ -69,6 +75,9 @@ abstract class ResultOfTaggedAsInvocation(val verb: String, val rest: String, va
    *
    * <pre class="stHighlight">
    * "A Stack" must "pop values in last-in-first-out order" taggedAs(SlowTest) is (pending)
+   *                                                                           ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack"</span> must <span class="stQuotedString">"pop values in last-in-first-out order"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
    *                                                                           ^
    * </pre>
    *

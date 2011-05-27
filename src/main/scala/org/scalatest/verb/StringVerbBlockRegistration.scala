@@ -33,6 +33,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (when empty)" should { ...
  *                        ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> should { ...
+ *                        ^
  * </pre>
  *
  * This <code>should</code> method, which is provided in <code>ShouldVerb</code>, needs an implicit parameter
@@ -55,6 +58,9 @@ abstract class StringVerbBlockRegistration extends ((String, String, () => Unit)
    *
    * <pre class="stHighlight">
    * "A Stack (when empty)" should { ...
+   *                        ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack (when empty)"</span> should { ...
    *                        ^
    * </pre>
    *

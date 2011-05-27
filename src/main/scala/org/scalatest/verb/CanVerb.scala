@@ -30,6 +30,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (when empty)" can "be empty" in { ... }
  *                        ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> can <span class="stQuotedString">"be empty"</span> in { ... }
+ *                        ^
  * </pre>
  *
  * <p>
@@ -40,6 +43,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * "A Stack (with one item)" can behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
  *                           ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (with one item)"</span> can behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+ *                           ^
  * </pre>
  *
  * <p>
@@ -49,6 +55,9 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * "A Stack (when empty)" can { ...
+ *                        ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"A Stack (when empty)"</span> can { ...
  *                        ^
  * </pre>
  *
@@ -62,6 +71,10 @@ import org.scalatest._
  *
  *   "The ScalaTest Matchers DSL" can provide {
  *                                ^
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+ * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> can provide {
+ *                              ^
  * </pre>
  *
  * <p>
@@ -103,6 +116,9 @@ trait CanVerb {
      * <pre class="stHighlight">
      * "A Stack (when empty)" can "be empty" in { ... }
      *                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (when empty)"</span> can <span class="stQuotedString">"be empty"</span> in { ... }
+     *                        ^
      * </pre>
      *
      * <p>
@@ -127,6 +143,9 @@ trait CanVerb {
      * <pre class="stHighlight">
      * "A Stack (with one item)" can behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
      *                           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (with one item)"</span> can behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+     *                           ^
      * </pre>
      *
      * <p>
@@ -150,6 +169,9 @@ trait CanVerb {
      *
      * <pre class="stHighlight">
      * "A Stack (when empty)" can { ...
+     *                        ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack (when empty)"</span> can { ...
      *                        ^
      * </pre>
      *
@@ -179,6 +201,10 @@ trait CanVerb {
      *
      *   "The ScalaTest Matchers DSL" can provide {
      *                                ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+     * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> can provide {
+     *                              ^
      * </pre>
      *
      * <p>

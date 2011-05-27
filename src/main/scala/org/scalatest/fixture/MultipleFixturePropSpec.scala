@@ -81,6 +81,38 @@ import org.scalatest._
  *     forAll { (i: Int) => i + i should equal (2 * i) }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.MultipleFixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">MultipleFixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  <span class="stLineComment">// The "with-fixture" method for tests that take a String fixture</span>
+ *   <span class="stReserved">implicit</span> <span class="stReserved">def</span> withStringFixture(testFun: <span class="stType">String</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *     configMap => testFun(<span class="stQuotedString">"howdy"</span>)
+ * <br />  <span class="stLineComment">// The "with-fixture" method for tests that take a List[Int] fixture</span>
+ *   <span class="stReserved">implicit</span> <span class="stReserved">def</span> withListFixture(testFun: <span class="stType">List[Int]</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *     configMap => testFun(<span class="stType">List</span>(configMap.size))
+ * <br />  <span class="stLineComment">// A test that takes a String fixture</span>
+ *   property(<span class="stQuotedString">"takes a string fixture"</span>) { (s: <span class="stType">String</span>) =>
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'h'</span>) {
+ *         s should not startWith c.toString
+ *       }
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// A test that takes a List[Int] fixture</span>
+ *   property(<span class="stQuotedString">"takes a list fixture"</span>) { (list: <span class="stType">List[Int]</span>) =>
+ *     forAll { (i: <span class="stType">Int</span>) =>
+ *       whenever (i != <span class="stLiteral">1</span>) {
+ *         list.size should not equal i
+ *       }
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// A test that takes no fixture</span>
+ *   property(<span class="stQuotedString">"takes no fixture"</span>) { () =>
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -91,6 +123,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * implicit def withStringFixture(testFun: String => Unit): FixtureParam => Unit =
  *   configMap => testFun("howdy")
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">def</span> withStringFixture(testFun: <span class="stType">String</span> => <span class="stType">Unit</span>): <span class="stType">FixtureParam</span> => <span class="stType">Unit</span> =
+ *   configMap => testFun(<span class="stQuotedString">"howdy"</span>)
  * </pre>
  * 
  * <p>
@@ -116,6 +151,14 @@ import org.scalatest._
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"takes a string fixture"</span>) { (s: <span class="stType">String</span>) =>
+ *   forAll { (c: <span class="stType">Char</span>) =>
+ *     whenever (c != <span class="stQuotedString">'h'</span>) {
+ *       s should not startWith c.toString
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -132,6 +175,17 @@ import org.scalatest._
  *   withStringFixture { (s: String) =>
  *     forAll { (c: Char) =>
  *       whenever (c != 'h') {
+ *         s should not startWith c.toString
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// after the implicit withStringFixture method is applied by the compiler</span>
+ * property(<span class="stQuotedString">"takes a string fixture"</span>) {
+ *   withStringFixture { (s: <span class="stType">String</span>) =>
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'h'</span>) {
  *         s should not startWith c.toString
  *       }
  *     }
@@ -156,6 +210,14 @@ import org.scalatest._
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"takes a list fixture"</span>) { (list: <span class="stType">List[Int]</span>) =>
+ *   forAll { (i: <span class="stType">Int</span>) =>
+ *     whenever (i != <span class="stLiteral">1</span>) {
+ *       list.size should not equal i
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -168,6 +230,16 @@ import org.scalatest._
  *   withListFixture { (list: List[Int]) =>
  *     forAll { (i: Int) =>
  *       whenever (i != 1) {
+ *         list.size should not equal i
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"takes a list fixture"</span>) {
+ *   withListFixture { (list: <span class="stType">List[Int]</span>) =>
+ *     forAll { (i: <span class="stType">Int</span>) =>
+ *       whenever (i != <span class="stLiteral">1</span>) {
  *         list.size should not equal i
  *       }
  *     }
@@ -188,6 +260,14 @@ import org.scalatest._
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"takes a list fixture"</span>) { (list: <span class="stType">List[Int]</span>) =>
+ *   forAll { (i: <span class="stType">Int</span>) =>
+ *     whenever (i != <span class="stLiteral">1</span>) {
+ *       list.size should not equal i
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -199,6 +279,15 @@ import org.scalatest._
  * property("takes a list fixture") { list =>
  *   forAll { (i: Int) =>
  *     whenever (i != 1) {
+ *       list.size should not equal i
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stLineComment">// won't compile, because list is inferred to be of type FixtureParam</span>
+ * property(<span class="stQuotedString">"takes a list fixture"</span>) { list =>
+ *   forAll { (i: <span class="stType">Int</span>) =>
+ *     whenever (i != <span class="stLiteral">1</span>) {
  *       list.size should not equal i
  *     }
  *   }

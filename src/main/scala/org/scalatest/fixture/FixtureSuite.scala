@@ -119,6 +119,56 @@ import org.scalatest.Suite._
  *     assert(1 + 1 === 2)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> {
+ * <br />  <span class="stLineComment">// 1. define type FixtureParam</span>
+ *   <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stLineComment">// 2. define the withFixture method</span>
+ *   <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// 3. write test methods that take a fixture parameter</span>
+ *   <span class="stReserved">def</span> testReadingFromTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testFirstCharOfTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * <br />  <span class="stLineComment">// (You can also write tests methods that don't take a fixture parameter.)</span>
+ *   <span class="stReserved">def</span> testWithoutAFixture() {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -160,6 +210,32 @@ import org.scalatest.Suite._
  *     assert(buffer.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = (<span class="stType">StringBuilder</span>, <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(stringBuilder, listBuffer)
+ *   }
+ * <br />  <span class="stReserved">def</span> testEasy(fixture: <span class="stType">Fixture</span>) {
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun(fixture: <span class="stType">Fixture</span>) {
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(buffer.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -170,6 +246,8 @@ import org.scalatest.Suite._
  *
  * <pre class="stHighlight">
  * val (builder, buffer) = fixture
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> (builder, buffer) = fixture
  * </pre>
  *
  * <p>
@@ -211,6 +289,32 @@ import org.scalatest.Suite._
  *     assert(fixture.buffer.isEmpty)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> {
+ * <br />  <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">FixtureHolder</span>(builder: <span class="stType">StringBuilder</span>, buffer: <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FixtureHolder</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(<span class="stType">FixtureHolder</span>(stringBuilder, listBuffer))
+ *   }
+ * <br />  <span class="stReserved">def</span> testEasy(fixture: <span class="stType">Fixture</span>) {
+ *     <span class="stReserved">import</span> fixture._
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  <span class="stReserved">def</span> testFun(fixture: <span class="stType">Fixture</span>) {
+ *     fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(fixture.buffer.isEmpty)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -228,6 +332,14 @@ import org.scalatest.Suite._
  *   assert(buffer.isEmpty)
  *   buffer += "sweet"
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> testEasy(fixture: <span class="stType">Fixture</span>) {
+ *   <span class="stReserved">import</span> fixture._
+ *   builder.append(<span class="stQuotedString">"easy!"</span>)
+ *   assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *   assert(buffer.isEmpty)
+ *   buffer += <span class="stQuotedString">"sweet"</span>
+ * }
  * </pre>
  *
  * <p>
@@ -241,6 +353,12 @@ import org.scalatest.Suite._
  * def testFun(fixture: Fixture) {
  *   fixture.builder.append("fun!")
  *   assert(fixture.builder.toString === "ScalaTest is fun!")
+ *   assert(fixture.buffer.isEmpty)
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">def</span> testFun(fixture: <span class="stType">Fixture</span>) {
+ *   fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *   assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *   assert(fixture.buffer.isEmpty)
  * }
  * </pre>
@@ -316,6 +434,54 @@ import org.scalatest.Suite._
  *     assert(reader.read() === 'H')
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    require(
+ *       test.configMap.contains(<span class="stQuotedString">"TempFileName"</span>),
+ *       <span class="stQuotedString">"This suite requires a TempFileName to be passed in the configMap"</span>
+ *     )
+ * <br />    <span class="stLineComment">// Grab the file name from the configMap</span>
+ *     <span class="stReserved">val</span> <span class="stType">FileName</span> = test.configMap(<span class="stQuotedString">"TempFileName"</span>).asInstanceOf[<span class="stType">String</span>]
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stReserved">def</span> testReadingFromTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *   }
+ * <br />  <span class="stReserved">def</span> testFirstCharOfTheTempFile(reader: <span class="stType">FileReader</span>) {
+ *     assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -340,6 +506,18 @@ import org.scalatest.Suite._
  *      assert(configMap.contains("world"))
  *    }
  *  }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureSuite
+ * <span class="stReserved">import</span> org.scalatest.fixture.ConfigMapFixture
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FixtureSuite</span> <span class="stReserved">with</span> <span class="stType">ConfigMapFixture</span> {
+ * <br />  <span class="stReserved">def</span> testHello(configMap: <span class="stType">Map[String, Any]</span>) {
+ *     <span class="stLineComment">// Use the configMap passed to runTest in the test</span>
+ *     assert(configMap.contains(<span class="stQuotedString">"hello"</span>))
+ *   }
+ * <br />  <span class="stReserved">def</span> testWorld(configMap: <span class="stType">Map[String, Any]</span>) {
+ *     assert(configMap.contains(<span class="stQuotedString">"world"</span>))
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -372,6 +550,13 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
    * }
    * def testSomethingElse(fixture: Fixture, info: Informer) {
    *   // ...
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">def</span> testSomething(fixture: <span class="stType">Fixture</span>) {
+   *   <span class="stLineComment">// ...</span>
+   * }
+   * <span class="stReserved">def</span> testSomethingElse(fixture: <span class="stType">Fixture</span>, info: <span class="stType">Informer</span>) {
+   *   <span class="stLineComment">// ...</span>
    * }
    * </pre>
    *
@@ -420,6 +605,10 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
      * <pre class="stHighlight">
      * def withFixture(test: OneArgTest) {
      *   withFixture(test.toNoArgTest(new StringBuilder))
+     * }
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+     *   withFixture(test.toNoArgTest(<span class="stReserved">new</span> <span class="stType">StringBuilder</span>))
      * }
      * </pre>
      */

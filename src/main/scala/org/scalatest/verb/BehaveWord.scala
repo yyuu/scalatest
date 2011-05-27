@@ -30,6 +30,9 @@ import org.scalatest._
  * <pre class="stHighlight">
  * it should behave like nonFullStack(stackWithOneItem)
  *           ^
+ * </pre><pre class="stHighlighted">
+ * it should behave like nonFullStack(stackWithOneItem)
+ *           ^
  * </pre>
  *
  * <p>
@@ -37,6 +40,9 @@ import org.scalatest._
  * </p>
  *
  * <pre class="stHighlight">
+ * behave like nonEmptyStack(lastValuePushed)
+ * ^
+ * </pre><pre class="stHighlighted">
  * behave like nonEmptyStack(lastValuePushed)
  * ^
  * </pre>
@@ -60,6 +66,9 @@ final class BehaveWord {
    * <pre class="stHighlight">
    * it should behave like nonFullStack(stackWithOneItem)
    *                  ^
+   * </pre><pre class="stHighlighted">
+   * it should behave like nonFullStack(stackWithOneItem)
+   *                  ^
    * </pre>
    *
    * <p>
@@ -67,6 +76,9 @@ final class BehaveWord {
    * </p>
    *
    * <pre class="stHighlight">
+   * behave like nonEmptyStack(lastValuePushed)
+   * ^
+   * </pre><pre class="stHighlighted">
    * behave like nonEmptyStack(lastValuePushed)
    * ^
    * </pre>

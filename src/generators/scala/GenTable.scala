@@ -56,6 +56,21 @@ val scaladocForTableFor1VerbatimString = """
  *       8,
  *       9
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> examples =
+ *   <span class="stType">Table</span>(
+ *     <span class="stQuotedString">"a"</span>,
+ *       <span class="stLiteral">0</span>,
+ *       <span class="stLiteral">1</span>,
+ *       <span class="stLiteral">2</span>,
+ *       <span class="stLiteral">3</span>,
+ *       <span class="stLiteral">4</span>,
+ *       <span class="stLiteral">5</span>,
+ *       <span class="stLiteral">6</span>,
+ *       <span class="stLiteral">7</span>,
+ *       <span class="stLiteral">8</span>,
+ *       <span class="stLiteral">9</span>
+ *   )
  * </pre>
  *
  * <p>
@@ -85,6 +100,10 @@ val scaladocForTableFor1VerbatimString = """
  * forAll (examples) { (a) =>
  *   a should equal (a * 1)
  * }
+ * </pre><pre class="stHighlighted">
+ * forAll (examples) { (a) =>
+ *   a should equal (a * <span class="stLiteral">1</span>)
+ * }
  * </pre>
  *
  * <p>
@@ -96,6 +115,10 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * for (row <- examples) yield {
  *   failureOf { row._1 should not equal (7) }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">for</span> (row <- examples) <span class="stReserved">yield</span> {
+ *   failureOf { row._1 should not equal (<span class="stLiteral">7</span>) }
  * }
  * </pre>
  *
@@ -109,6 +132,9 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * Vector(None, None, None, None, None, None, None,
  *     Some(org.scalatest.TestFailedException: 7 equaled 7), None, None)
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">Vector</span>(<span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>,
+ *     <span class="stType">Some</span>(<span class="stType">org.scalatest.TestFailedException</span>: <span class="stLiteral">7</span> equaled <span class="stLiteral">7</span>), <span class="stType">None</span>, <span class="stType">None</span>)
  * </pre>
  *
  * <p>
@@ -131,6 +157,9 @@ val scaladocForTableFor1VerbatimString = """
  * <pre class="stHighlight">
  * val first14FiboNums =
  *   Table("n", 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> first14FiboNums =
+ *   <span class="stType">Table</span>(<span class="stQuotedString">"n"</span>, <span class="stLiteral">0</span>, <span class="stLiteral">1</span>, <span class="stLiteral">1</span>, <span class="stLiteral">2</span>, <span class="stLiteral">3</span>, <span class="stLiteral">5</span>, <span class="stLiteral">8</span>, <span class="stLiteral">13</span>, <span class="stLiteral">21</span>, <span class="stLiteral">34</span>, <span class="stLiteral">55</span>, <span class="stLiteral">89</span>, <span class="stLiteral">144</span>, <span class="stLiteral">233</span>)
  * </pre>
  *
  * <p>
@@ -142,6 +171,10 @@ val scaladocForTableFor1VerbatimString = """
  *  forAll (first14FiboNums) { n =>
  *    FiboGen.next should equal (n)
  *  }
+ * </pre><pre class="stHighlighted">
+ * forAll (first14FiboNums) { n =>
+ *   FiboGen.next should equal (n)
+ * }
  * </pre>
  *
  * @param heading a string name for the lone column of this table
@@ -205,6 +238,12 @@ val tableScaladocTemplate = """
  *     ($argNames$),
 $columnsOfIndexes$
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> examples =
+ *   <span class="stType">Table</span>(
+ *     (<i>argNames</i>),
+ * <i>columnsOfIndexes</i>
+ *   )
  * </pre>
  *
  * <p>
@@ -234,6 +273,10 @@ $columnsOfIndexes$
  * forAll (examples) { ($alphaLower$) =>
  *   $sumOfArgs$ should equal (a * $n$)
  * }
+ * </pre><pre class="stHighlighted">
+ * forAll (examples) { (<i>alphaLower</i>) =>
+ *   <i>sumOfArgs</i> should equal (a * <i>n</i>)
+ * }
  * </pre>
  *
  * <p>
@@ -245,6 +288,10 @@ $columnsOfIndexes$
  * <pre class="stHighlight">
  * for (row <- examples) yield {
  *   failureOf { row._1 should not equal (7) }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">for</span> (row <- examples) <span class="stReserved">yield</span> {
+ *   failureOf { row._1 should not equal (<span class="stLiteral">7</span>) }
  * }
  * </pre>
  *
@@ -258,6 +305,9 @@ $columnsOfIndexes$
  * <pre class="stHighlight">
  * Vector(None, None, None, None, None, None, None,
  *     Some(org.scalatest.TestFailedException: 7 equaled 7), None, None)
+ * </pre><pre class="stHighlighted">
+ * <span class="stType">Vector</span>(<span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>, <span class="stType">None</span>,
+ *     <span class="stType">Some</span>(<span class="stType">org.scalatest.TestFailedException</span>: <span class="stLiteral">7</span> equaled <span class="stLiteral">7</span>), <span class="stType">None</span>, <span class="stType">None</span>)
  * </pre>
  *
  * <p>
@@ -405,6 +455,17 @@ trait Tables {
    *     (  8,  16),
    *     ( 16,  32)
    *   )
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.prop.Tables._
+   * <br /><span class="stReserved">val</span> examples =
+   *   <span class="stType">Table</span>(
+   *     (<span class="stQuotedString">"a"</span>, <span class="stQuotedString">"b"</span>),
+   *     (  <span class="stLiteral">1</span>,   <span class="stLiteral">2</span>),
+   *     (  <span class="stLiteral">2</span>,   <span class="stLiteral">4</span>),
+   *     (  <span class="stLiteral">4</span>,   <span class="stLiteral">8</span>),
+   *     (  <span class="stLiteral">8</span>,  <span class="stLiteral">16</span>),
+   *     ( <span class="stLiteral">16</span>,  <span class="stLiteral">32</span>)
+   *   )
    * </pre>
    *
    * <p>
@@ -421,6 +482,16 @@ trait Tables {
    *          4,
    *          8,
    *          16
+   *   )
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> moreExamples =
+   *   <span class="stType">Table</span>(
+   *     <span class="stQuotedString">"powerOfTwo"</span>,
+   *          <span class="stLiteral">1</span>,
+   *          <span class="stLiteral">2</span>,
+   *          <span class="stLiteral">4</span>,
+   *          <span class="stLiteral">8</span>,
+   *          <span class="stLiteral">16</span>
    *   )
    * </pre>
    *
@@ -442,6 +513,21 @@ trait Tables {
    *     (  8,  16,  24,  32,  40,  48,  56,  64,  72,  80),
    *     (  9,  18,  27,  36,  45,  54,  63,  72,  81,  90),
    *     ( 10,  20,  30,  40,  50,  60,  70,  80,  90, 100)
+   *   )
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> multiplicationTable =
+   *   <span class="stType">Table</span>(
+   *     (<span class="stQuotedString">"a"</span>, <span class="stQuotedString">"b"</span>, <span class="stQuotedString">"c"</span>, <span class="stQuotedString">"d"</span>, <span class="stQuotedString">"e"</span>, <span class="stQuotedString">"f"</span>, <span class="stQuotedString">"g"</span>, <span class="stQuotedString">"h"</span>, <span class="stQuotedString">"i"</span>, <span class="stQuotedString">"j"</span>),
+   *     (  <span class="stLiteral">1</span>,   <span class="stLiteral">2</span>,   <span class="stLiteral">3</span>,   <span class="stLiteral">4</span>,   <span class="stLiteral">5</span>,   <span class="stLiteral">6</span>,   <span class="stLiteral">7</span>,   <span class="stLiteral">8</span>,   <span class="stLiteral">9</span>,  <span class="stLiteral">10</span>),
+   *     (  <span class="stLiteral">2</span>,   <span class="stLiteral">4</span>,   <span class="stLiteral">6</span>,   <span class="stLiteral">8</span>,  <span class="stLiteral">10</span>,  <span class="stLiteral">12</span>,  <span class="stLiteral">14</span>,  <span class="stLiteral">16</span>,  <span class="stLiteral">18</span>,  <span class="stLiteral">20</span>),
+   *     (  <span class="stLiteral">3</span>,   <span class="stLiteral">6</span>,   <span class="stLiteral">9</span>,  <span class="stLiteral">12</span>,  <span class="stLiteral">15</span>,  <span class="stLiteral">18</span>,  <span class="stLiteral">21</span>,  <span class="stLiteral">24</span>,  <span class="stLiteral">27</span>,  <span class="stLiteral">30</span>),
+   *     (  <span class="stLiteral">4</span>,   <span class="stLiteral">8</span>,  <span class="stLiteral">12</span>,  <span class="stLiteral">16</span>,  <span class="stLiteral">20</span>,  <span class="stLiteral">24</span>,  <span class="stLiteral">28</span>,  <span class="stLiteral">32</span>,  <span class="stLiteral">36</span>,  <span class="stLiteral">40</span>),
+   *     (  <span class="stLiteral">5</span>,  <span class="stLiteral">10</span>,  <span class="stLiteral">15</span>,  <span class="stLiteral">20</span>,  <span class="stLiteral">25</span>,  <span class="stLiteral">30</span>,  <span class="stLiteral">35</span>,  <span class="stLiteral">40</span>,  <span class="stLiteral">45</span>,  <span class="stLiteral">50</span>),
+   *     (  <span class="stLiteral">6</span>,  <span class="stLiteral">12</span>,  <span class="stLiteral">18</span>,  <span class="stLiteral">24</span>,  <span class="stLiteral">30</span>,  <span class="stLiteral">36</span>,  <span class="stLiteral">42</span>,  <span class="stLiteral">48</span>,  <span class="stLiteral">54</span>,  <span class="stLiteral">60</span>),
+   *     (  <span class="stLiteral">7</span>,  <span class="stLiteral">14</span>,  <span class="stLiteral">21</span>,  <span class="stLiteral">28</span>,  <span class="stLiteral">35</span>,  <span class="stLiteral">42</span>,  <span class="stLiteral">49</span>,  <span class="stLiteral">56</span>,  <span class="stLiteral">63</span>,  <span class="stLiteral">70</span>),
+   *     (  <span class="stLiteral">8</span>,  <span class="stLiteral">16</span>,  <span class="stLiteral">24</span>,  <span class="stLiteral">32</span>,  <span class="stLiteral">40</span>,  <span class="stLiteral">48</span>,  <span class="stLiteral">56</span>,  <span class="stLiteral">64</span>,  <span class="stLiteral">72</span>,  <span class="stLiteral">80</span>),
+   *     (  <span class="stLiteral">9</span>,  <span class="stLiteral">18</span>,  <span class="stLiteral">27</span>,  <span class="stLiteral">36</span>,  <span class="stLiteral">45</span>,  <span class="stLiteral">54</span>,  <span class="stLiteral">63</span>,  <span class="stLiteral">72</span>,  <span class="stLiteral">81</span>,  <span class="stLiteral">90</span>),
+   *     ( <span class="stLiteral">10</span>,  <span class="stLiteral">20</span>,  <span class="stLiteral">30</span>,  <span class="stLiteral">40</span>,  <span class="stLiteral">50</span>,  <span class="stLiteral">60</span>,  <span class="stLiteral">70</span>,  <span class="stLiteral">80</span>,  <span class="stLiteral">90</span>, <span class="stLiteral">100</span>)
    *   )
    * </pre>
    *
@@ -522,6 +608,15 @@ val propertyCheckPreamble = """
  *
  *   override def toString = numer + " / " + denom
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Fraction</span>(n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) {
+ * <br />  require(d != <span class="stLiteral">0</span>)
+ *   require(d != Integer.MIN_VALUE)
+ *   require(n != Integer.MIN_VALUE)
+ * <br />  <span class="stReserved">val</span> numer = <span class="stReserved">if</span> (d < <span class="stLiteral">0</span>) -<span class="stLiteral">1</span> * n <span class="stReserved">else</span> n
+ *   <span class="stReserved">val</span> denom = d.abs
+ * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = numer + <span class="stQuotedString">" / "</span> + denom
+ * }
  * </pre>
  *
  * <p>
@@ -561,6 +656,23 @@ val propertyCheckPreamble = """
  *     (Integer.MIN_VALUE, 3),
  *     ( -3,  -1)
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.prop.TableDrivenPropertyChecks._
+ * <br /><span class="stReserved">val</span> fractions =
+ *   <span class="stType">Table</span>(
+ *     (<span class="stQuotedString">"n"</span>, <span class="stQuotedString">"d"</span>),  <span class="stLineComment">// First tuple defines column names</span>
+ *     (  <span class="stLiteral">1</span>,   <span class="stLiteral">2</span>),  <span class="stLineComment">// Subsequent tuples define the data</span>
+ *     ( -<span class="stLiteral">1</span>,   <span class="stLiteral">2</span>),
+ *     (  <span class="stLiteral">1</span>,  -<span class="stLiteral">2</span>),
+ *     ( -<span class="stLiteral">1</span>,  -<span class="stLiteral">2</span>),
+ *     (  <span class="stLiteral">3</span>,   <span class="stLiteral">1</span>),
+ *     ( -<span class="stLiteral">3</span>,   <span class="stLiteral">1</span>),
+ *     ( -<span class="stLiteral">3</span>,   <span class="stLiteral">0</span>),
+ *     (  <span class="stLiteral">3</span>,  -<span class="stLiteral">1</span>),
+ *     (  <span class="stLiteral">3</span>,  Integer.MIN_VALUE),
+ *     (Integer.MIN_VALUE, <span class="stLiteral">3</span>),
+ *     ( -<span class="stLiteral">3</span>,  -<span class="stLiteral">1</span>)
+ *   )
  * </pre>
  *
  * <p>
@@ -585,6 +697,21 @@ val propertyCheckPreamble = """
  *       f.numer should be === 0
  *
  *     f.denom should be > 0
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers._
+ * <br />forAll (fractions) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+ *       && n != Integer.MIN_VALUE) {
+ * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+ *       f.numer should be > <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+ *       f.numer should be < <span class="stLiteral">0</span>
+ *     <span class="stReserved">else</span>
+ *       f.numer should be === <span class="stLiteral">0</span>
+ * <br />    f.denom should be > <span class="stLiteral">0</span>
  *   }
  * }
  * </pre>
@@ -625,6 +752,9 @@ val propertyCheckPreamble = """
  * <pre class="stHighlight">
  * val first14FiboNums =
  *   Table("n", 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> first14FiboNums =
+ *   <span class="stType">Table</span>(<span class="stQuotedString">"n"</span>, <span class="stLiteral">0</span>, <span class="stLiteral">1</span>, <span class="stLiteral">1</span>, <span class="stLiteral">2</span>, <span class="stLiteral">3</span>, <span class="stLiteral">5</span>, <span class="stLiteral">8</span>, <span class="stLiteral">13</span>, <span class="stLiteral">21</span>, <span class="stLiteral">34</span>, <span class="stLiteral">55</span>, <span class="stLiteral">89</span>, <span class="stLiteral">144</span>, <span class="stLiteral">233</span>)
  * </pre>
  *
  * <p>
@@ -636,6 +766,10 @@ val propertyCheckPreamble = """
  *  forAll (first14FiboNums) { n =>
  *    FiboGen.next should equal (n)
  *  }
+ * </pre><pre class="stHighlighted">
+ * forAll (first14FiboNums) { n =>
+ *   FiboGen.next should equal (n)
+ * }
  * </pre>
  *
  * <a name="testingMutables"></a><h2>Testing mutable objects</h2>
@@ -653,6 +787,14 @@ val propertyCheckPreamble = """
         def enter(n: Int) { c = n }
         def count = c
       }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Counter</span> {
+ *   <span class="stReserved">private</span> <span class="stReserved">var</span> c = <span class="stLiteral">0</span>
+ *   <span class="stReserved">def</span> reset() { c = <span class="stLiteral">0</span> }
+ *   <span class="stReserved">def</span> click() { c += <span class="stLiteral">1</span> }
+ *   <span class="stReserved">def</span> enter(n: <span class="stType">Int</span>) { c = n }
+ *   <span class="stReserved">def</span> count = c
+ * }
  * </pre>
  *
  * <p>
@@ -668,6 +810,11 @@ val propertyCheckPreamble = """
       case object Start extends Action
       case object Click extends Action
       case class Enter(n: Int) extends Action
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">abstract</span> <span class="stReserved">class</span> <span class="stType">Action</span>
+ * <span class="stReserved">case</span> <span class="stReserved">object</span> <span class="stType">Start</span> <span class="stReserved">extends</span> <span class="stType">Action</span>
+ * <span class="stReserved">case</span> <span class="stReserved">object</span> <span class="stType">Click</span> <span class="stReserved">extends</span> <span class="stType">Action</span>
+ * <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">Enter</span>(n: <span class="stType">Int</span>) <span class="stReserved">extends</span> <span class="stType">Action</span>
  * </pre>
  *
  * <p>
@@ -688,6 +835,20 @@ val propertyCheckPreamble = """
           (Click,    2),
           (Click,    3)
         )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> stateTransitions =
+ *   <span class="stType">Table</span>(
+ *     (<span class="stQuotedString">"action"</span>, <span class="stQuotedString">"expectedCount"</span>),
+ *     (<span class="stType">Start</span>,    <span class="stLiteral">0</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">1</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">2</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">3</span>),
+ *     (<span class="stType">Enter</span>(<span class="stLiteral">5</span>), <span class="stLiteral">5</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">6</span>),
+ *     (<span class="stType">Enter</span>(<span class="stLiteral">1</span>), <span class="stLiteral">1</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">2</span>),
+ *     (<span class="stType">Click</span>,    <span class="stLiteral">3</span>)
+ *   )
  * </pre>
  *
  * <p>
@@ -706,6 +867,16 @@ val propertyCheckPreamble = """
         }
         counter.count should equal (expectedCount)
       }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> counter = <span class="stReserved">new</span> <span class="stType">Counter</span>
+ * forAll (stateTransitions) { (action, expectedCount) =>
+ *   action <span class="stReserved">match</span> {
+ *     <span class="stReserved">case</span> <span class="stType">Start</span> => counter.reset()
+ *     <span class="stReserved">case</span> <span class="stType">Click</span> => counter.click()
+ *     <span class="stReserved">case</span> <span class="stType">Enter</span>(n) => counter.enter(n)
+ *   }
+ *   counter.count should equal (expectedCount)
+ * }
  * </pre>
  *
  * <a name="invalidArgCombos"></a><h2>Testing invalid argument combinations</h2>
@@ -740,6 +911,16 @@ val propertyCheckPreamble = """
  *     (Integer.MIN_VALUE, 0),
  *     (1,                 0)
  *   )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> invalidCombos =
+ *   <span class="stType">Table</span>(
+ *     (<span class="stQuotedString">"n"</span>,               <span class="stQuotedString">"d"</span>),
+ *     (Integer.MIN_VALUE, Integer.MIN_VALUE),
+ *     (<span class="stLiteral">1</span>,                 Integer.MIN_VALUE),
+ *     (Integer.MIN_VALUE, <span class="stLiteral">1</span>),
+ *     (Integer.MIN_VALUE, <span class="stLiteral">0</span>),
+ *     (<span class="stLiteral">1</span>,                 <span class="stLiteral">0</span>)
+ *   )
  * </pre>
  * 
  * <p>
@@ -751,6 +932,12 @@ val propertyCheckPreamble = """
  *   evaluating {
  *     new Fraction(n, d)
  *   } should produce [IllegalArgumentException]
+ * }
+ * </pre><pre class="stHighlighted">
+ * forAll (invalidCombos) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+ *   evaluating {
+ *     <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+ *   } should produce [<span class="stType">IllegalArgumentException</span>]
  * }
  * </pre>
  *
@@ -779,6 +966,15 @@ trait TableDrivenPropertyChecks extends Whenever with Tables {
    *
    *   override def toString = numer + " / " + denom
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">class</span> <span class="stType">Fraction</span>(n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) {
+   * <br />  require(d != <span class="stLiteral">0</span>)
+   *   require(d != Integer.MIN_VALUE)
+   *   require(n != Integer.MIN_VALUE)
+   * <br />  <span class="stReserved">val</span> numer = <span class="stReserved">if</span> (d < <span class="stLiteral">0</span>) -<span class="stLiteral">1</span> * n <span class="stReserved">else</span> n
+   *   <span class="stReserved">val</span> denom = d.abs
+   * <br />  <span class="stReserved">override</span> <span class="stReserved">def</span> toString = numer + <span class="stQuotedString">" / "</span> + denom
+   * }
    * </pre>
    *
    * <p>
@@ -803,6 +999,23 @@ trait TableDrivenPropertyChecks extends Whenever with Tables {
    *     (  3,  Integer.MIN_VALUE),
    *     (Integer.MIN_VALUE, 3),
    *     ( -3,  -1)
+   *   )
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.prop.TableDrivenPropertyChecks._
+   * <br /><span class="stReserved">val</span> fractions =
+   *   <span class="stType">Table</span>(
+   *     (<span class="stQuotedString">"n"</span>, <span class="stQuotedString">"d"</span>),
+   *     (  <span class="stLiteral">1</span>,   <span class="stLiteral">2</span>),
+   *     ( -<span class="stLiteral">1</span>,   <span class="stLiteral">2</span>),
+   *     (  <span class="stLiteral">1</span>,  -<span class="stLiteral">2</span>),
+   *     ( -<span class="stLiteral">1</span>,  -<span class="stLiteral">2</span>),
+   *     (  <span class="stLiteral">3</span>,   <span class="stLiteral">1</span>),
+   *     ( -<span class="stLiteral">3</span>,   <span class="stLiteral">1</span>),
+   *     ( -<span class="stLiteral">3</span>,   <span class="stLiteral">0</span>),
+   *     (  <span class="stLiteral">3</span>,  -<span class="stLiteral">1</span>),
+   *     (  <span class="stLiteral">3</span>,  Integer.MIN_VALUE),
+   *     (Integer.MIN_VALUE, <span class="stLiteral">3</span>),
+   *     ( -<span class="stLiteral">3</span>,  -<span class="stLiteral">1</span>)
    *   )
    * </pre>
    *
@@ -831,6 +1044,21 @@ trait TableDrivenPropertyChecks extends Whenever with Tables {
    *       f.numer should be === 0
    *
    *     f.denom should be > 0
+   *   }
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers._
+   * <br />forAll (fractions) { (n: <span class="stType">Int</span>, d: <span class="stType">Int</span>) =>
+   * <br />  whenever (d != <span class="stLiteral">0</span> && d != Integer.MIN_VALUE
+   *       && n != Integer.MIN_VALUE) {
+   * <br />    <span class="stReserved">val</span> f = <span class="stReserved">new</span> <span class="stType">Fraction</span>(n, d)
+   * <br />    <span class="stReserved">if</span> (n < <span class="stLiteral">0</span> && d < <span class="stLiteral">0</span> || n > <span class="stLiteral">0</span> && d > <span class="stLiteral">0</span>)
+   *       f.numer should be > <span class="stLiteral">0</span>
+   *     <span class="stReserved">else</span> <span class="stReserved">if</span> (n != <span class="stLiteral">0</span>)
+   *       f.numer should be < <span class="stLiteral">0</span>
+   *     <span class="stReserved">else</span>
+   *       f.numer should be === <span class="stLiteral">0</span>
+   * <br />    f.denom should be > <span class="stLiteral">0</span>
    *   }
    * }
    * </pre>

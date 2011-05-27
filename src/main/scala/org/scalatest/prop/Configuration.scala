@@ -148,6 +148,14 @@ trait Configuration {
    *   }
    * }
    *
+   * </pre><pre class="stHighlighted">
+   * <span class="stLineComment">// forAll defined in <code>GeneratorDrivenPropertyChecks</code></span>
+   * forAll { (n: <span class="stType">Int</span>) => 
+   *   whenever (n > <span class="stLiteral">0</span>) {
+   *     doubleIt(n) should equal (n * <span class="stLiteral">2</span>)
+   *   }
+   * }
+   * <br /><!-- -->
    * </pre>
    *
    * <p>
@@ -166,6 +174,12 @@ trait Configuration {
    *   (n > 0) ==> doubleIt(n) == (n * 2)
    * }
    *
+   * </pre><pre class="stHighlighted">
+   * <span class="stLineComment">// forAll defined in <code>Checkers</code></span>
+   * forAll { (n: <span class="stType">Int</span>) => 
+   *   (n > <span class="stLiteral">0</span>) ==> doubleIt(n) == (n * <span class="stLiteral">2</span>)
+   * }
+   * <br /><!-- -->
    * </pre>
    *
    * <p>

@@ -32,6 +32,14 @@ package org.scalatest
  *   new Step4Spec,
  *   new Step5Spec
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">StepsSpec</span> <span class="stReserved">extends</span> <span class="stType">Specs</span> {
+ *   <span class="stReserved">new</span> <span class="stType">Step1Spec</span>,
+ *   <span class="stReserved">new</span> <span class="stType">Step2Spec</span>,
+ *   <span class="stReserved">new</span> <span class="stType">Step3Spec</span>,
+ *   <span class="stReserved">new</span> <span class="stType">Step4Spec</span>,
+ *   <span class="stReserved">new</span> <span class="stType">Step5Spec</span>
+ * }
  * </pre>
  *
  * <p>

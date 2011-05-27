@@ -48,6 +48,17 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepthForPropCheck
  *     check((a: List[Int], b: List[Int]) => a.size + b.size == (a ::: b).size)
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.junit.JUnitSuite
+ * <span class="stReserved">import</span> org.scalatest.prop.Checkers
+ * <span class="stReserved">import</span> org.scalacheck.Arbitrary._
+ * <span class="stReserved">import</span> org.scalacheck.Prop._
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">JUnitSuite</span> <span class="stReserved">with</span> <span class="stType">Checkers</span> {
+ *   @<span class="stType">Test</span>
+ *   <span class="stReserved">def</span> testConcat() {
+ *     check((a: <span class="stType">List[Int]</span>, b: <span class="stType">List[Int]</span>) => a.size + b.size == (a ::: b).size)
+ *   }
+ * }
  * </pre>
  * <p>
  * The <code>check</code> method, defined in <code>Checkers</code>, makes it easy to write property-based tests inside
@@ -58,6 +69,8 @@ repeatedly pass generated data to the function. In this case, the test data is c
  * Inside the body of the function, you see:
  * </p>
  * <pre class="stHighlight">
+ * a.size + b.size == (a ::: b).size
+ * </pre><pre class="stHighlighted">
  * a.size + b.size == (a ::: b).size
  * </pre>
  * <p>
@@ -168,6 +181,9 @@ repeatedly pass generated data to the function. In this case, the test data is c
  * <pre class="stHighlight">
  * implicit override val generatorDrivenConfig =
  *   PropertyCheckConfig(minSize = 10, maxSize = 20)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">override</span> <span class="stReserved">val</span> generatorDrivenConfig =
+ *   <span class="stType">PropertyCheckConfig</span>(minSize = <span class="stLiteral">10</span>, maxSize = <span class="stLiteral">20</span>)
  * </pre>
  *
  * <p>
@@ -177,6 +193,9 @@ repeatedly pass generated data to the function. In this case, the test data is c
  * <pre class="stHighlight">
  * implicit val generatorDrivenConfig =
  *   PropertyCheckConfig(minSize = 10, maxSize = 20)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">implicit</span> <span class="stReserved">val</span> generatorDrivenConfig =
+ *   <span class="stType">PropertyCheckConfig</span>(minSize = <span class="stLiteral">10</span>, maxSize = <span class="stLiteral">20</span>)
  * </pre>
  *
  * <p>
@@ -190,6 +209,8 @@ repeatedly pass generated data to the function. In this case, the test data is c
  *
  * <pre class="stHighlight">
  * check((n: Int) => n + 0 == n, minSuccessful(500))
+ * </pre><pre class="stHighlighted">
+ * check((n: <span class="stType">Int</span>) => n + <span class="stLiteral">0</span> == n, minSuccessful(<span class="stLiteral">500</span>))
  * </pre>
  *
  * <p>
@@ -200,6 +221,8 @@ repeatedly pass generated data to the function. In this case, the test data is c
  *
  * <pre class="stHighlight">
  * check((n: Int) => n + 0 == n, minSuccessful(500), maxDiscarded(300))
+ * </pre><pre class="stHighlighted">
+ * check((n: <span class="stType">Int</span>) => n + <span class="stLiteral">0</span> == n, minSuccessful(<span class="stLiteral">500</span>), maxDiscarded(<span class="stLiteral">300</span>))
  * </pre>
  *
  * <p>
@@ -214,6 +237,11 @@ repeatedly pass generated data to the function. In this case, the test data is c
  * import org.scalatest.prop.Checkers._
  *
  * check(Prop.forAll((n: Int) => n + 0 == n), Params(minSuccessfulTests = 5))
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalacheck.Prop
+ * <span class="stReserved">import</span> org.scalacheck.Test.Params
+ * <span class="stReserved">import</span> org.scalatest.prop.Checkers._
+ * <br />check(Prop.forAll((n: <span class="stType">Int</span>) => n + <span class="stLiteral">0</span> == n), <span class="stType">Params</span>(minSuccessfulTests = <span class="stLiteral">5</span>))
  * </pre>
  *
  * <p>
@@ -522,6 +550,8 @@ object Checkers extends Checkers {
    *
    * <pre class="stHighlight">
    * check((s: String, t: String) => successOf(s + t should endWith (s)))
+   * </pre><pre class="stHighlighted">
+   * check((s: <span class="stType">String</span>, t: <span class="stType">String</span>) => successOf(s + t should endWith (s)))
    * </pre>
    *
    * <p>
@@ -539,6 +569,14 @@ object Checkers extends Checkers {
    * 	at org.scalatest.prop.Checkers$class.check(Checkers.scala:252)
    * 	at org.scalatest.prop.Checkers$.check(Checkers.scala:354)
    *    ...
+   * </pre><pre class="stHighlighted">
+   * <span class="stType">org.scalatest.prop.GeneratorDrivenPropertyCheckFailedException</span>: <span class="stType">TestFailedException</span> (included as <span class="stReserved">this</span> exception<span class="stQuotedString">'s</span> cause) was thrown during property evaluation.
+   * <span class="stType">Label</span> of failing property: <span class="stQuotedString">"ab"</span> did not end <span class="stReserved">with</span> substring <span class="stQuotedString">"a"</span> (script.scala:<span class="stLiteral">24</span>)
+   * > arg0 = <span class="stQuotedString">"?"</span> (<span class="stLiteral">1</span> shrinks)
+   * > arg1 = <span class="stQuotedString">"?"</span> (<span class="stLiteral">1</span> shrinks)
+   *         at org.scalatest.prop.Checkers<i>class</i>.<i>check</i>(<i>Checkers</i>.<i>scala</i>:252)
+   * 	<i>at</i> <i>org</i>.<i>scalatest</i>.<i>prop</i>.<i>Checkers</i>.check(Checkers.scala:<span class="stLiteral">354</span>)
+   *    ...
    * </pre>
    *
    * <p>
@@ -554,6 +592,13 @@ object Checkers extends Checkers {
    *   (res >= n)    :| "result > #2" &&
    *   (res < m + n) :| "result not sum"
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> complexProp = forAll { (m: <span class="stType">Int</span>, n: <span class="stType">Int</span>) =>
+   *   <span class="stReserved">val</span> res = n * m
+   *   (res >= m)    :| <span class="stQuotedString">"result > #1"</span> &&
+   *   (res >= n)    :| <span class="stQuotedString">"result > #2"</span> &&
+   *   (res < m + n) :| <span class="stQuotedString">"result not sum"</span>
+   * }
    * </pre>
    * 
    * <p>
@@ -564,6 +609,14 @@ object Checkers extends Checkers {
    * val complexProp = forAll { (m: Int, n: Int) =>
    *   successOf {
    *     val res = n * m
+   *     res should be >= m
+   *     res should be >= n
+   *     res should be < (m + n)
+   *   }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> complexProp = forAll { (m: <span class="stType">Int</span>, n: <span class="stType">Int</span>) =>
+   *   successOf {
+   *     <span class="stReserved">val</span> res = n * m
    *     res should be >= m
    *     res should be >= n
    *     res should be < (m + n)

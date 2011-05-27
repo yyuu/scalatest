@@ -29,6 +29,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * class MySuite extends BeforeAndAfterEach // Won't compile
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">BeforeAndAfterEach</span> <span class="stLineComment">// Won't compile</span>
  * </pre>
  *
  * <p>
@@ -38,6 +40,8 @@ package org.scalatest
  *
  * <pre class="stHighlight">
  * class MySuite extends FunSuite with BeforeAndAfterEach // Compiles fine
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> <span class="stReserved">with</span> <span class="stType">BeforeAndAfterEach</span> <span class="stLineComment">// Compiles fine</span>
  * </pre>
  *
  * @author Bill Venners

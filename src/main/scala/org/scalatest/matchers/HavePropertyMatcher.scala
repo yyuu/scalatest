@@ -80,6 +80,30 @@ import org.scalatest._
  *         )
  *     }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">Book</span>(<span class="stReserved">val</span> title: <span class="stType">String</span>, <span class="stReserved">val</span> author: <span class="stType">String</span>)
+ * <br /><span class="stReserved">trait</span> <span class="stType">CustomMatchers</span> {
+ * <br />  <span class="stReserved">def</span> title(expectedValue: <span class="stType">String</span>) =
+ *     <span class="stReserved">new</span> <span class="stType">HavePropertyMatcher[Book, String]</span> {
+ *       <span class="stReserved">def</span> apply(book: <span class="stType">Book</span>) =
+ *         <span class="stType">HavePropertyMatchResult</span>(
+ *           book.title == expectedValue,
+ *           <span class="stQuotedString">"title"</span>,
+ *           expectedValue,
+ *           book.title
+ *         )
+ *     }
+ * <br />  <span class="stReserved">def</span> author(expectedValue: <span class="stType">String</span>) = 
+ *     <span class="stReserved">new</span> <span class="stType">HavePropertyMatcher[Book, String]</span> {
+ *       <span class="stReserved">def</span> apply(book: <span class="stType">Book</span>) =
+ *         <span class="stType">HavePropertyMatchResult</span>(
+ *           book.author == expectedValue,
+ *           <span class="stQuotedString">"author"</span>,
+ *           expectedValue,
+ *           book.author
+ *         )
+ *     }
+ * }
  * </pre>
  * 
  * <p>
@@ -107,6 +131,18 @@ import org.scalatest._
  *       book should have (
  *         title ("Moby Dick"),
  *         author ("Melville")
+ *       )
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">ExampleSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> <span class="stReserved">with</span> <span class="stType">CustomMatchers</span> {
+ * <br />  describe(<span class="stQuotedString">"A book"</span>) {
+ * <br />    it(<span class="stQuotedString">"should have the correct title and author"</span>) {
+ * <br />      <span class="stReserved">val</span> book = <span class="stType">Book</span>(<span class="stQuotedString">"Moby Dick"</span>, <span class="stQuotedString">"Melville"</span>)
+ * <br />      book should have (
+ *         title (<span class="stQuotedString">"Moby Dick"</span>),
+ *         author (<span class="stQuotedString">"Melville"</span>)
  *       )
  *     }
  *   }
@@ -194,6 +230,17 @@ object HavePropertyMatcher {
    *        person.name
    *      ) 
    *    } 
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">Person</span>(name: <span class="stType">String</span>)
+   * <span class="stReserved">def</span> name(expectedName: <span class="stType">String</span>) = {
+   *   <span class="stType">HavePropertyMatcher</span> { 
+   *     (person: <span class="stType">Person</span>) => <span class="stType">HavePropertyMatchResult</span>(
+   *       person.name == expectedName,
+   *       <span class="stQuotedString">"name"</span>,
+   *       expectedName,
+   *       person.name
+   *     ) 
+   *   }
    * </pre>
    *
    * @author Bill Venners

@@ -118,6 +118,58 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> {
+ * <br />  <span class="stLineComment">// 1. define type FixtureParam</span>
+ *   <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stLineComment">// 2. define the withFixture method</span>
+ *   <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// 3. write tests that take a fixture parameter</span>
+ *   <span class="stQuotedString">"A contrived example"</span> should {
+ *     <span class="stQuotedString">"read from the temp file"</span> in { reader =>
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"read the first char of the temp file"</span> in { reader =>
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ * <br />    <span class="stLineComment">// (You can also write tests that don't take a fixture parameter.)</span>
+ *     <span class="stQuotedString">"not be required"</span> in { () =>
+ *       assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -161,6 +213,34 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = (<span class="stType">StringBuilder</span>, <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(stringBuilder, listBuffer)
+ *   }
+ * <br />  <span class="stQuotedString">"Another contrived example"</span> should {
+ *     <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *       <span class="stReserved">val</span> (builder, buffer) = fixture
+ *       builder.append(<span class="stQuotedString">"easy!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *       assert(buffer.isEmpty)
+ *       buffer += <span class="stQuotedString">"sweet"</span>
+ *     }
+ * <br />    <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *       <span class="stReserved">val</span> (builder, buffer) = fixture
+ *       builder.append(<span class="stQuotedString">"fun!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *       assert(buffer.isEmpty)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -171,6 +251,8 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <pre class="stHighlight">
  * val (builder, buffer) = fixture
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> (builder, buffer) = fixture
  * </pre>
  *
  * <p>
@@ -214,6 +296,34 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> {
+ * <br />  <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">FixtureHolder</span>(builder: <span class="stType">StringBuilder</span>, buffer: <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FixtureHolder</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(<span class="stType">FixtureHolder</span>(stringBuilder, listBuffer))
+ *   }
+ * <br />  <span class="stQuotedString">"Another contrived example"</span> should {
+ *     <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *       <span class="stReserved">import</span> fixture._
+ *       builder.append(<span class="stQuotedString">"easy!"</span>)
+ *       assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *       assert(buffer.isEmpty)
+ *       buffer += <span class="stQuotedString">"sweet"</span>
+ *     }
+ * <br />    <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *       fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *       assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *       assert(fixture.buffer.isEmpty)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -231,6 +341,14 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   assert(buffer.isEmpty)
  *   buffer += "sweet"
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"mutate shared fixture objects"</span> in { fixture =>
+ *   <span class="stReserved">import</span> fixture._
+ *   builder.append(<span class="stQuotedString">"easy!"</span>)
+ *   assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *   assert(buffer.isEmpty)
+ *   buffer += <span class="stQuotedString">"sweet"</span>
+ * }
  * </pre>
  *
  * <p>
@@ -244,6 +362,12 @@ import Suite.anErrorThatShouldCauseAnAbort
  * "get a fresh set of mutable fixture objects" in { fixture =>
  *   fixture.builder.append("fun!")
  *   assert(fixture.builder.toString === "ScalaTest is fun!")
+ *   assert(fixture.buffer.isEmpty)
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"get a fresh set of mutable fixture objects"</span> in { fixture =>
+ *   fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *   assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
  *   assert(fixture.buffer.isEmpty)
  * }
  * </pre>
@@ -321,6 +445,56 @@ import Suite.anErrorThatShouldCauseAnAbort
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    require(
+ *       test.configMap.contains(<span class="stQuotedString">"TempFileName"</span>),
+ *       <span class="stQuotedString">"This suite requires a TempFileName to be passed in the configMap"</span>
+ *     )
+ * <br />    <span class="stLineComment">// Grab the file name from the configMap</span>
+ *     <span class="stReserved">val</span> <span class="stType">FileName</span> = test.configMap(<span class="stQuotedString">"TempFileName"</span>).asInstanceOf[<span class="stType">String</span>]
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stQuotedString">"A contrived example"</span> should {
+ *     <span class="stQuotedString">"read from the temp file"</span> in { reader =>
+ *       <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *       <span class="stReserved">var</span> c = reader.read()
+ *       <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *         builder.append(c.toChar)
+ *         c = reader.read()
+ *       }
+ *       assert(builder.toString === <span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ * <br />    <span class="stQuotedString">"read the first char of the temp file"</span> in { reader =>
+ *       assert(reader.read() === <span class="stQuotedString">'H'</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -347,6 +521,20 @@ import Suite.anErrorThatShouldCauseAnAbort
  *      }
  *    }
  *  }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixtureWordSpec
+ * <span class="stReserved">import</span> org.scalatest.fixture.ConfigMapFixture
+ * <br /><span class="stReserved">class</span> <span class="stType">MyWordSpec</span> <span class="stReserved">extends</span> <span class="stType">FixtureWordSpec</span> <span class="stReserved">with</span> <span class="stType">ConfigMapFixture</span> {
+ * <br />  <span class="stQuotedString">"The final contrived example"</span> should {
+ *     <span class="stQuotedString">"contain hello"</span> in { configMap =>
+ *       <span class="stLineComment">// Use the configMap passed to runTest in the test</span>
+ *       assert(configMap.contains(<span class="stQuotedString">"hello"</span>))
+ *     }
+ * <br />    <span class="stQuotedString">"contain world"</span> in { configMap =>
+ *       assert(configMap.contains(<span class="stQuotedString">"world"</span>))
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -445,6 +633,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) in { fixture => ... }
      *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) in { fixture => ... }
+     *                                       ^
      * </pre>
      *
      * <p>
@@ -464,6 +655,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) in { () => ... }
+     *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) in { () => ... }
      *                                       ^
      * </pre>
      *
@@ -485,6 +679,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) is (pending)
      *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) is (pending)
+     *                                       ^
      * </pre>
      *
      * <p>
@@ -505,6 +702,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) ignore { fixture => ... }
      *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { fixture => ... }
+     *                                       ^
      * </pre>
      *
      * <p>
@@ -524,6 +724,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) ignore { () => ... }
+     *                                       ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) ignore { () => ... }
      *                                       ^
      * </pre>
      *
@@ -563,6 +766,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" in { fixture => ... }
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> in { fixture => ... }
+     *                    ^
      * </pre>
      *
      * <p>
@@ -582,6 +788,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "complain on peek" in { () => ... }
+     *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> in { () => ... }
      *                    ^
      * </pre>
      *
@@ -603,6 +812,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" is (pending)
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> is (pending)
+     *                    ^
      * </pre>
      *
      * <p>
@@ -623,6 +835,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" ignore { fixture => ... }
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> ignore { fixture => ... }
+     *                    ^
      * </pre>
      *
      * <p>
@@ -642,6 +857,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "complain on peek" ignore { () => ... }
+     *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> ignore { () => ... }
      *                    ^
      * </pre>
      *
@@ -664,6 +882,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "complain on peek" taggedAs(SlowTest) in { fixture => ... }
      *                    ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"complain on peek"</span> taggedAs(<span class="stType">SlowTest</span>) in { fixture => ... }
+     *                    ^
      * </pre>
      *
      * <p>
@@ -684,6 +905,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "A Stack" when { ... }
+     *           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"A Stack"</span> when { ... }
      *           ^
      * </pre>
      *
@@ -707,6 +931,10 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * "A Stack" when theUser { ... }
      *           ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stReserved">val</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+     * <br /><span class="stQuotedString">"A Stack"</span> when theUser { ... }
+     *           ^
      * </pre>
      *
      * <p>
@@ -727,6 +955,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * <pre class="stHighlight">
      * "a rerun button" that {
      *                  ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"a rerun button"</span> that {
+     *                  ^
      * </pre>
      *
      * <p>
@@ -746,6 +977,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      *
      * <pre class="stHighlight">
      * "a rerun button" that {
+     *                  ^
+     * </pre><pre class="stHighlighted">
+     * <span class="stQuotedString">"a rerun button"</span> that {
      *                  ^
      * </pre>
      *
@@ -788,6 +1022,23 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *       "a rerun button" that is {
    *         "enabled if the clicked-on event is rerunnable" in {}
    *         "disabled if the clicked-on event is not rerunnable" in {}
+   *       }
+   *     }
+   *   }
+   * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.WordSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">ScalaTestGUISpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+   * <br />  <span class="stReserved">def</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+   *   <span class="stReserved">def</span> display = afterWord(<span class="stQuotedString">"display"</span>)
+   *   <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+   * <br />  <span class="stQuotedString">"The ScalaTest GUI"</span> when theUser {
+   *     <span class="stQuotedString">"clicks on an event report in the list box"</span> should display {
+   *       <span class="stQuotedString">"a blue background in the clicked-on row in the list box"</span> in {}
+   *       <span class="stQuotedString">"the details for the event in the details area"</span> in {}
+   *       <span class="stQuotedString">"a rerun button"</span> that is {
+   *         <span class="stQuotedString">"enabled if the clicked-on event is rerunnable"</span> in {}
+   *         <span class="stQuotedString">"disabled if the clicked-on event is not rerunnable"</span> in {}
    *       }
    *     }
    *   }
@@ -855,6 +1106,23 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *     }
    *   }
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.WordSpec
+   * <br /><span class="stReserved">class</span> <span class="stType">ScalaTestGUISpec</span> <span class="stReserved">extends</span> <span class="stType">WordSpec</span> {
+   * <br />  <span class="stReserved">def</span> theUser = afterWord(<span class="stQuotedString">"the user"</span>)
+   *   <span class="stReserved">def</span> display = afterWord(<span class="stQuotedString">"display"</span>)
+   *   <span class="stReserved">def</span> is = afterWord(<span class="stQuotedString">"is"</span>)
+   * <br />  <span class="stQuotedString">"The ScalaTest GUI"</span> when theUser {
+   *     <span class="stQuotedString">"clicks on an event report in the list box"</span> should display {
+   *       <span class="stQuotedString">"a blue background in the clicked-on row in the list box"</span> in {}
+   *       <span class="stQuotedString">"the details for the event in the details area"</span> in {}
+   *       <span class="stQuotedString">"a rerun button"</span> that is {
+   *         <span class="stQuotedString">"enabled if the clicked-on event is rerunnable"</span> in {}
+   *         <span class="stQuotedString">"disabled if the clicked-on event is not rerunnable"</span> in {}
+   *       }
+   *     }
+   *   }
+   * }
    * </pre>
    *
    * <p>
@@ -889,6 +1157,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * <pre class="stHighlight">
    * "A Stack" should { ...
    *           ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stQuotedString">"A Stack"</span> should { ...
+   *           ^
    * </pre>
    *
    * <p>
@@ -915,6 +1186,10 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * def provide = afterWord("provide")
    *
    * "The ScalaTest Matchers DSL" can provide { ... }
+   *                              ^
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">def</span> provide = afterWord(<span class="stQuotedString">"provide"</span>)
+   * <br /><span class="stQuotedString">"The ScalaTest Matchers DSL"</span> can provide { ... }
    *                              ^
    * </pre>
    *
@@ -1067,6 +1342,9 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * </p>
    *
    * <pre class="stHighlight">
+   * behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre><pre class="stHighlighted">
    * behave like nonFullStack(stackWithOneItem)
    * ^
    * </pre>

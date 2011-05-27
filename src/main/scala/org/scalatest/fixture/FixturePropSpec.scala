@@ -127,6 +127,69 @@ import Suite.checkRunTestParamsForNull
  *     forAll { (i: Int) => i + i should equal (2 * i) }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyPropSpec</span> <span class="stReserved">extends</span> <span class="stType">FixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  <span class="stLineComment">// 1. define type FixtureParam</span>
+ *   <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stLineComment">// 2. define the withFixture method</span>
+ *   <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stReserved">val</span> <span class="stType">FileName</span> = <span class="stQuotedString">"TempFile.txt"</span>
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// 3. write property-based tests that take a fixture parameter</span>
+ *   <span class="stLineComment">// (Hopefully less contrived than the examples shown here.)</span>
+ *   property(<span class="stQuotedString">"reading from the temp file"</span>) { reader =>
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     <span class="stReserved">val</span> fileContents = builder.toString
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'H'</span>) {
+ *         fileContents should not startWith c.toString
+ *       }
+ *     }
+ *   }
+ * <br />  property(<span class="stQuotedString">"first char of the temp file"</span>) { reader =>
+ *     <span class="stReserved">val</span> firstChar = reader.read()
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'H'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *   }
+ * <br />  <span class="stLineComment">// (You can also write tests that don't take a fixture parameter.)</span>
+ *   property(<span class="stQuotedString">"without a fixture"</span>) { () =>
+ *     forAll { (i: <span class="stType">Int</span>) => i + i should equal (<span class="stLiteral">2</span> * i) }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -182,6 +245,46 @@ import Suite.checkRunTestParamsForNull
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyPropSpec</span> <span class="stReserved">extends</span> <span class="stType">FixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = (<span class="stType">StringBuilder</span>, <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(stringBuilder, listBuffer)
+ *   }
+ * <br />  property(<span class="stQuotedString">"easy"</span>) { fixture => 
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     <span class="stReserved">val</span> firstChar = builder(<span class="stLiteral">0</span>)
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'S'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  property(<span class="stQuotedString">"fun"</span>) { fixture =>
+ *     <span class="stReserved">val</span> (builder, buffer) = fixture
+ *     builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(buffer.isEmpty)
+ *     <span class="stReserved">val</span> firstChar = builder(<span class="stLiteral">0</span>)
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'S'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -192,6 +295,8 @@ import Suite.checkRunTestParamsForNull
  *
  * <pre class="stHighlight">
  * val (builder, buffer) = fixture
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> (builder, buffer) = fixture
  * </pre>
  *
  * <p>
@@ -247,6 +352,46 @@ import Suite.checkRunTestParamsForNull
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> scala.collection.mutable.ListBuffer
+ * <br /><span class="stReserved">class</span> <span class="stType">MyPropSpec</span> <span class="stReserved">extends</span> <span class="stType">FixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  <span class="stReserved">case</span> <span class="stReserved">class</span> <span class="stType">FixtureHolder</span>(builder: <span class="stType">StringBuilder</span>, buffer: <span class="stType">ListBuffer[String]</span>)
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FixtureHolder</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    <span class="stLineComment">// Create needed mutable objects</span>
+ *     <span class="stReserved">val</span> stringBuilder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>(<span class="stQuotedString">"ScalaTest is "</span>)
+ *     <span class="stReserved">val</span> listBuffer = <span class="stReserved">new</span> <span class="stType">ListBuffer[String]</span>
+ * <br />    <span class="stLineComment">// Invoke the test function, passing in the mutable objects</span>
+ *     test(<span class="stType">FixtureHolder</span>(stringBuilder, listBuffer))
+ *   }
+ * <br />  property(<span class="stQuotedString">"easy"</span>) { fixture =>
+ *     <span class="stReserved">import</span> fixture._
+ *     builder.append(<span class="stQuotedString">"easy!"</span>)
+ *     assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *     assert(buffer.isEmpty)
+ *     <span class="stReserved">val</span> firstChar = builder(<span class="stLiteral">0</span>)
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'S'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *     buffer += <span class="stQuotedString">"sweet"</span>
+ *   }
+ * <br />  property(<span class="stQuotedString">"fun"</span>) { fixture =>
+ *     fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *     assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *     assert(fixture.buffer.isEmpty)
+ *     <span class="stReserved">val</span> firstChar = fixture.builder(<span class="stLiteral">0</span>)
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'S'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -270,6 +415,20 @@ import Suite.checkRunTestParamsForNull
  *   }
  *   buffer += "sweet"
  * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"easy"</span>) { fixture =>
+ *   <span class="stReserved">import</span> fixture._
+ *   builder.append(<span class="stQuotedString">"easy!"</span>)
+ *   assert(builder.toString === <span class="stQuotedString">"ScalaTest is easy!"</span>)
+ *   assert(buffer.isEmpty)
+ *   <span class="stReserved">val</span> firstChar = builder(<span class="stLiteral">0</span>)
+ *   forAll { (c: <span class="stType">Char</span>) =>
+ *     whenever (c != <span class="stQuotedString">'S'</span>) {
+ *       c should not equal firstChar
+ *     }
+ *   }
+ *   buffer += <span class="stQuotedString">"sweet"</span>
+ * }
  * </pre>
  *
  * <p>
@@ -287,6 +446,18 @@ import Suite.checkRunTestParamsForNull
  *   val firstChar = fixture.builder(0)
  *   forAll { (c: Char) =>
  *     whenever (c != 'S') {
+ *       c should not equal firstChar
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * property(<span class="stQuotedString">"fun"</span>) { fixture =>
+ *   fixture.builder.append(<span class="stQuotedString">"fun!"</span>)
+ *   assert(fixture.builder.toString === <span class="stQuotedString">"ScalaTest is fun!"</span>)
+ *   assert(fixture.buffer.isEmpty)
+ *   <span class="stReserved">val</span> firstChar = fixture.builder(<span class="stLiteral">0</span>)
+ *   forAll { (c: <span class="stType">Char</span>) =>
+ *     whenever (c != <span class="stQuotedString">'S'</span>) {
  *       c should not equal firstChar
  *     }
  *   }
@@ -375,6 +546,65 @@ import Suite.checkRunTestParamsForNull
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> java.io.FileReader
+ * <span class="stReserved">import</span> java.io.FileWriter
+ * <span class="stReserved">import</span> java.io.File
+ * <br /><span class="stReserved">class</span> <span class="stType">MyPropSpec</span> <span class="stReserved">extends</span> <span class="stType">FixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> {
+ * <br />  <span class="stReserved">type</span> <span class="stType">FixtureParam</span> = <span class="stType">FileReader</span>
+ * <br />  <span class="stReserved">def</span> withFixture(test: <span class="stType">OneArgTest</span>) {
+ * <br />    require(
+ *       test.configMap.contains(<span class="stQuotedString">"TempFileName"</span>),
+ *       <span class="stQuotedString">"This suite requires a TempFileName to be passed in the configMap"</span>
+ *     )
+ * <br />    <span class="stLineComment">// Grab the file name from the configMap</span>
+ *     <span class="stReserved">val</span> <span class="stType">FileName</span> = test.configMap(<span class="stQuotedString">"TempFileName"</span>).asInstanceOf[<span class="stType">String</span>]
+ * <br />    <span class="stLineComment">// Set up the temp file needed by the test</span>
+ *     <span class="stReserved">val</span> writer = <span class="stReserved">new</span> <span class="stType">FileWriter</span>(<span class="stType">FileName</span>)
+ *     <span class="stReserved">try</span> {
+ *       writer.write(<span class="stQuotedString">"Hello, test!"</span>)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       writer.close()
+ *     }
+ * <br />    <span class="stLineComment">// Create the reader needed by the test</span>
+ *     <span class="stReserved">val</span> reader = <span class="stReserved">new</span> <span class="stType">FileReader</span>(<span class="stType">FileName</span>)
+ * <br />    <span class="stReserved">try</span> {
+ *       <span class="stLineComment">// Run the test using the temp file</span>
+ *       test(reader)
+ *     }
+ *     <span class="stReserved">finally</span> {
+ *       <span class="stLineComment">// Close and delete the temp file</span>
+ *       reader.close()
+ *       <span class="stReserved">val</span> file = <span class="stReserved">new</span> <span class="stType">File</span>(<span class="stType">FileName</span>)
+ *       file.delete()
+ *     }
+ *   }
+ * <br />  property(<span class="stQuotedString">"reading from the temp file"</span>) { reader =>
+ *     <span class="stReserved">var</span> builder = <span class="stReserved">new</span> <span class="stType">StringBuilder</span>
+ *     <span class="stReserved">var</span> c = reader.read()
+ *     <span class="stReserved">while</span> (c != -<span class="stLiteral">1</span>) {
+ *       builder.append(c.toChar)
+ *       c = reader.read()
+ *     }
+ *     <span class="stReserved">val</span> fileContents = builder.toString
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'H'</span>) {
+ *         fileContents should not startWith c.toString
+ *       }
+ *     }
+ *   }
+ * <br />  property(<span class="stQuotedString">"first char of the temp file"</span>) { reader =>
+ *     <span class="stReserved">val</span> firstChar = reader.read()
+ *     forAll { (c: <span class="stType">Char</span>) =>
+ *       whenever (c != <span class="stQuotedString">'H'</span>) {
+ *         c should not equal firstChar
+ *       }
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -405,6 +635,28 @@ import Suite.checkRunTestParamsForNull
  *     forAll { (s: String) =>
  *       whenever (!configMap.contains(s)) {
  *         s should not equal "world"
+ *       }
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FixturePropSpec
+ * <span class="stReserved">import</span> org.scalatest.prop.PropertyChecks
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> org.scalatest.fixture.ConfigMapFixture
+ * <br /><span class="stReserved">class</span> <span class="stType">MyPropSpec</span> <span class="stReserved">extends</span> <span class="stType">FixturePropSpec</span> <span class="stReserved">with</span> <span class="stType">ConfigMapFixture</span> <span class="stReserved">with</span> <span class="stType">PropertyChecks</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  property(<span class="stQuotedString">"hello"</span>) { configMap =>
+ *     <span class="stLineComment">// Use the configMap passed to runTest in the test</span>
+ *     forAll { (s: <span class="stType">String</span>) =>
+ *       whenever (!configMap.contains(s)) {
+ *         s should not equal <span class="stQuotedString">"hello"</span>
+ *       }
+ *     }
+ *   }
+ * <br />  property(<span class="stQuotedString">"world"</span>) { configMap =>
+ *     forAll { (s: <span class="stType">String</span>) =>
+ *       whenever (!configMap.contains(s)) {
+ *         s should not equal <span class="stQuotedString">"world"</span>
  *       }
  *     }
  *   }
@@ -539,6 +791,8 @@ trait FixturePropSpec extends FixtureSuite { thisSuite =>
    * </p>
    *
    * <pre class="stHighlight">
+   * testsFor(nonEmptyStack(lastValuePushed))
+   * </pre><pre class="stHighlighted">
    * testsFor(nonEmptyStack(lastValuePushed))
    * </pre>
    *

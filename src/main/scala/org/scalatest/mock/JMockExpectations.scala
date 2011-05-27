@@ -34,6 +34,8 @@ import org.hamcrest.Matcher
  *
  * <pre class="stHighlight">
  * oneOf (mockCollaborator).documentAdded(`with`("Document"))
+ * </pre><pre class="stHighlighted">
+ * oneOf (mockCollaborator).documentAdded(`<span class="stReserved">with</span>`(<span class="stQuotedString">"Document"</span>))
  * </pre>
  *
  * <p>
@@ -44,6 +46,8 @@ import org.hamcrest.Matcher
  *
  * <pre class="stHighlight">
  * oneOf (mockCollaborator).documentAdded(withArg("Document"))
+ * </pre><pre class="stHighlighted">
+ * oneOf (mockCollaborator).documentAdded(withArg(<span class="stQuotedString">"Document"</span>))
  * </pre>
  *
  * @author Bill Venners

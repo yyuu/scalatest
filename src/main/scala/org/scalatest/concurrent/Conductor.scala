@@ -91,6 +91,30 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepth
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.fixture.FunSuite
+ * <span class="stReserved">import</span> org.scalatest.matchers.ShouldMatchers
+ * <span class="stReserved">import</span> java.util.concurrent.ArrayBlockingQueue
+ * <br /><span class="stReserved">class</span> <span class="stType">ArrayBlockingQueueSuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> {
+ * <br />  test(<span class="stQuotedString">"calling put on a full queue blocks the producer thread"</span>) {
+ * <br />    <span class="stReserved">val</span> conductor = <span class="stReserved">new</span> <span class="stType">Conductor</span>
+ *     <span class="stReserved">import</span> conductor._
+ * <br />    <span class="stReserved">val</span> buf = <span class="stReserved">new</span> <span class="stType">ArrayBlockingQueue[Int]</span>(<span class="stLiteral">1</span>)
+ * <br />    thread(<span class="stQuotedString">"producer"</span>) {
+ *       buf put <span class="stLiteral">42</span>
+ *       buf put <span class="stLiteral">17</span>
+ *       beat should be (<span class="stLiteral">1</span>)
+ *     }
+ * <br />    thread(<span class="stQuotedString">"consumer"</span>) {
+ *       waitForBeat(<span class="stLiteral">1</span>)
+ *       buf.take should be (<span class="stLiteral">42</span>)
+ *       buf.take should be (<span class="stLiteral">17</span>)
+ *     }
+ * <br />    whenFinished {
+ *       buf should be (<span class="stQuotedString">'empty</span>)
+ *     }
+ *   }
+ * }
  * </pre>
  *
  * <p>
@@ -103,6 +127,10 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepth
  * buf put 42
  * buf put 17
  * beat should be (1)
+ * </pre><pre class="stHighlighted">
+ * buf put <span class="stLiteral">42</span>
+ * buf put <span class="stLiteral">17</span>
+ * beat should be (<span class="stLiteral">1</span>)
  * </pre>
  *
  * Similarly, the consumer thread will eventually execute the code passed as a by-name parameter
@@ -113,6 +141,10 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepth
  * waitForBeat(1)
  * buf.take should be (42)
  * buf.take should be (17)
+ * </pre><pre class="stHighlighted">
+ * waitForBeat(<span class="stLiteral">1</span>)
+ * buf.take should be (<span class="stLiteral">42</span>)
+ * buf.take should be (<span class="stLiteral">17</span>)
  * </pre>
  *
  * <p>
@@ -205,6 +237,25 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepth
  *
  *   whenFinished {
  *     buf should be ('empty)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * test(<span class="stQuotedString">"calling take on an empty queue blocks the consumer thread"</span>) {
+ * <br />  <span class="stReserved">val</span> conductor = <span class="stReserved">new</span> <span class="stType">Conductor</span>
+ *   <span class="stReserved">import</span> conductor._
+ * <br />  <span class="stReserved">val</span> buf = <span class="stReserved">new</span> <span class="stType">ArrayBlockingQueue[Int]</span>(<span class="stLiteral">1</span>)
+ * <br />  thread(<span class="stQuotedString">"producer"</span>) {
+ *     waitForBeat(<span class="stLiteral">1</span>)
+ *     buf put <span class="stLiteral">42</span>
+ *     buf put <span class="stLiteral">17</span>
+ *   }
+ * <br />  thread(<span class="stQuotedString">"consumer"</span>) {
+ *     buf.take should be (<span class="stLiteral">42</span>)
+ *     buf.take should be (<span class="stLiteral">17</span>)
+ *     beat should be (<span class="stLiteral">1</span>)
+ *   }
+ * <br />  whenFinished {
+ *     buf should be (<span class="stQuotedString">'empty</span>)
  *   }
  * }
  * </pre>

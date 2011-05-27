@@ -42,6 +42,14 @@ package org.scalatest
  *     info("Addition seems to work")
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest._
+ * <br /><span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> {
+ *   <span class="stReserved">def</span> testAddition(info: <span class="stType">Informer</span>) {
+ *     assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">2</span>)
+ *     info(<span class="stQuotedString">"Addition seems to work"</span>)
+ *   }
+ * }
  * </pre>
  *
  * If you run this <code>Suite</code> from the interpreter, you will see the message
@@ -94,6 +102,31 @@ package org.scalatest
  * 
  *       then("the result is the difference of the two numbers")
  *       assert(diff === 5)
+ *     }
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.scalatest.FeatureSpec
+ * <span class="stReserved">import</span> org.scalatest.GivenWhenThen
+ * <br /><span class="stReserved">class</span> <span class="stType">ArithmeticSpec</span> <span class="stReserved">extends</span> <span class="stType">FeatureSpec</span> <span class="stReserved">with</span> <span class="stType">GivenWhenThen</span> {
+ * <br />  feature(<span class="stQuotedString">"Integer arithmetic"</span>) {
+ * <br />    scenario(<span class="stQuotedString">"addition"</span>) {
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">2</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">3</span>
+ * <br />      when(<span class="stQuotedString">"they are added"</span>)
+ *       <span class="stReserved">val</span> sum = x + y
+ * <br />      then(<span class="stQuotedString">"the result is the sum of the two numbers"</span>)
+ *       assert(sum === <span class="stLiteral">5</span>)
+ *     }
+ * <br />    scenario(<span class="stQuotedString">"subtraction"</span>) {
+ * <br />      given(<span class="stQuotedString">"two integers"</span>)
+ *       <span class="stReserved">val</span> x = <span class="stLiteral">7</span>
+ *       <span class="stReserved">val</span> y = <span class="stLiteral">2</span>
+ * <br />      when(<span class="stQuotedString">"one is subtracted from the other"</span>)
+ *       <span class="stReserved">val</span> diff = x - y
+ * <br />      then(<span class="stQuotedString">"the result is the difference of the two numbers"</span>)
+ *       assert(diff === <span class="stLiteral">5</span>)
  *     }
  *   }
  * }

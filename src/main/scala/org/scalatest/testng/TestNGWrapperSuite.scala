@@ -34,6 +34,10 @@ import org.testng.TestListenerAdapter
  * class MyWrapperSuite extends TestNGWrapperSuite(
  *   List("oneTest.xml", "twoTest.xml", "redTest.xml", "blueTest.xml")
  * )
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">MyWrapperSuite</span> <span class="stReserved">extends</span> <span class="stType">TestNGWrapperSuite</span>(
+ *   <span class="stType">List</span>(<span class="stQuotedString">"oneTest.xml"</span>, <span class="stQuotedString">"twoTest.xml"</span>, <span class="stQuotedString">"redTest.xml"</span>, <span class="stQuotedString">"blueTest.xml"</span>)
+ * )
  * </pre>
  * 
  * <p>

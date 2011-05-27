@@ -37,6 +37,10 @@ import Assertions.areEqualComparingArraysStructurally
  * val left = 2
  * val right = 1
  * assert(left == right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
+ * assert(left == right)
  * </pre>
  *
  * <p>
@@ -60,6 +64,10 @@ import Assertions.areEqualComparingArraysStructurally
  * val left = 2
  * val right = 1
  * assert(left == right, left + " did not equal " + right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
+ * assert(left == right, left + <span class="stQuotedString">" did not equal "</span> + right)
  * </pre>
  *
  * <p>
@@ -71,6 +79,10 @@ import Assertions.areEqualComparingArraysStructurally
  * <pre class="stHighlight">
  * val left = 2
  * val right = 1
+ * assert(left === right)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> left = <span class="stLiteral">2</span>
+ * <span class="stReserved">val</span> right = <span class="stLiteral">1</span>
  * assert(left === right)
  * </pre>
  *
@@ -106,6 +118,12 @@ import Assertions.areEqualComparingArraysStructurally
  * expect(2) {
  *   a - b
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> a = <span class="stLiteral">5</span>
+ * <span class="stReserved">val</span> b = <span class="stLiteral">2</span>
+ * expect(<span class="stLiteral">2</span>) {
+ *   a - b
+ * }
  * </pre>
  *
  * <p>
@@ -129,6 +147,15 @@ import Assertions.areEqualComparingArraysStructurally
  * catch {
  *   case _: IndexOutOfBoundsException => // Expected, so continue
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> s = <span class="stQuotedString">"hi"</span>
+ * <span class="stReserved">try</span> {
+ *   s.charAt(-<span class="stLiteral">1</span>)
+ *   fail()
+ * }
+ * <span class="stReserved">catch</span> {
+ *   <span class="stReserved">case</span> _: <span class="stType">IndexOutOfBoundsException</span> => <span class="stLineComment">// Expected, so continue</span>
+ * }
  * </pre>
  *
  * <p>
@@ -147,6 +174,11 @@ import Assertions.areEqualComparingArraysStructurally
  * val s = "hi"
  * intercept[IndexOutOfBoundsException] {
  *   s.charAt(-1)
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> s = <span class="stQuotedString">"hi"</span>
+ * intercept[<span class="stType">IndexOutOfBoundsException</span>] {
+ *   s.charAt(-<span class="stLiteral">1</span>)
  * }
  * </pre>
  *
@@ -172,6 +204,8 @@ import Assertions.areEqualComparingArraysStructurally
  *
  * <pre class="stHighlight">
  * assert(1 + 1 === 3, "this is a clue")
+ * </pre><pre class="stHighlighted">
+ * assert(<span class="stLiteral">1</span> + <span class="stLiteral">1</span> === <span class="stLiteral">3</span>, <span class="stQuotedString">"this is a clue"</span>)
  * </pre>
  *
  * <p>
@@ -180,6 +214,8 @@ import Assertions.areEqualComparingArraysStructurally
  *
  * <pre class="stHighlight">
  * expect(3, "this is a clue") { 1 + 1 }
+ * </pre><pre class="stHighlighted">
+ * expect(<span class="stLiteral">3</span>, <span class="stQuotedString">"this is a clue"</span>) { <span class="stLiteral">1</span> + <span class="stLiteral">1</span> }
  * </pre>
  *
  * <p>
@@ -193,6 +229,12 @@ import Assertions.areEqualComparingArraysStructurally
  * withClue("this is a clue") {
  *   intercept[IndexOutOfBoundsException] {
  *     "hi".charAt(-1)
+ *   }
+ * }
+ * </pre><pre class="stHighlighted">
+ * withClue(<span class="stQuotedString">"this is a clue"</span>) {
+ *   intercept[<span class="stType">IndexOutOfBoundsException</span>] {
+ *     <span class="stQuotedString">"hi"</span>.charAt(-<span class="stLiteral">1</span>)
  *   }
  * }
  * </pre>
@@ -210,6 +252,8 @@ trait Assertions {
    * <code>===</code> in assertions in tests. For example:
    *
    * <pre class="stHighlight">
+   * assert(a === b)
+   * </pre><pre class="stHighlighted">
    * assert(a === b)
    * </pre>
    *
@@ -231,6 +275,8 @@ trait Assertions {
    *
    * <pre class="stHighlight">
    * assert("hello" === "world")
+   * </pre><pre class="stHighlighted">
+   * assert(<span class="stQuotedString">"hello"</span> === <span class="stQuotedString">"world"</span>)
    * </pre>
    *
    * <p>
@@ -242,6 +288,8 @@ trait Assertions {
    *
    * <pre class="stHighlight">
    * assert(convertToEqualizer("hello").===("world"))
+   * </pre><pre class="stHighlighted">
+   * assert(convertToEqualizer(<span class="stQuotedString">"hello"</span>).===(<span class="stQuotedString">"world"</span>))
    * </pre>
    *
    * <p>
@@ -353,6 +401,8 @@ trait Assertions {
    *
    * <pre class="stHighlight">
    * assert(a === b, "extra info reported if assertion fails")
+   * </pre><pre class="stHighlighted">
+   * assert(a === b, <span class="stQuotedString">"extra info reported if assertion fails"</span>)
    * </pre>
    *
    * <p>
@@ -385,6 +435,8 @@ trait Assertions {
    * </p>
    *
    * <pre class="stHighlight">
+   * assert(a === b)
+   * </pre><pre class="stHighlighted">
    * assert(a === b)
    * </pre>
    *
@@ -429,6 +481,9 @@ trait Assertions {
    * <pre class="stHighlight">
    * // In your Suite subclass
    * override def convertToEqualizer(left: Any) = new Equalizer(left)
+   * </pre><pre class="stHighlighted">
+   * <span class="stLineComment">// In your Suite subclass</span>
+   * <span class="stReserved">override</span> <span class="stReserved">def</span> convertToEqualizer(left: <span class="stType">Any</span>) = <span class="stReserved">new</span> <span class="stType">Equalizer</span>(left)
    * </pre>
    * 
    * @param left the object whose type to convert to <code>Equalizer</code>.
@@ -634,6 +689,9 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
    * def thread[T](fun: => T): Thread
    *
    * def thread[T](name: String)(fun: => T): Thread
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">def</span> thread[T](fun: => T): <span class="stType">Thread</span>
+   * <br /><span class="stReserved">def</span> thread[T](name: <span class="stType">String</span>)(fun: => T): <span class="stType">Thread</span>
    * </pre>
    *
    * <p>
@@ -643,6 +701,8 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
    * </p>
    *
    * <pre class="stHighlight">
+   * thread { fail() }
+   * </pre><pre class="stHighlighted">
    * thread { fail() }
    * </pre>
    *
@@ -730,6 +790,12 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
    * withClue("(Employee's name was: " + employee.name + ")") {
    *   intercept[IllegalArgumentException] {
    *     employee.getTask(-1)
+   *   }
+   * }
+   * </pre><pre class="stHighlighted">
+   * withClue(<span class="stQuotedString">"(Employee's name was: "</span> + employee.name + <span class="stQuotedString">")"</span>) {
+   *   intercept[<span class="stType">IllegalArgumentException</span>] {
+   *     employee.getTask(-<span class="stLiteral">1</span>)
    *   }
    * }
    * </pre>

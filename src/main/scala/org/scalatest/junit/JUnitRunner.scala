@@ -41,6 +41,14 @@ import org.junit.runner.Description
  * class MySuite extends FunSuite {
  *   // ...
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> org.junit.runner.RunWith
+ * <span class="stReserved">import</span> org.scalatest.junit.JUnitRunner
+ * <span class="stReserved">import</span> org.scalatest.FunSuite
+ * <br />@<span class="stType">RunWith</span>(classOf[<span class="stType">JUnitRunner</span>])
+ * <span class="stReserved">class</span> <span class="stType">MySuite</span> <span class="stReserved">extends</span> <span class="stType">FunSuite</span> {
+ *   <span class="stLineComment">// ...</span>
+ * }
  * </pre>
  *
  * <p>

@@ -63,6 +63,8 @@ import java.util.Arrays
  * 
  * <pre class="stHighlight">
  * val firstOrdinal = new Ordinal(99)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> firstOrdinal = <span class="stReserved">new</span> <span class="stType">Ordinal</span>(<span class="stLiteral">99</span>)
  * </pre>
  *
  * <p>
@@ -85,6 +87,8 @@ import java.util.Arrays
  * 
  * <pre class="stHighlight">
  * firstOrdinal.toList // results in: List(99, 0)
+ * </pre><pre class="stHighlighted">
+ * firstOrdinal.toList <span class="stLineComment">// results in: List(99, 0)</span>
  * </pre>
  *
  * <p>
@@ -97,6 +101,11 @@ import java.util.Arrays
  * 
  * val thirdOrdinal = secondOrdinal.next
  * thirdOrdinal.toList  // result is : List(99, 2)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> secondOrdinal = firstOrdinal.next
+ * secondOrdinal.toList <span class="stLineComment">// results in: List(99, 1)</span>
+ * <br /><span class="stReserved">val</span> thirdOrdinal = secondOrdinal.next
+ * thirdOrdinal.toList  <span class="stLineComment">// result is : List(99, 2)</span>
  * </pre>
  *
  * <p>
@@ -109,6 +118,10 @@ import java.util.Arrays
  * val (nextForNewSuite, nextForThisRunner) = thirdOrdinal.nextNewOldPair
  * nextForNewSuite.toList   // results in: (99, 2, 0)
  * nextForThisRunner.toList // results in: (99, 3)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> (nextForNewSuite, nextForThisRunner) = thirdOrdinal.nextNewOldPair
+ * nextForNewSuite.toList   <span class="stLineComment">// results in: (99, 2, 0)</span>
+ * nextForThisRunner.toList <span class="stLineComment">// results in: (99, 3)</span>
  * </pre>
  *
  * <p>
@@ -123,6 +136,11 @@ import java.util.Arrays
  * 
  * val newSuiteOrdinal3 = newSuiteOrdinal2.next
  * newSuiteOrdinal3.toList  // result is : List(99, 2, 2)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> newSuiteOrdinal2 = nextForNewSuite.next
+ * newSuiteOrdinal2.toList <span class="stLineComment">// results in: List(99, 2, 1)</span>
+ * <br /><span class="stReserved">val</span> newSuiteOrdinal3 = newSuiteOrdinal2.next
+ * newSuiteOrdinal3.toList  <span class="stLineComment">// result is : List(99, 2, 2)</span>
  * </pre>
  *
  * <p>
@@ -195,6 +213,8 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
    *
    * <pre class="stHighlight">
    * val (nextOrdinalForNewSuite, nextOrdinalForThisSuite) currentOrdinal.nextNewOldPair
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> (nextOrdinalForNewSuite, nextOrdinalForThisSuite) currentOrdinal.nextNewOldPair
    * </pre>
    *
    * <p>

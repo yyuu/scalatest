@@ -64,6 +64,15 @@ import org.scalatest.matchers.ShouldMatchers
  *
  *   // ...
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> junit.framework.TestCase
+ * <span class="stReserved">import</span> org.scalatest.junit.ShouldMatchersForJUnit
+ * <br /><span class="stReserved">class</span> <span class="stType">MyTestCase</span> <span class="stReserved">extends</span> <span class="stType">TestCase</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchersForJUnit</span> {
+ * <br />  <span class="stReserved">def</span> testSomething() {
+ *     <span class="stQuotedString">"hello, world!"</span> should startWith (<span class="stQuotedString">"hello"</span>)
+ *   }
+ * <br />  <span class="stLineComment">// ...</span>
+ * }
  * </pre>
  *
  * <p>
@@ -81,6 +90,15 @@ import org.scalatest.matchers.ShouldMatchers
  *   }
  *
  *   // ...
+ * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">import</span> junit.framework.TestCase
+ * <span class="stReserved">import</span> org.scalatest.junit.ShouldMatchersForJUnit._
+ * <br /><span class="stReserved">class</span> <span class="stType">MyTestCase</span> <span class="stReserved">extends</span> <span class="stType">TestCase</span> {
+ * <br />  <span class="stReserved">def</span> testSomething() {
+ *     <span class="stQuotedString">"hello, world!"</span> should startWith (<span class="stQuotedString">"hello"</span>)
+ *   }
+ * <br />  <span class="stLineComment">// ...</span>
  * }
  * </pre>
  *

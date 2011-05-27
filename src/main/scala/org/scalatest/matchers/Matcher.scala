@@ -94,6 +94,29 @@ import org.scalatest._
  * // Make them easy to import with:
  * // import CustomMatchers._
  * object CustomMatchers extends CustomMatchers
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">trait</span> <span class="stType">CustomMatchers</span> {
+ * <br />  <span class="stReserved">class</span> <span class="stType">FileExistsMatcher</span> <span class="stReserved">extends</span> <span class="stType">Matcher[java.io.File]</span> {
+ * <br />    <span class="stReserved">def</span> apply(left: <span class="stType">java.io.File</span>) = {
+ * <br />      <span class="stReserved">val</span> fileOrDir = <span class="stReserved">if</span> (left.isFile) <span class="stQuotedString">"file"</span> <span class="stReserved">else</span> <span class="stQuotedString">"directory"</span>
+ * <br />      <span class="stReserved">val</span> failureMessageSuffix = 
+ *         fileOrDir + <span class="stQuotedString">" named "</span> + left.getName + <span class="stQuotedString">" did not exist"</span>
+ * <br />      <span class="stReserved">val</span> negatedFailureMessageSuffix = 
+ *         fileOrDir + <span class="stQuotedString">" named "</span> + left.getName + <span class="stQuotedString">" existed"</span>
+ * <br />      <span class="stType">MatchResult</span>(
+ *         left.exists,
+ *         <span class="stQuotedString">"The "</span> + failureMessageSuffix,
+ *         <span class="stQuotedString">"The "</span> + negatedFailureMessageSuffix,
+ *         <span class="stQuotedString">"the "</span> + failureMessageSuffix,
+ *         <span class="stQuotedString">"the "</span> + negatedFailureMessageSuffix
+ *       )
+ *     }
+ *   }
+ * <br />  <span class="stReserved">val</span> exist = <span class="stReserved">new</span> <span class="stType">FileExistsMatcher</span>
+ * }
+ * <br /><span class="stLineComment">// Make them easy to import with:</span>
+ * <span class="stLineComment">// import CustomMatchers._</span>
+ * <span class="stReserved">object</span> <span class="stType">CustomMatchers</span> <span class="stReserved">extends</span> <span class="stType">CustomMatchers</span>
  * </pre>
  * 
  * <p>
@@ -119,6 +142,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  *         left.exists,
+ * </pre><pre class="stHighlighted">
+ * left.exists,
  * </pre>
  *
  * <p>
@@ -128,6 +153,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  *         "The " + failureMessageSuffix,
+ * </pre><pre class="stHighlighted">
+ * <span class="stQuotedString">"The "</span> + failureMessageSuffix,
  * </pre>
  *
  * <p>
@@ -171,6 +198,23 @@ import org.scalatest._
  *     }
  *   }
  * }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">ExampleSpec</span> <span class="stReserved">extends</span> <span class="stType">Spec</span> <span class="stReserved">with</span> <span class="stType">ShouldMatchers</span> <span class="stReserved">with</span> <span class="stType">CustomMatchers</span> {
+ * <br />  describe(<span class="stQuotedString">"A temp file"</span>) {
+ * <br />    it(<span class="stQuotedString">"should be created and deleted"</span>) {
+ * <br />      <span class="stReserved">val</span> tempFile = java.io.File.createTempFile(<span class="stQuotedString">"delete"</span>, <span class="stQuotedString">"me"</span>)
+ * <br />      <span class="stReserved">try</span> {
+ *         <span class="stLineComment">// At this point the temp file should exist</span>
+ *         tempFile should exist
+ *       }
+ *       <span class="stReserved">finally</span> {
+ *         tempFile.delete()
+ *       }
+ * <br />      <span class="stLineComment">// At this point it should not exist</span>
+ *       tempFile should not (exist)
+ *     }
+ *   }
+ * }
  * </pre>
  *  
  * <p>
@@ -195,6 +239,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * val defined = 'defined
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> defined = <span class="stQuotedString">'defined</span>
  * </pre>
  *
  * <p>
@@ -212,6 +258,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * val beDefined = be (defined)
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> beDefined = be (defined)
  * </pre>
  *
  * <p>
@@ -228,6 +276,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * val beWithinTolerance = be >= 0 and be <= 10
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> beWithinTolerance = be >= <span class="stLiteral">0</span> and be <= <span class="stLiteral">10</span>
  * </pre>
  *
  * <p>
@@ -253,6 +303,16 @@ import org.scalatest._
  *         left + " was odd"
  *       )
  *   }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> beOdd =
+ *   <span class="stReserved">new</span> <span class="stType">Matcher[Int]</span> {
+ *     <span class="stReserved">def</span> apply(left: <span class="stType">Int</span>) =
+ *       <span class="stType">MatchResult</span>(
+ *         left % <span class="stLiteral">2</span> == <span class="stLiteral">1</span>,
+ *         left + <span class="stQuotedString">" was not odd"</span>,
+ *         left + <span class="stQuotedString">" was odd"</span>
+ *       )
+ *   }
  * </pre>
  *
  * <p>
@@ -266,6 +326,15 @@ import org.scalatest._
  *       left % 2 == 1,
  *       left + " was not odd",
  *       left + " was odd"
+ *     )
+ *   }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> beOdd =
+ *   <span class="stType">Matcher</span> { (left: <span class="stType">Int</span>) =>
+ *     <span class="stType">MatchResult</span>(
+ *       left % <span class="stLiteral">2</span> == <span class="stLiteral">1</span>,
+ *       left + <span class="stQuotedString">" was not odd"</span>,
+ *       left + <span class="stQuotedString">" was odd"</span>
  *     )
  *   }
  * </pre>
@@ -288,6 +357,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * val beOddAsInt = beOdd compose { (s: String) => s.toInt }
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> beOddAsInt = beOdd compose { (s: <span class="stType">String</span>) => s.toInt }
  * </pre>
  *
  * <p>
@@ -313,6 +384,10 @@ import org.scalatest._
  * class Fruit
  * class Orange extends Fruit
  * class ValenciaOrange extends Orange
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">class</span> <span class="stType">Fruit</span>
+ * <span class="stReserved">class</span> <span class="stType">Orange</span> <span class="stReserved">extends</span> <span class="stType">Fruit</span>
+ * <span class="stReserved">class</span> <span class="stType">ValenciaOrange</span> <span class="stReserved">extends</span> <span class="stType">Orange</span>
  * </pre>
  *
  * <p>
@@ -321,6 +396,8 @@ import org.scalatest._
  *
  * <pre class="stHighlight">
  * val orange = Orange
+ * </pre><pre class="stHighlighted">
+ * <span class="stReserved">val</span> orange = <span class="stType">Orange</span>
  * </pre>
  *
  * <p>
@@ -386,6 +463,16 @@ trait Matcher[-T] extends Function1[T, MatchResult] { thisMatcher =>
    *         left + " was odd"
    *       )
    *   }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> beOdd =
+   *   <span class="stReserved">new</span> <span class="stType">Matcher[Int]</span> {
+   *     <span class="stReserved">def</span> apply(left: <span class="stType">Int</span>) =
+   *       <span class="stType">MatchResult</span>(
+   *         left % <span class="stLiteral">2</span> == <span class="stLiteral">1</span>,
+   *         left + <span class="stQuotedString">" was not odd"</span>,
+   *         left + <span class="stQuotedString">" was odd"</span>
+   *       )
+   *   }
    * </pre>
    *
    * <p>
@@ -406,6 +493,8 @@ trait Matcher[-T] extends Function1[T, MatchResult] { thisMatcher =>
    *
    * <pre class="stHighlight">
    * val beOddAsInt = beOdd compose { (s: String) => s.toInt }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">val</span> beOddAsInt = beOdd compose { (s: <span class="stType">String</span>) => s.toInt }
    * </pre>
    *
    * <p>

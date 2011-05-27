@@ -107,6 +107,15 @@ trait OneInstancePerTest extends AbstractSuite {
    *     override def newInstance = new InnerSuite
    *   }
    * }
+   * </pre><pre class="stHighlighted">
+   * <span class="stReserved">import</span> org.scalatest.Suite
+   * <br /><span class="stReserved">class</span> <span class="stType">Outer</span> {
+   *   <span class="stReserved">class</span> <span class="stType">InnerSuite</span> <span class="stReserved">extends</span> <span class="stType">Suite</span> <span class="stReserved">with</span> <span class="stType">OneInstancePerTest</span> {
+   *     <span class="stReserved">def</span> testOne() {}
+   *     <span class="stReserved">def</span> testTwo() {}
+   *     <span class="stReserved">override</span> <span class="stReserved">def</span> newInstance = <span class="stReserved">new</span> <span class="stType">InnerSuite</span>
+   *   }
+   * }
    * </pre>
    */
   def newInstance = this.getClass.newInstance.asInstanceOf[Suite]
