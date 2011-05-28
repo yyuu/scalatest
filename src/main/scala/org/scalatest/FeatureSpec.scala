@@ -331,7 +331,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * implementation of <code>withFixture(NoArgTest)</code> simply invokes the function, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * // Default implementation
  * protected def withFixture(test: NoArgTest) {
  *   test()
@@ -654,7 +654,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * which looks like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
  * scenariosFor(nonFullStack(stackWithOneItem))
  * </pre>
@@ -666,7 +666,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * in scope already inside the behavior function. In that case, your code would look like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * scenariosFor(nonEmptyStack) // assuming lastValuePushed is also in scope inside nonEmptyStack
  * scenariosFor(nonFullStack)
  * </pre>
@@ -882,7 +882,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Given this <code>FeatureSpecStackBehaviors</code> trait, calling it with the <code>stackWithOneItem</code> fixture, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * scenariosFor(nonEmptyStack(stackWithOneItem, lastValuePushed))
  * </pre>
  *
@@ -900,7 +900,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * Whereas calling it with the <code>stackWithOneItemLessThanCapacity</code> fixture, like this:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  * scenariosFor(nonEmptyStack(stackWithOneItemLessThanCapacity, lastValuePushed))
  * </pre>
  *
@@ -1222,9 +1222,9 @@ import Suite.anErrorThatShouldCauseAnAbort
  * that used the <code>GivenWhenThen</code> trait. For example, the following snippet in a <code>FeatureSpec</code>:
  * </p>
  *
- * <pre>
+ * <pre class="stExamples">
  *   feature("Integer arithmetic") {
- *
+ *&nbsp;
  *     scenario("addition") {
  *       given("two integers")
  *       when("they are added")
