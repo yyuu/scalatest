@@ -1,0 +1,14 @@
+<testng-results>
+  <reporter-output>
+  </reporter-output>
+  <suite name="Command line suite">
+    <groups>
+    </groups>
+    <test name="Command line test">
+      <class name="org.scalatest.testng.testpackage.SuccessTestNGSuite">
+        <test-method status="PASS" signature="testThatPasses()" name="testThatPasses" duration-ms="0" started-at="2011-07-25T16:43:17Z" finished-at="2011-07-25T16:43:17Z">
+        </test-method>
+      </class>
+    </test>
+  </suite>
+</testng-results>
