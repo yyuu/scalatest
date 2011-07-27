@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * @author Jon-Anders Teigen
  * @requiresDependencyResolution test
  */
-public abstract class AbstractScalaTestMojo extends AbstractMojo {
+abstract class AbstractScalaTestMojo extends AbstractMojo {
     /**
      * @parameter expression="${project.testClasspathElements}"
      * @required

@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * @author Jon-Anders Teigen
  */
-public final class MojoUtils {
+final class MojoUtils {
     private MojoUtils() {
     }
 
