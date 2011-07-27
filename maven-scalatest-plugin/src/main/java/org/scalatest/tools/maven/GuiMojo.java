@@ -8,8 +8,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import static org.scalatest.tools.maven.MojoUtils.concat;
 
 /**
+ * Provides a bridge between Maven and the GUI form of ScalaTest's Runner.
+ * Many of the configuration options available on this goal
+ * are directly reflected in the Runner ScalaDoc on {@link http://www.scalatest.org}.
+ * 
  * @author Jon-Anders Teigen
- *
  * @goal gui
  */
 public class GuiMojo extends AbstractScalaTestMojo {
