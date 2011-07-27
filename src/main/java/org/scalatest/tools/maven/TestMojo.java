@@ -10,7 +10,8 @@ import static java.util.Collections.singletonList;
 import java.util.List;
 
 /**
- * Provides a bridge between Maven and ScalaTest's Runner.  Many of the configuration options available on this goal
+ * Provides a bridge between Maven and the command-line form of ScalaTest's Runner.
+ * Many of the configuration options available on this goal
  * are directly reflected in the Runner ScalaDoc on {@link http://www.scalatest.org}.
  * 
  * @author Jon-Anders Teigen

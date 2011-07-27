@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * Provides internal utilities for the Mojo's operations.
+ * 
  * @author Jon-Anders Teigen
  */
 final class MojoUtils {

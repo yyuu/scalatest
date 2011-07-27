@@ -15,6 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * Provides the base for all mojos.
+ * 
  * @author Jon-Anders Teigen
  * @requiresDependencyResolution test
  */
