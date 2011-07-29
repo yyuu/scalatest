@@ -81,9 +81,9 @@ final class MojoUtils {
         return list;
     }
 
-    static List<String> reporterArg(String name, String commaSepareted, F map) {
+    static List<String> reporterArg(String name, String commaSeparated, F map) {
         List<String> r = new ArrayList<String>();
-        for (String arg : splitOnComma(commaSepareted)) {
+        for (String arg : splitOnComma(commaSeparated)) {
             String[] split = arg.split("\\s");
             if (split.length == 1) {
                 r.add(name);

@@ -136,7 +136,7 @@
       </plugin>
       <!-- enable scalatest -->
       <plugin>
-        <groupId>com.jteigen</groupId>
+        <groupId>org.scalatest</groupId>
         <artifactId>maven-scalatest-plugin</artifactId>
         <executions>
           <execution>

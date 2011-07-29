@@ -3,6 +3,7 @@ package org.scalatest.tools.maven;
 import org.apache.maven.plugin.AbstractMojo;
 import static org.scalatest.tools.maven.MojoUtils.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     String junit;
 
     boolean runScalaTest(String[] args) {
-        print(args); // sideeffect!
+        getLog().debug(Arrays.toString(args)); // sideeffect!
         try {
             return (Boolean) run().invoke(null, new Object[]{args});
         } catch (IllegalAccessException e) {
