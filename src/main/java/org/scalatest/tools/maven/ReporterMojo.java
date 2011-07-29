@@ -6,7 +6,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.reporting.MavenReport;
 import org.apache.maven.reporting.MavenReportException;
 
-import java.io.File;
+import java.io.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -48,7 +48,33 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
             runScalaTest(configuration());
         }
         catch (RuntimeException e) {
-            throw new MavenReportException("Failure generating ScalaTest report", e);
+            throw new MavenReportException("Failure executing ScalaTest", e);
+        }
+
+        // ScalaTest outputs plain text but the Mojo requires HTML output so we'll create a bare-bones HTML doc and
+        // embed the ScalaTest output inside a <pre> in that doc.
+
+        try {
+            sink.head();
+            sink.title();
+            sink.text(getLocalizedString(locale, "reporter.mojo.outputTitle"));
+            sink.title_();
+            sink.head_();
+
+            sink.body();
+            sink.sectionTitle1();
+            sink.text(getLocalizedString(locale, "reporter.mojo.outputTitle"));
+            sink.sectionTitle1_();
+            sink.verbatim(false);
+            sink.text(getScalaTestOutputFromFile());
+            sink.verbatim_();
+            sink.body_();
+
+            sink.flush();
+            sink.close();
+        }
+        catch (IOException ioe) {
+            throw new MavenReportException("Failure generating ScalaTest report", ioe);
         }
     }
 
@@ -60,7 +86,29 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     }
 
     private List<String> fileReporterConfig() {
-        return reporterArg("-f", fileReporterOptions + " " + getOutputName() + ".html", fileRelativeTo(reportingOutputDirectory));
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        return reporterArg("-f", fileReporterOptions + " tempScalaTestOutput.txt", fileRelativeTo(tmpDir));
+    }
+
+    private String getScalaTestOutputFromFile() throws IOException {
+        StringWriter fileContents = new StringWriter(1024);
+        PrintWriter writer = new PrintWriter(fileContents, true);
+
+        // ScalaTest's FileReporter uses default character encoding so that's what we'll use here, too.
+        File outputFile = new File(System.getProperty("java.io.tmpdir"), "tempScalaTestOutput.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(outputFile));
+
+        try {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                writer.println(line);
+            }
+            return fileContents.toString();
+        }
+        finally {
+            reader.close();
+            outputFile.delete();
+        }
     }
 
     public String getOutputName() {
@@ -88,7 +136,7 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     }
 
     public boolean isExternalReport() {
-        return true;
+        return false;
     }
 
     public boolean canGenerateReport() {

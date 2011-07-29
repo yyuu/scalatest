@@ -144,4 +144,15 @@
       </plugin>
     </plugins>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.scalatest</groupId>
+        <artifactId>maven-scalatest-plugin</artifactId>
+        <configuration>
+          <fileReporterOptions>WD</fileReporterOptions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
