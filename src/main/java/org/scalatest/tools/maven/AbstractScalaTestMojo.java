@@ -107,7 +107,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     String junit;
 
     boolean runScalaTest(String[] args) {
-        getLog().debug(Arrays.toString(args)); // sideeffect!
+        getLog().debug(Arrays.toString(args));
         try {
             return (Boolean) run().invoke(null, new Object[]{args});
         } catch (IllegalAccessException e) {

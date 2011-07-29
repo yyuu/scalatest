@@ -9,12 +9,12 @@ import org.apache.maven.reporting.MavenReportException;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
-import static org.scalatest.tools.maven.MojoUtils.concat;
-import static org.scalatest.tools.maven.MojoUtils.fileRelativeTo;
-import static org.scalatest.tools.maven.MojoUtils.reporterArg;
+import static org.scalatest.tools.maven.MojoUtils.*;
 
 /**
+ * A reporting mojo to capture the ScalaTest output as a file that integrates into the Maven site of a project.
  *
  * @author Sean Griffin
  * @phase site
@@ -32,12 +32,11 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     private File reportingOutputDirectory;
 
     /**
-     * Comma separated list of filereporters. A filereporter consists of an optional
-     * configuration and a mandatory filename, separated by a whitespace. E.g <code>all.txt,XE ignored_and_pending.txt</code>
+     * Consists of an optional configuration parameters for the file reporter.
      * For more info on configuring reporters, see the scalatest documentation.
-     * @parameter expression="${filereports}"
+     * @parameter expression="${fileReporterOptions}"
      */
-    private String filereports;
+    private String fileReporterOptions;
 
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -56,12 +55,12 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     private String[] configuration() {
         return concat(
                 sharedConfiguration(),
-                filereports()
+                fileReporterConfig()
         );
     }
 
-    private List<String> filereports() {
-        return reporterArg("-f", "WD " + getOutputName() + ".html", fileRelativeTo(reportingOutputDirectory));
+    private List<String> fileReporterConfig() {
+        return reporterArg("-f", fileReporterOptions + " " + getOutputName() + ".html", fileRelativeTo(reportingOutputDirectory));
     }
 
     public String getOutputName() {
@@ -73,13 +72,11 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     }
 
     public String getName(Locale locale) {
-        // need to externalize
-        return "ScalaTest Output";
+        return getLocalizedString(locale, "reporter.mojo.name");
     }
 
     public String getDescription(Locale locale) {
-        // need to externalize
-        return "The output of the ScalaTest reporter";
+        return getLocalizedString(locale, "reporter.mojo.description");
     }
 
     public void setReportOutputDirectory(File outputDirectory) {
@@ -87,7 +84,7 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
     }
 
     public File getReportOutputDirectory() {
-        return outputDirectory;
+        return reportingOutputDirectory;
     }
 
     public boolean isExternalReport() {
@@ -96,5 +93,9 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
 
     public boolean canGenerateReport() {
         return true;
+    }
+
+    private String getLocalizedString(Locale locale, String resourceKey) {
+        return ResourceBundle.getBundle("mojoResources", locale, getClass().getClassLoader()).getString(resourceKey);
     }
 }
