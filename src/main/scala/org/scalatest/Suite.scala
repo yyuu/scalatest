@@ -48,6 +48,7 @@ import Suite.reportTestStarting
 import Suite.reportTestIgnored
 import Suite.reportTestSucceeded
 import Suite.reportTestPending
+import Suite.reportTestCanceled
 import Suite.reportInfoProvided
 
 /**
@@ -2074,11 +2075,9 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
           case _: TestPendingException =>
             reportTestPending(this, report, tracker, testName, formatter)
             testWasPending = true // Set so info's printed out in the finally clause show up yellow
-/*
           case _: TestCanceledException =>
             reportTestCanceled(this, report, tracker, testName, formatter)
             testWasCanceled = true // Set so info's printed out in the finally clause show up yellow
-*/
           case e if !anErrorThatShouldCauseAnAbort(e) =>
             val duration = System.currentTimeMillis - testStartTime
             handleFailedTest(t, hasPublicNoArgConstructor, testName, rerunnable, report, tracker, duration)
@@ -2862,12 +2861,10 @@ used for test events like succeeded/failed, etc.
       Some(ToDoLocation)))
   }
 
-/*
   def reportTestCanceled(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, formatter: Formatter) {
     report(TestCanceled(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(formatter),
       Some(ToDoLocation)))
   }
-*/
 
   def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, duration: Long, formatter: Formatter, rerunnable: Option[Rerunner]) {
     report(TestSucceeded(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(duration), Some(formatter),
