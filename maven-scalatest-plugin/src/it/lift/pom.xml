@@ -151,12 +151,8 @@
   <reporting>
     <plugins>
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>${mavan.scala.plugin.version}</version>
-        <configuration>
-          <scalaVersion>${scala.version}</scalaVersion>
-        </configuration>
+        <groupId>org.scalatest</groupId>
+        <artifactId>maven-scalatest-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>
