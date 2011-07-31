@@ -334,26 +334,30 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
 
             import EventHolder.suiteAndTestName
 
+            def nameFromNameInfo(nameInfo: Option[NameInfo]): Option[String] = 
+              nameInfo match {
+                case Some(NameInfo(suiteName, suiteClassName, testName)) =>
+                  testName match {
+                    case Some(tn) => Some(suiteAndTestName(suiteName, tn))
+                    case None => Some(suiteName)
+                  }
+                case None => None
+              }
+
             val name =
               holder.event match {
                 case event: RunStarting => None
                 case event: RunStopped => None
                 case event: RunAborted => None
                 case event: RunCompleted => None
-                case event: InfoProvided =>
-                  event.nameInfo match {
-                    case Some(NameInfo(suiteName, suiteClassName, testName)) =>
-                      testName match {
-                        case Some(tn) => Some(suiteAndTestName(suiteName, tn))
-                        case None => Some(suiteName)
-                      }
-                    case None => None
-                  }
+                case event: InfoProvided => nameFromNameInfo(event.nameInfo)
+                case event: MarkupProvided => nameFromNameInfo(event.nameInfo) // Should not get here because I'm not registering MarkupInfos
                 case event: SuiteStarting => Some(event.suiteName)
                 case event: SuiteCompleted => Some(event.suiteName)
                 case event: SuiteAborted => Some(event.suiteName)
                 case event: TestStarting => Some(suiteAndTestName(event.suiteName, event.testName))
                 case event: TestPending => Some(suiteAndTestName(event.suiteName, event.testName))
+                case event: TestCanceled => Some(suiteAndTestName(event.suiteName, event.testName))
                 case event: TestIgnored => Some(suiteAndTestName(event.suiteName, event.testName))
                 case event: TestSucceeded => Some(suiteAndTestName(event.suiteName, event.testName))
                 case event: TestFailed => Some(suiteAndTestName(event.suiteName, event.testName))
@@ -366,11 +370,13 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
                 case event: RunAborted => event.duration
                 case event: RunCompleted => event.duration
                 case event: InfoProvided => None
+                case event: MarkupProvided => None // Shouldn't get here because not registering MarkupInfos
                 case event: SuiteStarting => None
                 case event: SuiteCompleted => event.duration
                 case event: SuiteAborted => event.duration
                 case event: TestStarting => None
                 case event: TestPending => None
+                case event: TestCanceled => event.duration
                 case event: TestIgnored => None
                 case event: TestSucceeded => event.duration
                 case event: TestFailed => event.duration
@@ -928,6 +934,15 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerEvent(event)
           }
 
+        case TestCanceled(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
+
+          usingEventDispatchThread {
+            testsCompletedCount += 1
+            statusJPanel.setTestsRun(testsCompletedCount, true)
+            progressBar.setValue(testsCompletedCount)
+            registerEvent(event)
+          }
+
         case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, location, rerunner, payload, threadName, timeStamp) =>
   
           usingEventDispatchThread {
@@ -961,6 +976,8 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
           usingEventDispatchThread {
             registerEvent(event)
           }
+
+        case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
       }
     }
   }
@@ -1310,6 +1327,13 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerRerunEvent(event)
           }
 
+        case TestCanceled(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
+
+          usingEventDispatchThread {
+            rerunColorBox.setValue(rerunTestsCompletedCount)
+            registerRerunEvent(event)
+          }
+
         case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, location, rerunner, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
@@ -1336,6 +1360,8 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
           usingEventDispatchThread {
             registerRerunEvent(event)
           }
+  
+        case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
       }
     }
   }
@@ -1413,10 +1439,12 @@ private[tools] object RunnerJFrame {
       case PresentTestSucceeded => "TEST_SUCCEEDED"
       case PresentTestIgnored => "TEST_IGNORED"
       case PresentTestPending => "TEST_PENDING"
+      case PresentTestCanceled => "TEST_CANCELED"
       case PresentSuiteStarting => "SUITE_STARTING"
       case PresentSuiteAborted => "SUITE_ABORTED"
       case PresentSuiteCompleted => "SUITE_COMPLETED"
       case PresentInfoProvided => "INFO_PROVIDED"
+      case PresentMarkupProvided => "MARKUP_PROVIDED" // Shouldn't get here, because not registering these events in the GUI
       case PresentRunStopped => "RUN_STOPPED"
       case PresentRunAborted => "RUN_ABORTED"
       case PresentRunCompleted => "RUN_COMPLETED"

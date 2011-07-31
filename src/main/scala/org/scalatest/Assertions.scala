@@ -319,6 +319,14 @@ trait Assertions {
       case (Some(message), Some(cause)) => new TestFailedException(message.toString, cause, stackDepth)
     }
 
+  private def newTestCanceledException(optionalMessage: Option[Any], optionalCause: Option[Throwable], stackDepth: Int): Throwable =
+    (optionalMessage, optionalCause) match {
+      case (None, None) => new TestCanceledException(stackDepth)
+      case (None, Some(cause)) => new TestCanceledException(cause, stackDepth)
+      case (Some(message), None) => new TestCanceledException(message.toString, stackDepth)
+      case (Some(message), Some(cause)) => new TestCanceledException(message.toString, cause, stackDepth)
+    }
+
   /**
    * Assert that a boolean condition, described in <code>String</code>
    * <code>message</code>, is true.
@@ -413,7 +421,7 @@ trait Assertions {
    */
   def assume(condition: Boolean) {
     if (!condition)
-      throw new TestCanceledException(None, None, 4)
+      throw newTestCanceledException(None, None, 3)
   }
 
   
@@ -432,7 +440,7 @@ trait Assertions {
    */
   def assume(condition: Boolean, clue: Any) {
     if (!condition)
-      throw new TestCanceledException(Some(clue.toString), None, 4)
+      throw newTestCanceledException(Some(clue.toString), None, 3)
   }
 
   /**
@@ -465,7 +473,7 @@ trait Assertions {
    */
   def assume(o: Option[String], clue: Any) {
     o match {
-      case Some(s) => throw new TestCanceledException(Some(clue + "\n" + s), None, 4)
+      case Some(s) => throw newTestCanceledException(Some(clue + "\n" + s), None, 3)
       case None =>
     }
   }
@@ -494,14 +502,22 @@ trait Assertions {
    * @param o the <code>Option[String]</code> to assert
    * @throws TestFailedException if the <code>Option[String]</code> is <code>Some</code>.
    */
-  def assume(o: Option[String]) = throwIfSome(o, (a: Any) => new TestCanceledException(Some(a.toString), None, 4))
-  
+  // def assume(o: Option[String]) = throwIfSome(o, (a: Any) => newTestCanceledException(Some(a.toString), None, 3))
+  def assume(o: Option[String]) {
+    o match {
+      case Some(s) => throw newTestCanceledException(Some(s), None, 3)
+      case None =>
+    }
+  }
+
+/*
   def throwIfSome(o: Option[String], exception: (Any) => Throwable) {
     o match {
       case Some(s) => throw exception(s)
       case None =>
     }
   }
+*/
   
 
   /**
@@ -816,7 +832,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
   /**
    * Throws <code>TestFailedException</code> to indicate a test canceled.
    */
-  def cancel() = { throw new TestCanceledException(None, None, 4) }
+  def cancel() = { throw newTestCanceledException(None, None, 3) }
 
   /**
    * Throws <code>TestCanceledException</code>, with the passed
@@ -831,7 +847,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
     if (message == null)
         throw new NullPointerException("message is null")
      
-    throw new TestCanceledException(Some(message),  None, 4)
+    throw newTestCanceledException(Some(message),  None, 3)
   }
 
   /**
@@ -851,7 +867,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
     if (cause == null)
       throw new NullPointerException("cause is null")
 
-    throw new TestCanceledException(Some(message), Some(cause), 4)
+    throw newTestCanceledException(Some(message), Some(cause), 3)
   }
 
   /**
@@ -868,7 +884,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
     if (cause == null)
       throw new NullPointerException("cause is null")
         
-    throw new TestCanceledException(None, Some(cause), 4)
+    throw newTestCanceledException(None, Some(cause), 3)
   }
   
 

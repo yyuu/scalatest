@@ -296,6 +296,11 @@ private[scalatest] class HtmlReporter(pw: PrintWriter, presentAllDurations: Bool
         val lines = stringsToPrintOnError("failedNote", "testFailed", message, throwable, formatter, Some(suiteName), Some(testName), duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
 
+      case TestCanceled(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
+
+        val lines = stringsToPrintOnError("canceledNote", "testCanceled", message, throwable, formatter, Some(suiteName), Some(testName), duration)
+        for (line <- lines) printPossiblyInColor(line, ansiYellow)
+
       case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
 
         val (suiteName, testName) =
@@ -325,7 +330,8 @@ private[scalatest] class HtmlReporter(pw: PrintWriter, presentAllDurations: Bool
           case None =>
         }
 
-     // case _ => throw new RuntimeException("Unhandled event")
+        // TODO: implement the MarkupProvided thing in the HTML reporter
+        case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
     }
 
     pw.flush()

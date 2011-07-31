@@ -396,6 +396,11 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
         val lines = stringsToPrintOnError("failedNote", "testFailed", message, throwable, formatter, Some(suiteName), Some(testName), duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
 
+      case TestCanceled(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
+
+        val lines = stringsToPrintOnError("canceledNote", "testCanceled", message, throwable, formatter, Some(suiteName), Some(testName), duration)
+        for (line <- lines) printPossiblyInColor(line, ansiRed)
+
       case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
 
         val (suiteName, testName) =
@@ -410,6 +415,9 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
             case None => false
           }
         for (line <- lines) printPossiblyInColor(line, if (shouldBeYellow) ansiYellow else ansiGreen)
+
+      case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, location, payload, threadName, timeStamp) =>
+        // Won't do anything here, because not reporting these events in the StringReporter.
 
       case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, location, payload, threadName, timeStamp) =>
 

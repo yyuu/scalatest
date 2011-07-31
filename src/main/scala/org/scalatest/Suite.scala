@@ -2075,8 +2075,12 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
           case _: TestPendingException =>
             reportTestPending(this, report, tracker, testName, formatter)
             testWasPending = true // Set so info's printed out in the finally clause show up yellow
-          case _: TestCanceledException =>
-            reportTestCanceled(this, report, tracker, testName, formatter)
+          case e: TestCanceledException =>
+            val duration = System.currentTimeMillis - testStartTime
+            //reportTestCanceled(this, report, tracker, testName, duration, formatter)
+            val message = getMessageForException(e)
+            val formatter = getIndentedText(testName, 1, true)
+            report(TestCanceled(tracker.nextOrdinal(), message, thisSuite.suiteName, Some(thisSuite.getClass.getName), testName, Some(e), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
             testWasCanceled = true // Set so info's printed out in the finally clause show up yellow
           case e if !anErrorThatShouldCauseAnAbort(e) =>
             val duration = System.currentTimeMillis - testStartTime
@@ -2861,9 +2865,20 @@ used for test events like succeeded/failed, etc.
       Some(ToDoLocation)))
   }
 
-  def reportTestCanceled(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, formatter: Formatter) {
-    report(TestCanceled(tracker.nextOrdinal(), theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(formatter),
+/*
+  def reportTestCanceled(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, duration: Long, formatter: Formatter) {
+    val message = getMessageForException(throwable)
+    report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(duration), Some(formatter),
       Some(ToDoLocation)))
+  }
+*/
+
+  def reportTestCanceled(theSuite: Suite, report: Reporter, throwable: Throwable, testName: String, testText: String,
+      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean) {
+
+    val message = getMessageForException(throwable)
+    val formatter = getIndentedText(testText, level, includeIcon)
+    report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, Some(theSuite.getClass.getName), testName, Some(throwable), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
   }
 
   def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, duration: Long, formatter: Formatter, rerunnable: Option[Rerunner]) {

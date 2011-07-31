@@ -175,8 +175,10 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       case _: TestPendingException =>
         reportTestPending(theSuite, report, tracker, testName, formatter)
         testWasPending = true // Set so info's printed out in the finally clause show up yellow
-      case _: TestCanceledException =>
-        reportTestCanceled(theSuite, report, tracker, testName, formatter)
+      case e: TestCanceledException =>
+        val duration = System.currentTimeMillis - testStartTime
+        //reportTestCanceled(theSuite, report, tracker, testName, duration, formatter)
+        reportTestCanceled(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon)
         testWasCanceled = true // Set so info's printed out in the finally clause show up yellow
       case e if !anErrorThatShouldCauseAnAbort(e) =>
         val duration = System.currentTimeMillis - testStartTime

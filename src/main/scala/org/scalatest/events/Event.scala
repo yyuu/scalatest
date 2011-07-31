@@ -1056,11 +1056,15 @@ final case class TestPending (
  *
  * @author Bill Venners
  */
+// TODO: Probably add a rerunnable to TestCanceled
 final case class TestCanceled (
   ordinal: Ordinal,
+  message: String,
   suiteName: String,
   suiteClassName: Option[String],
   testName: String,
+  throwable: Option[Throwable] = None,
+  duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
   payload: Option[Any] = None,
@@ -1070,12 +1074,18 @@ final case class TestCanceled (
 
   if (ordinal == null)
     throw new NullPointerException("ordinal was null")
+  if (message == null)
+    throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
     throw new NullPointerException("testName was null")
+  if (throwable == null)
+    throw new NullPointerException("throwable was null")
+  if (duration == null)
+    throw new NullPointerException("duration was null")
   if (formatter == null)
     throw new NullPointerException("formatter was null")
   if (location == null)
