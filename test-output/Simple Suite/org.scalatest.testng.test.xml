@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.scalatest.testng.test" failures="0" tests="3" time="0.017" errors="0">
-  <properties/>
-  <testcase name="legacyTestThatPasses" time="0.0010" classname="org.scalatest.testng.testpackage.LegacySuite"/>
-  <testcase name="anotherLegacyTestThatPasses2" time="0.0" classname="org.scalatest.testng.testpackage.LegacySuiteWithTwoTests"/>
-  <testcase name="anotherLegacyTestThatPasses" time="0.0" classname="org.scalatest.testng.testpackage.LegacySuiteWithTwoTests"/>
-</testsuite>
