@@ -329,11 +329,14 @@
       - Called from 'test' and 'testfromjar' targets.
       -->
     <target name="runtest" depends="compile,copyprops,taskdefscalatest">
+        <mkdir dir="target/flex" />
         <scalatest fork="true" runpath="${test.runpath}" parallel="true" haltonfailure="true">
             <jvmarg value="-XX:MaxPermSize=512m"/>
             <reporter type="graphic"/>
-            <reporter type="junitxml" directory="target"/>
             <reporter type="stdout" config="D"/>
+            <!--<reporter type="junitxml" directory="target/junitxml"/>-->
+            <!--<reporter type="xml" directory="target/xml"/>-->
+            <reporter type="flex" directory="target/flex"/>
             <membersonly package="org.scalatest" />
             <membersonly package="org.scalatest.fixture" />
             <membersonly package="org.scalatest.concurrent" />
@@ -547,10 +550,12 @@
         <fail message="class not defined (use -Dclass=classname)"
               unless="class" />
 
+        <mkdir dir="target/flex" />
         <scalatest runpath="${build.tests};${classes}" haltonfailure="true">
             <reporter type="graphic"/>
             <!--<reporter type="file" filename="test.out" config="ND"/>-->
             <!--<reporter type="stdout" config="ND"/>-->
+            <reporter type="flex" directory="target/flex"/>
             <suite classname="${class}"/>
         </scalatest>
     </target>
