@@ -102,8 +102,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         }
 
       event match {
-        //gcbx// case MarkupProvided()
-        //gcbx// case TestCanceled()
 
         case RunStarting(ordinal, testCount, configMap, formatter, location,
                          payload, threadName, timeStamp)
@@ -188,6 +186,14 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
                      escape(testMessage(testName, formatter)) +
                      "\"/>")
  
+        case TestCanceled(ordinal, message, suiteName, suiteClassName,
+                          testName, throwable, duration, formatter, location,
+                          payload, threadName, timeStamp)
+        =>
+          pw.println("<test label=\"" +
+                     escape(testMessage(testName, formatter)) +
+                     "\"/>")
+
         case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest,
                           throwable, formatter, location, payload, threadName,
                           timeStamp)
@@ -197,6 +203,17 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
             case None =>
           }
           pw.println("<info label=\"" + escape(message) + "\">")
+
+        case MarkupProvided(ordinal, text, nameInfo, aboutAPendingTest,
+                            throwable, formatter, location, payload,
+                            threadName, timeStamp)
+        =>
+          pw.println("<markup date=\"" + timeStamp + "\"" +
+                     " thread=\"" + threadName + "\">")
+          pw.println("  <data><![CDATA[" + text + "]]></data>")
+          pw.println("</markup>")
+
+
       }
     }
     pw.flush()
