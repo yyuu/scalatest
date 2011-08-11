@@ -16,15 +16,17 @@
 package org.scalatest.tools
 
 import org.scalatest.events._
-//import org.scalatest.ResourcefulReporter
 import org.scalatest.Reporter
 import org.scalatest.events.MotionToSuppress
+
 import java.io.PrintWriter
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.io.File
-import scala.collection.mutable.Stack
+import java.util.Date
+import java.text.SimpleDateFormat
 
+import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -35,189 +37,391 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   final val BufferSize = 4096
 
   private val events = ListBuffer[Event]()
+  private var index = 0
 
   //
-  // Records events in 'events' set, except for events that
-  // have a MotionToSuppress formatter.
+  // Records events as they are received.  Initiates processing once
+  // a run-termination event comes in.
   //
   def apply(event: Event) {
-    events += event
     event match {
-      case _: RunCompleted => writeFiles()
-      case _: RunStopped   => writeFiles()
-      case _: RunAborted   => writeFiles()
-      case _ =>
+      case _: RunStarting  =>
+      case _: RunCompleted => writeFiles(event)
+      case _: RunStopped   => writeFiles(event)
+      case _: RunAborted   => writeFiles(event)
+      case _ => events += event
     }
   }
 
   //
-  // Writes a file for each 
-  def writeFiles() {
+  // Provides sequential index values for xml entries.
+  //
+  def nextIndex(): Int = {
+    index += 1
+    index
+  }
+
+  def unexpectedEvent(e: Event) {
+    throw new RuntimeException("unexpected event [" + e + "]")
+  }
+
+  //
+  // Escapes any curly braces in specified string.
+  //
+  def escape(s: String): String =
+    scala.xml.Utility.escape(s).
+      replaceAll("""\{""", """\\{""").
+      replaceAll("""\}""", """\\}""")
+
+  //
+  // Determines indentation level of specified formatter.
+  //
+  def getLevel(formatter: Option[Formatter]): Option[Int] = {
+    formatter flatMap { f =>
+      f match {                  
+        case MotionToSuppress => None
+        case IndentedText(_, _, level) => Some(level)
+      }                                      
+    } 
+  }
+
+  //
+  // Formats a timestamp for use in generating output filename,
+  // e.g. 110815063748 for Aug 15, 2011 06:37:48.
+  //
+  def formatTimestamp(timestamp: Long): String = {
+    val df = new SimpleDateFormat("yyMMddHHmmss")
+    df.format(new Date(timestamp))
+  }
+
+  //
+  // Formats date for inclusion in as 'date' attribute in xml.
+  //
+  // E.g.: "Mon May 30 10:29:58 PDT 2011"
+  //
+  def formatDate(timeStamp: Long): String = {
+    val df = new SimpleDateFormat("EEE MMM d kk:mm:ss zzz yyyy")
+    df.format(new Date(timeStamp))
+  }
+
+  //
+  // Writes output file suitedata-[timestamp].xml to specified directory.
+  //
+  def writeFiles(event: Event) {
+    index = 0
+    var suiteRecord: SuiteRecord = null
 
     //
-    // Escapes any curly braces in specified string.
+    // Formats <summary> element of output xml.
     //
-    def escape(s: String): String =
-      scala.xml.Utility.escape(s).
-        replaceAll("""\{""", """\\{""").
-        replaceAll("""\}""", """\\}""")
+    def formatSummary(event: Event): String = {
+      val (summaryOption, durationOption) =
+        event match {
+          case e: RunCompleted => (e.summary, e.duration)
+          case e: RunAborted   => (e.summary, e.duration)
+          case e: RunStopped   => (e.summary, e.duration)
+          case _ => unexpectedEvent(event); (None, None)
+        }
 
-    //
-    // Determines indentation level of specified formatter.
-    //
-    def getLevel(formatter: Option[Formatter]): Option[Int] = {
-      formatter flatMap { f =>
-        f match {                  
-          case MotionToSuppress => None
-          case IndentedText(_, _, level) => Some(level)
-        }                                      
-      } 
+      val summary  = summaryOption.getOrElse(Summary(0, 0, 0, 0, 0, 0, 0))
+      val duration = durationOption.getOrElse(0)
+
+      "<summary index=\"" + nextIndex() + "\" text=\"\" " +
+      "duration=\""             + duration                     + "\" " +
+      "testsSucceededCount=\""  + summary.testsSucceededCount  + "\" " +
+      "testsFailedCount=\""     + summary.testsFailedCount     + "\" " +
+      "testsIgnoredCount=\""    + summary.testsIgnoredCount    + "\" " +
+      "testsPendingCount=\""    + summary.testsPendingCount    + "\" " +
+      "testsCancelledCount=\""  + summary.testsCanceledCount   + "\" " +
+      "suitesCompletedCount=\"" + summary.suitesCompletedCount + "\" " +
+      "suitesAbortedCount=\""   + summary.suitesAbortedCount   + "\" " +
+      "date=\""                 + formatDate(event.timeStamp)  + "\" " +
+      "thread=\""               + event.threadName             + "\"/>"
     }
 
-    val sortedEvents = events.toList.sortWith((a, b) => a.ordinal < b.ordinal)
+    //
+    // writeFiles main
+    //
+    val timestampStr = formatTimestamp(event.timeStamp)
     val pw =
       new PrintWriter(
         new BufferedOutputStream(
           new FileOutputStream(
-            new File(directory, "index.html")), BufferSize))
+            new File(directory, "suitedata-" + timestampStr + ".xml")),
+                     BufferSize))
 
-    val stack = new Stack[Int]
+    pw.println("<doc>")
+    pw.println(formatSummary(event))
+
+    val sortedEvents = events.toList.sortWith((a, b) => a.ordinal < b.ordinal)
 
     for (event <- sortedEvents) {
-      if (!stack.isEmpty) {
-       event.formatter match {
-          case Some(IndentedText(_, _, level)) =>
-            if (level == stack.head) {
-              stack.pop()
-              pw.println("</info>")
-            }
-          case _ =>
+      event match {
+        case e: SuiteStarting =>
+          suiteRecord = new SuiteRecord(e)
+          
+        case e: InfoProvided   => suiteRecord.addNestedEvent(e)
+        case e: MarkupProvided => suiteRecord.addNestedEvent(e)
+        case e: TestStarting   => suiteRecord.addNestedEvent(e)
+        case e: TestSucceeded  => suiteRecord.addNestedEvent(e)
+        case e: TestIgnored    => suiteRecord.addNestedEvent(e)
+        case e: TestFailed     => suiteRecord.addNestedEvent(e)
+        case e: TestPending    => suiteRecord.addNestedEvent(e)
+        case e: TestCanceled   => suiteRecord.addNestedEvent(e)
+
+        case e: SuiteCompleted =>
+          suiteRecord.addEndEvent(e)
+          pw.println(suiteRecord.toXml)
+
+        case e: SuiteAborted =>
+          suiteRecord.addEndEvent(e)
+          pw.println(suiteRecord.toXml)
+
+        case e: RunStarting  => unexpectedEvent(e)
+        case e: RunCompleted => unexpectedEvent(e)
+        case e: RunStopped   => unexpectedEvent(e)
+        case e: RunAborted   => unexpectedEvent(e)
+      }
+    }
+    pw.println("</doc>")
+    pw.flush()
+    pw.close()
+  }
+
+//    val stack = new Stack[Int]
+//      if (!stack.isEmpty) {
+//       event.formatter match {
+//          case Some(IndentedText(_, _, level)) =>
+//            if (level == stack.head) {
+//              stack.pop()
+//              pw.println("</info>")
+//            }
+//          case _ =>
+//        }
+//      }
+
+//        case e: SuiteCompleted =>
+//          while (!stack.isEmpty) {
+//            stack.pop()
+//            pw.println("</info>")
+//          }
+//
+//        case e: SuiteAborted =>
+//          while (!stack.isEmpty) {
+//            stack.pop()
+//            pw.println("</info>")
+//          }
+// 
+//        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest,
+//                          throwable, formatter, location, payload, threadName,
+//                          timeStamp)
+//        =>
+//          getLevel(formatter) match {
+//            case Some(level) => stack.push(level)
+//            case None =>
+//          }
+//          pw.println("<info label=\"" + escape(message) + "\">")
+//
+//        case MarkupProvided(ordinal, text, nameInfo, aboutAPendingTest,
+//                            throwable, formatter, location, payload,
+//                            threadName, timeStamp)
+//        =>
+//          pw.println("<markup date=\"" + timeStamp + "\"" +
+//                     " thread=\"" + threadName + "\">")
+//          pw.println("  <data><![CDATA[" + text + "]]></data>")
+//          pw.println("</markup>")
+
+  def formatInfoProvided(event: InfoProvided): String = {
+    "<info index=\"" + nextIndex()                 + "\" " +
+    "text=\""        + escape(event.message)       + "\" " +
+    "date=\""        + formatDate(event.timeStamp) + "\" " +
+    "thread=\""      + event.threadName            + "\"/>"
+  }
+
+  def formatMarkupProvided(event: MarkupProvided): String = {
+    "<markup index=\"" + nextIndex()                 + "\" "   +
+    "date=\""          + formatDate(event.timeStamp) + "\" "   +
+    "thread=\""        + event.threadName            + "\">\n" +
+    "<data><![CDATA["  + event.text                  + "]]></data>\n" +
+    "</markup>\n"
+  }
+
+  //
+  // Aggregates events that make up a suite.
+  //
+  // A <suite> element can't be written until its end event has been
+  // processed, so this holds all the events encountered from SuiteStarting
+  // through its corresponding end event (e.g. SuiteCompleted).  Once the
+  // end event is received, this class's toXml method can be called to
+  // generate the complete xml string for the <suite> element.
+  //
+  class SuiteRecord(startEvent: SuiteStarting) {
+    var nestedEvents = List[Event]()
+    var endEvent: Event = null
+
+    def addNestedEvent(event: Event) {
+      def isNestedEvent(e: Event): Boolean = {
+        e match {
+          case _: TestStarting   => true
+          case _: TestSucceeded  => true
+          case _: TestIgnored    => true
+          case _: TestFailed     => true
+          case _: TestPending    => true
+          case _: TestCanceled   => true
+          case _: InfoProvided   => true
+          case _: MarkupProvided => true
+          case _ => false
         }
       }
 
-      def testMessage(testName: String, formatter: Option[Formatter]): String =
+      require(isNestedEvent(event))
+
+      nestedEvents ::= event
+    }
+
+    def addEndEvent(event: Event) {
+      def isEndEvent(e: Event): Boolean = {
+        e match {
+          case _: SuiteCompleted => true
+          case _: SuiteAborted   => true
+          case _ => false
+        }
+      }
+
+      require(endEvent == null)
+      require(isEndEvent(event))
+
+      endEvent = event
+    }
+
+    def result: String = {
+      endEvent match {
+        case _: SuiteCompleted => "completed"
+        case _: SuiteAborted   => "aborted"
+        case _ => unexpectedEvent(endEvent); ""
+      }
+    }
+
+    def toXml: String = {
+      val buf = new StringBuilder
+      var testRecord: TestRecord = null
+
+      def inATest: Boolean =
+        (testRecord != null) && (testRecord.endEvent == null)
+
+      buf.append(
+        "<suite index=\"" + nextIndex()                      + "\" " +
+        "result=\""       + result                           + "\" " +
+        "name=\""         + escape(startEvent.suiteName)     + "\" " +
+        "date=\""         + formatDate(startEvent.timeStamp) + "\" " +
+        "thread=\""       + startEvent.threadName            + "\">\n")
+
+      for (event <- nestedEvents.reverse) {
+        if (inATest) {
+          testRecord.addEvent(event)
+
+          if (testRecord.isComplete)
+            buf.append(testRecord.toXml)
+        }
+        else {
+          event match {
+            case e: InfoProvided   => buf.append(formatInfoProvided(e))
+            case e: MarkupProvided => buf.append(formatMarkupProvided(e))
+            case e: TestStarting   => testRecord = new TestRecord(e)
+            case _ => unexpectedEvent(event)
+          }
+        }
+      }
+      buf.toString + "</suite>\n"
+    }
+  }
+
+  //
+  // Aggregates events that make up a test.
+  //
+  // A <test> element can't be written until its end event has been
+  // processed, so this holds all the events encountered from TestStarting
+  // through its corresponding end event (e.g. TestSucceeded).  Once the
+  // end event is received, this class's toXml method can be called to
+  // generate the complete xml string for the <test> element.
+  //
+  class TestRecord(startEvent: TestStarting) {
+    var nestedEvents = List[Event]()
+    var endEvent: Event = null
+
+    def addEvent(event: Event) {
+      def isNestedEvent: Boolean = {
+        event match {
+          case _: InfoProvided => true
+          case _: MarkupProvided => true
+          case _ => false
+        }
+      }
+
+      def isEndEvent: Boolean = {
+        event match {
+          case _: TestSucceeded => true
+          case _: TestFailed => true
+          case _: TestPending => true
+          case _: TestIgnored => true
+          case _: TestCanceled => true
+          case _ => false
+        }
+      }
+
+      if (isNestedEvent)
+        nestedEvents ::= event
+      else if (isEndEvent)
+        endEvent = event
+      else
+        unexpectedEvent(event)
+    }
+
+    def isComplete: Boolean = (endEvent != null)
+
+    def formatTestStart: String = {
+      "<test index=\"" + nextIndex() + "\" " +
+      "text=\"" + testMessage(startEvent.testName, startEvent.formatter) +
+      "\" " +
+      "name=\"" + startEvent.testName + "\" " +
+      "date=\"" + formatDate(startEvent.timeStamp) + "\" " +
+      "thread=\"" + startEvent.threadName + "\"" +
+      ">\n"
+    }
+
+    //
+    // Extracts message from specified formatter if there is one, otherwise
+    // returns test name.
+    //
+    def testMessage(testName: String, formatter: Option[Formatter]): String =
+    {
+      val message =
         formatter match {
           case Some(IndentedText(_, rawText, _)) => rawText
           case _ => testName
         }
-
-      event match {
-
-        case RunStarting(ordinal, testCount, configMap, formatter, location,
-                         payload, threadName, timeStamp)
-        =>
-          if (testCount < 0)
-            throw new IllegalArgumentException
-
-          pw.println("<run/>")
-
-        case RunCompleted(ordinal, duration, summary, formatter, location, 
-                          payload, threadName, timeStamp)
-        =>
-          pw.println("<run/>")
- 
-        case RunStopped(ordinal, duration, summary, formatter, location,
-                        payload, threadName, timeStamp)
-        =>
-          pw.println("<run/>")
- 
-        case RunAborted(ordinal, message, throwable, duration, summary,
-                        formatter, location, payload, threadName, timeStamp)
-        =>
-          pw.println("<run/>")
-
-        case SuiteStarting(ordinal, suiteName, suiteClassName, formatter,
-                           rerunnable, location, payload, threadName,
-                           timeStamp)
-        =>
-          pw.println("<suite label=\"" + escape(suiteName) + ":\">")
-
-        case SuiteCompleted(ordinal, suiteName, suiteClassName, duration,
-                            formatter, rerunnable, location, payload,
-                            threadName, timeStamp)
-        =>
-           while (!stack.isEmpty) {
-            stack.pop()
-            pw.println("</info>")
-          }
-          pw.println("</suite>")
-
-        case SuiteAborted(ordinal, message, suiteName, suiteClassName,
-                          throwable, duration, formatter, rerunnable, location,
-                          payload, threadName, timeStamp)
-        =>
-          pw.println("</suite>")
- 
-        case TestStarting(ordinal, suiteName, suiteClassName, testName,
-                          formatter, rerunnable, location, payload, threadName,
-                          timeStamp)
-        =>
-       
-        case TestSucceeded(ordinal, suiteName, suiteClassName, testName,
-                           duration, formatter, rerunnable, location, payload,
-                           threadName, timeStamp)
-        =>
-          // Tests are always closed right away. It is infos that I close when
-          // level goes up then back. No, it is as soon as I see another one at
-          // the exact same level.
-          pw.println("<test label=\"" +
-                     escape(testMessage(testName, formatter)) +
-                     "\"/>")
-
-        case TestIgnored(ordinal, suiteName, suiteClassName, testName,
-                         formatter, location, payload, threadName, timeStamp)
-        =>
-          pw.println("<test label=\"" +
-                     escape(testMessage(testName, formatter)) +
-                     "\"/>")
-
-        case TestFailed(ordinal, message, suiteName, suiteClassName, testName,
-                        throwable, duration, formatter, rerunnable, location,
-                        payload, threadName, timeStamp)
-        =>
-          pw.println("<test label=\"" +
-                     escape(testMessage(testName, formatter)) +
-                     "\"/>")
-
-        case TestPending(ordinal, suiteName, suiteClassName, testName,
-                         formatter, location, payload, threadName, timeStamp)
-        =>
-          pw.println("<test label=\"" +
-                     escape(testMessage(testName, formatter)) +
-                     "\"/>")
- 
-        case TestCanceled(ordinal, message, suiteName, suiteClassName,
-                          testName, throwable, duration, formatter, location,
-                          payload, threadName, timeStamp)
-        =>
-          pw.println("<test label=\"" +
-                     escape(testMessage(testName, formatter)) +
-                     "\"/>")
-
-        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest,
-                          throwable, formatter, location, payload, threadName,
-                          timeStamp)
-        =>
-          getLevel(formatter) match {
-            case Some(level) => stack.push(level)
-            case None =>
-          }
-          pw.println("<info label=\"" + escape(message) + "\">")
-
-        case MarkupProvided(ordinal, text, nameInfo, aboutAPendingTest,
-                            throwable, formatter, location, payload,
-                            threadName, timeStamp)
-        =>
-          pw.println("<markup date=\"" + timeStamp + "\"" +
-                     " thread=\"" + threadName + "\">")
-          pw.println("  <data><![CDATA[" + text + "]]></data>")
-          pw.println("</markup>")
-
-
-      }
+      escape(message)
     }
-    pw.flush()
-    pw.close()
+
+    def toXml: String = {
+      val buf = new StringBuilder
+
+      if (endEvent == null)
+        throw new IllegalStateException("toXml called without endEvent")
+
+      buf.append(formatTestStart)
+
+      for (event <- nestedEvents) {
+        event match {
+          case e: InfoProvided   => buf.append(formatInfoProvided(e))
+          case e: MarkupProvided => buf.append(formatMarkupProvided(e))
+          case _ => unexpectedEvent(event)
+        }
+      }
+
+      buf.append("</test>\n")
+      buf.toString
+    }
   }
 }
 
