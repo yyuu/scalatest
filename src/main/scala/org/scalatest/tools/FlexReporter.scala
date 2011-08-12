@@ -163,19 +163,25 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           stack.push(suiteRecord)
           suiteRecord = new SuiteRecord(e)
           
-        case e: InfoProvided   => suiteRecord.addNestedEvent(e)
-        case e: MarkupProvided => suiteRecord.addNestedEvent(e)
-        case e: TestStarting   => suiteRecord.addNestedEvent(e)
-        case e: TestSucceeded  => suiteRecord.addNestedEvent(e)
-        case e: TestIgnored    => suiteRecord.addNestedEvent(e)
-        case e: TestFailed     => suiteRecord.addNestedEvent(e)
-        case e: TestPending    => suiteRecord.addNestedEvent(e)
-        case e: TestCanceled   => suiteRecord.addNestedEvent(e)
+        case e: InfoProvided   => suiteRecord.addNestedElement(e)
+        case e: MarkupProvided => suiteRecord.addNestedElement(e)
+        case e: TestStarting   => suiteRecord.addNestedElement(e)
+        case e: TestSucceeded  => suiteRecord.addNestedElement(e)
+        case e: TestIgnored    => suiteRecord.addNestedElement(e)
+        case e: TestFailed     => suiteRecord.addNestedElement(e)
+        case e: TestPending    => suiteRecord.addNestedElement(e)
+        case e: TestCanceled   => suiteRecord.addNestedElement(e)
 
         case e: SuiteCompleted =>
           suiteRecord.addEndEvent(e)
-          pw.println(suiteRecord.toXml)
-          suiteRecord = stack.pop()
+
+          val prevRecord = stack.pop()
+          if (prevRecord != null)
+            prevRecord.addNestedElement(suiteRecord)
+          else
+            pw.println(suiteRecord.toXml)
+
+          suiteRecord = prevRecord
 
         case e: SuiteAborted =>
           suiteRecord.addEndEvent(e)
@@ -240,27 +246,11 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   // generate the complete xml string for the <suite> element.
   //
   class SuiteRecord(startEvent: SuiteStarting) {
-    var nestedEvents = List[Event]()
+    var nestedElements = List[Any]()
     var endEvent: Event = null
 
-    def addNestedEvent(event: Event) {
-      def isNestedEvent(e: Event): Boolean = {
-        e match {
-          case _: TestStarting   => true
-          case _: TestSucceeded  => true
-          case _: TestIgnored    => true
-          case _: TestFailed     => true
-          case _: TestPending    => true
-          case _: TestCanceled   => true
-          case _: InfoProvided   => true
-          case _: MarkupProvided => true
-          case _ => false
-        }
-      }
-
-      require(isNestedEvent(event))
-
-      nestedEvents ::= event
+    def addNestedElement(element: Any) {
+      nestedElements ::= element
     }
 
     def addEndEvent(event: Event) {
@@ -290,30 +280,37 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       val buf = new StringBuilder
       var testRecord: TestRecord = null
 
-      def inATest: Boolean =
-        (testRecord != null) && (testRecord.endEvent == null)
-
-      buf.append(
+      def formatStartOfSuite: String =
         "<suite index=\"" + nextIndex()                      + "\" " +
         "result=\""       + result                           + "\" " +
         "name=\""         + escape(startEvent.suiteName)     + "\" " +
         "date=\""         + formatDate(startEvent.timeStamp) + "\" " +
-        "thread=\""       + startEvent.threadName            + "\">\n")
+        "thread=\""       + startEvent.threadName            + "\">\n"
+        
+      def inATest: Boolean =
+        (testRecord != null) && (testRecord.endEvent == null)
 
-      for (event <- nestedEvents.reverse) {
+      //
+      // toXml main
+      //
+      buf.append(formatStartOfSuite)
+
+      for (element <- nestedElements.reverse) {
         if (inATest) {
-          testRecord.addEvent(event)
+          testRecord.addEvent(element.asInstanceOf[Event])
 
           if (testRecord.isComplete)
             buf.append(testRecord.toXml)
         }
         else {
-          event match {
+          element match {
             case e: InfoProvided   => buf.append(formatInfoProvided(e))
             case e: MarkupProvided => buf.append(formatMarkupProvided(e))
             case e: TestIgnored    => buf.append(formatTestIgnored(e))
+            case e: SuiteRecord    => buf.append(e.toXml)
             case e: TestStarting   => testRecord = new TestRecord(e)
-            case _ => unexpectedEvent(event)
+            case _ =>
+              throw new RuntimeException("unexpected [" + element + "]")
           }
         }
       }
