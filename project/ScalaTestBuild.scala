@@ -54,13 +54,13 @@ object ScalaTestBuild extends Build {
       name := "scalatest-matchers",
       version := "1.6.2",
       organization := "org.scalatest",
-      scalaVersion := "2.9.0-1",
+      scalaVersion := "2.9.0-1"/*,
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map {
         dir => GenMustMatchers.genCompile(dir)
       },
       (sourceGenerators in Test) <+= (sourceManaged in Test) map {
         dir => GenMustMatchers.genTest(dir)
-      }
+      }*/
     ) 
   )
 
