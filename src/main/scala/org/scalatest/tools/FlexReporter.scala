@@ -46,9 +46,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def apply(event: Event) {
     event match {
       case _: RunStarting  =>
-      case _: RunCompleted => writeFiles(event)
-      case _: RunStopped   => writeFiles(event)
-      case _: RunAborted   => writeFiles(event)
+      case _: RunCompleted => writeFile(event)
+      case _: RunStopped   => writeFile(event)
+      case _: RunAborted   => writeFile(event)
       case _ => events += event
     }
   }
@@ -61,6 +61,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     index
   }
 
+  //
+  // Throws exception for specified unexpected event.
+  //
   def unexpectedEvent(e: Event) {
     throw new RuntimeException("unexpected event [" + e + "]")
   }
@@ -74,27 +77,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       replaceAll("""\}""", """\\}""")
 
   //
-  // Determines indentation level of specified formatter.
-  //
-  def getLevel(formatter: Option[Formatter]): Option[Int] = {
-    formatter flatMap { f =>
-      f match {                  
-        case MotionToSuppress => None
-        case IndentedText(_, _, level) => Some(level)
-      }                                      
-    } 
-  }
-
-  //
-  // Formats a timestamp for use in generating output filename,
-  // e.g. 110815063748 for Aug 15, 2011 06:37:48.
-  //
-  def formatTimestamp(timestamp: Long): String = {
-    val df = new SimpleDateFormat("yyMMddHHmmss")
-    df.format(new Date(timestamp))
-  }
-
-  //
   // Formats date for inclusion in as 'date' attribute in xml.
   //
   // E.g.: "Mon May 30 10:29:58 PDT 2011"
@@ -105,11 +87,18 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   }
 
   //
-  // Writes output file suitedata-[timestamp].xml to specified directory.
+  // Writes output file suitedata.xml to specified directory.
   //
-  def writeFiles(event: Event) {
+  def writeFile(event: Event) {
     index = 0
     var suiteRecord: SuiteRecord = null
+    val stack = new Stack[SuiteRecord]
+    val pw =
+      new PrintWriter(
+        new BufferedOutputStream(
+          new FileOutputStream(
+            new File(directory, "suitedata.xml")), BufferSize))
+
 
     //
     // Formats <summary> element of output xml.
@@ -140,18 +129,29 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     }
 
     //
-    // writeFiles main
+    // Closes out a SuiteRecord.  Gets called upon receipt of a
+    // SuiteCompleted or SuiteAborted event.
     //
-    val stack = new Stack[SuiteRecord]
-    val timestampStr = formatTimestamp(event.timeStamp)
-    val pw =
-      new PrintWriter(
-        new BufferedOutputStream(
-          new FileOutputStream(
-            new File(directory, "suitedata.xml")), BufferSize))
-//            new File(directory, "suitedata-" + timestampStr + ".xml")),
-//                     BufferSize))
+    // If the suite being closed is nested within another suite, its
+    // completed record is added to the record of the suite it is nested
+    // in.  Otherwise its xml is written to the output file.
+    //
+    def endSuite(e: Event) {
+      suiteRecord.addEndEvent(e)
 
+      val prevRecord = stack.pop()
+
+      if (prevRecord != null)
+        prevRecord.addNestedElement(suiteRecord)
+      else
+        pw.print(suiteRecord.toXml)
+
+      suiteRecord = prevRecord
+    }
+
+    //
+    // writeFile main
+    //
     pw.println("<doc>")
     pw.println(formatSummary(event))
 
@@ -172,20 +172,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         case e: TestPending    => suiteRecord.addNestedElement(e)
         case e: TestCanceled   => suiteRecord.addNestedElement(e)
 
-        case e: SuiteCompleted =>
-          suiteRecord.addEndEvent(e)
-
-          val prevRecord = stack.pop()
-          if (prevRecord != null)
-            prevRecord.addNestedElement(suiteRecord)
-          else
-            pw.println(suiteRecord.toXml)
-
-          suiteRecord = prevRecord
-
-        case e: SuiteAborted =>
-          suiteRecord.addEndEvent(e)
-          pw.println(suiteRecord.toXml)
+        case e: SuiteCompleted => endSuite(e)
+        case e: SuiteAborted   => endSuite(e)
 
         case e: RunStarting  => unexpectedEvent(e)
         case e: RunCompleted => unexpectedEvent(e)
@@ -198,6 +186,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     pw.close()
   }
 
+  //
+  // Generates xml for an InfoProvided event.
+  //
   def formatInfoProvided(event: InfoProvided): String = {
     "<info index=\"" + nextIndex()                 + "\" " +
     "text=\""        + escape(event.message)       + "\" " +
@@ -205,6 +196,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     "thread=\""      + event.threadName            + "\"/>\n"
   }
 
+  //
+  // Generates xml for a MarkupProvided event.
+  //
   def formatMarkupProvided(event: MarkupProvided): String = {
     "<markup index=\"" + nextIndex()                 + "\" "   +
     "date=\""          + formatDate(event.timeStamp) + "\" "   +
@@ -213,6 +207,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     "</markup>\n"
   }
 
+  //
+  // Generates xml for a TestIgnored event.
+  //
   def formatTestIgnored(event: TestIgnored): String = {
     "<test index=\"" + nextIndex() + "\" " +
     "result=\"ignored\" " +
@@ -237,22 +234,29 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   }
 
   //
-  // Aggregates events that make up a suite.
+  // Class that aggregates events that make up a suite.
   //
-  // A <suite> element can't be written until its end event has been
-  // processed, so this holds all the events encountered from SuiteStarting
-  // through its corresponding end event (e.g. SuiteCompleted).  Once the
-  // end event is received, this class's toXml method can be called to
-  // generate the complete xml string for the <suite> element.
+  // Holds all the events encountered from SuiteStarting through its
+  // corresponding end event (e.g. SuiteCompleted).  Once the end event
+  // is received, this class's toXml method can be called to generate the
+  // complete xml string for the <suite> element.
   //
   class SuiteRecord(startEvent: SuiteStarting) {
     var nestedElements = List[Any]()
     var endEvent: Event = null
 
+    //
+    // Adds either an Event or a nested SuiteRecord to this object's
+    // list of elements.
+    //
     def addNestedElement(element: Any) {
       nestedElements ::= element
     }
 
+    //
+    // Adds suite closing event (SuiteCompleted or SuiteAborted) to the
+    // object.
+    //
     def addEndEvent(event: Event) {
       def isEndEvent(e: Event): Boolean = {
         e match {
@@ -268,6 +272,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       endEvent = event
     }
 
+    //
+    // Generates value to be used in <suite> element's 'result' attribute.
+    //
     def result: String = {
       endEvent match {
         case _: SuiteCompleted => "completed"
@@ -276,17 +283,28 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       }
     }
 
+    //
+    // Generates xml string representation of object.
+    //
     def toXml: String = {
       val buf = new StringBuilder
       var testRecord: TestRecord = null
 
+      //
+      // Generates opening <suite ...> element
+      //
       def formatStartOfSuite: String =
+        "\n" +
         "<suite index=\"" + nextIndex()                      + "\" " +
         "result=\""       + result                           + "\" " +
         "name=\""         + escape(startEvent.suiteName)     + "\" " +
         "date=\""         + formatDate(startEvent.timeStamp) + "\" " +
         "thread=\""       + startEvent.threadName            + "\">\n"
-        
+
+      //
+      // Indicates whether a test record is currently open during
+      // event processing.
+      //
       def inATest: Boolean =
         (testRecord != null) && (testRecord.endEvent == null)
 
@@ -319,18 +337,20 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   }
 
   //
-  // Aggregates events that make up a test.
+  // Class that aggregates events that make up a test.
   //
-  // A <test> element can't be written until its end event has been
-  // processed, so this holds all the events encountered from TestStarting
-  // through its corresponding end event (e.g. TestSucceeded).  Once the
-  // end event is received, this class's toXml method can be called to
-  // generate the complete xml string for the <test> element.
+  // Holds all the events encountered from TestStarting through its
+  // corresponding end event (e.g. TestSucceeded).  Once the end event
+  // is received, this class's toXml method can be called to generate
+  // the complete xml string for the <test> element.
   //
   class TestRecord(startEvent: TestStarting) {
     var nestedEvents = List[Event]()
     var endEvent: Event = null
 
+    //
+    // Adds specified event to object's list of nested events.
+    //
     def addEvent(event: Event) {
       def isNestedEvent: Boolean = {
         event match {
@@ -358,8 +378,15 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         unexpectedEvent(event)
     }
 
+    //
+    // Indicates whether an end event has been received yet for this
+    // record.
+    //
     def isComplete: Boolean = (endEvent != null)
 
+    //
+    // Generates value for use as 'result' attribute of <test> element.
+    //
     def result: String = {
       endEvent match {
         case _: TestSucceeded => "passed"
@@ -370,6 +397,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       }
     }
 
+    //
+    // Generates initial <test> element of object's xml.
+    //
     def formatTestStart: String = {
       "<test index=\"" + nextIndex() + "\" " +
       "result=\"" + result + "\" " +
@@ -381,6 +411,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       ">\n"
     }
 
+    //
+    // Generates xml string representation of object.
+    //
     def toXml: String = {
       val buf = new StringBuilder
 
