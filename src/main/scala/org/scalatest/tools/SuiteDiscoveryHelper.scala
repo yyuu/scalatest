@@ -34,7 +34,7 @@ import java.io.IOException
  *
  * @author Bill Venners
  */
-private[scalatest] class SuiteDiscoveryHelper() {
+private[scalatest] object SuiteDiscoveryHelper {
 
   def discoverSuiteNames(runpath: List[String], loader: ClassLoader): Set[String] = {
 
@@ -141,7 +141,7 @@ private[scalatest] class SuiteDiscoveryHelper() {
   // Returns Some(<class name>) if processed, else None
   private def processClassName(className: String, loader: ClassLoader): Option[String] = {
 
-    if (isAccessibleSuite(className, loader)) {
+    if (className.indexOf('$') == -1 && isAccessibleSuite(className, loader)) {
       Some(className)
     }
     else {
