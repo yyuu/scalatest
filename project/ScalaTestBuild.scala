@@ -22,7 +22,6 @@ object ScalaTestBuild extends Build {
   import Dependencies._
 
   val standardSettings = Defaults.defaultSettings ++ Seq(
-    name := "scalatest",
     version := "1.6.2",
     organization := "org.scalatest",
     scalaVersion := "2.9.0-1",
@@ -32,8 +31,8 @@ object ScalaTestBuild extends Build {
   lazy val scalatest = Project(
     id        = "scalatest",
     base      = file("."),
-    settings  = standardSettings,
-    aggregate = Seq(core, matchers, tests)
+    settings  = standardSettings ++ Seq( name := "scalatest" ),
+    aggregate = Seq(core, matchers, mustMatchers /*, tests */)
   )
   
   lazy val core = Project (
@@ -50,18 +49,24 @@ object ScalaTestBuild extends Build {
     id           = "scalatest-matchers",
     base         = file("matchers"),
     dependencies = Seq(core % "compile;test->test"),
-    settings     = Defaults.defaultSettings ++ Seq(
-      name := "scalatest-matchers",
-      version := "1.6.2",
-      organization := "org.scalatest",
-      scalaVersion := "2.9.0-1"/*,
+    settings     = standardSettings ++ Seq(
+      name := "scalatest-matchers"
+    ) 
+  )
+
+  lazy val mustMatchers = Project(
+    id           = "scalatest-must-matchers",
+    base         = file("matchers/must-matchers"),
+    dependencies = Seq(core % "compile;test->test", matchers % "compile;test->test"),
+    settings     = standardSettings ++ Seq(
+      name := "scalatest-must-matchers",
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map {
         dir => GenMustMatchers.genCompile(dir)
       },
       (sourceGenerators in Test) <+= (sourceManaged in Test) map {
         dir => GenMustMatchers.genTest(dir)
-      }*/
-    ) 
+      }
+    )
   )
 
   lazy val tests = Project(
@@ -69,6 +74,7 @@ object ScalaTestBuild extends Build {
     base         = file("tests"),
     dependencies = Seq(core, matchers % "test->test"),
     settings     = standardSettings ++ Seq(
+      name := "scalatest-tests",
       (sourceGenerators in Test) <+= (sourceManaged in Test) map {
         dir => GenGen.getTest(dir) ++ GenTable.genTest(dir)
       }
