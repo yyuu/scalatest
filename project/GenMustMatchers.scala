@@ -62,7 +62,7 @@ object GenMustMatchers {
     val scalatestDir = new File(baseDir, "scala/org/scalatest")
     new File(scalatestDir, "matchers").mkdirs()
     new File(scalatestDir, "junit").mkdirs()
-    def src(name:String) = new File("src/main/scala/org/scalatest/" + name)
+    def src(name:String) = new File("matchers/src/main/scala/org/scalatest/" + name)
     def target(name:String) = new File(scalatestDir, name)
     def translate(in:File, out:File) = generateFile(in, out, translateShouldToMust)
     List(
@@ -110,13 +110,13 @@ object GenMustMatchers {
     junitDir.mkdirs()
 
     val matchers = for (shouldFileName <- shouldFileNames) yield generateFile(
-      new File("src/test/scala/org/scalatest/matchers/" + shouldFileName),
+      new File("matchers/src/test/scala/org/scalatest/matchers/" + shouldFileName),
       new File(matchersDir, shouldFileName.replace("Should", "Must")),
       translateShouldToMust
     )
 
     val junitMatchers = generateFile(
-      new File("src/test/scala/org/scalatest/junit/" + "ShouldMatchersForJUnitWordSpec.scala"),
+      new File("matchers/src/test/scala/org/scalatest/junit/ShouldMatchersForJUnitWordSpec.scala"),
       new File(junitDir, "MustMatchersForJUnitWordSpec.scala"),
       translateShouldToMust
     )
@@ -164,7 +164,7 @@ object GenDeprecatedShouldMatchersTests {
     matchersDir.mkdirs()
 
     for (shouldFileName <- shouldFileNames) yield generateFile(
-      new File("src/test/scala/org/scalatest/matchers/" + shouldFileName),
+      new File("matchers/src/test/scala/org/scalatest/matchers/" + shouldFileName),
       new File(matchersDir, shouldFileName.replace("Should", "DeprecatedShould")),
       translateShouldToDeprecatedShould
     )

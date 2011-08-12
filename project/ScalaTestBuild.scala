@@ -1,15 +1,6 @@
 import sbt._
 import Keys._
 
-object BuildSettings {
-  val buildSettings = Defaults.defaultSettings ++ Seq(
-    name := "ScalaTest",
-    version := "7.6",
-    organization := "org.scalatest",
-    scalaVersion := "2.9.0-1"
-  )
-}
-
 object Dependencies {
   val testng = "org.testng" % "testng" % "5.7" from
     "http://repo1.maven.org/maven2/org/testng/testng/5.7/testng-5.7-jdk15.jar"
@@ -29,53 +20,58 @@ object Dependencies {
 
 object ScalaTestBuild extends Build {
   import Dependencies._
-  import BuildSettings._
+
+  val standardSettings = Defaults.defaultSettings ++ Seq(
+    name := "scalatest",
+    version := "1.6.2",
+    organization := "org.scalatest",
+    scalaVersion := "2.9.0-1",
+    libraryDependencies ++= allDeps
+  )
 
   lazy val scalatest = Project(
     id        = "scalatest",
     base      = file("."),
-    settings  = buildSettings,
-    aggregate = Seq(core, mustMatchers)
+    settings  = standardSettings,
+    aggregate = Seq(core, matchers, tests)
   )
   
   lazy val core = Project (
     id        = "scalatest-core",
     base      = file ("core"),
-    settings  = buildSettings ++ Seq(
-    /*settings  = buildSettings ++ Seq(
+    settings  = standardSettings ++ Seq(
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map {
         dir => GenGen.genCompile(dir) ++ GenTable.genCompile(dir)
-      },
-      (sourceGenerators in Test) <+= (sourceManaged in Test) map {
-        dir => GenGen.getTest(dir) ++ GenTable.genTest(dir)
-      }*/
-    ) ++ Seq (libraryDependencies ++= allDeps)
-  )
-
-  lazy val mustMatchers = Project(
-    id           = "scalatest-must-matchers",
-    base         = file("must-matchers"),
-    dependencies = Seq(core),
-    settings     = buildSettings ++ Seq(
-      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map {
-        dir => GenMustMatchers.genCompile(dir)
-      },
-      (sourceGenerators in Test) <+= (sourceManaged in Test) map {
-        dir => GenMustMatchers.genTest(dir) //++
       }
     )
   )
 
-  /**
-  val hello = TaskKey[Unit]("hello", "Prints 'Hello World'")
-  val helloTask = hello := {
-    GenTable.main(Array())
-  }
+  lazy val matchers = Project(
+    id           = "scalatest-matchers",
+    base         = file("matchers"),
+    dependencies = Seq(core),
+    settings     = Defaults.defaultSettings ++ Seq(
+      name := "scalatest-matchers",
+      version := "1.6.2",
+      organization := "org.scalatest",
+      scalaVersion := "2.9.0-1",
+      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map {
+        dir => GenMustMatchers.genCompile(dir)
+      },
+      (sourceGenerators in Test) <+= (sourceManaged in Test) map {
+        dir => GenMustMatchers.genTest(dir)
+      }
+    ) 
+  )
 
-  private val generated = "src" / "generated" / "scala" / "org" / "scalatest"
-  private val tableSuite = generated / "prop" / "TableSuite.scala"
-  private lazy val genTableSuite = fileTask(tableSuite from ("project" / "GenTable.scala")) {
-    None
-  }
-  **/
+  lazy val tests = Project(
+    id           = "scalatest-test-suite",
+    base         = file("tests"),
+    dependencies = Seq(core, matchers % "test->test"),
+    settings     = standardSettings ++ Seq(
+      (sourceGenerators in Test) <+= (sourceManaged in Test) map {
+        dir => GenGen.getTest(dir) ++ GenTable.genTest(dir)
+      }
+    )
+  )
 }
