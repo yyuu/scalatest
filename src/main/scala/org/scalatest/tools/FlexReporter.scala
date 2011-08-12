@@ -30,10 +30,10 @@ import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 
 /**
- * A <code>Reporter</code> that writes test status information in Flex format.
+ * A <code>Reporter</code> that writes test status information in xml format
+ * for use by Flex formatter.
  */
 private[scalatest] class FlexReporter(directory: String) extends Reporter {
-
   final val BufferSize = 4096
 
   private val events = ListBuffer[Event]()
@@ -66,7 +66,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   }
 
   //
-  // Escapes any curly braces in specified string.
+  // Escapes html entities and curly braces in specified string.
   //
   def escape(s: String): String =
     scala.xml.Utility.escape(s).
@@ -136,19 +136,21 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       "suitesCompletedCount=\"" + summary.suitesCompletedCount + "\" " +
       "suitesAbortedCount=\""   + summary.suitesAbortedCount   + "\" " +
       "date=\""                 + formatDate(event.timeStamp)  + "\" " +
-      "thread=\""               + event.threadName             + "\"/>"
+      "thread=\""               + event.threadName             + "\"/>\n"
     }
 
     //
     // writeFiles main
     //
+    val stack = new Stack[SuiteRecord]
     val timestampStr = formatTimestamp(event.timeStamp)
     val pw =
       new PrintWriter(
         new BufferedOutputStream(
           new FileOutputStream(
-            new File(directory, "suitedata-" + timestampStr + ".xml")),
-                     BufferSize))
+            new File(directory, "suitedata.xml")), BufferSize))
+//            new File(directory, "suitedata-" + timestampStr + ".xml")),
+//                     BufferSize))
 
     pw.println("<doc>")
     pw.println(formatSummary(event))
@@ -157,7 +159,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
     for (event <- sortedEvents) {
       event match {
-        case e: SuiteStarting =>
+        case e: SuiteStarting  =>
+          stack.push(suiteRecord)
           suiteRecord = new SuiteRecord(e)
           
         case e: InfoProvided   => suiteRecord.addNestedEvent(e)
@@ -172,6 +175,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         case e: SuiteCompleted =>
           suiteRecord.addEndEvent(e)
           pw.println(suiteRecord.toXml)
+          suiteRecord = stack.pop()
 
         case e: SuiteAborted =>
           suiteRecord.addEndEvent(e)
@@ -188,54 +192,11 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     pw.close()
   }
 
-//    val stack = new Stack[Int]
-//      if (!stack.isEmpty) {
-//       event.formatter match {
-//          case Some(IndentedText(_, _, level)) =>
-//            if (level == stack.head) {
-//              stack.pop()
-//              pw.println("</info>")
-//            }
-//          case _ =>
-//        }
-//      }
-
-//        case e: SuiteCompleted =>
-//          while (!stack.isEmpty) {
-//            stack.pop()
-//            pw.println("</info>")
-//          }
-//
-//        case e: SuiteAborted =>
-//          while (!stack.isEmpty) {
-//            stack.pop()
-//            pw.println("</info>")
-//          }
-// 
-//        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest,
-//                          throwable, formatter, location, payload, threadName,
-//                          timeStamp)
-//        =>
-//          getLevel(formatter) match {
-//            case Some(level) => stack.push(level)
-//            case None =>
-//          }
-//          pw.println("<info label=\"" + escape(message) + "\">")
-//
-//        case MarkupProvided(ordinal, text, nameInfo, aboutAPendingTest,
-//                            throwable, formatter, location, payload,
-//                            threadName, timeStamp)
-//        =>
-//          pw.println("<markup date=\"" + timeStamp + "\"" +
-//                     " thread=\"" + threadName + "\">")
-//          pw.println("  <data><![CDATA[" + text + "]]></data>")
-//          pw.println("</markup>")
-
   def formatInfoProvided(event: InfoProvided): String = {
     "<info index=\"" + nextIndex()                 + "\" " +
     "text=\""        + escape(event.message)       + "\" " +
     "date=\""        + formatDate(event.timeStamp) + "\" " +
-    "thread=\""      + event.threadName            + "\"/>"
+    "thread=\""      + event.threadName            + "\"/>\n"
   }
 
   def formatMarkupProvided(event: MarkupProvided): String = {
@@ -244,6 +205,29 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     "thread=\""        + event.threadName            + "\">\n" +
     "<data><![CDATA["  + event.text                  + "]]></data>\n" +
     "</markup>\n"
+  }
+
+  def formatTestIgnored(event: TestIgnored): String = {
+    "<test index=\"" + nextIndex() + "\" " +
+    "result=\"ignored\" " +
+    "text=\"" + testMessage(event.testName, event.formatter) + "\" " +
+    "name=\"" + escape(event.testName) + "\" " +
+    "date=\"" + formatDate(event.timeStamp) + "\" " +
+    "thread=\"" + event.threadName + "\"" +
+    ">\n"
+  }
+
+  //
+  // Extracts message from specified formatter if there is one, otherwise
+  // returns test name.
+  //
+  def testMessage(testName: String, formatter: Option[Formatter]): String = {
+    val message =
+      formatter match {
+        case Some(IndentedText(_, rawText, _)) => rawText
+        case _ => testName
+      }
+    escape(message)
   }
 
   //
@@ -327,6 +311,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           event match {
             case e: InfoProvided   => buf.append(formatInfoProvided(e))
             case e: MarkupProvided => buf.append(formatMarkupProvided(e))
+            case e: TestIgnored    => buf.append(formatTestIgnored(e))
             case e: TestStarting   => testRecord = new TestRecord(e)
             case _ => unexpectedEvent(event)
           }
@@ -363,7 +348,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           case _: TestSucceeded => true
           case _: TestFailed => true
           case _: TestPending => true
-          case _: TestIgnored => true
           case _: TestCanceled => true
           case _ => false
         }
@@ -379,28 +363,25 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
     def isComplete: Boolean = (endEvent != null)
 
+    def result: String = {
+      endEvent match {
+        case _: TestSucceeded => "passed"
+        case _: TestFailed    => "failed"
+        case _: TestPending   => "pending"
+        case _: TestCanceled  => "canceled"
+        case _ => unexpectedEvent(endEvent); ""
+      }
+    }
+
     def formatTestStart: String = {
       "<test index=\"" + nextIndex() + "\" " +
+      "result=\"" + result + "\" " +
       "text=\"" + testMessage(startEvent.testName, startEvent.formatter) +
       "\" " +
-      "name=\"" + startEvent.testName + "\" " +
+      "name=\"" + escape(startEvent.testName) + "\" " +
       "date=\"" + formatDate(startEvent.timeStamp) + "\" " +
       "thread=\"" + startEvent.threadName + "\"" +
       ">\n"
-    }
-
-    //
-    // Extracts message from specified formatter if there is one, otherwise
-    // returns test name.
-    //
-    def testMessage(testName: String, formatter: Option[Formatter]): String =
-    {
-      val message =
-        formatter match {
-          case Some(IndentedText(_, rawText, _)) => rawText
-          case _ => testName
-        }
-      escape(message)
     }
 
     def toXml: String = {
@@ -418,8 +399,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           case _ => unexpectedEvent(event)
         }
       }
-
       buf.append("</test>\n")
+
       buf.toString
     }
   }
