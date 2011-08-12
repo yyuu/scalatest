@@ -49,7 +49,7 @@ object ScalaTestBuild extends Build {
   lazy val matchers = Project(
     id           = "scalatest-matchers",
     base         = file("matchers"),
-    dependencies = Seq(core),
+    dependencies = Seq(core % "compile;test->test"),
     settings     = Defaults.defaultSettings ++ Seq(
       name := "scalatest-matchers",
       version := "1.6.2",
