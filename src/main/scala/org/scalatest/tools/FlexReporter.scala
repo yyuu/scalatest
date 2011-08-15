@@ -18,6 +18,7 @@ package org.scalatest.tools
 import org.scalatest.events._
 import org.scalatest.Reporter
 import org.scalatest.events.MotionToSuppress
+import org.scalatest.StackDepthException
 
 import java.io.PrintWriter
 import java.io.BufferedOutputStream
@@ -451,15 +452,26 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         val stackTrace = throwable.getStackTrace
         require(stackTrace.size > 0)
 
-        buf.append(
-          "<message>" + event.message + "</message>\n" +
-          "<stackDepth>\n" +
-          "<depth>" + stackTrace.size + "</depth>\n" +
-          "<fileName>" + stackTrace(0).getFileName + "</fileName>\n" +
-          "<lineNumber>" + stackTrace(0).getLineNumber + "</lineNumber>\n" +
-          "</stackDepth>\n" +
-          "<stackTrace>\n")
+        buf.append("<message>" + event.message + "</message>\n")
 
+        if (throwable.isInstanceOf[StackDepthException]) {
+          val sde = throwable.asInstanceOf[StackDepthException]
+
+          if (sde.failedCodeFileName.isDefined &&
+              sde.failedCodeLineNumber.isDefined)
+          {
+            buf.append(
+              "<stackDepth>\n" +
+              "<depth>" + sde.failedCodeStackDepth + "</depth>\n" +
+              "<fileName>" + sde.failedCodeFileName.get + "</fileName>\n" +
+              "<lineNumber>" +
+                sde.failedCodeLineNumber.get +
+              "</lineNumber>\n" +
+              "</stackDepth>\n")
+          }
+        }
+
+        buf.append("<stackTrace>\n")
         for (frame <- stackTrace) {
           buf.append(
             "<stackFrame depth=\"" + nextDepth + "\">" +
