@@ -153,7 +153,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     // writeFile main
     //
     pw.println("<doc>")
-    pw.println(formatSummary(event))
+    pw.print(formatSummary(event))
 
     val sortedEvents = events.toList.sortWith((a, b) => a.ordinal < b.ordinal)
 
@@ -428,6 +428,56 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     }
 
     //
+    // Generates <exception> xml for a test failure.
+    //
+    def formatException(event: TestFailed): String = {
+      val buf = new StringBuilder
+      var depth = -1
+
+      def nextDepth: Int = {
+        depth += 1
+        depth
+      }
+
+      buf.append("<exception ")
+
+      if (event.suiteClassName.isDefined)
+        buf.append("className=\"" + event.suiteClassName.get + "\"")
+
+      buf.append(">\n")
+      
+      if (event.throwable.isDefined) {
+        val throwable = event.throwable.get
+        val stackTrace = throwable.getStackTrace
+        require(stackTrace.size > 0)
+
+        buf.append(
+          "<message>" + throwable.getMessage() + "</message>\n" +
+          "<stackDepth>\n" +
+          "<depth>" + stackTrace.size + "</depth>\n" +
+          "<fileName>" + stackTrace(0).getFileName + "</fileName>\n" +
+          "<lineNumber>" + stackTrace(0).getLineNumber + "</lineNumber>\n" +
+          "</stackDepth>\n" +
+          "<stackTrace>\n")
+
+        for (frame <- stackTrace) {
+          buf.append(
+            "<stackFrame depth=\"" + nextDepth + "\">" +
+              frame.getClassName + "(" + frame.getFileName + ":" +
+              frame.getLineNumber + ")" +
+            "</stackFrame>\n")
+        }
+        buf.append("</stackTrace>\n")
+      }
+      buf.append("</exception>\n")
+
+
+
+
+      buf.toString
+    }
+
+    //
     // Generates xml string representation of object.
     //
     def toXml: String = {
@@ -447,6 +497,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           case _ => unexpectedEvent(event)
         }
       }
+
+      if (endEvent.isInstanceOf[TestFailed])
+        buf.append(formatException(endEvent.asInstanceOf[TestFailed]))
+
       buf.append("</test>\n")
 
       buf.toString
