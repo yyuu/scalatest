@@ -420,7 +420,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     def formatTestStart: String = {
       "<test index=\"" + nextIndex() + "\" " +
       "result=\"" + result + "\" " +
-      "text=\"" + testMessage(startEvent.testName, startEvent.formatter) +
+      "text=\"" + testMessage(startEvent.testName, endEvent.formatter) +
       "\" " +
       "name=\"" + escape(startEvent.testName) + "\" " +
       "date=\"" + formatDate(startEvent.timeStamp) + "\" " +
