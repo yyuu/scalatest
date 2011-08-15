@@ -452,7 +452,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
         require(stackTrace.size > 0)
 
         buf.append(
-          "<message>" + throwable.getMessage() + "</message>\n" +
+          "<message>" + event.message + "</message>\n" +
           "<stackDepth>\n" +
           "<depth>" + stackTrace.size + "</depth>\n" +
           "<fileName>" + stackTrace(0).getFileName + "</fileName>\n" +
