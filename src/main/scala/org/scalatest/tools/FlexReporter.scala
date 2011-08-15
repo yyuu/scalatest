@@ -230,7 +230,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     "name=\"" + escape(event.testName) + "\" " +
     "date=\"" + formatDate(event.timeStamp) + "\" " +
     "thread=\"" + event.threadName + "\"" +
-    ">\n"
+    "/>\n"
   }
 
   //
