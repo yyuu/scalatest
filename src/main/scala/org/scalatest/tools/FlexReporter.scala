@@ -324,7 +324,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       //
       // toXml main
       //
-      buf.append(formatStartOfSuite)
+      if (startEvent.suiteName != "DiscoverySuite")
+        buf.append(formatStartOfSuite)
 
       for (element <- nestedElements.reverse) {
         if (inATest) {
@@ -347,7 +348,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
           }
         }
       }
-      buf.toString + "</suite>\n"
+      if (startEvent.suiteName != "DiscoverySuite")
+        buf.append("</suite>\n")
+
+      buf.toString
     }
   }
 
