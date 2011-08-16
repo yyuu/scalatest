@@ -30,6 +30,8 @@ import java.text.SimpleDateFormat
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 
+import com.github.rjeschke.txtmark.Processor
+
 /**
  * A <code>Reporter</code> that writes test status information in xml format
  * for use by Flex formatter.
@@ -85,6 +87,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def formatDate(timeStamp: Long): String = {
     val df = new SimpleDateFormat("EEE MMM d kk:mm:ss zzz yyyy")
     df.format(new Date(timeStamp))
+  }
+
+  def markdownToHtml(markdown: String): String = {
+      Processor.process(markdown)
   }
 
   //
@@ -213,7 +219,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def formatMarkupProvided(event: MarkupProvided): String = {
     "<markup index=\"" + nextIndex()                 + "\" "   +
     "thread=\""        + event.threadName            + "\">\n" +
-    "<data><![CDATA["  + event.text                  + "]]></data>\n" +
+    "<data><![CDATA["  + markdownToHtml(event.text)  + "]]></data>\n" +
     "</markup>\n"
   }
 

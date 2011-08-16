@@ -77,6 +77,7 @@
 	
         <path id="build.class.path">
             <pathelement location="${classes}" />
+            <pathelement location="lib/txtmark.jar" />
             <path refid="lib.path"></path>
         </path>
 
