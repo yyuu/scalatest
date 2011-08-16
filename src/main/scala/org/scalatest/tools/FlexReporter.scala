@@ -195,7 +195,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def formatInfoProvided(event: InfoProvided): String = {
     "<info index=\"" + nextIndex()                 + "\" " +
     "text=\""        + escape(event.message)       + "\" " +
-    "date=\""        + formatDate(event.timeStamp) + "\" " +
     "thread=\""      + event.threadName            + "\"/>\n"
   }
 
@@ -205,7 +204,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def formatScopeOpened(event: ScopeOpened): String = {
     "<info index=\"" + nextIndex()                 + "\" " +
     "text=\""        + escape(event.message)       + "\" " +
-    "date=\""        + formatDate(event.timeStamp) + "\" " +
     "thread=\""      + event.threadName            + "\">\n"
   }
 
@@ -214,7 +212,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   //
   def formatMarkupProvided(event: MarkupProvided): String = {
     "<markup index=\"" + nextIndex()                 + "\" "   +
-    "date=\""          + formatDate(event.timeStamp) + "\" "   +
     "thread=\""        + event.threadName            + "\">\n" +
     "<data><![CDATA["  + event.text                  + "]]></data>\n" +
     "</markup>\n"
@@ -228,7 +225,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     "result=\"ignored\" " +
     "text=\"" + testMessage(event.testName, event.formatter) + "\" " +
     "name=\"" + escape(event.testName) + "\" " +
-    "date=\"" + formatDate(event.timeStamp) + "\" " +
     "thread=\"" + event.threadName + "\"" +
     "/>\n"
   }
@@ -306,13 +302,15 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       //
       // Generates opening <suite ...> element
       //
-      def formatStartOfSuite: String =
+      def formatStartOfSuite: String = {
+        val duration = endEvent.timeStamp - startEvent.timeStamp
         "\n" +
-        "<suite index=\"" + nextIndex()                      + "\" " +
-        "result=\""       + result                           + "\" " +
-        "name=\""         + escape(startEvent.suiteName)     + "\" " +
-        "date=\""         + formatDate(startEvent.timeStamp) + "\" " +
-        "thread=\""       + startEvent.threadName            + "\">\n"
+        "<suite index=\"" + nextIndex()                   + "\" " +
+        "result=\""       + result                        + "\" " +
+        "name=\""         + escape(startEvent.suiteName)  + "\" " +
+        "duration=\""     + duration                      + "\" " +
+        "thread=\""       + startEvent.threadName         + "\">\n"
+      }
 
       //
       // Indicates whether a test record is currently open during
@@ -422,13 +420,15 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     // Generates initial <test> element of object's xml.
     //
     def formatTestStart: String = {
-      "<test index=\"" + nextIndex() + "\" " +
-      "result=\"" + result + "\" " +
-      "text=\"" + testMessage(startEvent.testName, endEvent.formatter) +
+      val duration = endEvent.timeStamp - startEvent.timeStamp
+
+      "<test index=\"" + nextIndex()                 + "\" " +
+      "result=\""      + result                      + "\" " +
+      "text=\""        + testMessage(startEvent.testName, endEvent.formatter) +
       "\" " +
-      "name=\"" + escape(startEvent.testName) + "\" " +
-      "date=\"" + formatDate(startEvent.timeStamp) + "\" " +
-      "thread=\"" + startEvent.threadName + "\"" +
+      "name=\""        + escape(startEvent.testName) + "\" " +
+      "duration=\""    + duration                    + "\" " +
+      "thread=\""      + startEvent.threadName       + "\"" +
       ">\n"
     }
 
