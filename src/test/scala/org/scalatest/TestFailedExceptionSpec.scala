@@ -28,7 +28,9 @@ class TestFailedExceptionSpec extends Spec with ShouldMatchers {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) =>
+  Thread.currentThread.getStackTrace.foreach(println)
+  s should equal ("TestFailedExceptionSpec.scala:" + (thisLineNumber - 5))
             case None => fail("fail() didn't produce a file name and line number string: " + e.failedCodeFileNameAndLineNumberString, e)
           }
         case e =>

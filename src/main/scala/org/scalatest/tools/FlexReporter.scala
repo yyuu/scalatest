@@ -30,7 +30,8 @@ import java.text.SimpleDateFormat
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 
-import com.github.rjeschke.txtmark.Processor
+import eu.henkelmann.actuarius.ActuariusTransformer
+
 
 /**
  * A <code>Reporter</code> that writes test status information in xml format
@@ -41,6 +42,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
   private val events = ListBuffer[Event]()
   private var index = 0
+  private val transformer = new ActuariusTransformer()
 
   //
   // Records events as they are received.  Initiates processing once
@@ -89,9 +91,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     df.format(new Date(timeStamp))
   }
 
-  def markdownToHtml(markdown: String): String = {
-      Processor.process(markdown)
-  }
+  def markdownToHtml(input:String):String = transformer(input)
 
   //
   // Writes output file suitedata.xml to specified directory.
