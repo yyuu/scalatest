@@ -106,8 +106,11 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
             return fileContents.toString();
         }
         finally {
-            reader.close();
-            outputFile.delete();
+            try {
+                reader.close();
+                outputFile.delete();
+            }
+            catch (IOException ignored) {}
         }
     }
 
