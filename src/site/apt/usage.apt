@@ -164,7 +164,7 @@ Usage Documentation
 
   [[1]] the constrained.txt file in the test-results/text directory with the NCXEHLOWFD Reporting options applied
 
-  [[2]] the full.txt file in the test-results/text directory with no Reportion options applied
+  [[2]] the full.txt file in the test-results/text directory with no Reporting options applied
 
   [[3]] the test-results/xml directory as a set of files that adhere to the JUnit XML format
 
