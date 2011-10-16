@@ -100,6 +100,8 @@ public class TestMojo extends AbstractScalaTestMojo {
         );
     }
 
+    // These private methods create the relevant portion of the command line
+    // to pass to Runner based on the corresponding Maven configuration parameter.
     private List<String> stdout() {
         return singletonList(stdout == null ? "-o" : "-o" + stdout);
     }

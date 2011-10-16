@@ -38,7 +38,6 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
      */
     private String fileReporterOptions;
 
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         // no op, Maven doesn't even call this method but I have to implement it because it's on the interface.
     }

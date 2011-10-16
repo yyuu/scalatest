@@ -4,7 +4,7 @@ import java.io.File
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnit3Suite
 import java.util.ArrayList
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter}
+import org.scalatest.BeforeAndAfterAll
 
 /**
  * @author Jon -Anders Teigen
@@ -86,16 +86,16 @@ class PluginTest extends JUnit3Suite with ShouldMatchers with PluginMatchers wit
   }
 
   def testIncludes {
-    configure(_.includes = comma("a", "b", "c")) should containCompoundArgs("-n", "a", "b", "c")
+    configure(_.tagsToInclude = comma("a", "b", "c")) should containCompoundArgs("-n", "a", "b", "c")
   }
 
   def testExcludes {
-    configure(_.excludes = comma("a", "b", "c")) should containCompoundArgs("-l", "a", "b", "c")
+    configure(_.tagsToExclude = comma("a", "b", "c")) should containCompoundArgs("-l", "a", "b", "c")
   }
 
   def testConcurrent {
-    configure(_.concurrent = true) should contain("-c")
-    configure(_.concurrent = false) should not contain ("-c")
+    configure(_.parallel = true) should contain("-c")
+    configure(_.parallel = false) should not contain ("-c")
   }
 
   def testSuites {
@@ -103,11 +103,11 @@ class PluginTest extends JUnit3Suite with ShouldMatchers with PluginMatchers wit
   }
 
   def testMembers {
-    configure(_.members = comma("a", "b", "c")) should containSuiteArgs("-m", "a", "b", "c")
+    configure(_.membersOnly = comma("a", "b", "c")) should containSuiteArgs("-m", "a", "b", "c")
   }
 
   def testWildcards {
-    configure(_.wildcards = comma("a", "b", "c")) should containSuiteArgs("-w", "a", "b", "c")
+    configure(_.wildcard = comma("a", "b", "c")) should containSuiteArgs("-w", "a", "b", "c")
   }
 
   def testTestNGs {

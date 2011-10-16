@@ -53,21 +53,21 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
 
     /**
      * Comma separated list of suites to be executed
-     * @parameter expression="${suite}"
+     * @parameter expression="${suites}"
      */
     String suites;
 
     /**
      * Comma separated list of tags to include
-     * @parameter expression="${include}"
+     * @parameter expression="${tagsToInclude}"
      */
-    String includes;
+    String tagsToInclude;
 
     /**
      * Comma separated list of tags to exclude
-     * @parameter expression="${exclude}"
+     * @parameter expression="${tagsToExclude}"
      */
-    String excludes;
+    String tagsToExclude;
 
     /**
      * Comma separated list of configuration parameters to pass to scalatest.
@@ -78,21 +78,21 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
 
     /**
      * Set to true to run suites concurrently
-     * @parameter expression="${concurrent}"
+     * @parameter expression="${parallel}"
      */
-    boolean concurrent;
+    boolean parallel;
 
     /**
      * Comma separated list of members to execute
-     * @parameter expression="${member}"
+     * @parameter expression="${membersOnly}"
      */
-    String members;
+    String membersOnly;
 
     /**
      * Comma separated list of wildcard suites to execute
      * @parameter expression="${wildcard}"
      */
-    String wildcards;
+    String wildcard;
 
     /**
      * Comma separated list of testNG xml files to execute
@@ -106,6 +106,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      */
     String junit;
 
+    // runScalaTest is called by the concrete mojo subclasses
     boolean runScalaTest(String[] args) {
         getLog().debug(Arrays.toString(args));
         try {
@@ -122,7 +123,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         }
     }
 
-    // sideeffect!
+    // sideeffect! Currently not used, was probably used for debugging
     private void print(String[] args) {
         StringBuffer sb = new StringBuffer("org.scalatest.tools.Runner.run(");
         for (int i = 0; i < args.length; i++) {
@@ -142,6 +143,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         getLog().info(sb.toString());
     }
 
+    // This is just used by runScalaTest to get the method to invoke
     private Method run() {
         try {
             Class<?> runner = classLoader().loadClass("org.scalatest.tools.Runner");
@@ -153,6 +155,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         }
     }
 
+    // This is just used by run to get a class loader from which to load ScalaTest
     private ClassLoader classLoader() {
         try {
             List<URL> urls = new ArrayList<URL>();
@@ -169,17 +172,17 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         }
     }
 
-
+    // This is the configuration parameters shared by all concrete Mojo subclasses
     List<String> sharedConfiguration() {
         return new ArrayList<String>() {{
             addAll(runpath());
             addAll(config());
-            addAll(include());
-            addAll(exclude());
-            addAll(concurrent());
+            addAll(tagsToInclude());
+            addAll(tagsToExclude());
+            addAll(parallel());
             addAll(suites());
-            addAll(members());
-            addAll(wildcards());
+            addAll(membersOnly());
+            addAll(wildcard());
             addAll(testNG());
             addAll(junit());
         }};
@@ -200,28 +203,28 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
                 runpath);
     }
 
-    private List<String> include() {
-        return compoundArg("-n", includes);
+    private List<String> tagsToInclude() {
+        return compoundArg("-n", tagsToInclude);
     }
 
-    private List<String> exclude() {
-        return compoundArg("-l", excludes);
+    private List<String> tagsToExclude() {
+        return compoundArg("-l", tagsToExclude);
     }
 
-    private List<String> concurrent() {
-        return concurrent ? singletonList("-c") : Collections.<String>emptyList();
+    private List<String> parallel() {
+        return parallel ? singletonList("-c") : Collections.<String>emptyList();
     }
 
     private List<String> suites() {
         return suiteArg("-s", suites);
     }
 
-    private List<String> members() {
-        return suiteArg("-m", members);
+    private List<String> membersOnly() {
+        return suiteArg("-m", membersOnly);
     }
 
-    private List<String> wildcards() {
-        return suiteArg("-w", wildcards);
+    private List<String> wildcard() {
+        return suiteArg("-w", wildcard);
     }
 
     private List<String> testNG() {
