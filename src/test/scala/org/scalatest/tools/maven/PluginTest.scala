@@ -103,19 +103,19 @@ class PluginTest extends JUnit3Suite with ShouldMatchers with PluginMatchers wit
   }
 
   def testMembers {
-    configure(_.membersOnly = comma("a", "b", "c")) should containSuiteArgs("-m", "a", "b", "c")
+    configure(_.membersOnlySuites = comma("a", "b", "c")) should containSuiteArgs("-m", "a", "b", "c")
   }
 
   def testWildcards {
-    configure(_.wildcard = comma("a", "b", "c")) should containSuiteArgs("-w", "a", "b", "c")
+    configure(_.wildcardSuites = comma("a", "b", "c")) should containSuiteArgs("-w", "a", "b", "c")
   }
 
   def testTestNGs {
-    configure(_.testNG = comma("a", "b", "c")) should containSuiteArgs("-t", "a", "b", "c")
+    configure(_.testNGConfigFiles = comma("a", "b", "c")) should containSuiteArgs("-t", "a", "b", "c")
   }
 
   def testJUnits {
-    configure(_.junit = comma("a", "b", "c")) should containSuiteArgs("-j", "a", "b", "c")
+    configure(_.jUnitClasses = comma("a", "b", "c")) should containSuiteArgs("-j", "a", "b", "c")
   }
 
   def testGui {

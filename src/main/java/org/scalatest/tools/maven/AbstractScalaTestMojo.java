@@ -84,27 +84,27 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
 
     /**
      * Comma separated list of members to execute
-     * @parameter expression="${membersOnly}"
+     * @parameter expression="${membersOnlySuites}"
      */
-    String membersOnly;
+    String membersOnlySuites;
 
     /**
      * Comma separated list of wildcard suites to execute
-     * @parameter expression="${wildcard}"
+     * @parameter expression="${wildcardSuites}"
      */
-    String wildcard;
+    String wildcardSuites;
 
     /**
      * Comma separated list of testNG xml files to execute
-     * @parameter expression="${testNG}"
+     * @parameter expression="${testNGXMLFiles}"
      */
-    String testNG;
+    String testNGConfigFiles;
 
     /**
      * Comma separated list of JUnit suites/tests to execute
-     * @parameter expression="${junit}"
+     * @parameter expression="${junitClasses}"
      */
-    String junit;
+    String jUnitClasses;
 
     // runScalaTest is called by the concrete mojo subclasses
     boolean runScalaTest(String[] args) {
@@ -181,10 +181,10 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
             addAll(tagsToExclude());
             addAll(parallel());
             addAll(suites());
-            addAll(membersOnly());
-            addAll(wildcard());
-            addAll(testNG());
-            addAll(junit());
+            addAll(membersOnlySuites());
+            addAll(wildcardSuites());
+            addAll(testNGConfigFiles());
+            addAll(junitClasses());
         }};
     }
 
@@ -219,19 +219,19 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         return suiteArg("-s", suites);
     }
 
-    private List<String> membersOnly() {
-        return suiteArg("-m", membersOnly);
+    private List<String> membersOnlySuites() {
+        return suiteArg("-m", membersOnlySuites);
     }
 
-    private List<String> wildcard() {
-        return suiteArg("-w", wildcard);
+    private List<String> wildcardSuites() {
+        return suiteArg("-w", wildcardSuites);
     }
 
-    private List<String> testNG() {
-        return suiteArg("-t", testNG);
+    private List<String> testNGConfigFiles() {
+        return suiteArg("-t", testNGConfigFiles);
     }
 
-    private List<String> junit() {
-        return suiteArg("-j", junit);
+    private List<String> junitClasses() {
+        return suiteArg("-j", jUnitClasses);
     }
 }
