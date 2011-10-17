@@ -71,8 +71,8 @@ class PluginTest extends JUnit3Suite with ShouldMatchers with PluginMatchers wit
     config should containSlice("-r", "org.your.reporter")
   }
 
-  def testXmlReporters {
-    val config = configure(_.xmlreports = comma("some/foo.xml", "XYZ other.xml"))
+  def testJUnitXmlReporters {
+    val config = configure(_.junitxml = comma("some/foo.xml", "XYZ other.xml"))
     config should containSlice("-u", new File(reportsDirectory, "some/foo.xml").getAbsolutePath)
     config should containSlice("-uXYZ", new File(reportsDirectory, "other.xml").getAbsolutePath)
   }

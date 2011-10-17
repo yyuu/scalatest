@@ -57,12 +57,12 @@ public class TestMojo extends AbstractScalaTestMojo {
     String reporters;
 
     /**
-     * Comma separated list of xmlreports. A xmlreport consists of an optional configuration
-     * and a mandatory directory for the xmlfiles, separated by whitespace.
+     * Comma separated list of junitxml. A junitxml consists of an optional configuration
+     * and a mandatory directory for the xml files, separated by whitespace.
      * For more info on configuring reporters, see the scalatest documentation.
-     * @parameter expression="${xmlreports}"
+     * @parameter expression="${junitxml}"
      */
-    String xmlreports;
+    String junitxml;
 
     /**
      * Configuration for logging to stdout. (This logger is always enabled)
@@ -96,7 +96,7 @@ public class TestMojo extends AbstractScalaTestMojo {
                 stderr(),
                 filereports(),
                 reporters(),
-                xmlreports()
+                junitxml()
         );
     }
 
@@ -118,7 +118,7 @@ public class TestMojo extends AbstractScalaTestMojo {
         return reporterArg("-r", reporters, passThrough);
     }
 
-    private List<String> xmlreports(){
-        return reporterArg("-u", xmlreports, dirRelativeTo(reportsDirectory));
+    private List<String> junitxml(){
+        return reporterArg("-u", junitxml, dirRelativeTo(reportsDirectory));
     }
 }

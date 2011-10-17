@@ -3,12 +3,13 @@ package org.scalatest.tools.maven;
 import org.apache.maven.plugin.AbstractMojo;
 import static org.scalatest.tools.maven.MojoUtils.*;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import static java.util.Collections.singletonList;
-import java.io.File;
+
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.net.URL;
@@ -106,9 +107,32 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      */
     String jUnitClasses;
 
-    // runScalaTest is called by the concrete mojo subclasses
+    /**
+     * Option to specify the forking mode. Can be "never" or "once". "always", which would
+     * fork for each test-class, may be supported later.
+     *
+     * @parameter expression="${forkMode}" default-value="once"
+     */
+    String forkMode;
+
+    // runScalaTest is called by the concrete mojo subclasses  TODO: make it protected and others too
+    // Returns true if all tests pass
     boolean runScalaTest(String[] args) {
         getLog().debug(Arrays.toString(args));
+        // System.out.println("##### " + Arrays.toString(args));
+        if (forkMode.equals("never")) {
+            return runWithoutForking(args);
+        }
+        else {
+            if (!forkMode.equals("once")) {
+                getLog().error("Invalid forkMode: \"" + forkMode + "\"; Using once instead.");
+            }
+            return runForkingOnce(args);
+        }
+    }
+
+    // Returns true if all tests pass
+    private boolean runWithoutForking(String[] args) {
         try {
             return (Boolean) run().invoke(null, new Object[]{args});
         } catch (IllegalAccessException e) {
@@ -120,6 +144,70 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
             } else {
                 throw new IllegalArgumentException(target);
             }
+        }
+    }
+
+    // Returns true if all tests pass
+    private boolean runForkingOnce(String[] args) {
+
+        // System.out.println("##### testClasspathElements:");
+        StringBuffer buf = new StringBuffer();
+        boolean first = true;
+        for (String e : testClasspathElements) {
+            if (first) {
+                first = false;
+            }
+            else {
+                buf.append(File.pathSeparator);
+            }
+            buf.append(e);
+            // System.out.println(e);
+        }
+        String classPath = buf.toString();
+        // System.out.println("##### classPath: " + classPath);
+        // System.out.println("##### testOutputDirectory: " + testOutputDirectory);
+        // System.out.println("##### outputDirectory: " + outputDirectory);
+        String[] commandArgs = new String[args.length + 4];
+        commandArgs[0] = "scala";
+        commandArgs[1] = "-cp";
+        commandArgs[2] = classPath;
+        commandArgs[3] = "org.scalatest.tools.Runner";
+        int i = 4;
+        for (String a : args) {
+            commandArgs[i] = a;
+            ++i;
+        }
+        // System.out.println("##### classPath: " + classPath);
+        // System.out.println("##### commandArgs:");
+        // for (String e : commandArgs) {
+        //     System.out.println(e);
+        // }
+        // System.out.println("##### I AM USING PROCESSBUILDER");
+
+        try {
+            // Process process = Runtime.getRuntime().exec(commandArgs);
+            ProcessBuilder builder = new ProcessBuilder(Arrays.asList(commandArgs));
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                try {
+                    String line = reader.readLine();
+                    while (line != null) {
+                        System.out.println(line);
+                        line = reader.readLine();
+                    }
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int exitValue = process.waitFor();
+                return exitValue == 0;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
