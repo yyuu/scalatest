@@ -52,13 +52,6 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   private val summariesDir = new File(directory + "/summaries")
   private val summaryFile  = new File(directory + "/summary.xml")
 
-  private final val EmptySummary =
-    <summary>
-      <runs/>
-      <regressions/>
-      <recentlySlower/>
-    </summary>
-
   runsDir.mkdir()
   durationsDir.mkdir()
   summariesDir.mkdir()
@@ -114,28 +107,20 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       Processor.process(markdown)
   }
 
+  //
+  // Writes flex reporter summary, duration, and run files at completion
+  // of a run.  Archives old copies of summary and duration files into
+  // summaries/ and durations/ subdirectories.
+  //
   def writeFiles(terminatingEvent: Event) {
-    val oldSummary =
-      if (summaryFile.exists)
-        XML.loadFile(summaryFile)
-      else
-        EmptySummary
-
-    val oldRuns = oldSummary \\ "run"
-
-    if (summaryFile.exists) {
-      if (oldRuns.size > 0) {
-        val lastRunId = oldRuns(0) \ "@id"
-        summaryFile.renameTo(
-          new File(summariesDir + "/summary-" + lastRunId + ".xml"))
-      }
-    }
-    
-    writeSummaryFile(terminatingEvent, oldSummary)
+    writeSummaryFile(terminatingEvent)
     writeRunFile(terminatingEvent)
   }
 
-  def writeSummaryFile(terminatingEvent: Event, oldSummary: Elem) {
+  //
+  // Writes the summary.xml file and archives the previous copy.
+  //
+  def writeSummaryFile(terminatingEvent: Event) {
     val SummaryTemplate =
       """|<summary>
          |  <runs>
@@ -148,6 +133,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
          |</summary>
          |""".stripMargin
 
+    //
+    // Formats a <run> element of summary file.
+    //
     def formatRun(id: String, succeeded: String, failed: String,
                   ignored: String, canceled: String, pending: String): String =
     {
@@ -160,6 +148,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       "pending=\""    + pending    + "\" " + "/>\n"
     }
 
+    //
+    // Generates the summary file <run> element for the current run.
+    //
     def genThisRun(terminatingEvent: Event): String = {
       val summaryOption = 
         terminatingEvent match {
@@ -179,6 +170,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
                 "" + summary.testsPendingCount)
     }
 
+    //
+    // Formats <run> elements for previous runs.
+    //
     def formatOldRuns(oldRuns: NodeSeq): String = {
       val buf = new StringBuilder
 
@@ -197,14 +191,48 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     }
 
     //
+    // Reads existing summary.xml file, or, if none exists, returns <summary>
+    // xml containing all empty elements.
+    //
+    def getOldSummary: Elem = {
+      if (summaryFile.exists)
+        XML.loadFile(summaryFile)
+      else
+        <summary>
+          <runs/>
+          <regressions/>
+          <recentlySlower/>
+        </summary>
+    }
+
+    //
+    // If a summary file containing previous run histories exists, moves
+    // it to the summaries/ subdirectory and renames it to a filename
+    // containing the timestamp of the most recent run the file contains.
+    //
+    def archiveOldSummaryFile(oldRuns: NodeSeq) {
+      if (summaryFile.exists) {
+        if (oldRuns.size > 0) {
+          val lastRunId = oldRuns(0) \ "@id"
+          summaryFile.renameTo(
+            new File(summariesDir + "/summary-" + lastRunId + ".xml"))
+        }
+      }
+    }
+    
+    //
     // writeSummaryFile main
     //
+    val oldSummary = getOldSummary
+    val oldRuns    = oldSummary \\ "run"
+
+    archiveOldSummaryFile(oldRuns)
+
     val thisRun = genThisRun(terminatingEvent)
-    val oldRuns = oldSummary \\ "run"
 
     val summaryText =
-      SummaryTemplate.replaceFirst("""\$runs\$""",
-                                   thisRun + formatOldRuns(oldRuns))
+      SummaryTemplate.
+        replaceFirst("""\$runs\$""", thisRun + formatOldRuns(oldRuns))
 
     writeFile("summary.xml", summaryText)
   }
@@ -217,8 +245,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
   //
   // Writes timestamped output file to 'runs' subdirectory beneath specified
-  // output dir.  Format of file name is e.g., for timestamp "01-07-143216",
-  // "run-2011-01-07-143216.xml".
+  // output dir.  Format of file name is, e.g. for timestamp
+  // "2011-01-07-143216", "run-2011-01-07-143216.xml".
   //
   def writeRunFile(event: Event) {
     index = 0
