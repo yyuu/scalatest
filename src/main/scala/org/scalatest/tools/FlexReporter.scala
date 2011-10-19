@@ -54,12 +54,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
   private final val EmptySummary =
     <summary>
-      <runs>
-      </runs>
-      <regressions>
-      </regressions>
-      <recentlySlower>
-      </recentlySlower>
+      <runs/>
+      <regressions/>
+      <recentlySlower/>
     </summary>
 
   runsDir.mkdir()
