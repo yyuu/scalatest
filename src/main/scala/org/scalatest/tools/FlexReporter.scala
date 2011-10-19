@@ -29,6 +29,9 @@ import java.text.SimpleDateFormat
 
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
+import scala.xml.XML
+import scala.xml.NodeSeq
+import scala.xml.Elem
 
 import com.github.rjeschke.txtmark.Processor
 
@@ -41,6 +44,27 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
 
   private val events = ListBuffer[Event]()
   private var index = 0
+  private val timestamp =
+    new SimpleDateFormat("yyyy-MM-dd-hhmmss").format(new Date)
+
+  private val runsDir      = new File(directory + "/runs")
+  private val durationsDir = new File(directory + "/durations")
+  private val summariesDir = new File(directory + "/summaries")
+  private val summaryFile  = new File(directory + "/summary.xml")
+
+  private final val EmptySummary =
+    <summary>
+      <runs>
+      </runs>
+      <regressions>
+      </regressions>
+      <recentlySlower>
+      </recentlySlower>
+    </summary>
+
+  runsDir.mkdir()
+  durationsDir.mkdir()
+  summariesDir.mkdir()
 
   //
   // Records events as they are received.  Initiates processing once
@@ -49,9 +73,9 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   def apply(event: Event) {
     event match {
       case _: RunStarting  =>
-      case _: RunCompleted => writeFile(event)
-      case _: RunStopped   => writeFile(event)
-      case _: RunAborted   => writeFile(event)
+      case _: RunCompleted => writeFiles(event)
+      case _: RunStopped   => writeFiles(event)
+      case _: RunAborted   => writeFiles(event)
       case _ => events += event
     }
   }
@@ -93,10 +117,113 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       Processor.process(markdown)
   }
 
+  def writeFiles(terminatingEvent: Event) {
+    val oldSummary =
+      if (summaryFile.exists)
+        XML.loadFile(summaryFile)
+      else
+        EmptySummary
+
+    val oldRuns = oldSummary \\ "run"
+
+    if (summaryFile.exists) {
+      if (oldRuns.size > 0) {
+        val lastRunId = oldRuns(0) \ "@id"
+        summaryFile.renameTo(
+          new File(summariesDir + "/summary-" + lastRunId + ".xml"))
+      }
+    }
+    
+    writeSummaryFile(terminatingEvent, oldSummary)
+    writeRunFile(terminatingEvent)
+  }
+
+  def writeSummaryFile(terminatingEvent: Event, oldSummary: Elem) {
+    val SummaryTemplate =
+      """|<summary>
+         |  <runs>
+         |$runs$
+         |  </runs>
+         |  <regressions>
+         |  </regressions>
+         |  <recentlySlower>
+         |  </recentlySlower>
+         |</summary>
+         |""".stripMargin
+
+    def formatRun(id: String, succeeded: String, failed: String,
+                  ignored: String, canceled: String, pending: String): String =
+    {
+      "    <run "     +
+      "id=\""         + id         + "\" " +
+      "succeeded=\""  + succeeded  + "\" " +
+      "failed=\""     + failed     + "\" " +
+      "ignored=\""    + ignored    + "\" " +
+      "canceled=\""   + canceled   + "\" " +
+      "pending=\""    + pending    + "\" " + "/>\n"
+    }
+
+    def genThisRun(terminatingEvent: Event): String = {
+      val summaryOption = 
+        terminatingEvent match {
+          case e: RunCompleted => e.summary
+          case e: RunAborted   => e.summary
+          case e: RunStopped   => e.summary
+          case _ => unexpectedEvent(terminatingEvent); None
+        }
+  
+      val summary  = summaryOption.getOrElse(Summary(0, 0, 0, 0, 0, 0, 0))
+  
+      formatRun(timestamp,
+                "" + summary.testsSucceededCount,
+                "" + summary.testsFailedCount,
+                "" + summary.testsIgnoredCount,
+                "" + summary.testsCanceledCount,
+                "" + summary.testsPendingCount)
+    }
+
+    def formatOldRuns(oldRuns: NodeSeq): String = {
+      val buf = new StringBuilder
+
+      for (run <- oldRuns) {
+        val id        = "" + (run \ "@id")
+        val succeeded = "" + (run \ "@succeeded")
+        val failed    = "" + (run \ "@failed")
+        val ignored   = "" + (run \ "@ignored")
+        val canceled  = "" + (run \ "@canceled")
+        val pending   = "" + (run \ "@pending")
+
+        buf.append(
+          formatRun(id, succeeded, failed, ignored, canceled, pending))
+      }
+      buf.toString
+    }
+
+    //
+    // writeSummaryFile main
+    //
+    val thisRun = genThisRun(terminatingEvent)
+    val oldRuns = oldSummary \\ "run"
+
+    val summaryText =
+      SummaryTemplate.replaceFirst("""\$runs\$""",
+                                   thisRun + formatOldRuns(oldRuns))
+
+    writeFile("summary.xml", summaryText)
+  }
+
+  def writeFile(filename: String, text: String) {
+    val out = new PrintWriter(directory + "/" + filename)
+    out.print(text)
+    out.close()
+  }
+
   //
-  // Writes output file suitedata.xml to specified directory.
+  // Writes timestamped output file to 'runs' subdirectory beneath specified
+  // output dir.  Format of file name is e.g., for timestamp "01-07-143216",
+  // "run-2011-01-07-143216.xml".
   //
-  def writeFile(event: Event) {
+  def writeRunFile(event: Event) {
     index = 0
     var suiteRecord: SuiteRecord = null
     val stack = new Stack[SuiteRecord]
@@ -104,8 +231,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
       new PrintWriter(
         new BufferedOutputStream(
           new FileOutputStream(
-            new File(directory, "suitedata.xml")), BufferSize))
-
+            new File(runsDir, "run-" + timestamp + ".xml")), BufferSize))
 
     //
     // Formats <summary> element of output xml.
@@ -157,7 +283,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     }
 
     //
-    // writeFile main
+    // writeRunFile main
     //
     pw.println("<doc>")
     pw.print(formatSummary(event))
