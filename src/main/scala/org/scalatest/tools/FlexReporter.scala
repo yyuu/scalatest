@@ -32,6 +32,7 @@ import scala.collection.mutable.ListBuffer
 import scala.xml.XML
 import scala.xml.NodeSeq
 import scala.xml.Elem
+import scala.xml.Node
 
 import com.github.rjeschke.txtmark.Processor
 
@@ -45,12 +46,13 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   private val events = ListBuffer[Event]()
   private var index = 0
   private val timestamp =
-    new SimpleDateFormat("yyyy-MM-dd-hhmmss").format(new Date)
+    new SimpleDateFormat("yyyy-MM-dd-HHmmss").format(new Date)
 
   private val runsDir      = new File(directory + "/runs")
   private val durationsDir = new File(directory + "/durations")
   private val summariesDir = new File(directory + "/summaries")
   private val summaryFile  = new File(directory + "/summary.xml")
+  private val thisRunFile  = new File(runsDir, "run-" + timestamp + ".xml")
 
   runsDir.mkdir()
   durationsDir.mkdir()
@@ -113,8 +115,8 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
   // summaries/ and durations/ subdirectories.
   //
   def writeFiles(terminatingEvent: Event) {
-    writeSummaryFile(terminatingEvent)
     writeRunFile(terminatingEvent)
+    writeSummaryFile(terminatingEvent)
   }
 
   //
@@ -173,10 +175,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     //
     // Formats <run> elements for previous runs.
     //
-    def formatOldRuns(oldRuns: NodeSeq): String = {
+    def formatOldRuns(oldRunsXml: NodeSeq): String = {
       val buf = new StringBuilder
 
-      for (run <- oldRuns) {
+      for (run <- oldRunsXml) {
         val id        = "" + (run \ "@id")
         val succeeded = "" + (run \ "@succeeded")
         val failed    = "" + (run \ "@failed")
@@ -191,10 +193,10 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     }
 
     //
-    // Reads existing summary.xml file, or, if none exists, returns <summary>
+    // Reads existing summary.xml file, or, if none exists, returns a <summary>
     // xml containing all empty elements.
     //
-    def getOldSummary: Elem = {
+    def getOldSummaryXml: Elem = {
       if (summaryFile.exists)
         XML.loadFile(summaryFile)
       else
@@ -210,33 +212,77 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     // it to the summaries/ subdirectory and renames it to a filename
     // containing the timestamp of the most recent run the file contains.
     //
-    def archiveOldSummaryFile(oldRuns: NodeSeq) {
+    def archiveOldSummaryFile(oldRunsXml: NodeSeq) {
       if (summaryFile.exists) {
-        if (oldRuns.size > 0) {
-          val lastRunId = oldRuns(0) \ "@id"
+        if (oldRunsXml.size > 0) {
+          val lastRunId = oldRunsXml(0) \ "@id"
           summaryFile.renameTo(
             new File(summariesDir + "/summary-" + lastRunId + ".xml"))
         }
       }
     }
-    
+
+    def getThisRunXml: Elem = {
+      XML.loadFile(thisRunFile)
+    }
+
+    def genRegressions(oldRegressionsXml: NodeSeq, thisRunXml: Elem): String =
+    {
+      def getOldRegression(suite: Node, test: Node): Option[Node] = {
+        val matches =
+          oldRegressionsXml.filter(
+            node => node \ "@testName" == test \ "@name")
+
+        if (matches.size > 0)
+          Some(matches(0))
+        else
+          None
+      }
+
+      //
+      // genRegressionsMain
+      //
+      val suites = thisRunXml \\ "suite"
+
+      for (suite <- suites) {
+        val tests = suite \ "test"
+
+        for (test <- tests) {
+          val result = test \ "result"
+
+          if (result != "passed") {
+            val oldRegression = getOldRegression(suite, test)
+          }
+        }
+      }
+      "genRegressions output"
+    }
+
     //
     // writeSummaryFile main
     //
-    val oldSummary = getOldSummary
-    val oldRuns    = oldSummary \\ "run"
+    val oldSummaryXml = getOldSummaryXml
+    val thisRunXml    = getThisRunXml
 
-    archiveOldSummaryFile(oldRuns)
+    val oldRunsXml        = oldSummaryXml \\ "run"
+    val oldRegressionsXml = oldSummaryXml \\ "regression"
+
+    archiveOldSummaryFile(oldRunsXml)
 
     val thisRun = genThisRun(terminatingEvent)
+    val oldRuns = formatOldRuns(oldRunsXml)
+
+    val regressions = genRegressions(oldRegressionsXml, thisRunXml)
 
     val summaryText =
-      SummaryTemplate.
-        replaceFirst("""\$runs\$""", thisRun + formatOldRuns(oldRuns))
+      SummaryTemplate.replaceFirst("""\$runs\$""", thisRun + oldRuns)
 
     writeFile("summary.xml", summaryText)
   }
 
+  //
+  // Writes specified text to specified file in output directory.
+  //
   def writeFile(filename: String, text: String) {
     val out = new PrintWriter(directory + "/" + filename)
     out.print(text)
@@ -255,8 +301,7 @@ private[scalatest] class FlexReporter(directory: String) extends Reporter {
     val pw =
       new PrintWriter(
         new BufferedOutputStream(
-          new FileOutputStream(
-            new File(runsDir, "run-" + timestamp + ".xml")), BufferSize))
+          new FileOutputStream(thisRunFile), BufferSize))
 
     //
     // Formats <summary> element of output xml.
