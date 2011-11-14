@@ -167,12 +167,13 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         // System.out.println("##### classPath: " + classPath);
         // System.out.println("##### testOutputDirectory: " + testOutputDirectory);
         // System.out.println("##### outputDirectory: " + outputDirectory);
-        String[] commandArgs = new String[args.length + 4];
-        commandArgs[0] = "scala";
-        commandArgs[1] = "-cp";
-        commandArgs[2] = classPath;
-        commandArgs[3] = "org.scalatest.tools.Runner";
-        int i = 4;
+        String[] commandArgs = new String[args.length + 5];
+        commandArgs[0] = "java";
+        commandArgs[1] = String.format("-Dbasedir=%s", System.getProperty("basedir"));
+        commandArgs[2] = "-cp";
+        commandArgs[3] = classPath;
+        commandArgs[4] = "org.scalatest.tools.Runner";
+        int i = 5;
         for (String a : args) {
             commandArgs[i] = a;
             ++i;
@@ -323,3 +324,5 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
         return suiteArg("-j", jUnitClasses);
     }
 }
+
+
