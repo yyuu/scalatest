@@ -20,6 +20,10 @@ import java.lang.reflect.Method;
  * Provides the base for all mojos.
  * 
  * @author Jon-Anders Teigen
+ * @author Sean Griffin
+ * @author Mike Pilquist
+ * @author Bill Venners
+ *
  * @requiresDependencyResolution test
  */
 abstract class AbstractScalaTestMojo extends AbstractMojo {
