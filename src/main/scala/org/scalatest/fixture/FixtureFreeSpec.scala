@@ -418,7 +418,8 @@ trait FixtureFreeSpec extends FixtureSuite { thisSuite =>
    */
   private def registerTestToRun(specText: String, testTags: List[Tag], testFun: FixtureParam => Any) {
     // TODO: This is what was being used before but it is wrong
-    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureFreeSpec.scala", "it", testTags: _*)
+    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureFreeSpec.scala", 
+                 Thread.currentThread().getStackTrace()(2).getMethodName(), testTags: _*)
   }
 
   /**

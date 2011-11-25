@@ -2029,7 +2029,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
     val (stopRequested, report, method, hasPublicNoArgConstructor, rerunnable, testStartTime) =
       getSuiteRunTestGoodies(stopper, reporter, testName)
 
-    reportTestStarting(this, report, tracker, testName, testName, rerunnable)
+    reportTestStarting(this, report, tracker, testName, testName, rerunnable, Some(getTopOfMethod(testName)))
 
     val formatter = getIndentedText(testName, 1, true)
 
@@ -2064,7 +2064,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
         }
       )
       val duration = System.currentTimeMillis - testStartTime
-      reportTestSucceeded(this, report, tracker, testName, testName, duration, formatter, rerunnable)
+      reportTestSucceeded(this, report, tracker, testName, testName, duration, formatter, rerunnable, Some(getTopOfMethod(method)))
     }
     catch { 
       case ite: InvocationTargetException =>
@@ -2072,13 +2072,14 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
         t match {
           case _: TestPendingException =>
             val duration = System.currentTimeMillis - testStartTime
-            reportTestPending(this, report, tracker, testName, testName, duration, formatter)
+            reportTestPending(this, report, tracker, testName, testName, duration, formatter, Some(getTopOfMethod(method)))
             testWasPending = true // Set so info's printed out in the finally clause show up yellow
           case e: TestCanceledException =>
             val duration = System.currentTimeMillis - testStartTime
             val message = getMessageForException(e)
             val formatter = getIndentedText(testName, 1, true)
-            report(TestCanceled(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteID, Some(thisSuite.getClass.getName), testName, testName, Some(e), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
+            report(TestCanceled(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteID, Some(thisSuite.getClass.getName), 
+                                testName, testName, Some(e), Some(duration), Some(formatter), Some(TopOfMethod(thisSuite.getClass.getName, method.toGenericString())), rerunnable))
             testWasCanceled = true // Set so info's printed out in the finally clause show up yellow
           case e if !anErrorThatShouldCauseAnAbort(e) =>
             val duration = System.currentTimeMillis - testStartTime
@@ -2200,7 +2201,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
       for ((tn, ignoreTest) <- filter(testNames, tags)) {
         if (!stopRequested()) {
           if (ignoreTest) {
-            reportTestIgnored(thisSuite, report, tracker, tn, tn, 1)
+            reportTestIgnored(thisSuite, report, tracker, tn, tn, 1, Some(getTopOfMethod(tn)))
           }
           else
             runTest(tn, report, stopRequested, configMap, tracker)
@@ -2304,7 +2305,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testName, 1, true)
-    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteID, Some(thisSuite.getClass.getName), testName, testName, Some(throwable), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
+    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteID, Some(thisSuite.getClass.getName), testName, testName, Some(throwable), Some(duration), Some(formatter), Some(SeeStackDepthException), rerunnable))
   }
 
   /**
@@ -2380,7 +2381,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
 
         val suiteStartTime = System.currentTimeMillis
 
-        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), formatter, Some(ToDoLocation), rerunnable))
+        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), formatter, Some(getTopOfClass), rerunnable))
 
         try {
           // Same thread, so OK to send same tracker
@@ -2390,7 +2391,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
           val formatter = formatterForSuiteCompleted(nestedSuite)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), Some(duration), formatter, Some(ToDoLocation), rerunnable))
+          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), Some(duration), formatter, Some(getTopOfClass), rerunnable))
         }
         catch {       
           case e: RuntimeException => {
@@ -2399,7 +2400,7 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
             val formatter = formatterForSuiteAborted(nestedSuite, rawString)
 
             val duration = System.currentTimeMillis - suiteStartTime
-            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), Some(e), Some(duration), formatter, Some(ToDoLocation), rerunnable))
+            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteID, Some(nestedSuite.getClass.getName), Some(e), Some(duration), formatter, Some(getTopOfClass), rerunnable))
           }
         }
       }
@@ -2583,6 +2584,10 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
     case cr: CatchReporter => cr
     case _ => new CatchReporter(reporter)
   }
+  
+  private[scalatest] def getTopOfClass = TopOfClass(this.getClass.getName)
+  private[scalatest] def getTopOfMethod(method:Method) = TopOfMethod(this.getClass.getName, method.toGenericString())
+  private[scalatest] def getTopOfMethod(testName:String) = TopOfMethod(this.getClass.getName, getMethodForTestName(testName).toGenericString())
 }
 
 private[scalatest] object Suite {
@@ -2872,50 +2877,50 @@ used for test events like succeeded/failed, etc.
   def indentation(level: Int) = "  " * level
 
   def reportTestFailed(theSuite: Suite, report: Reporter, throwable: Throwable, testName: String, testText: String,
-      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean) {
+      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean, location:Option[Location]) {
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testText, level, includeIcon)
-    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(throwable), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
+    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(throwable), Some(duration), Some(formatter), location, rerunnable))
   }
 
   // TODO: Possibly separate these out from method tests and function tests, because locations are different
-  def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, rerunnable: Option[Rerunner]) {
+  def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, rerunnable: Option[Rerunner], location:Option[Location]) {
     report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(MotionToSuppress),
-      Some(ToDoLocation), rerunnable))
+      location, rerunnable))
   }
 
-  def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, duration: Long, formatter: Formatter) {
+  def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, duration: Long, formatter: Formatter, location:Option[Location]) {
     report(TestPending(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(duration), Some(formatter),
-      Some(ToDoLocation)))
+      location))
   }
 
 /*
-  def reportTestCanceled(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, duration: Long, formatter: Formatter) {
+  def reportTestCanceled(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, duration: Long, formatter: Formatter, location:Option[Location]) {
     val message = getMessageForException(throwable)
     report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, Some(duration), Some(formatter),
-      Some(ToDoLocation)))
+      location))
   }
 */
 
   def reportTestCanceled(theSuite: Suite, report: Reporter, throwable: Throwable, testName: String, testText: String,
-      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean) {
+      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean, location:Option[Location]) {
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testText, level, includeIcon)
-    report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(throwable), Some(duration), Some(formatter), Some(ToDoLocation), rerunnable))
+    report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(throwable), Some(duration), Some(formatter), location, rerunnable))
   }
 
-  def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, duration: Long, formatter: Formatter, rerunnable: Option[Rerunner]) {
+  def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, duration: Long, formatter: Formatter, rerunnable: Option[Rerunner], location:Option[Location]) {
     report(TestSucceeded(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(duration), Some(formatter),
-      Some(ToDoLocation), rerunnable))
+      location, rerunnable))
   }
 
-  def reportTestIgnored(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, level: Int) {
+  def reportTestIgnored(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, level: Int, location:Option[Location]) {
     val testSucceededIcon = Resources("testSucceededIconChar")
     val formattedText = indentation(level - 1) + Resources("iconPlusShortName", testSucceededIcon, testText)
     report(TestIgnored(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName, testText, Some(IndentedText(formattedText, testText, level)),
-      Some(ToDoLocation)))
+      location))
   }
 
   // If not fired in the context of a test, then testName will be None

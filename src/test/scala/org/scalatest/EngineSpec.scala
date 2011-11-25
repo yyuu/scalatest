@@ -17,6 +17,7 @@ package org.scalatest
 
 import events.InfoProvided
 import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.events.LineInFile
 
 class EngineSpec extends FlatSpec with SharedHelpers with ShouldMatchers {
 
@@ -58,13 +59,13 @@ class EngineSpec extends FlatSpec with SharedHelpers with ShouldMatchers {
     import engine._
     val child = DescriptionBranch(Trunk, "child", Some("child prefix"))
     Trunk.subNodes ::= child
-    val childTest = TestLeaf(Trunk, "child test", "child test", () => ())
+    val childTest = TestLeaf(Trunk, "child test", "child test", () => (), new LineInFile(() => None))
     Trunk.subNodes ::= childTest
     val grandchild = DescriptionBranch(child, "grandchild", None)
     child.subNodes ::= grandchild
-    val grandchildTest = TestLeaf(child, "grandchild test", "grandchild test", () => ())
+    val grandchildTest = TestLeaf(child, "grandchild test", "grandchild test", () => (), new LineInFile(() => None))
     child.subNodes ::= grandchildTest
-    val greatGrandchildTest = TestLeaf(grandchild, "great-grandchild test", "great-grandchild test", () => ())
+    val greatGrandchildTest = TestLeaf(grandchild, "great-grandchild test", "great-grandchild test", () => (), new LineInFile(() => None))
     grandchild.subNodes ::= greatGrandchildTest
     Trunk.indentationLevel should be (0)
     child.indentationLevel should be (0)

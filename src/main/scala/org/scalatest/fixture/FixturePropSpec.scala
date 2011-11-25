@@ -500,7 +500,7 @@ trait FixturePropSpec extends FixtureSuite { thisSuite =>
    * @throws NullPointerException if <code>testName</code> or any passed test tag is <code>null</code>
    */
   protected def property(testName: String, testTags: Tag*)(testFun: FixtureParam => Any) {
-    registerTest(testName, testFun, "testCannotAppearInsideAnotherTest", "FixturePropSpec.scala", "test", testTags: _*)
+    registerTest(testName, testFun, "testCannotAppearInsideAnotherTest", "FixturePropSpec.scala", "property", testTags: _*)
   }
 
   /**

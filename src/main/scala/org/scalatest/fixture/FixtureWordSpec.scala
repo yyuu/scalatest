@@ -416,7 +416,8 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    */
   private def registerTestToRun(specText: String, testTags: List[Tag], testFun: FixtureParam => Any) {
     // TODO: This is what was being used before but it is wrong
-    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureWordSpec.scala", "it", testTags: _*)
+    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureWordSpec.scala", 
+                 Thread.currentThread().getStackTrace()(2).getMethodName(), testTags: _*)
   }
 
   /**
