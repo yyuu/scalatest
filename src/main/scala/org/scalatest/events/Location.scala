@@ -36,18 +36,7 @@ final case class TopOfMethod(className: String, methodId: String) extends Locati
 /**
  * An arbitrary line number in a named source file.
  */
-final case class LineInFile(val stackTraceFun:() => Option[StackTraceElement]) extends Location {
-  
-  private lazy val stackTraceElementOpt = stackTraceFun()
-  lazy val fileName = stackTraceElementOpt match {
-    case Some(stackTraceElement) => stackTraceElement.getFileName()
-    case None => null
-  }
-  lazy val lineNumber = stackTraceElementOpt match {
-    case Some(stackTraceElement) => stackTraceElement.getLineNumber()
-    case None => -1
-  }
-}
+final case class LineInFile(lineNumber: Int, fileName: String) extends Location
 
 /**
  * Indicates the location should be taken from the stack depth exception, included elsewhere in 

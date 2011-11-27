@@ -23,6 +23,7 @@ import org.scalatest.NodeFamily.TestLeaf
 import org.scalatest.Suite._
 import fixture.NoArgTestWrapper
 import org.scalatest.events.LineInFile
+import org.scalatest.events.SeeStackDepthException
 
 // T will be () => Unit for FunSuite and FixtureParam => Any for FixtureFunSuite
 private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResourceName: String, simpleClassName: String)  {
@@ -50,7 +51,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     testName: String, // The full test name
     testText: String, // The last portion of the test name that showed up on an inner most nested level
     testFun: T, 
-    lineInFile: LineInFile
+    lineInFile: Option[LineInFile]
   ) extends Node(Some(parent))
 
   case class InfoLeaf(parent: Branch, message: String) extends Node(Some(parent))
@@ -178,7 +179,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 
     val theTest = atomic.get.testsMap(testName)
 
-    reportTestStarting(theSuite, report, tracker, testName, theTest.testText, rerunnable, Some(theTest.lineInFile))
+    reportTestStarting(theSuite, report, tracker, testName, theTest.testText, rerunnable, theTest.lineInFile)
 
     val testTextWithOptionalPrefix = prependChildPrefix(theTest.parent, theTest.testText)
     val formatter = getIndentedText(testTextWithOptionalPrefix, theTest.indentationLevel, includeIcon)
@@ -206,20 +207,20 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       invokeWithFixture(theTest)
 
       val duration = System.currentTimeMillis - testStartTime
-      reportTestSucceeded(theSuite, report, tracker, testName, theTest.testText, duration, formatter, rerunnable, Some(theTest.lineInFile))
+      reportTestSucceeded(theSuite, report, tracker, testName, theTest.testText, duration, formatter, rerunnable, theTest.lineInFile)
     }
     catch { 
       case _: TestPendingException =>
         val duration = System.currentTimeMillis - testStartTime
-        reportTestPending(theSuite, report, tracker, testName, theTest.testText, duration, formatter, Some(theTest.lineInFile))
+        reportTestPending(theSuite, report, tracker, testName, theTest.testText, duration, formatter, theTest.lineInFile)
         testWasPending = true // Set so info's printed out in the finally clause show up yellow
       case e: TestCanceledException =>
         val duration = System.currentTimeMillis - testStartTime
-        reportTestCanceled(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon, Some(theTest.lineInFile))
+        reportTestCanceled(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon, theTest.lineInFile)
         testWasCanceled = true // Set so info's printed out in the finally clause show up yellow
       case e if !anErrorThatShouldCauseAnAbort(e) =>
         val duration = System.currentTimeMillis - testStartTime
-        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon, Some(theTest.lineInFile))
+        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon, Some(SeeStackDepthException))
       case e => throw e
     }
     finally {
@@ -268,7 +269,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
                 if (ignoreTest) {
                   val testTextWithOptionalPrefix = prependChildPrefix(branch, testText)
                   val theTest = atomic.get.testsMap(testName)
-                  reportTestIgnored(theSuite, report, tracker, testName, testTextWithOptionalPrefix, testLeaf.indentationLevel, Some(theTest.lineInFile))
+                  reportTestIgnored(theSuite, report, tracker, testName, testTextWithOptionalPrefix, testLeaf.indentationLevel, theTest.lineInFile)
                 }
                 else
                   runTest(testName, report, stopRequested, configMap, tracker)
@@ -450,10 +451,13 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     currentBranch == Trunk
   }
   
-  def getLineInFile(exception:Exception, sourceFileName:String, methodName:String):Option[StackTraceElement] = {
-    val stackTraceList = exception.getStackTrace().toList
+  def getLineInFile(stackTraceList:List[StackTraceElement], sourceFileName:String, methodName:String):Option[LineInFile] = {
     val baseStackDepth = stackTraceList.takeWhile(stackTraceElement => sourceFileName != stackTraceElement.getFileName || stackTraceElement.getMethodName != methodName).length
-    stackTraceList.drop(baseStackDepth).find(stackTraceElement => stackTraceElement.getMethodName() == "<init>")
+    val stackTraceOpt = stackTraceList.drop(baseStackDepth).find(stackTraceElement => stackTraceElement.getMethodName() == "<init>")
+    stackTraceOpt match {
+      case Some(stackTrace) => Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
+      case None => None
+    }
   }
 
   def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*): String = { // returns testName
@@ -472,9 +476,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     if (atomic.get.testsMap.keySet.contains(testName))
       throw new DuplicateTestNameException(testName, getStackDepth(sourceFileName, methodName))
 
-    val temp = new RuntimeException()
-    temp.fillInStackTrace()
-    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, LineInFile(() => getLineInFile(temp, sourceFileName, methodName)))
+    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, getLineInFile(Thread.currentThread().getStackTrace.toList, sourceFileName, methodName))
     testsMap += (testName -> testLeaf)
     testNamesList ::= testName
     currentBranch.subNodes ::= testLeaf

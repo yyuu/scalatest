@@ -408,16 +408,17 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * @param specText the specification text, which will be combined with the descText of any surrounding describers
    * to form the test name
+   * @param methodName Method name of the caller
    * @param testTags the optional list of tags for this test
    * @param testFun the test function
    * @throws DuplicateTestNameException if a test with the same name has been registered previously
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToRun(specText: String, testTags: List[Tag], testFun: FixtureParam => Any) {
+  private def registerTestToRun(specText: String, methodName:String, testTags: List[Tag], testFun: FixtureParam => Any) {
     // TODO: This is what was being used before but it is wrong
     registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureWordSpec.scala", 
-                 Thread.currentThread().getStackTrace()(2).getMethodName(), testTags: _*)
+                 methodName, testTags: _*)
   }
 
   /**
@@ -432,15 +433,16 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    *
    * @param specText the specification text, which will be combined with the descText of any surrounding describers
    * to form the test name
+   * @param methodName Method name of the caller
    * @param testTags the optional list of tags for this test
    * @param testFun the test function
    * @throws DuplicateTestNameException if a test with the same name has been registered previously
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToIgnore(specText: String, testTags: List[Tag], testFun: FixtureParam => Any) {
+  private def registerTestToIgnore(specText: String, methodName: String, testTags: List[Tag], testFun: FixtureParam => Any) {
     // TODO: This is how these were, but it needs attention. Mentions "it".
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "WordSpec.scala", "ignore", testTags: _*)
+    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "WordSpec.scala", methodName, testTags: _*)
   }
 
   private def registerBranch(description: String, childPrefix: Option[String], fun: () => Unit) {
@@ -478,7 +480,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def in(testFun: FixtureParam => Any) {
-      registerTestToRun(specText, tags, testFun)
+      registerTestToRun(specText, "in", tags, testFun)
     }
 
     /**
@@ -498,7 +500,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def in(testFun: () => Any) {
-      registerTestToRun(specText, tags, new NoArgTestWrapper(testFun))
+      registerTestToRun(specText, "in", tags, new NoArgTestWrapper(testFun))
     }
 
     /**
@@ -518,7 +520,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def is(testFun: => PendingNothing) {
-      registerTestToRun(specText, tags, unusedFixtureParam => testFun)
+      registerTestToRun(specText, "is", tags, unusedFixtureParam => testFun)
     }
 
     /**
@@ -538,7 +540,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def ignore(testFun: FixtureParam => Any) {
-      registerTestToIgnore(specText, tags, testFun)
+      registerTestToIgnore(specText, "ignore", tags, testFun)
     }
 
     /**
@@ -558,7 +560,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def ignore(testFun: () => Any) {
-      registerTestToIgnore(specText, tags, new NoArgTestWrapper(testFun))
+      registerTestToIgnore(specText, "ignore", tags, new NoArgTestWrapper(testFun))
     }
   }
 
@@ -596,7 +598,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def in(testFun: FixtureParam => Any) {
-      registerTestToRun(string, List(), testFun)
+      registerTestToRun(string, "in", List(), testFun)
     }
 
     /**
@@ -616,7 +618,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def in(testFun: () => Any) {
-      registerTestToRun(string, List(), new NoArgTestWrapper(testFun))
+      registerTestToRun(string, "in", List(), new NoArgTestWrapper(testFun))
     }
 
     /**
@@ -636,7 +638,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def is(testFun: => PendingNothing) {
-      registerTestToRun(string, List(), unusedFixtureParam => testFun)
+      registerTestToRun(string, "is", List(), unusedFixtureParam => testFun)
     }
 
     /**
@@ -656,7 +658,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def ignore(testFun: FixtureParam => Any) {
-      registerTestToIgnore(string, List(), testFun)
+      registerTestToIgnore(string, "ignore", List(), testFun)
     }
 
     /**
@@ -676,7 +678,7 @@ trait FixtureWordSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      * </p>
      */
     def ignore(testFun: () => Any) {
-      registerTestToIgnore(string, List(), new NoArgTestWrapper(testFun))
+      registerTestToIgnore(string, "ignore", List(), new NoArgTestWrapper(testFun))
     
     }
 
