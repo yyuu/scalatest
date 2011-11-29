@@ -370,6 +370,8 @@ import Suite.anErrorThatShouldCauseAnAbort
 trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with CanVerb { thisSuite =>
 
   private final val engine = new FixtureEngine[FixtureParam]("concurrentFixtureFlatSpecMod", "FixtureFlatSpec")
+  private final val stackDepth = 4
+  
   import engine._
 
   /**
@@ -401,11 +403,11 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToRun(specText: String, methodName:String, testTags: List[Tag], testFun: FixtureParam => Any) {
+  private def registerTestToRun(specText: String, methodName: String, testTags: List[Tag], testFun: FixtureParam => Any) {
 
     // TODO: This is what was being used before but it is wrong
     registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FixtureFlatSpec.scala", 
-                 methodName, testTags: _*)
+                 methodName, stackDepth, testTags: _*)
   }
 
   /**
@@ -1686,10 +1688,10 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToIgnore(specText: String, methodName:String, testTags: List[Tag], testFun: FixtureParam => Any) {
+  private def registerTestToIgnore(specText: String, methodName: String, testTags: List[Tag], testFun: FixtureParam => Any) {
 
     // TODO: This is how these were, but it needs attention. Mentions "it".
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FixtureFlatSpec.scala", methodName, testTags: _*)
+    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FixtureFlatSpec.scala", methodName, stackDepth, testTags: _*)
   }
 
   /**

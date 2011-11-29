@@ -1479,6 +1479,7 @@ import Suite.anErrorThatShouldCauseAnAbort
 trait FreeSpec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFreeSpecMod", "FreeSpec")
+  private final val stackDepth = 4
   import engine._
 
   /**
@@ -1520,10 +1521,10 @@ trait FreeSpec extends Suite { thisSuite =>
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToRun(specText: String, methodName:String, testTags: List[Tag], testFun: () => Unit) {
+  private def registerTestToRun(specText: String, methodName: String, testTags: List[Tag], testFun: () => Unit) {
     // TODO: This is what was being used before but it is wrong
     registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FreeSpec.scala", 
-                 methodName, testTags: _*)
+                 methodName, stackDepth, testTags: _*)
   }
 
   /**
@@ -1545,10 +1546,10 @@ trait FreeSpec extends Suite { thisSuite =>
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToIgnore(specText: String, methodName:String, testTags: List[Tag], testFun: () => Unit) {
+  private def registerTestToIgnore(specText: String, methodName: String, testTags: List[Tag], testFun: () => Unit) {
 
     // TODO: This is how these were, but it needs attention. Mentions "it".
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FreeSpec.scala", methodName, testTags: _*)
+    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FreeSpec.scala", methodName, stackDepth, testTags: _*)
   }
 
   /**

@@ -54,6 +54,25 @@ class LocationSpec extends Spec with Checkers {
     }
   }
   
+  class TestLocationSuite extends Suite {
+    def testSucceed() = {
+      
+    }
+    
+    def testFail() = {
+      fail
+    }
+    
+    def testPending():Unit = {
+      pending
+    }
+    
+    @Ignore
+    def testIgnore() = {
+      
+    }
+  }
+  
   describe("Suite's events") {
     it("should have TopOfMethod and SeeStackDepthException location with correct line number and source file name") {
       val testLocationSuite = new TestLocationSuite
@@ -63,16 +82,16 @@ class LocationSpec extends Spec with Checkers {
       testLocationEventList.foreach {event => 
         event match {
           case testSucceed:TestSucceeded => 
-            expect("org.scalatest.events.TestLocationSuite") { testSucceed.location.get.asInstanceOf[TopOfMethod].className }
-            expect("public void org.scalatest.events.TestLocationSuite.testSucceed()") { testSucceed.location.get.asInstanceOf[TopOfMethod].methodId }
+            expect("org.scalatest.events.LocationSpec$TestLocationSuite") { testSucceed.location.get.asInstanceOf[TopOfMethod].className }
+            expect("public void org.scalatest.events.LocationSpec$TestLocationSuite.testSucceed()") { testSucceed.location.get.asInstanceOf[TopOfMethod].methodId }
           case testFail:TestFailed => 
             expect(SeeStackDepthException.getClass) { testFail.location.get.getClass }
           case testPending:TestPending => 
-            expect("org.scalatest.events.TestLocationSuite") { testPending.location.get.asInstanceOf[TopOfMethod].className }
-            expect("public void org.scalatest.events.TestLocationSuite.testPending()") { testPending.location.get.asInstanceOf[TopOfMethod].methodId }
+            expect("org.scalatest.events.LocationSpec$TestLocationSuite") { testPending.location.get.asInstanceOf[TopOfMethod].className }
+            expect("public void org.scalatest.events.LocationSpec$TestLocationSuite.testPending()") { testPending.location.get.asInstanceOf[TopOfMethod].methodId }
           case testIgnore:TestIgnored => 
-            expect("org.scalatest.events.TestLocationSuite") { testIgnore.location.get.asInstanceOf[TopOfMethod].className }
-            expect("public void org.scalatest.events.TestLocationSuite.testIgnore()") { testIgnore.location.get.asInstanceOf[TopOfMethod].methodId }
+            expect("org.scalatest.events.LocationSpec$TestLocationSuite") { testIgnore.location.get.asInstanceOf[TopOfMethod].className }
+            expect("public void org.scalatest.events.LocationSpec$TestLocationSuite.testIgnore()") { testIgnore.location.get.asInstanceOf[TopOfMethod].methodId }
           case _ =>
         }
       }
@@ -93,24 +112,5 @@ class LocationSpec extends Spec with Checkers {
       st(2).getLineNumber
     else
       st(3).getLineNumber
-  }
-}
-
-class TestLocationSuite extends Suite {
-  def testSucceed() = {
-      
-  }
-    
-  def testFail() = {
-    fail
-  }
-    
-  def testPending():Unit = {
-    pending
-  }
-    
-  @Ignore
-  def testIgnore() = {
-      
   }
 }

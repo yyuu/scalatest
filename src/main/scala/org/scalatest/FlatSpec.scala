@@ -1424,6 +1424,7 @@ import Suite.anErrorThatShouldCauseAnAbort
 trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSuite =>
 
   private final val engine = new Engine("concurrentSpecMod", "Spec")
+  private final val stackDepth = 4
   import engine._
 
   /**
@@ -1465,11 +1466,11 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToRun(specText: String, methodName:String, testTags: List[Tag], testFun: () => Unit) {
+  private def registerTestToRun(specText: String, methodName: String, testTags: List[Tag], testFun: () => Unit) {
 
     // TODO: This is what was being used before but it is wrong
     registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FlatSpec.scala", 
-                 methodName, testTags: _*)
+                 methodName, stackDepth, testTags: _*)
   }
 
   /**
@@ -2541,10 +2542,10 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToIgnore(specText: String, methodName:String, testTags: List[Tag], testFun: () => Unit) {
+  private def registerTestToIgnore(specText: String, methodName: String, testTags: List[Tag], testFun: () => Unit) {
 
     // TODO: This is how these were, but it needs attention. Mentions "it".
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FlatSpec.scala", methodName, testTags: _*)
+    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FlatSpec.scala", methodName, stackDepth, testTags: _*)
   }
 
   /**
