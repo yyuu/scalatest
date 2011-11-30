@@ -11,6 +11,7 @@ import org.junit.Test
 import org.junit.{Ignore => JUnitIgnore}
 import org.scalatest.testng.TestNGSuite
 import org.testng.annotations.{Test => TestNG}
+import org.scalatest.fixture.FixtureSuite
 
 trait Services { 
   def checkFun(event: Event): Unit
@@ -63,6 +64,52 @@ class LocationMethodSuiteProp extends MethodSuiteProp {
       
     }
     val suiteTypeName: String = "TestLocationSuite"
+    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
+    def checkFun(event: Event) {
+      event match {
+        case testStarting: TestStarting => 
+          testStarting.testName match {
+            case "testSucceed" => startingSucceedEvent = checkTopOfMethod(suiteTypeName, "testSucceed", event)
+            case "testPending" => startingPendingEvent = checkTopOfMethod(suiteTypeName, "testPending", event)
+            case "testCancel" => startingCancelEvent = checkTopOfMethod(suiteTypeName, "testCancel", event)
+            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
+          }
+        case testSucceed: TestSucceeded => succeededEvent = checkTopOfMethod(suiteTypeName, "testSucceed", event)
+        case testPending: TestPending => pendingEvent = checkTopOfMethod(suiteTypeName, "testPending", event)
+        case testCancel: TestCanceled => canceledEvent = checkTopOfMethod(suiteTypeName, "testCancel", event)
+        case testIgnored: TestIgnored => ignoredEvent = checkTopOfMethod(suiteTypeName, "testIgnore", event)
+        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
+      }
+    }
+    def allChecked = {
+      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
+      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
+      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
+      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
+      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
+      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
+      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
+    }
+  }
+  
+  def fixtureSuite = new TestLocationFixtureSuite
+  class TestLocationFixtureSuite extends FixtureSuite with FixtureServices {
+    type FixtureParam = String
+    def withFixture(test: OneArgTest) { test("test it!") }
+    def testSucceed() {
+      
+    }
+    def testPending() {
+      pending
+    }
+    def testCancel() {
+      cancel
+    }
+    @Ignore
+    def testIgnore() {
+      
+    }
+    val suiteTypeName: String = "TestLocationFixtureSuite"
     var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     def checkFun(event: Event) {
       event match {
