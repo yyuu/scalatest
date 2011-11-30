@@ -460,14 +460,16 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     }
   }*/
   
-  def getLineInFile(stackTraceList: List[StackTraceElement], stackDepth: Int) = {
-    try {
+  private[scalatest] def getLineInFile(stackTraceList: Array[StackTraceElement], stackDepth: Int) = {
+    if(stackDepth >= 0 && stackDepth < stackTraceList.length) {
       val stackTrace = stackTraceList(stackDepth)
-      Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
+      if(stackTrace.getLineNumber >= 0 && stackTrace.getFileName != null)
+        Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
+      else
+        None
     }
-    catch {
-      case _ => None
-    }
+    else
+      None
   }
 
   def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, stackDepth:Int, testTags: Tag*): String = { // returns testName
@@ -486,7 +488,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     if (atomic.get.testsMap.keySet.contains(testName))
       throw new DuplicateTestNameException(testName, getStackDepth(sourceFileName, methodName))
 
-    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, getLineInFile(Thread.currentThread().getStackTrace.toList, stackDepth))
+    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, getLineInFile(Thread.currentThread().getStackTrace, stackDepth))
     testsMap += (testName -> testLeaf)
     testNamesList ::= testName
     currentBranch.subNodes ::= testLeaf
