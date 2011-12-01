@@ -60,7 +60,8 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
   case class DescriptionBranch(
     parent: Branch,
     descriptionText: String,
-    childPrefix: Option[String] // If defined, put it at the beginning of any child descriptionText or testText 
+    childPrefix: Option[String], // If defined, put it at the beginning of any child descriptionText or testText 
+    lineInFile: Option[LineInFile]
   ) extends Branch(Some(parent))   
 
   // Access to the testNamesList, testsMap, and tagsMap must be synchronized, because the test methods are invoked by
@@ -246,13 +247,14 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 
     branch match {
 
-      case desc @ DescriptionBranch(parent, descriptionText, _) =>
+      case desc @ DescriptionBranch(parent, descriptionText, _, lineInFile) =>
 
         val descriptionTextWithOptionalPrefix = prependChildPrefix(parent, descriptionText)
         val indentationLevel = desc.indentationLevel
-        reportScopeOpened(theSuite, report, tracker, None, descriptionTextWithOptionalPrefix, indentationLevel, false)
+        //val theTest = atomic.get.testsMap(descriptionText)
+        reportScopeOpened(theSuite, report, tracker, None, descriptionTextWithOptionalPrefix, indentationLevel, false, None, None, lineInFile)
         traverseSubNodes()
-        reportScopeClosed(theSuite, report, tracker, None, descriptionTextWithOptionalPrefix, indentationLevel, false)
+        reportScopeClosed(theSuite, report, tracker, None, descriptionTextWithOptionalPrefix, indentationLevel, false, None, None, lineInFile)
 
       case Trunk =>
         traverseSubNodes()
@@ -289,7 +291,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 
   def prependChildPrefix(branch: Branch, testText: String): String =
     branch match {
-      case DescriptionBranch(_, _, Some(cp)) => Resources("prefixSuffix", cp, testText)
+      case DescriptionBranch(_, _, Some(cp), _) => Resources("prefixSuffix", cp, testText)
       case _ => testText
     }
 
@@ -402,7 +404,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     }
   } */
 
-  def registerNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
+  def registerNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String, stackDepth: Int) {
 
     val oldBundle = atomic.get
     val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
@@ -411,7 +413,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepth(sourceFile, methodName))
 
     val oldBranch = currentBranch
-    val newBranch = DescriptionBranch(currentBranch, description, childPrefix)
+    val newBranch = DescriptionBranch(currentBranch, description, childPrefix, getLineInFile(Thread.currentThread().getStackTrace, stackDepth))
     oldBranch.subNodes ::= newBranch
 
     // Update atomic, making the current branch to the new branch
@@ -427,7 +429,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
   }
 
   // Used by FlatSpec, which doesn't nest. So this one just makes a new one off of the trunk
-  def registerFlatBranch(description: String, registrationClosedResource: String, sourceFile: String, methodName: String) {
+  def registerFlatBranch(description: String, registrationClosedResource: String, sourceFile: String, methodName: String, stackDepth: Int) {
 
     val oldBundle = atomic.get
     val (_, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
@@ -437,7 +439,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 
     // Need to use Trunk here. I think it will be visible to all threads because
     // of the atomic, even though it wasn't inside it.
-    val newBranch = DescriptionBranch(Trunk, description, None)
+    val newBranch = DescriptionBranch(Trunk, description, None, getLineInFile(Thread.currentThread().getStackTrace, stackDepth))
     Trunk.subNodes ::= newBranch
 
     // Update atomic, making the current branch to the new branch
@@ -526,7 +528,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       case Trunk => ""
       // Call to getTestNamePrefix is not tail recursive, but I don't expect
       // the describe nesting to be very deep (famous last words).
-      case DescriptionBranch(parent, descriptionText, childPrefix) =>
+      case DescriptionBranch(parent, descriptionText, childPrefix, lineInFile) =>
         val optionalChildPrefixAndDescriptionText =
           childPrefix match {
             case Some(cp) => Resources("prefixSuffix", descriptionText, cp)

@@ -446,7 +446,7 @@ trait FixtureFeatureSpec extends FixtureSuite { thisSuite =>
     if (!currentBranchIsTrunk)
       throw new NotAllowedException(Resources("cantNestFeatureClauses"), getStackDepth("FixtureFeatureSpec.scala", "feature"))
 
-    registerNestedBranch(description, None, fun, "featureCannotAppearInsideAScenario", "FixtureFeatureSpec.scala", "feature")
+    registerNestedBranch(description, None, fun, "featureCannotAppearInsideAScenario", "FixtureFeatureSpec.scala", "feature", stackDepth)
   }
 
   /**

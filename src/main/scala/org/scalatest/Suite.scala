@@ -2989,7 +2989,8 @@ used for test events like succeeded/failed, etc.
     level: Int,
     includeIcon: Boolean = true,
     aboutAPendingTest: Option[Boolean] = None,
-    aboutACanceledTest: Option[Boolean] = None
+    aboutACanceledTest: Option[Boolean] = None, 
+    location: Option[Location]
   ) {
     report(
       ScopeOpened(
@@ -2998,7 +2999,8 @@ used for test events like succeeded/failed, etc.
         NameInfo(theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName),
         aboutAPendingTest,
         aboutACanceledTest,
-        Some(getIndentedTextForInfo(message, level, includeIcon, testName.isDefined))
+        Some(getIndentedTextForInfo(message, level, includeIcon, testName.isDefined)), 
+        location
       )
     )
   }
@@ -3013,7 +3015,8 @@ used for test events like succeeded/failed, etc.
     level: Int,
     includeIcon: Boolean = true,
     aboutAPendingTest: Option[Boolean] = None,
-    aboutACanceledTest: Option[Boolean] = None
+    aboutACanceledTest: Option[Boolean] = None, 
+    location: Option[Location]
   ) {
     report(
       ScopeClosed(
@@ -3022,7 +3025,8 @@ used for test events like succeeded/failed, etc.
         NameInfo(theSuite.suiteName, theSuite.suiteID, Some(theSuite.getClass.getName), testName),
         aboutAPendingTest,
         aboutACanceledTest,
-        Some(MotionToSuppress)
+        Some(MotionToSuppress),
+        location
       )
     )
   }

@@ -588,7 +588,7 @@ trait FixtureFreeSpec extends FixtureSuite { thisSuite =>
     def - (fun: => Unit) {
       // registerBranch(string, None, testFun)
       // TODO: Fix the resource name and method name
-      registerNestedBranch(string, None, fun, "describeCannotAppearInsideAnIt", "FixtureFreeSpec.scala", "describe")
+      registerNestedBranch(string, None, fun, "describeCannotAppearInsideAnIt", "FixtureFreeSpec.scala", "describe", stackDepth - 1)
     }
 
     /**

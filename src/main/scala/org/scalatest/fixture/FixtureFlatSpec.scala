@@ -450,7 +450,7 @@ trait FixtureFlatSpec extends FixtureSuite with ShouldVerb with MustVerb with Ca
      */
     def of(description: String) {
       // TODO: This is what was here, but it needs fixing.
-      registerFlatBranch(description, "describeCannotAppearInsideAnIt", "FixtureFlatSpec.scala", "describe")
+      registerFlatBranch(description, "describeCannotAppearInsideAnIt", "FixtureFlatSpec.scala", "describe", stackDepth + 2)
     }
   }
 

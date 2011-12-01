@@ -1642,7 +1642,7 @@ trait FreeSpec extends Suite { thisSuite =>
      */
     def - (fun: => Unit) {
       // TODO: Fix the resource name and method name
-      registerNestedBranch(string, None, fun, "describeCannotAppearInsideAnIt", "FreeSpec.scala", "describe")
+      registerNestedBranch(string, None, fun, "describeCannotAppearInsideAnIt", "FreeSpec.scala", "describe", stackDepth - 1)
     }
 
     /**

@@ -40,24 +40,9 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       st(3).getLineNumber
   }
   
-  def checkFileNameLineNumber(suiteName:String, expectedLineNumber: Int, event: Event):Boolean = {
-    event.location match {
-      case Some(evt) =>
-        val lineInFile = event.location.get.asInstanceOf[LineInFile]
-        assert("LocationFunctionSuiteProp.scala" == lineInFile.fileName, "Suite " + suiteName + " - Event " + event.getClass.getName + " expected LocationFunctionSuiteProp.scala, got " + lineInFile.fileName)
-        assert(expectedLineNumber == lineInFile.lineNumber, "Suite " + suiteName + " - Event " + event.getClass.getName + " expected " + expectedLineNumber + ", got " + lineInFile.lineNumber)
-        true
-      case None => 
-        fail("Suite " + suiteName + " - Event " + event.toString() + " does not have location.")
-    }
-  }
+  type FixtureServices = TestLocationFunctionServices
   
-  trait Services { 
-    def checkFun(event: Event): Unit
-    def allChecked: Unit
-  }
-  
-  type FixtureServices = Services
+  val expectedSourceFileName: String = "LocationFunctionSuiteProp.scala"
   
   def funSuite = new FunSuite with FixtureServices {
     test("succeed") {
@@ -73,32 +58,15 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       
     }
     val suiteTypeName: String = "FunSuite"
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = Nil
+    val expectedScopeClosedList = Nil
   }
   
   def fixtureFunSuite = new FixtureFunSuite with FixtureServices {
@@ -117,32 +85,15 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       
     }
     val suiteTypeName: String = "FunSuite"
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = Nil
+    val expectedScopeClosedList = Nil
   }
   
   def spec = new Spec with FixtureServices {
@@ -160,37 +111,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "Spec"
-    def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "A Spec succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "A Spec pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "A Spec cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("A Spec succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("A Spec pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("A Spec cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("A Spec", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("A Spec", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def fixtureSpec = new FixtureSpec with FixtureServices {
@@ -210,37 +140,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    val suiteTypeName: String = "Spec"
-    def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "A Spec succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "A Spec pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "A Spec cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val suiteTypeName: String = "FixtureSpec"
+    val expectedStartingList = List(TestStartingPair("A Spec succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("A Spec pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("A Spec cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("A Spec", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("A Spec", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def featureSpec = new FeatureSpec with FixtureServices {
@@ -256,33 +165,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
     ignore("ignore") {
       
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "FeatureSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Scenario: succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "Scenario: pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "Scenario: cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Scenario: succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("Scenario: pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("Scenario: cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = Nil
+    val expectedScopeClosedList = Nil
   }
   
   def fixtureFeatureSpec = new FixtureFeatureSpec with FixtureServices {
@@ -302,131 +194,80 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
       
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "FixtureFeatureSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test Scenario: succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "Test Scenario: pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "Test Scenario: cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test Scenario: succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("Test Scenario: pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("Test Scenario: cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def flatSpec = new FlatSpec with FixtureServices {
-    "Test" should "succeed" in {
+    "Test 1" should "succeed" in {
       
     }
-    "Test" should "pending" in {
+    "Test 2" should "pending" in {
       pending
     }
-    "Test" should "cancel" in {
+    "Test 3" should "cancel" in {
       cancel
     }
-    ignore should "ignore" in {
+    "Test 4" should "be ignored" ignore {
       
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "FlatSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test 1 should succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("Test 2 should pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("Test 3 should cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test 1", expectedSourceFileName, thisLineNumber - 20), 
+                                       ScopeOpenedPair("Test 2", expectedSourceFileName, thisLineNumber - 18),
+                                       ScopeOpenedPair("Test 3", expectedSourceFileName, thisLineNumber - 16),
+                                       ScopeOpenedPair("Test 4", expectedSourceFileName, thisLineNumber - 14))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test 1", expectedSourceFileName, thisLineNumber - 24),
+                                       ScopeClosedPair("Test 2", expectedSourceFileName, thisLineNumber - 22),
+                                       ScopeClosedPair("Test 3", expectedSourceFileName, thisLineNumber - 20),
+                                       ScopeClosedPair("Test 4", expectedSourceFileName, thisLineNumber - 18))
   }
   
   def fixtureFlatSpec = new FixtureFlatSpec with FixtureServices {
     type FixtureParam = String
     def withFixture(test: OneArgTest) { test("") }
-    "Test" should "succeed" in { param =>
+    "Test 1" should "succeed" in { param =>
       
     }
-    "Test" should "pending" in { param =>
+    "Test 2" should "pending" in { param =>
       pending
     }
-    "Test" should "cancel" in { param =>
+    "Test 3" should "cancel" in { param =>
       cancel
     }
-    ignore should "ignore" in { param =>
+    "Test 4" should "be ignored" ignore { param =>
       
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "FixtureFlatSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test 1 should succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("Test 2 should pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("Test 3 should cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test 1", expectedSourceFileName, thisLineNumber - 20), 
+                                       ScopeOpenedPair("Test 2", expectedSourceFileName, thisLineNumber - 18),
+                                       ScopeOpenedPair("Test 3", expectedSourceFileName, thisLineNumber - 16),
+                                       ScopeOpenedPair("Test 4", expectedSourceFileName, thisLineNumber - 14))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test 1", expectedSourceFileName, thisLineNumber - 24),
+                                       ScopeClosedPair("Test 2", expectedSourceFileName, thisLineNumber - 22),
+                                       ScopeClosedPair("Test 3", expectedSourceFileName, thisLineNumber - 20),
+                                       ScopeClosedPair("Test 4", expectedSourceFileName, thisLineNumber - 18))
   }
   
   def freeSpec = new FreeSpec with FixtureServices {
@@ -444,37 +285,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
         
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "FreeSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def fixtureFreeSpec = new FixtureFreeSpec with FixtureServices {
@@ -494,37 +314,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
         
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    val suiteTypeName: String = "FreeSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val suiteTypeName: String = "FixtureFreeSpec"
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def propSpec = new PropSpec with FixtureServices {
@@ -540,33 +339,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
     ignore("Test should ignore") {
         
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "PropSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = Nil
+    val expectedScopeClosedList = Nil
   }
   
   def fixturePropSpec = new FixturePropSpec with FixtureServices {
@@ -584,33 +366,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
     ignore("Test should ignore") { param =>
         
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    val suiteTypeName: String = "PropSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 16, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 14, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 23, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 21, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-    }
+    val suiteTypeName: String = "FixturePropSpec"
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 13), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 11),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 9))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 16), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 14),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 12),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 10))
+    val expectedScopeOpenedList = Nil
+    val expectedScopeClosedList = Nil
   }
   
   def wordSpec = new WordSpec with FixtureServices {
@@ -628,37 +393,16 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
         
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
     val suiteTypeName: String = "WordSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test", expectedSourceFileName, thisLineNumber - 23))
   }
   
   def fixtureWordSpec = new FixtureWordSpec with FixtureServices {
@@ -678,36 +422,15 @@ class LocationFunctionSuiteProp extends FunctionSuiteProp {
         
       }
     }
-    var startingSucceedEvent, startingPendingEvent, startingCancelEvent, scopeOpenedEvent, scopeClosedEvent, succeededEvent, pendingEvent, canceledEvent, ignoredEvent = false
-    val suiteTypeName: String = "WordSpec"
-      def checkFun(event: Event) {
-      event match {
-        case testStarting: TestStarting => 
-          testStarting.testName match {
-            case "Test should succeed" => startingSucceedEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 19, event)
-            case "Test should pending" => startingPendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 17, event)
-            case "Test should cancel" => startingCancelEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 15, event)
-            case _ => fail("Unknown TestStarting for testName=" + testStarting.testName + " in " + suiteTypeName)
-          }
-        case testSucceed: TestSucceeded => succeededEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 24, event)
-        case testPending: TestPending => pendingEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 22, event)
-        case testCancel: TestCanceled => canceledEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 20, event)
-        case testIgnored: TestIgnored => ignoredEvent = checkFileNameLineNumber(suiteTypeName, thisLineNumber - 18, event)
-        case scopeOpened: ScopeOpened => scopeOpenedEvent = true
-        case scopeClosed: ScopeClosed => scopeClosedEvent = true
-        case _ => fail("Unexpected event:" + event.getClass.getName + " in " + suiteTypeName)
-      }
-    }
-    def allChecked = {
-      assert(startingSucceedEvent, suiteTypeName + ": TestStarting for succeed not fired.")
-      assert(startingPendingEvent, suiteTypeName + ": TestStarting for pending not fired.")
-      assert(startingCancelEvent, suiteTypeName + ": TestStarting for cancel not fired.")
-      assert(succeededEvent, suiteTypeName + ": TestSucceeded not fired.")
-      assert(pendingEvent, suiteTypeName + ": TestPending not fired.")
-      assert(canceledEvent, suiteTypeName + ": TestCanceled not fired.")
-      assert(ignoredEvent, suiteTypeName + ": TestIgnored not fired.")
-      assert(scopeOpenedEvent, suiteTypeName + ": ScopeOpened not fired.")
-      assert(scopeClosedEvent, suiteTypeName + ": ScopeClosed not fired.")
-    }
+    val suiteTypeName: String = "FixtureWordSpec"
+    val expectedStartingList = List(TestStartingPair("Test should succeed", expectedSourceFileName, thisLineNumber - 14), 
+                                   TestStartingPair("Test should pending", expectedSourceFileName, thisLineNumber - 12),
+                                   TestStartingPair("Test should cancel", expectedSourceFileName, thisLineNumber - 10))
+    val expectedResultList = List(TestResultPair(classOf[TestSucceeded], expectedSourceFileName, thisLineNumber - 17), 
+                                 TestResultPair(classOf[TestPending], expectedSourceFileName, thisLineNumber - 15),
+                                 TestResultPair(classOf[TestCanceled], expectedSourceFileName, thisLineNumber - 13),
+                                 TestResultPair(classOf[TestIgnored], expectedSourceFileName, thisLineNumber - 11))
+    val expectedScopeOpenedList = List(ScopeOpenedPair("Test", expectedSourceFileName, thisLineNumber - 22))
+    val expectedScopeClosedList = List(ScopeClosedPair("Test", expectedSourceFileName, thisLineNumber - 23))
   }
 }
