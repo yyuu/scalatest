@@ -118,30 +118,30 @@ class FriendlyParamsTranslatorSuite extends FunSuite {
     assert(repoArgsList(0) == "-o")
   }
   
-  test("parse argument stdout(config=\"nocolor fullstacks doptestsucceeded\")") {
+  test("parse argument stdout(config=\"nocolor fullstacks droptestsucceeded\")") {
     val repoArgsList = getRepoArgsList("stdout(config=\"nocolor fullstacks droptestsucceeded\")")
     assert(repoArgsList.length == 1)
     assert(repoArgsList(0) == "-oWFC")
   }
   
   test("parse argument stdout (config=\"nocolor fullstacks doptestsucceeded\") should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getRepoArgsList("stdout (config=\"nocolor fullstacks doptestsucceeded\")") }
+    intercept[IllegalArgumentException] { getRepoArgsList("stdout (config=\"nocolor fullstacks droptestsucceeded\")") }
   }
   
   test("parse argument stdout config=\"nocolor fullstacks doptestsucceeded\" should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getRepoArgsList("stdout config=\"nocolor fullstacks doptestsucceeded\"") }
+    intercept[IllegalArgumentException] { getRepoArgsList("stdout config=\"nocolor fullstacks droptestsucceeded\"") }
   }
   
   test("parse argument stdout(config=\"nocolor fullstacks doptestsucceeded\" should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getRepoArgsList("stdout(config=\"nocolor fullstacks doptestsucceeded\"") }
+    intercept[IllegalArgumentException] { getRepoArgsList("stdout(config=\"nocolor fullstacks droptestsucceeded\"") }
   }
   
   test("parse argument stdoutconfig=\"nocolor fullstacks doptestsucceeded\") should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getRepoArgsList("stdoutconfig=\"nocolor fullstacks doptestsucceeded\")") }
+    intercept[IllegalArgumentException] { getRepoArgsList("stdoutconfig=\"nocolor fullstacks droptestsucceeded\")") }
   }
   
   test("parse argument stdout(confi=\"nocolor fullstacks doptestsucceeded\") should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getRepoArgsList("stdout(confi=\"nocolor fullstacks doptestsucceeded\")") }
+    intercept[IllegalArgumentException] { getRepoArgsList("stdout(confi=\"nocolor fullstacks droptestsucceeded\")") }
   }
   
   test("parse argument stderr") {
@@ -179,7 +179,7 @@ class FriendlyParamsTranslatorSuite extends FunSuite {
   }
   
   test("parse argument include(org.scala.a, org.scala.b, org.scala.c should fail with IllegalArgumentException") {
-    intercept[IllegalArgumentException] { getIncludesArgsList("include (org.scala.a, org.scala.b, org.scala.c") }
+    intercept[IllegalArgumentException] { getIncludesArgsList("include(org.scala.a, org.scala.b, org.scala.c") }
   }
   
   test("parse argument includeorg.scala.a, org.scala.b, org.scala.c) should fail with IllegalArgumentException") {
@@ -292,7 +292,7 @@ class FriendlyParamsTranslatorSuite extends FunSuite {
     assert(repoArgsList(1) == "a.b.c")
   }
   
-  test("parse argument reporterclass(classname=\"a.b.c\", config=\"dropsuitestarting shortstacks dropteststarting\")") {
+  test("parse argument reporterclass(classname=\"a.b.c\", config=\"dropsuitestarting dropinfoprovided dropteststarting\")") {
     val repoArgsList = getRepoArgsList("reporterclass(classname=\"a.b.c\", config=\"dropsuitestarting dropinfoprovided dropteststarting\")")
     assert(repoArgsList.length == 2)
     assert(repoArgsList(0) == "-rHON")

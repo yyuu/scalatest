@@ -1,17 +1,11 @@
 package org.scalatest.tools
 
-import scala.util.parsing.combinator.syntactical.StandardTokenParsers
-import scala.util.parsing.combinator.lexical.StdLexical
+import scala.util.parsing.combinator.JavaTokenParsers
 
-class SbtCommandParser extends StandardTokenParsers {
-
-  lexical.delimiters ++= List("(", ")", "--", ",", "=", "\"")
-  lexical.reserved ++= List("st", "include", "exclude", "membersonly", "wildcard", "suite", "junit", "testng", "dashboard", "file", "filename",
-      "config", "directory", "stdout", "stderr", "graphic", "junitxml", "dashboard", "html", "reporterclass", "dashboard", "concurrent")
+class SbtCommandParser extends JavaTokenParsers {
 
   def parseCommand(command: String) {
-    val tokens = new lexical.Scanner(command)
-    val result = phrase(cmd)(tokens)
+    val result = parseResult(command)
     result match {
       case Success(tree, _) => println("success: " + tree)
       case e: NoSuccess => {
@@ -19,17 +13,15 @@ class SbtCommandParser extends StandardTokenParsers {
       }
     }
   }
-
+  
   def parseResult(command: String) = {
-    val tokens = new lexical.Scanner(command)
-    phrase(cmd)(tokens)
+    parseAll(cmd, command)
   }
 
   def cmd: Parser[Any] = "st" ~ opt(dashArgs)
 
-  def dashArgs: Parser[Any] = "--" // ~ opt(args)
+  def dashArgs: Parser[Any] = "--" ~ opt(stArgs)
 
-/*
   def stArgs: Parser[Any] = rep(stArgsOpt)
 
   def stArgsOpt: Parser[Any] = include | 
@@ -40,8 +32,8 @@ class SbtCommandParser extends StandardTokenParsers {
                               suite | 
                               junit | 
                               testng | 
-                              stdout | 
-                              stderr | 
+                              stdout |
+                              stderr |
                               graphic | 
                               file | 
                               junitxml | 
@@ -55,22 +47,26 @@ class SbtCommandParser extends StandardTokenParsers {
   def concurrent: Parser[Any] = "concurrent"
   def membersonly: Parser[Any] = "membersonly" ~ list
   def wildcard: Parser[Any] = "wildcard" ~ list
-
-  def list: Parser[Any] = "(" ~> repsep(stringLit, ",") <~ ")"
+  def suite: Parser[Any] = "suite" ~ list
+  def junit: Parser[Any] = "junit" ~ list
+  def testng: Parser[Any] = "testng" ~ list
+  
+  def list: Parser[Any] = "(" ~> repsep(stringLiteral, ",") <~ ")"
  
   def stdout: Parser[Any] = "stdout" ~ opt("(" ~ config ~ ")")
   def stderr: Parser[Any] = "stderr" ~ opt("(" ~ config ~ ")")
+  
   def graphic: Parser[Any] = "graphic" ~ opt("(" ~ limitedConfig ~ ")")
-  def file: Parser[Any] = "file" ~ "(" ~ "filename" ~ "=" ~ stringLit ~ opt("," ~ config) ~ ")"
-  def junitxml: Parser[Any] = "junitxml" ~ "(" ~ "directory" ~ "=" ~ stringLit ~ ")"
-  def dashboard: Parser[Any] = "dashboard" ~ "(" ~ "directory" ~ "=" ~ stringLit ~ opt("," ~ archive) ~ ")"
-  def html: Parser[Any] = "html" ~ "(" ~ "filename" ~ "=" ~ stringLit ~ opt("," ~ config) ~ ")"
-  def reporterclass: Parser[Any] = "reporterclass" ~ "(" ~ "classname=" ~ stringLit ~ opt("," ~ limitedConfig) ~ ")"
+  def file: Parser[Any] = "file" ~ "(" ~ "filename" ~ "=" ~ stringLiteral ~ opt("," ~ config) ~ ")"
+  def junitxml: Parser[Any] = "junitxml" ~ "(" ~ "directory" ~ "=" ~ stringLiteral ~ ")"
+  def dashboard: Parser[Any] = "dashboard" ~ "(" ~ "directory" ~ "=" ~ stringLiteral ~ opt("," ~ archive) ~ ")"
+  def html: Parser[Any] = "html" ~ "(" ~ "filename" ~ "=" ~ stringLiteral ~ opt("," ~ config) ~ ")"
+  def reporterclass: Parser[Any] = "reporterclass" ~ "(" ~ "classname" ~ "=" ~ stringLiteral ~ opt("," ~ limitedConfig) ~ ")"
 
-  def archive: Parser[Any] = "archive" ~ "=" ~ "\"" ~ numericLit ~ "\""
+  def archive: Parser[Any] = "archive" ~ "=" ~ "\"" ~ wholeNumber ~ "\""  
 
   def config: Parser[Any] = "config" ~ "=" ~ "\"" ~ rep(configOpt) ~ "\""
- 
+  
   def configOpt: Parser[Any] = "dropteststarting" | 
                            "droptestsucceeded" | 
                            "droptestignored" | 
@@ -83,7 +79,7 @@ class SbtCommandParser extends StandardTokenParsers {
                            "fullstacks" | 
                            "durations"
   
-  def limitedConfig: Parser[Any] = "config=\"" ~ rep(limitedConfigOpt) ~ "\""
+  def limitedConfig: Parser[Any] = "config" ~ "=" ~ "\"" ~ rep(limitedConfigOpt) ~ "\""
                            
   def limitedConfigOpt: Parser[Any] = "dropteststarting" | 
                                   "droptestsucceeded" | 
@@ -92,7 +88,6 @@ class SbtCommandParser extends StandardTokenParsers {
                                   "dropsuitestarting" | 
                                   "dropsuitecompleted" | 
                                   "dropinfoprovided"
-*/
 }
 
 object SbtCommandParser {
