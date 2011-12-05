@@ -6,17 +6,15 @@ import org.junit.Ignore
 import org.scalatest.DoNotDiscover
 
 @DoNotDiscover
-class TestLocationJUnitSuite extends JUnitSuite with TestLocationMethodServices {
+class TestLocationJUnitSuite extends JUnitSuite with TestLocationServices {
   val suiteTypeName = "org.scalatest.events.TestLocationJUnitSuite"
-  val expectedStartingList = List(TestStartingPair("succeed", "succeed"))
-  val expectedResultList = List(TestResultPair(classOf[TestSucceeded], "succeed"))
+  val expectedSuiteStartingList = Nil
+  val expectedSuiteCompletedList = Nil
+  val expectedSuiteAbortedList = Nil
+  val expectedTestFailedList = List(SeeStackDepthExceptionPair("testFail"))
   
   @Test
-  def succeed() { 
-      
-  }
-  @Ignore 
-  def ignore() {
-      
+  def testFail() { 
+    fail
   }
 }

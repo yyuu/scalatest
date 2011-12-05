@@ -76,9 +76,9 @@ class LocationMethodSuiteProp extends MethodSuiteProp {
     }
   }
   
-  def junit3Suite = new TestLocationJUnit3Suite
+  def junit3Suite = new TestLocationMethodJUnit3Suite
   
-  def junitSuite = new TestLocationJUnitSuite
+  def junitSuite = new TestLocationMethodJUnitSuite
   
-  def testngSuite = new TestLocationTestNGSuite
+  def testngSuite = new TestLocationMethodTestNGSuite
 }

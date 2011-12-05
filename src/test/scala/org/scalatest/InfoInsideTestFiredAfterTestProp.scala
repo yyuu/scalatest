@@ -18,48 +18,85 @@ package org.scalatest
 import org.scalatest.fixture._
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class InfoInsideTestFiredAfterTestProp extends SuiteProp {
+/*class InfoInsideTestFiredAfterTestProp extends SuiteProp {
 
   test("When info appears in the code of a successful test, it should be reported after the TestSucceeded.") {
     forAll (examples) { suite =>
         val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
-          getIndexesForInformerEventOrderTests(suite, suite.testName, suite.msg)
+          getIndexesForInformerEventOrderTests(suite, suite.nameOfTest, suite.msg)
         testSucceededIndex should be < infoProvidedIndex
     }
   }
 
   trait Services {
     val msg = "hi there, dude"
-    val testName = "test name"
+    val nameOfTest = "test name"
   }
 
   type FixtureServices = Services
+  
+  def suite = new LocationTestSuite
+  class LocationTestSuite extends Suite with Services {
+    override val nameOfTest = "testInfo(Informer)"
+    def testInfo(info: Informer) {
+      info(msg)
+    }
+  }
+  def suite = 
+    new Suite with Services {
+      override val nameOfTest = "testMethod"
+      def testMethod(info: Informer) {
+        info(msg)
+      }
+    }
+  
 
   def funSuite =
     new FunSuite with Services {
-      test(testName) {
+      test(nameOfTest) {
         info(msg)
       }
     }
 
   def fixtureFunSuite =
     new StringFixtureFunSuite with Services {
-      test(testName) { s =>
+      test(nameOfTest) { s =>
         info(msg)
       }
     }
 
   def spec =
     new Spec with Services {
-      it(testName) {
+      it(nameOfTest) {
         info(msg)
       }
     }
 
   def fixtureSpec =
     new StringFixtureSpec with Services {
-      it(testName) { s =>
+      it(nameOfTest) { s =>
         info(msg)
       }
     }
-}
+  
+  def featureSpec = 
+    new FeatureSpec with Services {
+      feature(nameOfTest) {
+        scenario(nameOfTest) {
+          info(msg)
+        }
+      }
+    }
+  
+  def fixtureFeatureSpec = 
+    new FixtureFeatureSpec with Services {
+      type FixtureParam = Unit 
+      def withFixture(test: OneArgTest) { }
+    
+      feature(nameOfTest) {
+        scenario(nameOfTest) { arg =>
+          info(msg)
+        }
+      }
+  }
+}*/
