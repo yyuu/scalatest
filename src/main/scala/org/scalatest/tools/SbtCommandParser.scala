@@ -18,7 +18,7 @@ class SbtCommandParser extends JavaTokenParsers {
     parseAll(cmd, command)
   }
 
-  def cmd: Parser[Any] = "st" ~ opt(dashArgs)
+  def cmd: Parser[Any] = "st" ~ opt(suite) ~ opt(dashArgs)
 
   def dashArgs: Parser[Any] = "--" ~ opt(stArgs)
 
@@ -29,7 +29,7 @@ class SbtCommandParser extends JavaTokenParsers {
                               concurrent | 
                               membersonly | 
                               wildcard | 
-                              suite | 
+                              //suite | 
                               junit | 
                               testng | 
                               stdout |
@@ -41,17 +41,21 @@ class SbtCommandParser extends JavaTokenParsers {
                               html | 
                               reporterclass
 
+  def javaClassName: Parser[Any] = """([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*""".r
+  def suiteName: Parser[Any] = javaClassName | "\"" ~ javaClassName ~ "\""
+  
+  def suite: Parser[Any] = rep(suiteName)
+                              
   def include: Parser[Any] = "include" ~ list
   def exclude: Parser[Any] = "exclude" ~ list
  
   def concurrent: Parser[Any] = "concurrent"
   def membersonly: Parser[Any] = "membersonly" ~ list
   def wildcard: Parser[Any] = "wildcard" ~ list
-  def suite: Parser[Any] = "suite" ~ list
   def junit: Parser[Any] = "junit" ~ list
   def testng: Parser[Any] = "testng" ~ list
   
-  def list: Parser[Any] = "(" ~> repsep(stringLiteral, ",") <~ ")"
+  def list: Parser[Any] = "(" ~> repsep(suiteName, ",") <~ ")"
  
   def stdout: Parser[Any] = "stdout" ~ opt("(" ~ config ~ ")")
   def stderr: Parser[Any] = "stderr" ~ opt("(" ~ config ~ ")")

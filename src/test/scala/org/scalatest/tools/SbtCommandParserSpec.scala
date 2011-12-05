@@ -48,7 +48,7 @@ class SbtCommandParserSpec extends Spec with ShouldMatchers {
     // include
     it("""should parse 'st -- include("org.scala.a", "org.scala.b", "org.scala.c")'""") { canParsePhrase("""st -- include("org.scala.a", "org.scala.b", "org.scala.c")""") }
     it("""should parse 'st -- include ("org.scala.a", "org.scala.b", "org.scala.c")'""") { canParsePhrase("""st -- include ("org.scala.a", "org.scala.b", "org.scala.c")""") }
-    it("""should not parse 'st -- include(org.scala.a, org.scala.b, org.scala.c)'""") { cannotParsePhrase("""st -- include(org.scala.a, org.scala.b, org.scala.c)""") }
+    it("""should parse 'st -- include(org.scala.a, org.scala.b, org.scala.c)'""") { canParsePhrase("""st -- include(org.scala.a, org.scala.b, org.scala.c)""") }
     it("""should not parse 'st -- include'""") { cannotParsePhrase("""st -- include""") }
     it("""should not parse 'st -- include("org.scala.a", "org.scala.b", "org.scala.c"'""") { cannotParsePhrase("""st -- include("org.scala.a", "org.scala.b", "org.scala.c"""") }
     it("""should not parse 'st -- include"org.scala.a", "org.scala.b", "org.scala.c")'""") { cannotParsePhrase("""st -- include"org.scala.a", "org.scala.b", "org.scala.c")""") }
@@ -57,7 +57,7 @@ class SbtCommandParserSpec extends Spec with ShouldMatchers {
     // exclude
     it("""should parse 'st -- exclude("org.scala.a", "org.scala.b", "org.scala.c")'""") { canParsePhrase("""st -- exclude("org.scala.a", "org.scala.b", "org.scala.c")""") }
     it("""should parse 'st -- exclude ("org.scala.a", "org.scala.b", "org.scala.c")'""") { canParsePhrase("""st -- exclude ("org.scala.a", "org.scala.b", "org.scala.c")""") }
-    it("""should not parse 'st -- exclude(org.scala.a, org.scala.b, org.scala.c)'""") { cannotParsePhrase("""st -- exclude(org.scala.a, org.scala.b, org.scala.c)""") }
+    it("""should parse 'st -- exclude(org.scala.a, org.scala.b, org.scala.c)'""") { canParsePhrase("""st -- exclude(org.scala.a, org.scala.b, org.scala.c)""") }
     
     // concurrent
     it("""should parse 'st -- concurrent'""") { canParsePhrase("""st -- concurrent""") }
@@ -65,27 +65,41 @@ class SbtCommandParserSpec extends Spec with ShouldMatchers {
     
     // membersonly
     it("""should parse 'st -- membersonly("a.b.c")'""") { canParsePhrase("""st -- membersonly("a.b.c")""") }
+    it("""should parse 'st -- membersonly(a.b.c)'""") { canParsePhrase("""st -- membersonly(a.b.c)""") }
     it("""should parse 'st -- membersonly("a.b.c", "a.b.d", "a.b.e")'""") { canParsePhrase("""st -- membersonly("a.b.c", "a.b.d", "a.b.e")""") }
+    it("""should parse 'st -- membersonly(a.b.c, a.b.d, a.b.e)'""") { canParsePhrase("""st -- membersonly(a.b.c, a.b.d, a.b.e)""") }
+    it("""should parse 'st -- membersonly(a.b.c, "a.b.d", a.b.e)'""") { canParsePhrase("""st -- membersonly(a.b.c, "a.b.d", a.b.e)""") }
     it("""should not parse 'st -- membersonly'""") { cannotParsePhrase("""st -- membersonly""") }
     
     // wildcard
     it("""should parse 'st -- wildcard("a.b.c")'""") { canParsePhrase("""st -- wildcard("a.b.c")""") }
+    it("""should parse 'st -- wildcard(a.b.c)'""") { canParsePhrase("""st -- wildcard(a.b.c)""") }
     it("""should parse 'st -- wildcard("a.b.c", "a.b.d", "a.b.e")'""") { canParsePhrase("""st -- wildcard("a.b.c", "a.b.d", "a.b.e")""") }
+    it("""should parse 'st -- wildcard(a.b.c, a.b.d, a.b.e)'""") { canParsePhrase("""st -- wildcard(a.b.c, a.b.d, a.b.e)""") }
+    it("""should parse 'st -- wildcard(a.b.c, "a.b.d", a.b.e)'""") { canParsePhrase("""st -- wildcard(a.b.c, "a.b.d", a.b.e)""") }
     it("""should not parse 'st -- wildcard'""") { cannotParsePhrase("""st -- wildcard""") }
     
     // suite
-    it("""should parse 'st -- suite("a.b.c")'""") { canParsePhrase("""st -- suite("a.b.c")""") }
-    it("""should parse 'st -- suite("a.b.c", "a.b.d", "a.b.e")'""") { canParsePhrase("""st -- suite("a.b.c", "a.b.d", "a.b.e")""") }
-    it("""should not parse 'st -- suite'""") { cannotParsePhrase("""st -- suite""") }
+    it("""should parse 'st a.b.c'""") { canParsePhrase("""st a.b.c""") }
+    it("""should parse 'st a.b.c a.b.d a.b.e'""") { canParsePhrase("""st a.b.c a.b.d a.b.e""") }
+    it("""should parse 'st "a.b.c"'""") { canParsePhrase("""st "a.b.c"""") }
+    it("""should parse 'st "a.b.c" "a.b.d" "a.b.e"'""") { canParsePhrase("""st "a.b.c" "a.b.d" "a.b.e"""") }
+    it("""should parse 'st a.b.c "a.b.d" a.b.e'""") { canParsePhrase("""st a.b.c "a.b.d" a.b.e""") }
     
     // junit
     it("""should parse 'st -- junit("a.b.c")'""") { canParsePhrase("""st -- junit("a.b.c")""") }
+    it("""should parse 'st -- junit(a.b.c)'""") { canParsePhrase("""st -- junit(a.b.c)""") }
     it("""should parse 'st -- junit("a.b.c", "a.b.d", "a.b.e")'""") { canParsePhrase("""st -- junit("a.b.c", "a.b.d", "a.b.e")""") }
+    it("""should parse 'st -- junit(a.b.c, a.b.d, a.b.e)'""") { canParsePhrase("""st -- junit(a.b.c, a.b.d, a.b.e)""") }
+    it("""should parse 'st -- junit(a.b.c, "a.b.d", a.b.e)'""") { canParsePhrase("""st -- junit(a.b.c, "a.b.d", a.b.e)""") }
     it("""should not parse 'st -- junit'""") { cannotParsePhrase("""st -- junit""") }
     
     // testng
     it("""should parse 'st -- testng("a.b.c")'""") { canParsePhrase("""st -- testng("a.b.c")""") }
+    it("""should parse 'st -- testng(a.b.c)'""") { canParsePhrase("""st -- testng(a.b.c)""") }
     it("""should parse 'st -- testng("a.b.c", "a.b.d", "a.b.e")'""") { canParsePhrase("""st -- testng("a.b.c", "a.b.d", "a.b.e")""") }
+    it("""should parse 'st -- testng(a.b.c, a.b.d, a.b.e)'""") { canParsePhrase("""st -- testng(a.b.c, a.b.d, a.b.e)""") }
+    it("""should parse 'st -- testng(a.b.c, "a.b.d", a.b.e)'""") { canParsePhrase("""st -- testng(a.b.c, "a.b.d", a.b.e)""") }
     it("""should not parse 'st -- testng'""") { cannotParsePhrase("""st -- testng""") }
     
     // graphic
