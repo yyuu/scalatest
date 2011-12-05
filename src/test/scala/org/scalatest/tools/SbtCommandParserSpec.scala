@@ -84,7 +84,8 @@ class SbtCommandParserSpec extends Spec with ShouldMatchers {
     it("""should parse 'st a.b.c a.b.d a.b.e'""") { canParsePhrase("""st a.b.c a.b.d a.b.e""") }
     it("""should parse 'st "a.b.c"'""") { canParsePhrase("""st "a.b.c"""") }
     it("""should parse 'st "a.b.c" "a.b.d" "a.b.e"'""") { canParsePhrase("""st "a.b.c" "a.b.d" "a.b.e"""") }
-    it("""should parse 'st a.b.c "a.b.d" a.b.e'""") { canParsePhrase("""st a.b.c "a.b.d" a.b.e""") }
+    it("""should parse 'st a.b.c -- stdout'""") { canParsePhrase("""st a.b.c -- stdout""") }
+    it("""should parse 'st a.b.c a.b.d a.b.e -- stdout'""") { canParsePhrase("""st a.b.c a.b.d a.b.e -- stdout""") }
     
     // junit
     it("""should parse 'st -- junit("a.b.c")'""") { canParsePhrase("""st -- junit("a.b.c")""") }
