@@ -528,13 +528,13 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
     val informerForThisTest =
       MessageRecordingInformer(
         messageRecorderForThisTest, 
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, isConstructingThread, true, Some(testWasPending), Some(testWasCanceled))
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, location, isConstructingThread, true, Some(testWasPending), Some(testWasCanceled))
       )
 
     val documenterForThisTest =
       MessageRecordingDocumenter(
         messageRecorderForThisTest, 
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, isConstructingThread, true, Some(testWasPending)) // TODO: Need a test that fails because testWasCanceleed isn't being passed
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, location, isConstructingThread, true, Some(testWasPending)) // TODO: Need a test that fails because testWasCanceleed isn't being passed
       )
 
 // TODO: Use a message recorder in FixtureSuite. Maybe just allow the state and
@@ -580,7 +580,7 @@ trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
                     def apply(message: String) {
                       if (message == null)
                         throw new NullPointerException
-                      reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, true)
+                      reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, getLineInFile(Thread.currentThread().getStackTrace, 2), true)
                     }
                   }
                 Array(informer)

@@ -12,6 +12,7 @@ class TestLocationJUnitSuite extends JUnitSuite with TestLocationServices {
   val expectedSuiteCompletedList = Nil
   val expectedSuiteAbortedList = Nil
   val expectedTestFailedList = List(SeeStackDepthExceptionPair("testFail"))
+  val expectedInfoProvidedList = Nil
   
   @Test
   def testFail() { 

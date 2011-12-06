@@ -39,6 +39,7 @@ import Suite.isTestMethodGoodies
 import Suite.testMethodTakesAnInformer
 import scala.collection.immutable.TreeSet
 import Suite.getIndentedText
+import Suite.getLineInFile
 import org.scalatest.events._
 import org.scalatest.tools.StandardOutReporter
 import Suite.checkRunTestParamsForNull
@@ -2037,13 +2038,13 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
     val informerForThisTest =
       MessageRecordingInformer(
         messageRecorderForThisTest, 
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, isConstructingThread, true, Some(testWasPending), Some(testWasCanceled))
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, location, isConstructingThread, true, Some(testWasPending), Some(testWasCanceled))
       )
 
     val documenterForThisTest =
       MessageRecordingDocumenter(
         messageRecorderForThisTest, 
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, isConstructingThread, true, Some(testWasPending)) // TODO: Need a test that fails because testWasCanceleed isn't being passed
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, location, isConstructingThread, true, Some(testWasPending)) // TODO: Need a test that fails because testWasCanceleed isn't being passed
       )
 
     val args: Array[Object] =
@@ -2931,6 +2932,7 @@ used for test events like succeeded/failed, etc.
     testName: Option[String],
     message: String,
     level: Int,
+    location: Option[Location],
     includeNameInfo: Boolean,
     includeIcon: Boolean = true,
     aboutAPendingTest: Option[Boolean] = None,
@@ -2947,7 +2949,8 @@ used for test events like succeeded/failed, etc.
         aboutAPendingTest,
         aboutACanceledTest,
         None,
-        Some(getIndentedTextForInfo(message, level, includeIcon, testName.isDefined))
+        Some(getIndentedTextForInfo(message, level, includeIcon, testName.isDefined)),
+        location
       )
     )
   }
@@ -2960,6 +2963,7 @@ used for test events like succeeded/failed, etc.
     testName: Option[String],
     message: String,
     level: Int,
+    location: Option[Location],
     includeNameInfo: Boolean,
     aboutAPendingTest: Option[Boolean] = None,
     aboutACanceledTest: Option[Boolean] = None
@@ -3029,5 +3033,26 @@ used for test events like succeeded/failed, etc.
         location
       )
     )
+  }
+  
+  /*def getLineInFile(stackTraceList:List[StackTraceElement], sourceFileName:String, methodName: String):Option[LineInFile] = {
+    val baseStackDepth = stackTraceList.takeWhile(stackTraceElement => sourceFileName != stackTraceElement.getFileName || stackTraceElement.getMethodName != methodName).length
+    val stackTraceOpt = stackTraceList.drop(baseStackDepth).find(stackTraceElement => stackTraceElement.getMethodName() == "<init>")
+    stackTraceOpt match {
+      case Some(stackTrace) => Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
+      case None => None
+    }
+  }*/
+  
+  def getLineInFile(stackTraceList: Array[StackTraceElement], stackDepth: Int) = {
+    if(stackDepth >= 0 && stackDepth < stackTraceList.length) {
+      val stackTrace = stackTraceList(stackDepth)
+      if(stackTrace.getLineNumber >= 0 && stackTrace.getFileName != null)
+        Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
+      else
+        None
+    }
+    else
+      None
   }
 }

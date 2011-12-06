@@ -10,6 +10,7 @@ class TestLocationJUnit3Suite extends JUnit3Suite with TestLocationServices {
   val expectedSuiteCompletedList = Nil
   val expectedSuiteAbortedList = Nil
   val expectedTestFailedList = List(SeeStackDepthExceptionPair("testFail(org.scalatest.events.TestLocationJUnit3Suite)"))
+  val expectedInfoProvidedList = Nil
   
   def testFail() { fail }
 }

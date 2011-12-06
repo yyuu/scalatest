@@ -54,8 +54,8 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     lineInFile: Option[LineInFile]
   ) extends Node(Some(parent))
 
-  case class InfoLeaf(parent: Branch, message: String) extends Node(Some(parent))
-  case class MarkupLeaf(parent: Branch, message: String) extends Node(Some(parent))
+  case class InfoLeaf(parent: Branch, message: String, location: Option[LineInFile]) extends Node(Some(parent))
+  case class MarkupLeaf(parent: Branch, message: String, location: Option[LineInFile]) extends Node(Some(parent))
 
   case class DescriptionBranch(
     parent: Branch,
@@ -108,7 +108,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
         throw new NullPointerException
       val oldBundle = atomic.get
       var (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
-      currentBranch.subNodes ::= InfoLeaf(currentBranch, message)
+      currentBranch.subNodes ::= InfoLeaf(currentBranch, message, getLineInFile(Thread.currentThread().getStackTrace, 2))
       updateAtomic(oldBundle, Bundle(currentBranch, testNamesList, testsMap, tagsMap, registrationClosed))
     }
   }
@@ -119,7 +119,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
         throw new NullPointerException
       val oldBundle = atomic.get
       var (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
-      currentBranch.subNodes ::= MarkupLeaf(currentBranch, message)
+      currentBranch.subNodes ::= MarkupLeaf(currentBranch, message, getLineInFile(Thread.currentThread().getStackTrace, 2))
       updateAtomic(oldBundle, Bundle(currentBranch, testNamesList, testsMap, tagsMap, registrationClosed))
     }
   }
@@ -189,13 +189,13 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     val informerForThisTest =
       MessageRecordingInformer(
         messageRecorderForThisTest,
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportInfoProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, isConstructingThread, includeIcon, Some(testWasPending), Some(testWasCanceled))
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportInfoProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, location, isConstructingThread, includeIcon, Some(testWasPending), Some(testWasCanceled))
       )
 
     val documenterForThisTest =
       MessageRecordingDocumenter(
         messageRecorderForThisTest,
-        (message, isConstructingThread, testWasPending, testWasCanceled) => reportMarkupProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, isConstructingThread, Some(testWasPending), Some(testWasCanceled))
+        (message, isConstructingThread, testWasPending, testWasCanceled, location) => reportMarkupProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, location, isConstructingThread, Some(testWasPending), Some(testWasCanceled))
       )
 
     val oldInformer = atomicInformer.getAndSet(informerForThisTest)
@@ -276,11 +276,11 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
                 else
                   runTest(testName, report, stopRequested, configMap, tracker)
 
-            case infoLeaf @ InfoLeaf(_, message) =>
-              reportInfoProvided(theSuite, report, tracker, None, message, infoLeaf.indentationLevel, true, includeIcon)
+            case infoLeaf @ InfoLeaf(_, message, location) =>
+              reportInfoProvided(theSuite, report, tracker, None, message, infoLeaf.indentationLevel, location, true, includeIcon)
 
-            case markupLeaf @ MarkupLeaf(_, message) =>
-              reportMarkupProvided(theSuite, report, tracker, None, message, markupLeaf.indentationLevel, true)
+            case markupLeaf @ MarkupLeaf(_, message, location) =>
+              reportMarkupProvided(theSuite, report, tracker, None, message, markupLeaf.indentationLevel, location, true)
 
             case branch: Branch => runTestsInBranch(theSuite, branch, report, stopRequested, filter, configMap, tracker, includeIcon, runTest)
           }
@@ -363,7 +363,9 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 
     val informerForThisSuite =
       ConcurrentInformer(
-        (message, isConstructingThread) => reportInfoProvided(theSuite, report, tracker, None, message, 1, isConstructingThread)
+        (message, isConstructingThread, location) => {
+          reportInfoProvided(theSuite, report, tracker, None, message, 1, location, isConstructingThread)
+        }
       )
 
     atomicInformer.set(informerForThisSuite)
@@ -451,27 +453,6 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     val oldBundle = atomic.get
     var (currentBranch, _, _, _, _) = oldBundle.unpack
     currentBranch == Trunk
-  }
-  
-  /*def getLineInFile(stackTraceList:List[StackTraceElement], sourceFileName:String, methodName: String):Option[LineInFile] = {
-    val baseStackDepth = stackTraceList.takeWhile(stackTraceElement => sourceFileName != stackTraceElement.getFileName || stackTraceElement.getMethodName != methodName).length
-    val stackTraceOpt = stackTraceList.drop(baseStackDepth).find(stackTraceElement => stackTraceElement.getMethodName() == "<init>")
-    stackTraceOpt match {
-      case Some(stackTrace) => Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
-      case None => None
-    }
-  }*/
-  
-  private[scalatest] def getLineInFile(stackTraceList: Array[StackTraceElement], stackDepth: Int) = {
-    if(stackDepth >= 0 && stackDepth < stackTraceList.length) {
-      val stackTrace = stackTraceList(stackDepth)
-      if(stackTrace.getLineNumber >= 0 && stackTrace.getFileName != null)
-        Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
-      else
-        None
-    }
-    else
-      None
   }
 
   def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, stackDepth:Int, testTags: Tag*): String = { // returns testName
