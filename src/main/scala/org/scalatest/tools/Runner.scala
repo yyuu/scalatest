@@ -543,8 +543,8 @@ object Runner {
 
     val fullReporterConfigurations: ReporterConfigurations =
       if (reporterArgsList.isEmpty)
-        // If no reporters specified, just give them a graphic reporter
-        new ReporterConfigurations(Some(GraphicReporterConfiguration(Set())), Nil, Nil, Nil, Nil, None, None, Nil, Nil)
+        // If no reporters specified, just give them a stdout reporter
+        new ReporterConfigurations(None, Nil, Nil, Nil, Nil, Some(StandardOutReporterConfiguration(Set.empty)), None, Nil, Nil)
       else
         parseReporterArgsIntoConfigurations(reporterArgsList)
 
