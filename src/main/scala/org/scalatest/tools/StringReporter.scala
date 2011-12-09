@@ -40,7 +40,13 @@ import Suite.indentation
  * @author Bill Venners
  */
 private[scalatest] abstract class StringReporter(presentAllDurations: Boolean,
-        presentInColor: Boolean, presentShortStackTraces: Boolean, presentFullStackTraces: Boolean) extends ResourcefulReporter {
+        presentInColor: Boolean, presentShortStackTraces: Boolean, presentFullStackTraces: Boolean, 
+        presentDarkColor: Boolean) extends ResourcefulReporter {
+  
+  private[scalatest] val color: AnsiColor = if(presentDarkColor)
+                                              DarkAnsiColor
+                                            else
+                                              NormalAnsiColor
 
   private def withPossibleLineNumber(stringToPrint: String, throwable: Option[Throwable]): String = {
     throwable match {
@@ -321,7 +327,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           throw new IllegalArgumentException
 
         val string = Resources("runStarting", testCount.toString)
-        printPossiblyInColor(string, ansiCyan)
+        printPossiblyInColor(string, color.ansiCyan)
 
       case RunCompleted(ordinal, duration, summary, formatter, location, payload, threadName, timeStamp) => 
 
@@ -334,14 +340,14 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
       case RunAborted(ordinal, message, throwable, duration, summary, formatter, location, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("abortedNote", "runAborted", message, throwable, formatter, None, None, duration)
-        for (line <- lines) printPossiblyInColor(line, ansiRed)
+        for (line <- lines) printPossiblyInColor(line, color.ansiRed)
 
       case SuiteStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, rerunnable, payload, threadName, timeStamp) =>
 
         val stringToPrint = stringToPrintWhenNoError("suiteStarting", formatter, suiteName, None)
 
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiGreen)
+          case Some(string) => printPossiblyInColor(string, color.ansiGreen)
           case None =>
         }
 
@@ -350,21 +356,21 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
         val stringToPrint = stringToPrintWhenNoError("suiteCompleted", formatter, suiteName, None, duration)
 
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiGreen)
+          case Some(string) => printPossiblyInColor(string, color.ansiGreen)
           case None =>
         }
 
       case SuiteAborted(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, throwable, duration, formatter, location, rerunnable, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("abortedNote", "suiteAborted", message, throwable, formatter, Some(suiteName), None, duration)
-        for (line <- lines) printPossiblyInColor(line, ansiRed)
+        for (line <- lines) printPossiblyInColor(line, color.ansiRed)
 
       case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunnable, payload, threadName, timeStamp) =>
 
         val stringToPrint = stringToPrintWhenNoError("testStarting", formatter, suiteName, Some(testName))
 
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiGreen)
+          case Some(string) => printPossiblyInColor(string, color.ansiGreen)
           case None =>
         }
 
@@ -373,7 +379,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
         val stringToPrint = stringToPrintWhenNoError("testSucceeded", formatter, suiteName, Some(testName), duration)
 
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiGreen)
+          case Some(string) => printPossiblyInColor(string, color.ansiGreen)
           case None =>
         }
     
@@ -387,19 +393,19 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           }
  
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiYellow)
+          case Some(string) => printPossiblyInColor(string, color.ansiYellow)
           case None =>
         }
 
       case TestFailed(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, rerunnable, payload, threadName, timeStamp) => 
 
         val lines = stringsToPrintOnError("failedNote", "testFailed", message, throwable, formatter, Some(suiteName), Some(testName), duration)
-        for (line <- lines) printPossiblyInColor(line, ansiRed)
+        for (line <- lines) printPossiblyInColor(line, color.ansiRed)
 
       case TestCanceled(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
 
         val lines = stringsToPrintOnError("canceledNote", "testCanceled", message, throwable, formatter, Some(suiteName), Some(testName), duration)
-        for (line <- lines) printPossiblyInColor(line, ansiRed)
+        for (line <- lines) printPossiblyInColor(line, color.ansiRed)
 
       case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, throwable, formatter, location, payload, threadName, timeStamp) =>
 
@@ -428,7 +434,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           }
 */
         val shouldBeYellow = isPending || wasCanceled
-        for (line <- lines) printPossiblyInColor(line, if (shouldBeYellow) ansiYellow else ansiGreen)
+        for (line <- lines) printPossiblyInColor(line, if (shouldBeYellow) color.ansiYellow else color.ansiGreen)
 
       case ScopeOpened(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
 
@@ -454,7 +460,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
 */
         val shouldBeYellow = isPending || wasCanceled
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, if (shouldBeYellow) ansiYellow else ansiGreen)
+          case Some(string) => printPossiblyInColor(string, if (shouldBeYellow) color.ansiYellow else color.ansiGreen)
           case None =>
         }
 
@@ -483,7 +489,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
 */
         val shouldBeYellow = isPending || wasCanceled
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, if (shouldBeYellow) ansiYellow else ansiGreen)
+          case Some(string) => printPossiblyInColor(string, if (shouldBeYellow) color.ansiYellow else color.ansiGreen)
           case None =>
         }
 
@@ -501,7 +507,7 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
           }
 
         stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiYellow)
+          case Some(string) => printPossiblyInColor(string, color.ansiYellow)
           case None =>
         }
 
@@ -518,38 +524,38 @@ org.scalatest.prop.TableDrivenPropertyCheckFailedException: TestFailedException 
 
         duration match {
           case Some(msSinceEpoch) =>
-            printPossiblyInColor(Resources(resourceName + "In", makeDurationString(msSinceEpoch)), ansiCyan)
+            printPossiblyInColor(Resources(resourceName + "In", makeDurationString(msSinceEpoch)), color.ansiCyan)
           case None =>
-            printPossiblyInColor(Resources(resourceName), ansiCyan)
+            printPossiblyInColor(Resources(resourceName), color.ansiCyan)
         }     
 
         // totalNumberOfTestsRun=Total number of tests run was: {0}
-        printPossiblyInColor(Resources("totalNumberOfTestsRun", testsCompletedCount.toString), ansiCyan)
+        printPossiblyInColor(Resources("totalNumberOfTestsRun", testsCompletedCount.toString), color.ansiCyan)
 
         // Suite Summary: completed {0}, aborted {1}
-        printPossiblyInColor(Resources("suiteSummary", suitesCompletedCount.toString, suitesAbortedCount.toString), ansiCyan)
+        printPossiblyInColor(Resources("suiteSummary", suitesCompletedCount.toString, suitesAbortedCount.toString), color.ansiCyan)
 
         // Test Summary: succeeded {0}, failed {1}, ignored, {2}, pending {3}, canceled {4}
-        printPossiblyInColor(Resources("testSummary", testsSucceededCount.toString, testsFailedCount.toString, testsIgnoredCount.toString, testsPendingCount.toString, testsCanceledCount.toString), ansiCyan)
+        printPossiblyInColor(Resources("testSummary", testsSucceededCount.toString, testsFailedCount.toString, testsIgnoredCount.toString, testsPendingCount.toString, testsCanceledCount.toString), color.ansiCyan)
 
         // *** 1 SUITE ABORTED ***
         if (suitesAbortedCount == 1)
-          printPossiblyInColor(Resources("oneSuiteAborted"), ansiRed)
+          printPossiblyInColor(Resources("oneSuiteAborted"), color.ansiRed)
 
         // *** {0} SUITES ABORTED ***
         else if (suitesAbortedCount > 1)
-          printPossiblyInColor(Resources("multipleSuitesAborted", suitesAbortedCount.toString), ansiRed)
+          printPossiblyInColor(Resources("multipleSuitesAborted", suitesAbortedCount.toString), color.ansiRed)
 
         // *** 1 TEST FAILED ***
         if (testsFailedCount == 1)
-          printPossiblyInColor(Resources("oneTestFailed"), ansiRed)
+          printPossiblyInColor(Resources("oneTestFailed"), color.ansiRed)
 
         // *** {0} TESTS FAILED ***
         else if (testsFailedCount > 1)
-          printPossiblyInColor(Resources("multipleTestsFailed", testsFailedCount.toString), ansiRed)
+          printPossiblyInColor(Resources("multipleTestsFailed", testsFailedCount.toString), color.ansiRed)
 
         else if (suitesAbortedCount == 0) // Maybe don't want to say this if the run aborted or stopped because "all"
-          printPossiblyInColor(Resources("allTestsPassed"), ansiGreen)
+          printPossiblyInColor(Resources("allTestsPassed"), color.ansiGreen)
 
       case None =>
     }
@@ -574,7 +580,7 @@ private[scalatest] object StringReporter {
     if (text.trim.isEmpty) text
     else {
       ("\n" * countLeadingEOLs(text)) +
-      text.split("\n").dropWhile(_.isEmpty).map(ansiColor + _ + ansiReset).mkString("\n") +
+      text.split("\n").dropWhile(_.isEmpty).map(ansiColor + _ + NormalAnsiColor.ansiReset).mkString("\n") +
       ("\n" * countTrailingEOLs(text))
     }
 }

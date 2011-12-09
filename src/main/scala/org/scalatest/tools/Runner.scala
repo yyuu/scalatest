@@ -861,6 +861,7 @@ object Runner {
         case 'F' => set += PresentFullStackTraces
         case 'S' => set += PresentShortStackTraces
         case 'D' => set += PresentAllDurations
+        case 'K' => set += PresentDarkColor
         case c: Char => { 
 
           // this should be moved to the checker, and just throw an exception here with a debug message. Or allow a MatchError.
@@ -995,6 +996,8 @@ object Runner {
             throw new IllegalArgumentException("Cannot specify a W (present without color) configuration parameter for the graphic reporter: " + dashGString)
           if (configSet.contains(PresentAllDurations))
             throw new IllegalArgumentException("Cannot specify a D (present all durations) configuration parameter for the graphic reporter (because it shows them all anyway): " + dashGString)
+          if (configSet.contains(PresentDarkColor))
+            throw new IllegalArgumentException("Cannot specify a K (present dark color) configuration parameter for the graphic reporter: " + dashGString)
           Some(new GraphicReporterConfiguration(configSet))
         case None => None
       }
@@ -1106,6 +1109,8 @@ object Runner {
             throw new IllegalArgumentException("Cannot specify a W (without color) configuration parameter for a custom reporter: " + dashRString + " " + customReporterClassName)
           if (configSet.contains(PresentAllDurations))
             throw new IllegalArgumentException("Cannot specify a D (present all durations) configuration parameter for a custom reporter: " + dashRString + " " + customReporterClassName)
+          if (configSet.contains(PresentDarkColor))
+            throw new IllegalArgumentException("Cannot specify a K (dark color) configuration parameter for a custom reporter: " + dashRString + " " + customReporterClassName)
           lb += new CustomReporterConfiguration(configSet, customReporterClassName)
         }
       }
@@ -1310,7 +1315,7 @@ object Runner {
 */
 
   private def configSetMinusNonFilterParams(configSet: Set[ReporterConfigParam]) =
-    (((configSet - PresentShortStackTraces) - PresentFullStackTraces) - PresentWithoutColor) - PresentAllDurations
+    ((((configSet - PresentShortStackTraces) - PresentFullStackTraces) - PresentWithoutColor) - PresentAllDurations) - PresentDarkColor
 
   private[scalatest] def getDispatchReporter(reporterSpecs: ReporterConfigurations, graphicReporter: Option[Reporter], passFailReporter: Option[Reporter], loader: ClassLoader) = {
 
@@ -1323,7 +1328,8 @@ object Runner {
               configSet.contains(PresentAllDurations),
               !configSet.contains(PresentWithoutColor),
               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-              configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+              configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+              configSet.contains(PresentDarkColor)
             )
           else
             new FilterReporter(
@@ -1331,7 +1337,8 @@ object Runner {
                 configSet.contains(PresentAllDurations),
                 !configSet.contains(PresentWithoutColor),
                 configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-                configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+                configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+                configSet.contains(PresentDarkColor)
               ),
               configSet
             )
@@ -1342,7 +1349,8 @@ object Runner {
             configSet.contains(PresentAllDurations),
             !configSet.contains(PresentWithoutColor),
             configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-            configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+            configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+            configSet.contains(PresentDarkColor)
           )
         else
           new FilterReporter(
@@ -1350,7 +1358,8 @@ object Runner {
               configSet.contains(PresentAllDurations),
               !configSet.contains(PresentWithoutColor),
               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-              configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+              configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+              configSet.contains(PresentDarkColor)
             ),
             configSet
           )
@@ -1362,7 +1371,8 @@ object Runner {
             configSet.contains(PresentAllDurations),
             !configSet.contains(PresentWithoutColor),
             configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-            configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+            configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+            configSet.contains(PresentDarkColor)
           )
         else
           new FilterReporter(
@@ -1371,7 +1381,8 @@ object Runner {
               configSet.contains(PresentAllDurations),
               !configSet.contains(PresentWithoutColor),
               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-              configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+              configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+              configSet.contains(PresentDarkColor)
             ),
             configSet
           )
@@ -1394,7 +1405,8 @@ object Runner {
             configSet.contains(PresentAllDurations),
             !configSet.contains(PresentWithoutColor),
             configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-            configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+            configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+            configSet.contains(PresentDarkColor)
           )
         else
           new FilterReporter(
@@ -1403,7 +1415,8 @@ object Runner {
               configSet.contains(PresentAllDurations),
               !configSet.contains(PresentWithoutColor),
               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-              configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+              configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+              configSet.contains(PresentDarkColor)
             ),
             configSet
           )
@@ -1415,7 +1428,8 @@ object Runner {
             configSet.contains(PresentAllDurations),
             !configSet.contains(PresentWithoutColor),
             configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-            configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+            configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+            configSet.contains(PresentDarkColor)
           )
         else
           new FilterReporter(
@@ -1424,7 +1438,8 @@ object Runner {
               configSet.contains(PresentAllDurations),
               !configSet.contains(PresentWithoutColor),
               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-              configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+              configSet.contains(PresentFullStackTraces), // If they say both S and F, F overrules
+              configSet.contains(PresentDarkColor)
             ),
             configSet
           )

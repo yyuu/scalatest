@@ -38,8 +38,9 @@ import StringReporter.colorizeLinesIndividually
  * @author Bill Venners
  */
 private[scalatest] abstract class PrintReporter(pw: PrintWriter, presentAllDurations: Boolean,
-        presentInColor: Boolean, presentShortStackTraces: Boolean, presentFullStackTraces: Boolean) extends StringReporter(
-presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTraces) {
+        presentInColor: Boolean, presentShortStackTraces: Boolean, presentFullStackTraces: Boolean, 
+        presentDarkColor: Boolean) extends StringReporter(presentAllDurations, presentInColor, 
+        presentShortStackTraces, presentFullStackTraces, presentDarkColor) {
 
   /**
   * Construct a <code>PrintReporter</code> with passed
@@ -55,7 +56,8 @@ presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTr
     presentAllDurations: Boolean,
     presentInColor: Boolean,
     presentShortStackTraces: Boolean,
-    presentFullStackTraces: Boolean
+    presentFullStackTraces: Boolean, 
+    presentDarkColor: Boolean
   ) =
     this(
       new PrintWriter(
@@ -66,7 +68,8 @@ presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTr
       presentAllDurations,
       presentInColor,
       presentShortStackTraces,
-      presentFullStackTraces
+      presentFullStackTraces, 
+      presentDarkColor
     )
 
   /**
@@ -84,14 +87,16 @@ presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTr
     presentAllDurations: Boolean,
     presentInColor: Boolean,
     presentShortStackTraces: Boolean,
-    presentFullStackTraces: Boolean
+    presentFullStackTraces: Boolean, 
+    presentDarkColor: Boolean
   ) =
     this(
       new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File(filename)), BufferSize)),
       presentAllDurations,
       presentInColor,
       presentShortStackTraces,
-      presentFullStackTraces
+      presentFullStackTraces, 
+      presentDarkColor
     )
 
   protected def printPossiblyInColor(text: String, ansiColor: String) {
@@ -128,12 +133,6 @@ presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTr
 private[tools] object PrintReporter {
 
   final val BufferSize = 4096
-
-  final val ansiReset = "\033[0m"
-  final val ansiGreen = "\033[32m"
-  final val ansiCyan = "\033[36m"
-  final val ansiYellow = "\033[33m"
-  final val ansiRed = "\033[31m"
 
   def makeDurationString(duration: Long) = {
 

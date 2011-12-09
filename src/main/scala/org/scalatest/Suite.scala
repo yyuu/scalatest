@@ -1770,14 +1770,15 @@ trait Suite extends Assertions with AbstractSuite { thisSuite =>
     durations: Boolean = false,
     shortstacks: Boolean = false,
     fullstacks: Boolean = false,
-    stats: Boolean = false
+    stats: Boolean = false,
+    darkColor: Boolean = false
   ) {
     if (configMap == null)
       throw new NullPointerException("configMap was null")
     if (testName != null && !testNames.contains(testName))
       throw new IllegalArgumentException(Resources("testNotFound", testName))
 
-    val dispatch = new DispatchReporter(List(new StandardOutReporter(durations, color, shortstacks, fullstacks)))
+    val dispatch = new DispatchReporter(List(new StandardOutReporter(durations, color, shortstacks, fullstacks, darkColor)))
     val tracker = new Tracker
     val filter = Filter()
     val runStartTime = System.currentTimeMillis
