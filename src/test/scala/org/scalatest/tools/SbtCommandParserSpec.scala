@@ -32,6 +32,7 @@ class SbtCommandParserSpec extends Spec with ShouldMatchers {
     it("""should parse 'st -- stdout'""") { canParsePhrase("""st -- stdout""") }
     it("""should parse 'st -- stdout(config="nocolor fullstacks doptestsucceeded")'""") { canParsePhrase("""st -- stdout(config="nocolor fullstacks droptestsucceeded")""") }
     it("""should parse 'st -- stdout (config="nocolor fullstacks doptestsucceeded")'""") { canParsePhrase("""st -- stdout (config="nocolor fullstacks droptestsucceeded")""") }
+    it("""should parse 'st -- stdout (config="darkcolor fullstacks doptestsucceeded")'""") { canParsePhrase("""st -- stdout (config="darkcolor fullstacks droptestsucceeded")""") }
     it("""should not parse 'st -- stdout config="nocolor fullstacks droptestsucceeded"'""") { cannotParsePhrase("""st -- stdout config="nocolor fullstacks droptestsucceeded"""") }
     it("""should not parse 'st -- stdout(config="nocolor fullstacks droptestsucceeded"'""") { cannotParsePhrase("""st -- stdout(config="nocolor fullstacks droptestsucceeded"""") }
     it("""should not parse 'st -- stdoutconfig="nocolor fullstacks droptestsucceeded")'""") { cannotParsePhrase("""st -- stdoutconfig="nocolor fullstacks droptestsucceeded")""") }

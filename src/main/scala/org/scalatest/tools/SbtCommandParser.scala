@@ -81,7 +81,8 @@ class SbtCommandParser extends JavaTokenParsers {
                            "nocolor" | 
                            "shortstacks" | 
                            "fullstacks" | 
-                           "durations"
+                           "durations" | 
+                           "darkcolor"
   
   def limitedConfig: Parser[Any] = "config" ~ "=" ~ "\"" ~ rep(limitedConfigOpt) ~ "\""
                            
