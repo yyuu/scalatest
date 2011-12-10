@@ -15,7 +15,8 @@ private[scalatest] class FriendlyParamsTranslator {
                                              "nocolor" -> "W", 
                                              "shortstacks" -> "S", 
                                              "fullstacks" -> "F", 
-                                             "durations" -> "D"
+                                             "durations" -> "D",
+                                             "darkcolor" -> "K"
                                            )
   
   private [scalatest] def extractContentInBracket(raw:String, it:Iterator[String], expected:String):String = {
@@ -207,6 +208,8 @@ private[scalatest] class FriendlyParamsTranslator {
           throw new IllegalArgumentException("Cannot specify an 'nocolor' (present without color) configuration parameter for the graphic reporter")
         if(dashG.indexOf("D") >= 0 )
           throw new IllegalArgumentException("Cannot specify an 'durations' (present all durations) configuration parameter for the graphic reporter (because it shows them all anyway)")
+        if(dashG.indexOf("K") >= 0 )
+          throw new IllegalArgumentException("Cannot specify an 'darkcolor' (present dark color) configuration parameter for the graphic reporter")
         repoArgs += dashG
       }
       else if (s.startsWith("-f")) 
@@ -264,6 +267,8 @@ private[scalatest] class FriendlyParamsTranslator {
           throw new IllegalArgumentException("Cannot specify an 'nocolor' (present without color) configuration parameter for a custom reporter: " + dashR + " " + classname)
         if(dashR.indexOf("D") >= 0 )
           throw new IllegalArgumentException("Cannot specify an 'durations' (present all durations) configuration parameter for a custom reporter: " + dashR + " " + classname)
+        if(dashR.indexOf("K") >= 0)
+          throw new IllegalArgumentException("Cannot specify an 'darkcolor' (present dark color) configuration parameter for a custom reporter: " + dashR + " " + classname)
         repoArgs += dashR
         repoArgs += classname
       }

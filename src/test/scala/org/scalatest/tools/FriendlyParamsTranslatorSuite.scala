@@ -124,6 +124,12 @@ class FriendlyParamsTranslatorSuite extends FunSuite {
     assert(repoArgsList(0) == "-oWFC")
   }
   
+  test("parse argument stdout(config=\"darkcolor fullstacks doptestsucceeded\")") {
+    val repoArgsList = getRepoArgsList("stdout(config=\"darkcolor fullstacks droptestsucceeded\")")
+    assert(repoArgsList.length == 1)
+    assert(repoArgsList(0) == "-oKFC")
+  }
+  
   test("parse argument stdout (config=\"nocolor fullstacks doptestsucceeded\") should fail with IllegalArgumentException") {
     intercept[IllegalArgumentException] { getRepoArgsList("stdout (config=\"nocolor fullstacks doptestsucceeded\")") }
   }
