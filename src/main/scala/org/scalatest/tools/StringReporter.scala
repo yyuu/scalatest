@@ -43,6 +43,7 @@ private[scalatest] abstract class StringReporter(presentAllDurations: Boolean,
         presentInColor: Boolean, presentShortStackTraces: Boolean, presentFullStackTraces: Boolean, 
         presentDarkColor: Boolean) extends ResourcefulReporter {
   
+// TODO: Why is this private[scalatest]? Shoul either be public, private, or protected, probably private
   private[scalatest] val color: AnsiColor = if(presentDarkColor)
                                               DarkAnsiColor
                                             else
