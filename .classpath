@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/scala"/>
+	<classpathentry kind="src" path="src/main/scala"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="var" path="IVY2_REPO/org.scala-tools.testing/specs_2.9.0/jars/specs_2.9.0-1.6.8.jar"/>
+	<classpathentry kind="lib" path="lib/scalatest.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
