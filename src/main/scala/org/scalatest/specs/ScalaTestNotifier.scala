@@ -14,6 +14,7 @@ import org.scalatest.events.TestStarting
 import org.scalatest.events.TestSucceeded
 import org.scalatest.events.TestFailed
 import org.scalatest.events.TestPending
+import org.scalatest.Suite
 
 class ScalaTestNotifier(theSpec: Specification, theTracker: Tracker, reporter: Reporter) extends ScalaTestAbstractNotifier {
   val spec = theSpec
@@ -28,8 +29,8 @@ class ScalaTestNotifier(theSpec: Specification, theTracker: Tracker, reporter: R
   
   def scopeOpened(name: String) { 
     indentLevel += 1
-    val formatter = Some(IndentedText(("  " * indentLevel) + name + ":", name, indentLevel))
-    report(InfoProvided(tracker.nextOrdinal(), name, Some(NameInfo(name, Some(spec.getClass.getName), Some(name))), None, None, formatter))
+    val formatter = Suite.getIndentedTextForInfo(name, indentLevel, false, false)
+    report(InfoProvided(tracker.nextOrdinal(), name, Some(NameInfo(name, Some(spec.getClass.getName), Some(name))), None, None, Some(formatter)))
   }
   
   def scopeClosed(name: String) { 
@@ -38,23 +39,15 @@ class ScalaTestNotifier(theSpec: Specification, theTracker: Tracker, reporter: R
   
   def systemStarting(systemName: String) {
     systemStart = System.currentTimeMillis
-    val formatter = Some(IndentedText(("  " * indentLevel) + systemName + ":", systemName, indentLevel))
-    report(InfoProvided(tracker.nextOrdinal(), systemName, Some(NameInfo(systemName, Some(spec.getClass.getName), Some(systemName))), None, None, formatter))
+    val formatter = Suite.getIndentedTextForInfo(systemName, indentLevel, false, false)
+    report(InfoProvided(tracker.nextOrdinal(), systemName, Some(NameInfo(systemName, Some(spec.getClass.getName), Some(systemName))), None, None, Some(formatter)))
   }
   
   def systemCompleted(systemName: String) { }
   
-  def systemFailed(name: String, e: Throwable) {
-    val duration = System.currentTimeMillis() - systemStart
-    val formatter = Some(MotionToSuppress)
-    report(SuiteAborted(tracker.nextOrdinal(), e.getMessage(), name, Some(spec.getClass.getName), Some(e), Some(duration), None, None))
-  }
+  def systemFailed(name: String, e: Throwable) { }
   
-  def systemError(name: String, e: Throwable) {
-    val duration = System.currentTimeMillis() - systemStart
-    val formatter = Some(MotionToSuppress)
-    report(SuiteAborted(tracker.nextOrdinal(), e.getMessage(), name, Some(spec.getClass.getName), Some(e), Some(duration), None, None))
-  }
+  def systemError(name: String, e: Throwable) { }
   
   def systemSkipped(name: String) { }
   
@@ -67,25 +60,25 @@ class ScalaTestNotifier(theSpec: Specification, theTracker: Tracker, reporter: R
   
   def exampleSucceeded(testName: String) {
     val duration = System.currentTimeMillis() - exampleStart
-    val formatter = Some(IndentedText(("  " * indentLevel) + "- " + testName, testName, indentLevel))
-    report(TestSucceeded(tracker.nextOrdinal(), spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(duration), formatter, None))
+    val formatter = Suite.getIndentedText(testName, indentLevel + 1, true)
+    report(TestSucceeded(tracker.nextOrdinal(), spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(duration), Some(formatter), None))
   }
   
   def exampleFailed(testName: String, e: Throwable) {
     val duration = System.currentTimeMillis() - exampleStart
-    val formatter = Some(IndentedText(("  " * indentLevel) + "- " + testName, testName, indentLevel))
-    report(TestFailed(tracker.nextOrdinal(), e.getMessage, spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(e), Some(duration), formatter, None))
+    val formatter = Suite.getIndentedText(testName, indentLevel + 1, true)
+    report(TestFailed(tracker.nextOrdinal(), e.getMessage, spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(e), Some(duration), Some(formatter), None))
   }
   
   def exampleError(testName: String, e: Throwable) {
     val duration = System.currentTimeMillis() - exampleStart
-    val formatter = Some(IndentedText(("  " * indentLevel) + "- " + testName, testName, indentLevel))
-    report(TestFailed(tracker.nextOrdinal(), e.getMessage, spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(e), Some(duration), formatter, None))
+    val formatter = Suite.getIndentedText(testName, indentLevel + 1, true)
+    report(TestFailed(tracker.nextOrdinal(), e.getMessage, spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(e), Some(duration), Some(formatter), None))
   }
   
   def exampleSkipped(testName: String) {
-    val formatter = Some(IndentedText(("  " * indentLevel) + "- " + testName, testName, indentLevel))
-    report(TestPending(tracker.nextOrdinal(), spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, formatter))
+    val formatter = Suite.getIndentedText(testName, indentLevel + 1, true)
+    report(TestPending(tracker.nextOrdinal(), spec.getClass.getSimpleName, Some(spec.getClass.getName), testName, Some(formatter)))
   }
   
   def exampleCompleted(exampleName: String) { }
