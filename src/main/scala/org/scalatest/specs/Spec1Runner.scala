@@ -10,18 +10,31 @@ import org.scalatest.Resources
 import org.scalatest.events.InfoProvided
 import org.scalatest.events.NameInfo
 import org.specs.runner.NotifierRunner
+import org.specs.specification.Example
+import org.specs.specification.Sus
 
 class Spec1Runner(specification: Specification) extends Suite { thisSuite =>
   
   val spec = specification
   
   def getSpecTestCount(theSpec: Specification): Int = {
-    theSpec.examples.length + 
-    theSpec.systems.map(_.examples.length).foldLeft(0)(_ + _) + 
-    theSpec.subSpecifications.map(getSpecTestCount(_)).foldLeft(0)(_ + _)
+    theSpec.systems.foldLeft(0)(_ + getSusTestCount(_)) +
+    theSpec.subSpecifications.foldLeft(0)(_ + getSpecTestCount(_))
   }
   
-  override def expectedTestCount(filter: Filter): Int = getSpecTestCount(spec)
+  def getSusTestCount(sus: Sus): Int = {
+    val count = sus.examples.foldLeft(0)(_ + getExampleTestCount(_))
+    count
+  }
+  
+  def getExampleTestCount(example: Example): Int = {
+    if(example.hasSubExamples)
+      example.examples.map(getExampleTestCount(_)).foldLeft(0)(_ + _)
+    else
+      example.ownExpectationsNb
+  }
+  
+  override def expectedTestCount(filter: Filter): Int = getSpecTestCount(spec)//spec.firstLevelExamplesNb
   
   override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
               configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
@@ -52,9 +65,10 @@ class Spec1Runner(specification: Specification) extends Suite { thisSuite =>
   }
   
   def runSpec(specification: Option[Specification], tracker: Tracker, reporter: Reporter): Option[Specification] = {
-    def testInterfaceRunner(s: Specification) = new ScalaTestNotifierRunner(s, new ScalaTestNotifier(spec, tracker, reporter)) {
+    /*def testInterfaceRunner(s: Specification) = new ScalaTestNotifierRunner(s, new ScalaTestNotifier(spec, tracker, reporter)) {
       override protected def countExamples(specToRun: Specification) = ()
-    }
+    }*/
+    def testInterfaceRunner(s: Specification) = new ScalaTestNotifierRunner(s, new ScalaTestNotifier(spec, tracker, reporter))
     specification.map(testInterfaceRunner(_).reportSpecs)
     specification match {
       case Some(s: org.specs.runner.File) => s.reportSpecs

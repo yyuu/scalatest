@@ -16,7 +16,6 @@ class ScalaTestNotifierRunner(val specification: Specification, val notifier: Sc
   extends NotifierRunner(Array(specification), Array[Notifier](notifier)) {
   
   override def reportExample(example: Examples, planOnly: Boolean): this.type = {
-    //println("example: " + example.description + ", children: " + example.examples.length)
     if(example.examples.length == 0) {
       notifiers.foreach { _.exampleStarting(example.description) }
     
