@@ -988,6 +988,112 @@ $columnsOfIndexes$
     examples.iterator.length should equal (10)
   }
 """
+  
+val tableSuiteUsingSuitePreamble = """
+
+import matchers.ShouldMatchers
+
+class TableSuiteUsingSuite extends Suite with TableDrivenPropertyChecks with ShouldMatchers {
+"""
+  
+val tableSuiteUsingSuiteTemplate = """
+  def testTableFor$n$ThatSucceeds() {
+
+    val examples =
+      Table(
+        ($argNames$),
+$columnsOfOnes$
+      )
+
+    forAll (examples) { ($names$) => $sumOfArgs$ should equal ($n$) }
+  }
+
+  def testTableFor$n$WhichSucceedsEvenThoughDiscardedEvaluationExceptionIsThrown() {
+    val numbers =
+      Table(
+        ($argNames$),
+$columnOfMinusOnes$
+$columnsOfOnes$
+      )
+
+    forAll (numbers) { ($names$) =>
+
+      whenever (a > 0) {
+        a should be > 0
+      }
+    }
+  }
+
+  def testTableFor$n$WhichFails() {
+
+    val examples =
+      Table(
+        ($argNames$),
+$columnsOfTwos$
+      )
+
+    intercept[TableDrivenPropertyCheckFailedException] {
+      forAll (examples) { ($names$) => $sumOfArgs$ should equal ($n$) }
+    }
+  }
+
+  def testTableFor$n$ApplyLengthAndIteratorMethodsWorkCorrectly() {
+
+    val examples =
+      Table(
+        ($argNames$),
+$columnsOfIndexes$
+      )
+
+    for (i <- 0 to 9) {
+      examples(i) should equal ($listOfIs$)
+    }
+
+    examples.length should equal (10)
+
+    var i = 0
+    for (example <- examples.iterator) {
+      example should equal ($listOfIs$)
+      i += 1
+    }
+
+    examples.iterator.length should equal (10)
+  }
+"""
+  
+val tableSuiteUsingSpec1Preamble = """
+
+import org.specs.Specification
+import org.specs.util.DataTables
+
+class TableSuiteUsingSpec1 extends Specification with DataTables  {
+"""
+  
+val tableSuiteUsingSpec1Body = """
+  "table for $n$" should {
+    "succeeds" in {
+      $argNames$ |>
+      $columnsOfOnes$ { ($names$) => $sumOfArgs$ must be ($n$) }
+    }
+    "succeeds even though DiscardedEvaluationException is thrown" in {
+      $argNames$ |>
+      $columnOfMinusOnes$
+      $columnsOfOnes$ { ($names$) => if(a > 0) a must be > 0 }
+    }
+    "fails" in {
+      $argNames$ |>
+      $columnsOfTwos$ { ($names$) => { $sumOfArgs$ must be ($n$) } must throwA[RuntimeException] }
+    }
+    "table for $n$ apply, length, and iterator methods work correctly" {
+      $argNames$ |>
+      $columnsOfIndexes$ { ($names$) => 
+        for (i <- 0 to 9) {
+          examples(i) should equal ($listOfIs$)
+        }
+      }
+    }
+  }
+"""
 
 // For some reason that I don't understand, I need to leave off the stars before the <pre> when 
 // they are next to ST commands. So I say  "   <pre>" sometimes instead of " * <pre>".
@@ -1107,20 +1213,20 @@ $columnsOfIndexes$
     }
   }
  
-  def genTableSuite() {
+  def genTableSuite(targetFilePath: String, preambleTemplate: String, bodyTemplate: String) {
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/test/scala/org/scalatest/prop/TableSuite.scala"))
+    val bw = new BufferedWriter(new FileWriter(targetFilePath))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
       st.setAttribute("year", thisYear);
       bw.write(st.toString)
-      bw.write(tableSuitePreamble)
+      bw.write(preambleTemplate)
       val alpha = "abcdefghijklmnopqrstuv"
       // for (i <- 1 to 22) {
       for (i <- 1 to 20) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
 
-        val st = new org.antlr.stringtemplate.StringTemplate(tableSuiteTemplate)
+        val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplate)
         val rowOfMinusOnes = List.fill(i)(" -1").mkString(", ")
         val rowOfOnes = List.fill(i)("  1").mkString(", ")
         val rowOfTwos = List.fill(i)("  2").mkString(", ")
@@ -1153,11 +1259,60 @@ $columnsOfIndexes$
       bw.close()
     }
   }
+  
+  def genTableSuiteUsingSpec(targetFilePath: String, preambleTemplate: String, bodyTemplate: String) {
+
+    val bw = new BufferedWriter(new FileWriter(targetFilePath))
+ 
+    try {
+      val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
+      st.setAttribute("year", thisYear);
+      bw.write(st.toString)
+      bw.write(preambleTemplate)
+      val alpha = "abcdefghijklmnopqrstuv"
+      // for (i <- 1 to 22) {
+      for (i <- 2 to 20) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
+
+        val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplate)
+        val rowOfMinusOnes = List.fill(i)(" -1").mkString(" ! ")
+        val rowOfOnes = List.fill(i)("  1").mkString(" ! ")
+        val rowOfTwos = List.fill(i)("  2").mkString(" ! ")
+        val listOfIs = List.fill(i)("i").mkString(", ")
+        val columnsOfOnes = List.fill(i)(rowOfOnes + " |").mkString("\n")
+        val columnOfMinusOnes = rowOfMinusOnes + " |"
+        val columnsOfTwos = List.fill(i)(rowOfTwos + " |").mkString("\n")
+        val rawRows =                              
+          for (idx <- 0 to 9) yield                
+            List.fill(i)("  " + idx).mkString("        (", ", ", ")")
+        val columnsOfIndexes = rawRows.mkString(",\n")
+        val argNames = alpha.map("\"" + _ + "\"").take(i).mkString(" | ")
+        val names = alpha.take(i).mkString(", ")
+        val sumOfArgs = alpha.take(i).mkString(" + ")
+        st.setAttribute("n", i)
+        st.setAttribute("columnsOfOnes", columnsOfOnes)
+        st.setAttribute("columnOfMinusOnes", columnOfMinusOnes)
+        st.setAttribute("columnsOfTwos", columnsOfTwos)
+        st.setAttribute("columnsOfIndexes", columnsOfIndexes)
+        st.setAttribute("argNames", argNames)
+        st.setAttribute("names", names)
+        st.setAttribute("sumOfArgs", sumOfArgs)
+        st.setAttribute("listOfIs", listOfIs)
+        bw.write(st.toString)
+      }
+
+      bw.write("}\n")
+    }
+    finally {
+      bw.close()
+    }
+  }
 
   genTableForNs()
   genPropertyChecks()
   genTables()
-  genTableSuite()
+  genTableSuite("target/generated/src/test/scala/org/scalatest/prop/TableSuite.scala", tableSuitePreamble, tableSuiteTemplate)
+  genTableSuite("target/generated/src/test/scala/org/scalatest/prop/TableSuiteUsingSuite.scala", tableSuiteUsingSuitePreamble, tableSuiteUsingSuiteTemplate)
+  genTableSuiteUsingSpec("target/generated/src/main/scala/TableSuiteUsingSpec1.scala", tableSuiteUsingSpec1Preamble, tableSuiteUsingSpec1Body)
 }
 
 /*
