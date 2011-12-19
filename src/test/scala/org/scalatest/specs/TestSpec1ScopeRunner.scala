@@ -1,9 +1,9 @@
 package org.scalatest.specs
 
 import org.specs.Specification
-import org.scalatest.RunWith
+import org.scalatest.WrapWith
 
-@RunWith(classOf[Spec1Runner])
+@WrapWith(classOf[Spec1Runner])
 class TestSpec1ScopeRunner extends Specification("Scala Spec") {
   
   "my System" should {

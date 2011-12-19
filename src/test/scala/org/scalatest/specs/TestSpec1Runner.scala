@@ -1,9 +1,9 @@
 package org.scalatest.specs
 
 import org.specs.Specification
-import org.scalatest.RunWith
+import org.scalatest.WrapWith
 
-@RunWith(classOf[Spec1Runner])
+@WrapWith(classOf[Spec1Runner])
 class TestSpec1Runner extends Specification {
   "'hello world' has 11 characters" in {
      "hello world".size must_== 11
