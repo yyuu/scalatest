@@ -991,7 +991,12 @@ $columnsOfIndexes$
   
 val tableSuiteUsingSuitePreamble = """
 
-import matchers.ShouldMatchers
+package demo.suite
+
+import org.scalatest.Suite
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyCheckFailedException
 
 class TableSuiteUsingSuite extends Suite with TableDrivenPropertyChecks with ShouldMatchers {
 """
@@ -1033,35 +1038,67 @@ $columnsOfTwos$
       )
 
     intercept[TableDrivenPropertyCheckFailedException] {
-      forAll (examples) { ($names$) => $sumOfArgs$ should equal ($n$) }
+      forAll (examples) { ($names$) => $sumOfArgs$ should equal (-10) }
     }
   }
+"""
+  
+val tableSuiteUsingFunSuitePreamble = """
+package demo.funsuite
 
-  def testTableFor$n$ApplyLengthAndIteratorMethodsWorkCorrectly() {
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyCheckFailedException
+
+class TableSuiteUsingFunSuite extends FunSuite with TableDrivenPropertyChecks with ShouldMatchers {
+"""
+
+val tableSuiteUsingFunSuiteTemplate = """
+  test("table for $n$ that succeeds") {
 
     val examples =
       Table(
         ($argNames$),
-$columnsOfIndexes$
+$columnsOfOnes$
       )
 
-    for (i <- 0 to 9) {
-      examples(i) should equal ($listOfIs$)
+    forAll (examples) { ($names$) => $sumOfArgs$ should equal ($n$) }
+  }
+
+  test("table for $n$, which succeeds even though DiscardedEvaluationException is thrown") {
+    val numbers =
+      Table(
+        ($argNames$),
+$columnOfMinusOnes$
+$columnsOfOnes$
+      )
+
+    forAll (numbers) { ($names$) =>
+
+      whenever (a > 0) {
+        a should be > 0
+      }
     }
+  }
 
-    examples.length should equal (10)
+  test("table for $n$, which fails") {
 
-    var i = 0
-    for (example <- examples.iterator) {
-      example should equal ($listOfIs$)
-      i += 1
+    val examples =
+      Table(
+        ($argNames$),
+$columnsOfTwos$
+      )
+
+    intercept[TableDrivenPropertyCheckFailedException] {
+      forAll (examples) { ($names$) => $sumOfArgs$ should equal (-10) }
     }
-
-    examples.iterator.length should equal (10)
   }
 """
   
 val tableSuiteUsingSpec1Preamble = """
+  
+package demo.specs1
 
 import org.specs.Specification
 import org.specs.util.DataTables
@@ -1073,7 +1110,7 @@ val tableSuiteUsingSpec1Body = """
   "table for $n$" should {
     "succeeds" in {
       $argNames$ |>
-      $columnsOfOnes$ { ($names$) => $sumOfArgs$ must be ($n$) }
+      $columnsOfOnes$ { ($names$) => $sumOfArgs$ must beEqualTo($n$) }
     }
     "succeeds even though DiscardedEvaluationException is thrown" in {
       $argNames$ |>
@@ -1082,18 +1119,57 @@ val tableSuiteUsingSpec1Body = """
     }
     "fails" in {
       $argNames$ |>
-      $columnsOfTwos$ { ($names$) => { $sumOfArgs$ must be ($n$) } must throwA[RuntimeException] }
-    }
-    "table for $n$ apply, length, and iterator methods work correctly" {
-      $argNames$ |>
-      $columnsOfIndexes$ { ($names$) => 
-        for (i <- 0 to 9) {
-          examples(i) should equal ($listOfIs$)
-        }
-      }
+      $columnsOfTwos$ { ($names$) => { $sumOfArgs$ must be (-10) } must throwA[org.specs.execute.FailureException] }
     }
   }
 """
+
+val tableSuiteUsingSpec2Preamble = """
+  
+package demo.specs2
+
+import org.specs2.mutable.Specification
+import org.specs2.matcher.DataTables
+
+class TableSuiteUsingSpec2 extends Specification with DataTables  { 
+"""
+  
+val tableSuiteUsingSpec2Part1 = """
+  "table for $n$ should"                                             ^
+    "succeeds"                                                       ! t$n$e1 ^ 
+    "succeeds even though DiscardedEvaluationException is thrown"    ! t$n$e2 ^ 
+    "fails"                                                          ! t$n$e3 ^"""
+  
+val tableSuiteUsingSpec2Part2 = """
+    def t$n$e1 = {
+      $argNames$ |
+      $columnsOfOnes$> { ($names$) => $sumOfArgs$ must be_==($n$) }
+    }
+  
+    def t$n$e2 = {
+      $argNames$ |
+      $columnOfMinusOnes$
+      $columnsOfOnes$> { ($names$) => a must be_>(0).when(a > 0) }
+    }
+  
+    def t$n$e3 = {
+      $argNames$ |
+      $columnsOfTwos$> { ($names$) => { ($sumOfArgs$) must be_==(-10) } must throwA[org.specs2.execute.FailureException] }
+    }
+"""
+  
+val demoSbtBuildFileTemplate = 
+"""name := "Demo Project"
+ 
+version := "1.0.0"
+ 
+scalaVersion := "2.9.1"
+  
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "1.6.1" % "test",
+  "org.specs2" %% "specs2" % "1.7",
+  "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
+)"""
 
 // For some reason that I don't understand, I need to leave off the stars before the <pre> when 
 // they are next to ST commands. So I say  "   <pre>" sometimes instead of " * <pre>".
@@ -1101,8 +1177,10 @@ val tableSuiteUsingSpec1Body = """
   val thisYear = Calendar.getInstance.get(Calendar.YEAR)
   val mainDir = new File("target/generated/src/main/scala/org/scalatest/prop")
   val testDir = new File("target/generated/src/test/scala/org/scalatest/prop")
+  val demoDir = new File("target/generated/demo/src/test/scala")
   mainDir.mkdirs()
   testDir.mkdirs()
+  demoDir.mkdirs()
 
   def genTableForNs() {
 
@@ -1260,18 +1338,59 @@ val tableSuiteUsingSpec1Body = """
     }
   }
   
-  def genTableSuiteUsingSpec(targetFilePath: String, preambleTemplate: String, bodyTemplate: String) {
+  def genTableSuiteUsingScalaTest(targetFilePath: String, preambleTemplate: String, bodyTemplate: String) {
 
     val bw = new BufferedWriter(new FileWriter(targetFilePath))
  
     try {
-      val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
-      st.setAttribute("year", thisYear);
-      bw.write(st.toString)
       bw.write(preambleTemplate)
       val alpha = "abcdefghijklmnopqrstuv"
       // for (i <- 1 to 22) {
-      for (i <- 2 to 20) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
+      for (i <- 2 to 10) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
+
+        val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplate)
+        val rowOfMinusOnes = List.fill(i)(" -1").mkString(", ")
+        val rowOfOnes = List.fill(i)("  1").mkString(", ")
+        val rowOfTwos = List.fill(i)("  2").mkString(", ")
+        val listOfIs = List.fill(i)("i").mkString(", ")
+        val columnsOfOnes = List.fill(i)("        (" + rowOfOnes + ")").mkString(",\n")
+        val columnOfMinusOnes = "        (" + rowOfMinusOnes + "),"
+        val columnsOfTwos = List.fill(i)("        (" + rowOfTwos + ")").mkString(",\n")
+        val rawRows =                              
+          for (idx <- 0 to 9) yield                
+            List.fill(i)("  " + idx).mkString("        (", ", ", ")")
+        val columnsOfIndexes = rawRows.mkString(",\n")
+        val argNames = alpha.map("\"" + _ + "\"").take(i).mkString(", ")
+        val names = alpha.take(i).mkString(", ")
+        val sumOfArgs = alpha.take(i).mkString(" + ")
+        st.setAttribute("n", i)
+        st.setAttribute("columnsOfOnes", columnsOfOnes)
+        st.setAttribute("columnOfMinusOnes", columnOfMinusOnes)
+        st.setAttribute("columnsOfTwos", columnsOfTwos)
+        st.setAttribute("columnsOfIndexes", columnsOfIndexes)
+        st.setAttribute("argNames", argNames)
+        st.setAttribute("names", names)
+        st.setAttribute("sumOfArgs", sumOfArgs)
+        st.setAttribute("listOfIs", listOfIs)
+        bw.write(st.toString)
+      }
+
+      bw.write("}\n")
+    }
+    finally {
+      bw.close()
+    }
+  }
+  
+  def genTableSuiteUsingSpec1(targetFilePath: String, preambleTemplate: String, bodyTemplate: String) {
+
+    val bw = new BufferedWriter(new FileWriter(targetFilePath))
+ 
+    try {
+      bw.write(preambleTemplate)
+      val alpha = "abcdefghijklmnopqrstuv"
+      // for (i <- 1 to 22) {
+      for (i <- 2 to 10) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
 
         val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplate)
         val rowOfMinusOnes = List.fill(i)(" -1").mkString(" ! ")
@@ -1283,8 +1402,8 @@ val tableSuiteUsingSpec1Body = """
         val columnsOfTwos = List.fill(i)(rowOfTwos + " |").mkString("\n")
         val rawRows =                              
           for (idx <- 0 to 9) yield                
-            List.fill(i)("  " + idx).mkString("        (", ", ", ")")
-        val columnsOfIndexes = rawRows.mkString(",\n")
+            List.fill(i)("  " + idx).mkString("", " ! ", " |")
+        val columnsOfIndexes = rawRows.mkString("\n")
         val argNames = alpha.map("\"" + _ + "\"").take(i).mkString(" | ")
         val names = alpha.take(i).mkString(", ")
         val sumOfArgs = alpha.take(i).mkString(" + ")
@@ -1306,13 +1425,106 @@ val tableSuiteUsingSpec1Body = """
       bw.close()
     }
   }
+  
+  def genTableSuiteUsingSpec2(targetFilePath: String, preambleTemplate: String, bodyTemplatePart1: String, bodyTemplatePart2: String) {
+
+    val bw = new BufferedWriter(new FileWriter(targetFilePath))
+ 
+    try {
+      bw.write(preambleTemplate)
+      val alpha = "abcdefghijklmnopqrstuv"
+      // for (i <- 1 to 22) {
+      val specList = for (i <- 2 to 10) yield { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
+
+        val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplatePart1)
+        val rowOfMinusOnes = List.fill(i)(" -1").mkString(" ! ")
+        val rowOfOnes = List.fill(i)("  1").mkString(" ! ")
+        val rowOfTwos = List.fill(i)("  2").mkString(" ! ")
+        val listOfIs = List.fill(i)("i").mkString(", ")
+        val columnsOfOnes = List.fill(i)(rowOfOnes + " |").mkString("\n")
+        val columnOfMinusOnes = rowOfMinusOnes + " |"
+        val columnsOfTwos = List.fill(i)(rowOfTwos + " |").mkString("\n")
+        val rawRows =                              
+          for (idx <- 0 to 9) yield                
+            List.fill(i)("  " + idx).mkString("", " ! ", " |")
+        val columnsOfIndexes = rawRows.mkString("\n")
+        val argNames = alpha.map("\"" + _ + "\"").take(i).mkString(" | ")
+        val names = alpha.take(i).mkString(", ")
+        val sumOfArgs = alpha.take(i).mkString(" + ")
+        st.setAttribute("n", i)
+        st.setAttribute("columnsOfOnes", columnsOfOnes)
+        st.setAttribute("columnOfMinusOnes", columnOfMinusOnes)
+        st.setAttribute("columnsOfTwos", columnsOfTwos)
+        st.setAttribute("columnsOfIndexes", columnsOfIndexes)
+        st.setAttribute("argNames", argNames)
+        st.setAttribute("names", names)
+        st.setAttribute("sumOfArgs", sumOfArgs)
+        st.setAttribute("listOfIs", listOfIs)
+        //bw.write(st.toString)
+        st.toString
+      }
+      
+      bw.write(specList.mkString("", 
+          """
+                                                                     p^""", 
+          """
+                                                                     p"""))
+      
+      for (i <- 2 to 10) { // TODO: To avoid 2.9.0 compiler bug at arities 21 and 22
+
+        val st = new org.antlr.stringtemplate.StringTemplate(bodyTemplatePart2)
+        val rowOfMinusOnes = List.fill(i)(" -1").mkString(" ! ")
+        val rowOfOnes = List.fill(i)("  1").mkString(" ! ")
+        val rowOfTwos = List.fill(i)("  2").mkString(" ! ")
+        val listOfIs = List.fill(i)("i").mkString(", ")
+        val columnsOfOnes = List.fill(i)(rowOfOnes + " |").mkString("\n")
+        val columnOfMinusOnes = rowOfMinusOnes + " |"
+        val columnsOfTwos = List.fill(i)(rowOfTwos + " |").mkString("\n")
+        val rawRows =                              
+          for (idx <- 0 to 9) yield                
+            List.fill(i)("  " + idx).mkString("", " ! ", " |")
+        val columnsOfIndexes = rawRows.mkString("\n")
+        val argNames = alpha.map("\"" + _ + "\"").take(i).mkString(" | ")
+        val names = alpha.take(i).mkString(", ")
+        val sumOfArgs = alpha.take(i).mkString(" + ")
+        st.setAttribute("n", i)
+        st.setAttribute("columnsOfOnes", columnsOfOnes)
+        st.setAttribute("columnOfMinusOnes", columnOfMinusOnes)
+        st.setAttribute("columnsOfTwos", columnsOfTwos)
+        st.setAttribute("columnsOfIndexes", columnsOfIndexes)
+        st.setAttribute("argNames", argNames)
+        st.setAttribute("names", names)
+        st.setAttribute("sumOfArgs", sumOfArgs)
+        st.setAttribute("listOfIs", listOfIs)
+        bw.write(st.toString)
+      }
+
+      bw.write("}\n")
+    }
+    finally {
+      bw.close()
+    }
+  }
+  
+  def genDemoSbtBuildFile(targetFilePath: String, buildFileTemplate: String) {
+    val bw = new BufferedWriter(new FileWriter(targetFilePath))
+    try {
+      bw.write(buildFileTemplate)
+    }
+    finally {
+      bw.close()
+    }
+  }
 
   genTableForNs()
   genPropertyChecks()
   genTables()
   genTableSuite("target/generated/src/test/scala/org/scalatest/prop/TableSuite.scala", tableSuitePreamble, tableSuiteTemplate)
-  genTableSuite("target/generated/src/test/scala/org/scalatest/prop/TableSuiteUsingSuite.scala", tableSuiteUsingSuitePreamble, tableSuiteUsingSuiteTemplate)
-  genTableSuiteUsingSpec("target/generated/src/main/scala/TableSuiteUsingSpec1.scala", tableSuiteUsingSpec1Preamble, tableSuiteUsingSpec1Body)
+  genTableSuiteUsingScalaTest("target/generated/demo/src/test/scala/TableSuiteUsingSuite.scala", tableSuiteUsingSuitePreamble, tableSuiteUsingSuiteTemplate)
+  genTableSuiteUsingScalaTest("target/generated/demo/src/test/scala/TableSuiteUsingFunSuite.scala", tableSuiteUsingFunSuitePreamble, tableSuiteUsingFunSuiteTemplate)
+  genTableSuiteUsingSpec1("target/generated/demo/src/test/scala/TableSuiteUsingSpec1.scala", tableSuiteUsingSpec1Preamble, tableSuiteUsingSpec1Body)
+  genTableSuiteUsingSpec2("target/generated/demo/src/test/scala/TableSuiteUsingSpec2.scala", tableSuiteUsingSpec2Preamble, tableSuiteUsingSpec2Part1, tableSuiteUsingSpec2Part2)
+  genDemoSbtBuildFile("target/generated/demo/build.sbt", demoSbtBuildFileTemplate)
 }
 
 /*
