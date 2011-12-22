@@ -369,6 +369,7 @@ import org.scalatest.Suite._
  *
  * @author Bill Venners
  */
+@Style(testResolver = "org.scalatest.spi.location.MethodTestResolver")
 trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
 
   /**

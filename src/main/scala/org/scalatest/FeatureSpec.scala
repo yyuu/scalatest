@@ -1540,6 +1540,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * @author Bill Venners
  */
+@Style(testResolver = "org.scalatest.spi.location.FeatureSpecTestResolver")
 trait FeatureSpec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFeatureSpecMod", "FeatureSpec")

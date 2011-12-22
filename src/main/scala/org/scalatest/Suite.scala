@@ -1424,6 +1424,7 @@ import scala.reflect.NameTransformer
  * @author Bill Venners
  */
 @serializable
+@Style(testResolver = "org.scalatest.spi.location.MethodTestResolver")
 trait Suite extends Assertions with AbstractSuite { thisSuite =>
 
   import Suite.TestMethodPrefix, Suite.InformerInParens, Suite.IgnoreAnnotation
