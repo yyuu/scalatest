@@ -1,19 +1,17 @@
 package org.scalatest.spi.location;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class FreeSpecTestResolver implements TestResolver {
+public class FreeSpecFinder implements Finder {
 
     private String getTestNameBottomUp(MethodInvocation invocation) {
         AstNode parent = invocation.getParent();
-        AstNode owner = invocation.getOwner();
+        AstNode target = invocation.getTarget();
         if (parent == null || !(parent instanceof MethodInvocation)) 
-            return owner.toString();
+            return target.toString();
         else 
-            return getTestNameBottomUp((MethodInvocation) parent) + " " + owner.toString();
+            return getTestNameBottomUp((MethodInvocation) parent) + " " + target.toString();
     }
     
     private List<String> getTestNamesUpBottom(MethodInvocation invocation) {
@@ -24,7 +22,7 @@ public class FreeSpecTestResolver implements TestResolver {
             if(childNode instanceof MethodInvocation) {
                 MethodInvocation child = (MethodInvocation) childNode;
                 if (child.getName().equals("in") || child.getName().equals("is")) 
-                    testNameList.add(prefix + " " + child.getOwner().toString());
+                    testNameList.add(prefix + " " + child.getTarget().toString());
                 else if (child.getName().equals("-"))
                     testNameList.addAll(getTestNamesUpBottom(child));
             }
@@ -32,7 +30,7 @@ public class FreeSpecTestResolver implements TestResolver {
         return testNameList;
     }
     
-    public Test resolveTest(AstNode node) {
+    public Test find(AstNode node) {
         Test test = null;
         if (node instanceof MethodInvocation) {
             MethodInvocation invocation = (MethodInvocation) node;

@@ -1,8 +1,8 @@
 package org.scalatest.spi.location;
 
-public class FunctionTestResolver implements TestResolver {
+public class FunctionFinder implements Finder {
     
-    public Test resolveTest(AstNode node) {
+    public Test find(AstNode node) {
         if (node instanceof MethodInvocation) {
             MethodInvocation invocation = (MethodInvocation) node;
             if(invocation.getName().equals("test") && invocation.getArgs().length == 1 && invocation.getArgs()[0].getClass() == String.class)

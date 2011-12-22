@@ -3,9 +3,9 @@ package org.scalatest.spi.location;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeatureSpecTestResolver implements TestResolver {
+public class FeatureSpecFinder implements Finder {
 
-    public Test resolveTest(AstNode node) {
+    public Test find(AstNode node) {
         Test test = null;
         if(node instanceof MethodInvocation) {
             MethodInvocation invocation = (MethodInvocation) node;

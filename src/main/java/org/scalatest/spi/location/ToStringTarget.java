@@ -1,10 +1,10 @@
 package org.scalatest.spi.location;
 
-public class ToStringOwner extends AstNode {
+public class ToStringTarget extends AstNode {
     
     private Object obj;
     
-    public ToStringOwner(AstNode parent, AstNode[] children, Object obj) {
+    public ToStringTarget(AstNode parent, AstNode[] children, Object obj) {
         this.parent = parent;
         this.children = children;
         this.obj = obj;

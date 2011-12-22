@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.ConcurrentModificationException
 import org.scalatest.events._
 import Suite.anErrorThatShouldCauseAnAbort
-import org.scalatest.spi.location.FeatureSpecTestResolver
+import org.scalatest.spi.location.FeatureSpecFinder
 
 /**
  * A suite of tests in which each test represents one <em>scenario</em> of a <em>feature</em>. 
@@ -1541,7 +1541,7 @@ import org.scalatest.spi.location.FeatureSpecTestResolver
  *
  * @author Bill Venners
  */
-@Style(classOf[FeatureSpecTestResolver])
+@Style(classOf[FeatureSpecFinder])
 trait FeatureSpec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFeatureSpecMod", "FeatureSpec")

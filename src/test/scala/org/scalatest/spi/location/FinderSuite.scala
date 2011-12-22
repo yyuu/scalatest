@@ -8,7 +8,7 @@ import org.scalatest.fixture.FixtureSuite
 import org.scalatest.StringFixture
 import org.scalatest.FreeSpec
 
-class TestResolverSuite extends FunSuite {
+class FinderSuite extends FunSuite {
   
   def expectTest(test: Test, expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {
     expect(expectedClassName)(test.getClassName)
@@ -28,15 +28,15 @@ class TestResolverSuite extends FunSuite {
         
       }
     }
-    val testingSuiteClass = classOf[TestingSuite]
-    val testingSuiteResolver: TestResolver = LocationUtils.getTestResolver(testingSuiteClass)
-    assert(testingSuiteResolver.getClass == classOf[MethodTestResolver], "Suite that uses org.scalatest.Suite should use MethodTestResolver.")
-    val testMethod1 = testingSuiteResolver.resolveTest(new MethodDefinition(testingSuiteClass.getName, null, Array.empty, "testMethod1"))
-    expectTest(testMethod1, testingSuiteClass.getName, testingSuiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val testMethod2 = testingSuiteResolver.resolveTest(new MethodDefinition(testingSuiteClass.getName, null, Array.empty, "testMethod2"))
-    expectTest(testMethod2, testingSuiteClass.getName, testingSuiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val testMethod3 = testingSuiteResolver.resolveTest(new MethodDefinition(testingSuiteClass.getName, null, Array.empty, "testMethod3"))
-    expectTest(testMethod3, testingSuiteClass.getName, testingSuiteClass.getName + ".testMethod3", Array("testMethod3"))
+    val suiteClass = classOf[TestingSuite]
+    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.Suite should use MethodFinder.")
+    val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
+    expectTest(testMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
+    val testMethod2 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
+    expectTest(testMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
+    val testMethod3 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
+    expectTest(testMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
   }
   
   test("MethodTestResolver should resolve test name for tests written in test suite that extends org.scalatest.fixture.FixtureSuite") {
@@ -52,13 +52,13 @@ class TestResolverSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingSuite]
-    val testingResolver: TestResolver = LocationUtils.getTestResolver(suiteClass)
-    assert(testingResolver.getClass == classOf[MethodTestResolver], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodTestResolver.")
-    val testMethod1 = testingResolver.resolveTest(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
+    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodFinder.")
+    val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
     expectTest(testMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val testMethod2 = testingResolver.resolveTest(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
+    val testMethod2 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
     expectTest(testMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val testMethod3 = testingResolver.resolveTest(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
+    val testMethod3 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
     expectTest(testMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
   }
   
@@ -75,13 +75,13 @@ class TestResolverSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFunSuite]
-    val testResolver: TestResolver = LocationUtils.getTestResolver(suiteClass)
-    assert(testResolver.getClass == classOf[FunctionTestResolver], "Suite that uses org.scalatest.FunSuite should use FunctionTestResolver.")
-    val test1 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 1"))
+    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    assert(finder.getClass == classOf[FunctionFinder], "Suite that uses org.scalatest.FunSuite should use FunctionFinder.")
+    val test1 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 1"))
     expectTest(test1, suiteClass.getName, suiteClass.getName + ": \"test 1\"", Array("test 1"))
-    val test2 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 2"))
+    val test2 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 2"))
     expectTest(test2, suiteClass.getName, suiteClass.getName + ": \"test 2\"", Array("test 2"))
-    val test3 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 3"))
+    val test3 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 3"))
     expectTest(test3, suiteClass.getName, suiteClass.getName + ": \"test 3\"", Array("test 3"))
   }
   
@@ -105,26 +105,26 @@ class TestResolverSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFeatureSpec]
-    val testResolver: TestResolver = LocationUtils.getTestResolver(suiteClass)
-    assert(testResolver.getClass == classOf[FeatureSpecTestResolver], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecTestResolver.")
+    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    assert(finder.getClass == classOf[FeatureSpecFinder], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecFinder.")
     
-    val f1s1 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 1"))
+    val f1s1 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 1"))
     expectTest(f1s1, suiteClass.getName, "feature 1 scenario 1", Array("feature 1 scenario 1"))
-    val f1s2 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 2"))
+    val f1s2 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 2"))
     expectTest(f1s2, suiteClass.getName, "feature 1 scenario 2", Array("feature 1 scenario 2"))
     
-    val f2s1 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 1"))
+    val f2s1 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 1"))
     expectTest(f2s1, suiteClass.getName, "feature 2 scenario 1", Array("feature 2 scenario 1"))
-    val f2s2 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 2"))
+    val f2s2 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 2"))
     expectTest(f2s2, suiteClass.getName, "feature 2 scenario 2", Array("feature 2 scenario 2"))
     
-    val f1 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName(), null, null, Array(
+    val f1 = finder.find(new MethodInvocation(suiteClass.getName(), null, null, Array(
       new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 1"),
       new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 2")
      ), "feature", "feature 1" ))
     expectTest(f1, suiteClass.getName, "feature 1", Array("feature 1 scenario 1", "feature 1 scenario 2"))
     
-    val f2 = testResolver.resolveTest(new MethodInvocation(suiteClass.getName(), null, null, Array(
+    val f2 = finder.find(new MethodInvocation(suiteClass.getName(), null, null, Array(
       new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 1"),
       new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 2")
      ), "feature", "feature 2" ))
@@ -158,25 +158,25 @@ class TestResolverSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFreeSpec]
-    val testResolver: TestResolver = LocationUtils.getTestResolver(suiteClass)
-    assert(testResolver.getClass == classOf[FreeSpecTestResolver], "Suite that uses org.scalatest.FreeSpec should use FreeSpecTestResolver.")
+    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
     
-    val aStackNode = new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "A Stack"), null, 
+    val aStackNode = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "A Stack"), null, 
                      Array(
-                           new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "whenever it is empty"), null, Array(
-                             new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "certainly ought to"), null, Array(
-                               new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "be empty"), null, Array(), "in", () => {}), 
-                               new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "complain on peek"), null, Array(), "in", () => {}), 
-                               new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "complain on pop"), null, Array(), "in", () => {})
+                           new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "whenever it is empty"), null, Array(
+                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "certainly ought to"), null, Array(
+                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "be empty"), null, Array(), "in", () => {}), 
+                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on peek"), null, Array(), "in", () => {}), 
+                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on pop"), null, Array(), "in", () => {})
                              ), "-", () => {})
                            ), "-", () => {}), 
-                           new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "but when full, by contrast, must"), null, Array(
-                             new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "be full"), null, Array(), "in", () => {}), 
-                             new MethodInvocation(suiteClass.getName, new ToStringOwner(null, Array.empty, "complain on push"), null, Array(), "in", () => {})
+                           new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "but when full, by contrast, must"), null, Array(
+                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "be full"), null, Array(), "in", () => {}), 
+                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on push"), null, Array(), "in", () => {})
                            ), "-", () => {})
                      ), "-", () => {})
     LocationUtils.fillAstNodeParent(aStackNode)
-    val aStackTest = testResolver.resolveTest(aStackNode)
+    val aStackTest = finder.find(aStackNode)
     expectTest(aStackTest, suiteClass.getName, "A Stack", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -186,7 +186,7 @@ class TestResolverSuite extends FunSuite {
     ))
     
     val wheneverItIsEmptyNode = aStackNode.children(0)
-    val wheneverItIsEmptyTest = testResolver.resolveTest(wheneverItIsEmptyNode)
+    val wheneverItIsEmptyTest = finder.find(wheneverItIsEmptyNode)
     expectTest(wheneverItIsEmptyTest, suiteClass.getName, "A Stack whenever it is empty", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -194,7 +194,7 @@ class TestResolverSuite extends FunSuite {
     ))
     
     val certainlyOughtToNode = aStackNode.children(0).children(0)
-    val certainlyOughtToTest = testResolver.resolveTest(certainlyOughtToNode)
+    val certainlyOughtToTest = finder.find(certainlyOughtToNode)
     expectTest(certainlyOughtToTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -202,30 +202,30 @@ class TestResolverSuite extends FunSuite {
     ))
     
     val beEmptyNode = aStackNode.children(0).children(0).children(0)
-    val beEmptyTest = testResolver.resolveTest(beEmptyNode)
+    val beEmptyTest = finder.find(beEmptyNode)
     expectTest(beEmptyTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to be empty", Array("A Stack whenever it is empty certainly ought to be empty"))
     
     val complainOnPeekNode = aStackNode.children(0).children(0).children(1)
-    val complainOnPeekTest = testResolver.resolveTest(complainOnPeekNode)
+    val complainOnPeekTest = finder.find(complainOnPeekNode)
     expectTest(complainOnPeekTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on peek", Array("A Stack whenever it is empty certainly ought to complain on peek"))
     
     val complainOnPopNode = aStackNode.children(0).children(0).children(2)
-    val complainOnPopTest = testResolver.resolveTest(complainOnPopNode)
+    val complainOnPopTest = finder.find(complainOnPopNode)
     expectTest(complainOnPopTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on pop", Array("A Stack whenever it is empty certainly ought to complain on pop"))
     
     val butWhenFullByContrastMustNode = aStackNode.children(1)
-    val butWhenFullByContrastMustTest = testResolver.resolveTest(butWhenFullByContrastMustNode)
+    val butWhenFullByContrastMustTest = finder.find(butWhenFullByContrastMustNode)
     expectTest(butWhenFullByContrastMustTest, suiteClass.getName, "A Stack but when full, by contrast, must", Array(
       "A Stack but when full, by contrast, must be full", 
       "A Stack but when full, by contrast, must complain on push"    
     ))
     
     val beFullNode = aStackNode.children(1).children(0)
-    val beFullTest = testResolver.resolveTest(beFullNode)
+    val beFullTest = finder.find(beFullNode)
     expectTest(beFullTest, suiteClass.getName, "A Stack but when full, by contrast, must be full", Array("A Stack but when full, by contrast, must be full"))
     
     val complainOnPushNode = aStackNode.children(1).children(1)
-    val complainOnPushTest = testResolver.resolveTest(complainOnPushNode)
+    val complainOnPushTest = finder.find(complainOnPushNode)
     expectTest(complainOnPushTest, suiteClass.getName, "A Stack but when full, by contrast, must complain on push", Array("A Stack but when full, by contrast, must complain on push"))
   }
 }

@@ -1,8 +1,8 @@
 package org.scalatest.spi.location;
 
-public class MethodTestResolver implements TestResolver {
+public class MethodFinder implements Finder {
 
-    public Test resolveTest(AstNode node) {
+    public Test find(AstNode node) {
         if(node instanceof MethodDefinition) {
             MethodDefinition methodDef = (MethodDefinition) node;
             if(methodDef.getParamTypes().length == 0)
