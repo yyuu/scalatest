@@ -23,9 +23,9 @@ public class LocationUtils {
             if (superClass == null)
                 break;
             Style style = (Style) superClass.getAnnotation(Style.class);
-            if (style != null && style.testResolver() != null) {
+            if (style != null && style.value() != null) {
                 try {
-                    testResolver = (TestResolver) Class.forName(style.testResolver()).newInstance();
+                    testResolver = (TestResolver) style.value().newInstance();
                     break;
                 }
                 catch (Exception e) {
@@ -51,9 +51,9 @@ public class LocationUtils {
                 Class[] interfaces = base.getInterfaces();
                 for(Class intf : interfaces) {
                     Style style = (Style) intf.getAnnotation(Style.class);
-                    if (style != null && style.testResolver() != null) {
+                    if (style != null && style.value() != null) {
                         try {
-                            testResolver = (TestResolver) Class.forName(style.testResolver()).newInstance();
+                            testResolver = (TestResolver) style.value().newInstance();
                             break;
                         }
                         catch (Exception e) {
@@ -68,5 +68,13 @@ public class LocationUtils {
             baseList = superInterfaceList;
         }
         return testResolver;
+    }
+    
+    public static void fillAstNodeParent(AstNode node) {
+        AstNode[] children = node.getChildren();
+        for(AstNode child : children) 
+            child.parent = node;
+        for(AstNode child : children)
+            fillAstNodeParent(child);
     }
 }

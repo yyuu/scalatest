@@ -53,6 +53,7 @@ import Suite.reportTestPending
 import Suite.reportTestCanceled
 import Suite.reportInfoProvided
 import scala.reflect.NameTransformer
+import org.scalatest.spi.location.MethodTestResolver
 
 /**
  * A suite of tests. A <code>Suite</code> instance encapsulates a conceptual
@@ -1424,7 +1425,7 @@ import scala.reflect.NameTransformer
  * @author Bill Venners
  */
 @serializable
-@Style(testResolver = "org.scalatest.spi.location.MethodTestResolver")
+@Style(classOf[MethodTestResolver])
 trait Suite extends Assertions with AbstractSuite { thisSuite =>
 
   import Suite.TestMethodPrefix, Suite.InformerInParens, Suite.IgnoreAnnotation

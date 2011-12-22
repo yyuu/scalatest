@@ -1,6 +1,8 @@
 package org.scalatest.spi.location;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FreeSpecTestResolver implements TestResolver {
@@ -11,13 +13,13 @@ public class FreeSpecTestResolver implements TestResolver {
         if (parent == null || !(parent instanceof MethodInvocation)) 
             return owner.toString();
         else 
-            return getTestNameBottomUp((MethodInvocation) parent) + owner.toString();
+            return getTestNameBottomUp((MethodInvocation) parent) + " " + owner.toString();
     }
     
-    private Set<String> getTestNamesUpBottom(MethodInvocation invocation) {
+    private List<String> getTestNamesUpBottom(MethodInvocation invocation) {
         String prefix = getTestNameBottomUp(invocation);
         AstNode[] children = invocation.getChildren();
-        Set<String> testNameList = new HashSet<String>();
+        List<String> testNameList = new ArrayList<String>();
         for(AstNode childNode : children) {
             if(childNode instanceof MethodInvocation) {
                 MethodInvocation child = (MethodInvocation) childNode;
@@ -40,7 +42,7 @@ public class FreeSpecTestResolver implements TestResolver {
             }
             else if (invocation.getName().equals("-")) {
                 String displayName = getTestNameBottomUp(invocation);
-                Set<String> testNameSet = getTestNamesUpBottom(invocation);
+                List<String> testNameSet = getTestNamesUpBottom(invocation);
                 test = new Test(invocation.getClassName(), displayName, testNameSet.toArray(new String[testNameSet.size()]));
             }
         }    
