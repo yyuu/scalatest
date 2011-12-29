@@ -48,7 +48,9 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
     
     it("should not catch exception thrown from the test") {
       val caught = evaluating {
-        throw new InterruptedException
+        failAfter(3000) {
+          throw new InterruptedException
+        }
       } should produce [InterruptedException]
     }
     
