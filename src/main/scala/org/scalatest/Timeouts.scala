@@ -24,20 +24,20 @@ trait Timeouts {
     }
   }
 
-  def failAfter[T](milis: Long, resources: List[AnyRef] = List.empty)(f: => T): T = {
+  def failAfter[T](millis: Long, resources: List[AnyRef] = List.empty)(f: => T): T = {
     val timer = new Timer()
     val task = new TimeoutTask(Thread.currentThread(), resources)
-    timer.schedule(task, milis)
+    timer.schedule(task, millis)
     try {
       val result = f
       timer.cancel()
       if (task.timeout)
-        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", milis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
+        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
       result
     }
     catch {
       case _: Throwable if (task.timeout) =>
-        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", milis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
+        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
     }
     finally {
       // Make sure to clear the interrupt status
