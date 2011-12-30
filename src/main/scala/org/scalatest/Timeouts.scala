@@ -6,42 +6,51 @@ import StackDepthExceptionHelper.getStackDepth
 import java.nio.channels.ClosedByInterruptException
 import java.nio.channels.Selector
 import java.net.Socket
+import org.scalatest.spi.interruptor.Interruptor
+import org.scalatest.spi.interruptor.ThreadInterruptor
 
 trait Timeouts {
   
-  private class TimeoutTask(testThread: Thread, resources: List[AnyRef]) extends TimerTask {
+  private class TimeoutTask(testThread: Thread, interruptor: Interruptor) extends TimerTask {
     @volatile
     var timeout = false
+    var isTimeoutInterrupted = false
     override def run() {
       timeout = true
-      testThread.interrupt
-      resources.foreach { res => 
-        res match {
-          case socket: Socket => socket.close()
-          case selector: Selector => selector.wakeup()
-        }
-      }
+      val beforeIsInterrupted = testThread.isInterrupted()
+      interruptor.interrupt(testThread)
+      val afterIsInterrupted = testThread.isInterrupted()
+      if(!beforeIsInterrupted && afterIsInterrupted)
+        isTimeoutInterrupted = true
     }
   }
+  
+  implicit val defaultInterruptor: Interruptor = new ThreadInterruptor()
 
-  def failAfter[T](millis: Long, resources: List[AnyRef] = List.empty)(f: => T): T = {
+  def failAfter[T](millis: Long)(f: => T)(implicit interruptor: Interruptor): T = {
     val timer = new Timer()
-    val task = new TimeoutTask(Thread.currentThread(), resources)
+    val task = new TimeoutTask(Thread.currentThread(), interruptor)
     timer.schedule(task, millis)
     try {
       val result = f
       timer.cancel()
-      if (task.timeout)
+      if (task.timeout) {
+        if (task.isTimeoutInterrupted)
+          Thread.interrupted()
         throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
+      }
       result
     }
     catch {
-      case _: Throwable if (task.timeout) =>
-        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
-    }
-    finally {
-      // Make sure to clear the interrupt status
-      Thread.interrupted()
+      case t => 
+        timer.cancel()
+        if(task.timeout) {
+          if (task.isTimeoutInterrupted)
+            Thread.interrupted()
+          throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), Some(t), getStackDepth("Timeouts.scala", "failAfter"))
+        }
+        else
+          throw t
     }
   }
 }
