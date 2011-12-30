@@ -28,6 +28,14 @@ trait Timeouts {
   implicit val defaultInterruptor: Interruptor = new ThreadInterruptor()
 
   def failAfter[T](millis: Long)(f: => T)(implicit interruptor: Interruptor): T = {
+    timeoutAfter(millis, f, interruptor, t => new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), t, getStackDepth("Timeouts.scala", "failAfter")))
+  }
+  
+  def cancelAfter[T](millis: Long)(f: => T)(implicit interruptor: Interruptor): T = {
+    timeoutAfter(millis, f, interruptor, t => new TestCanceledException(sde => Some(Resources("timeoutCancelAfter", millis.toString)), t, getStackDepth("Timeouts.scala", "cancelAfter")))
+  }
+  
+  private def timeoutAfter[T](millis: Long, f: => T, interruptor: Interruptor, exceptionFun: Option[Throwable] => StackDepthException): T = {
     val timer = new Timer()
     val task = new TimeoutTask(Thread.currentThread(), interruptor)
     timer.schedule(task, millis)
@@ -37,7 +45,7 @@ trait Timeouts {
       if (task.timeout) {
         if (task.isTimeoutInterrupted)
           Thread.interrupted()
-        throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), None, getStackDepth("Timeouts.scala", "failAfter"))
+        throw exceptionFun(None)
       }
       result
     }
@@ -47,7 +55,7 @@ trait Timeouts {
         if(task.timeout) {
           if (task.isTimeoutInterrupted)
             Thread.interrupted()
-          throw new TestFailedException(sde => Some(Resources("timeoutFailAfter", millis.toString)), Some(t), getStackDepth("Timeouts.scala", "failAfter"))
+          throw exceptionFun(Some(t))
         }
         else
           throw t

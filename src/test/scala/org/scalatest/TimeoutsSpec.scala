@@ -82,7 +82,7 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
     }
     
     it("should close Socket connection via SocketInterruptor when timeout reached") {
-      val serverSocket = new ServerSocket(9999)
+      val serverSocket = new ServerSocket(0)
       @volatile
       var drag = true
       val serverThread = new Thread() {
@@ -100,7 +100,7 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
         }
       }
       serverThread.start()
-      val clientSocket = new Socket("localhost", 9999)
+      val clientSocket = new Socket("localhost", serverSocket.getLocalPort())
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
@@ -113,7 +113,7 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
     }
     
     it("should close Socket connection via FunInterruptor when timeout reached") {
-      val serverSocket = new ServerSocket(19999)
+      val serverSocket = new ServerSocket(0)
       @volatile
       var drag = true
       val serverThread = new Thread() {
@@ -131,7 +131,7 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
         }
       }
       serverThread.start()
-      val clientSocket = new Socket("localhost", 19999)
+      val clientSocket = new Socket("localhost", serverSocket.getLocalPort())
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
@@ -142,62 +142,243 @@ class TimeoutsSpec extends Spec with ShouldMatchers {
       clientSocket.close()
       drag = false
     }
-  }
-  
-  it("should wait for the test to finish when DoNotInterrupt is used.") {
-    var x = 0
-    val caught = evaluating {
-      failAfter(1000) {
-        Thread.sleep(2000)
-        x = 1
-      } ( DoNotInterrupt() )
-    } should produce [TestFailedException]
-    x should be (1)
-  }
-  
-  it("should close Selector connection via SelectorInterruptor when timeout reached") {
-    val selector = Selector.open()
-    val ssChannel = ServerSocketChannel.open()
-    ssChannel.configureBlocking(false)
-    ssChannel.socket().bind(new InetSocketAddress(29999))
-    ssChannel.register(selector, SelectionKey.OP_ACCEPT)
-    @volatile
-    var drag = true
-    val serverThread = new Thread() {
-      override def run() {
-        selector.select()
-        val it = selector.selectedKeys.iterator
-        while (it.hasNext) {
-          val selKey = it.next().asInstanceOf[SelectionKey]
-          it.remove()
-          if (selKey.isAcceptable()) {
-            val ssChannel = selKey.channel().asInstanceOf[ServerSocketChannel]
-            while(drag) {
-              try {
-                Thread.sleep(1000)
-              }
-              catch {
-                case _: InterruptedException => Thread.interrupted()
+    
+    it("should wait for the test to finish when DoNotInterrupt is used.") {
+      var x = 0
+      val caught = evaluating {
+        failAfter(1000) {
+          Thread.sleep(2000)
+          x = 1
+        } ( DoNotInterrupt() )
+      } should produce [TestFailedException]
+      x should be (1)
+    }
+    
+    it("should close Selector connection via SelectorInterruptor when timeout reached") {
+      val selector = Selector.open()
+      val ssChannel = ServerSocketChannel.open()
+      ssChannel.configureBlocking(false)
+      ssChannel.socket().bind(new InetSocketAddress(0))
+      ssChannel.register(selector, SelectionKey.OP_ACCEPT)
+      @volatile
+      var drag = true
+      val serverThread = new Thread() {
+        override def run() {
+          selector.select()
+          val it = selector.selectedKeys.iterator
+          while (it.hasNext) {
+            val selKey = it.next().asInstanceOf[SelectionKey]
+            it.remove()
+            if (selKey.isAcceptable()) {
+              val ssChannel = selKey.channel().asInstanceOf[ServerSocketChannel]
+              while(drag) {
+                try {
+                  Thread.sleep(1000)
+                }
+                catch {
+                  case _: InterruptedException => Thread.interrupted()
+                }
               }
             }
           }
+          ssChannel.close()
         }
-        ssChannel.close()
+      }
+    
+      val clientSelector = Selector.open();
+      val sChannel = SocketChannel.open()
+      sChannel.configureBlocking(false);
+      sChannel.connect(new InetSocketAddress("localhost", ssChannel.socket().getLocalPort()));
+      sChannel.register(selector, sChannel.validOps());
+    
+      val caught = evaluating {
+        failAfter(1000) {
+          clientSelector.select()
+        } (SelectorInterruptor(clientSelector))
+      } should produce [TestFailedException]
+      clientSelector.close()
+      drag = false
+    }
+  }
+  
+  describe("The cancelAfter construct") {
+    
+    it("should blow up with TestCanceledException when timeout") {
+      val caught = evaluating {
+        cancelAfter(1000) {
+          Thread.sleep(2000)
+        }
+      } should produce [TestCanceledException]
+      caught.message.value should be (Resources("timeoutCancelAfter", "1000"))
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
+      caught.failedCodeFileName.value should be ("TimeoutsSpec.scala")
+    }
+    
+    it("should pass normally when timeout is not reached") {
+      cancelAfter(2000) {
+        Thread.sleep(1000)
       }
     }
     
-    val clientSelector = Selector.open();
-    val sChannel = SocketChannel.open()
-    sChannel.configureBlocking(false);
-    sChannel.connect(new InetSocketAddress("localhost", 29999));
-    sChannel.register(selector, sChannel.validOps());
+    it("should blow up with TestCanceledException when the task does not response interrupt request and pass after the timeout") {
+      val caught = evaluating {
+        cancelAfter(millis = 1000) {
+          for (i <- 1 to 10) {
+            try {
+              Thread.sleep(500)
+            }
+            catch {
+              case _: InterruptedException =>
+                Thread.interrupted() // Swallow the interrupt
+            }
+          }
+        }
+      } should produce [TestCanceledException]
+    }
     
-    val caught = evaluating {
-      failAfter(1000) {
-        clientSelector.select()
-      } (SelectorInterruptor(clientSelector))
-    } should produce [TestFailedException]
-    clientSelector.close()
-    drag = false
+    it("should not catch exception thrown from the test") {
+      val caught = evaluating {
+        cancelAfter(1000) {
+          throw new InterruptedException
+        }
+      } should produce [InterruptedException]
+    }
+    
+    it("should set exception thrown from the test after timeout as cause of TestCanceledException") {
+      val caught = evaluating {
+        cancelAfter(1000) {
+          for (i <- 1 to 10) {
+            try {
+              Thread.sleep(500)
+            }
+            catch {
+              case _: InterruptedException =>
+                Thread.interrupted() // Swallow the interrupt
+            }
+          }
+          throw new IllegalArgumentException("Something goes wrong!")
+        }
+      } should produce [TestCanceledException]
+      caught.getCause().getClass === classOf[IllegalArgumentException]
+    }
+    
+    it("should close Socket connection via SocketInterruptor when timeout reached") {
+      val serverSocket = new ServerSocket(0)
+      @volatile
+      var drag = true
+      val serverThread = new Thread() {
+        override def run() {
+          val clientSocket = serverSocket.accept()
+          while(drag) {
+            try {
+              Thread.sleep(1000)
+            }
+            catch {
+              case _: InterruptedException => Thread.interrupted()
+            }
+          }
+          serverSocket.close()
+        }
+      }
+      serverThread.start()
+      val clientSocket = new Socket("localhost", serverSocket.getLocalPort())
+      val inputStream = clientSocket.getInputStream()
+      
+      val caught = evaluating {
+        cancelAfter(1000) {
+          inputStream.read()
+        } (SocketInterruptor(clientSocket))
+      } should produce [TestCanceledException]
+      clientSocket.close()
+      drag = false
+    }
+    
+    it("should close Socket connection via FunInterruptor when timeout reached") {
+      val serverSocket = new ServerSocket(0)
+      @volatile
+      var drag = true
+      val serverThread = new Thread() {
+        override def run() {
+          val clientSocket = serverSocket.accept()
+          while(drag) {
+            try {
+              Thread.sleep(1000)
+            }
+            catch {
+              case _: InterruptedException => Thread.interrupted()
+            }
+          }
+          serverSocket.close()
+        }
+      }
+      serverThread.start()
+      val clientSocket = new Socket("localhost", serverSocket.getLocalPort())
+      val inputStream = clientSocket.getInputStream()
+      
+      val caught = evaluating {
+        cancelAfter(1000) {
+          inputStream.read()
+        } ( Interruptor { clientSocket.close() } )
+      } should produce [TestCanceledException]
+      clientSocket.close()
+      drag = false
+    }
+    
+    it("should wait for the test to finish when DoNotInterrupt is used.") {
+      var x = 0
+      val caught = evaluating {
+        cancelAfter(1000) {
+          Thread.sleep(2000)
+          x = 1
+        } ( DoNotInterrupt() )
+      } should produce [TestCanceledException]
+      x should be (1)
+    }
+    
+    it("should close Selector connection via SelectorInterruptor when timeout reached") {
+      val selector = Selector.open()
+      val ssChannel = ServerSocketChannel.open()
+      ssChannel.configureBlocking(false)
+      ssChannel.socket().bind(new InetSocketAddress(0))
+      ssChannel.register(selector, SelectionKey.OP_ACCEPT)
+      @volatile
+      var drag = true
+      val serverThread = new Thread() {
+        override def run() {
+          selector.select()
+          val it = selector.selectedKeys.iterator
+          while (it.hasNext) {
+            val selKey = it.next().asInstanceOf[SelectionKey]
+            it.remove()
+            if (selKey.isAcceptable()) {
+              val ssChannel = selKey.channel().asInstanceOf[ServerSocketChannel]
+              while(drag) {
+                try {
+                  Thread.sleep(1000)
+                }
+                catch {
+                  case _: InterruptedException => Thread.interrupted()
+                }
+              }
+            }
+          }
+          ssChannel.close()
+        }
+      }
+    
+      val clientSelector = Selector.open();
+      val sChannel = SocketChannel.open()
+      sChannel.configureBlocking(false);
+      sChannel.connect(new InetSocketAddress("localhost", ssChannel.socket().getLocalPort()));
+      sChannel.register(selector, sChannel.validOps());
+    
+      val caught = evaluating {
+        cancelAfter(1000) {
+          clientSelector.select()
+        } (SelectorInterruptor(clientSelector))
+      } should produce [TestCanceledException]
+      clientSelector.close()
+      drag = false
+    }
   }
 }
