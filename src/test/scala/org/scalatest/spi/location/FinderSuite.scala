@@ -32,7 +32,7 @@ class FinderSuite extends FunSuite {
     }
     val suiteClass = classOf[TestingSuite]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.Suite.")
+    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.Suite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.Suite should use MethodFinder.")
     val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
@@ -57,7 +57,7 @@ class FinderSuite extends FunSuite {
     }
     val suiteClass = classOf[TestingSuite]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.fixture.FixtureSuite.")
+    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.fixture.FixtureSuite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodFinder.")
     val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
@@ -82,7 +82,7 @@ class FinderSuite extends FunSuite {
     }
     val suiteClass = classOf[TestingFunSuite]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FunSuite.")
+    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FunSuite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FunctionFinder], "Suite that uses org.scalatest.FunSuite should use FunctionFinder.")
     val test1 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 1"))
@@ -114,7 +114,7 @@ class FinderSuite extends FunSuite {
     }
     val suiteClass = classOf[TestingFeatureSpec]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FeatureSpec.")
+    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FeatureSpec.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FeatureSpecFinder], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecFinder.")
     
@@ -169,7 +169,7 @@ class FinderSuite extends FunSuite {
     }
     val suiteClass = classOf[TestingFreeSpec]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FreeSpec.")
+    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FreeSpec.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
     
