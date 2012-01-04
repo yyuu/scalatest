@@ -1,5 +1,7 @@
 package org.scalatest.spi.location;
 
+import scala.Option;
+
 public interface Finder {
-    Test find(AstNode node);
+    Option<Test> find(AstNode node);
 }

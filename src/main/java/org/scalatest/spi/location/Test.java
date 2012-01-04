@@ -12,15 +12,15 @@ public class Test {
         this.testNames = testNames;
     }
 
-    public String getClassName() {
+    public String className() {
         return className;
     }
 
-    public String getDisplayName() {
+    public String displayName() {
         return displayName;
     }
 
-    public String[] getTestNames() {
+    public String[] testNames() {
         return testNames;
     }
 }

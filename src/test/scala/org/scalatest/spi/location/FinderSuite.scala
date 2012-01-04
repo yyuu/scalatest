@@ -10,10 +10,12 @@ import org.scalatest.FreeSpec
 
 class FinderSuite extends FunSuite {
   
-  def expectTest(test: Test, expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {
-    expect(expectedClassName)(test.getClassName)
-    expect(expectedDisplayName)(test.getDisplayName)
-    expect(expectedTestNames.deepToString)(test.getTestNames.deepToString)
+  def expectTest(testOpt: Option[Test], expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {
+    assert(testOpt.getClass == classOf[Some[_]], "Test is None, expected className=" + expectedClassName + ", displayName=" + expectedDisplayName + ", testNames=" + expectedTestNames.deepToString)
+    val test = testOpt.get
+    expect(expectedClassName)(test.className)
+    expect(expectedDisplayName)(test.displayName)
+    expect(expectedTestNames.deepToString)(test.testNames.deepToString)
   }
 
   test("MethodTestResolver should resolve test name for tests written in test suite that extends org.scalatest.Suite") {
@@ -29,7 +31,9 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingSuite]
-    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
+    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.Suite.")
+    val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.Suite should use MethodFinder.")
     val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
     expectTest(testMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
@@ -52,7 +56,9 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingSuite]
-    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
+    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.fixture.FixtureSuite.")
+    val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodFinder.")
     val testMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
     expectTest(testMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
@@ -75,7 +81,9 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFunSuite]
-    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
+    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FunSuite.")
+    val finder = finderOpt.get
     assert(finder.getClass == classOf[FunctionFinder], "Suite that uses org.scalatest.FunSuite should use FunctionFinder.")
     val test1 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 1"))
     expectTest(test1, suiteClass.getName, suiteClass.getName + ": \"test 1\"", Array("test 1"))
@@ -105,7 +113,9 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFeatureSpec]
-    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
+    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FeatureSpec.")
+    val finder = finderOpt.get
     assert(finder.getClass == classOf[FeatureSpecFinder], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecFinder.")
     
     val f1s1 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 1"))
@@ -158,7 +168,9 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFreeSpec]
-    val finder: Finder = LocationUtils.getFinder(suiteClass)
+    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
+    assert(finderOpt.getClass == classOf[Some[_]], "Finder not found for suite that uses org.scalatest.FreeSpec.")
+    val finder = finderOpt.get
     assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
     
     val aStackNode = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "A Stack"), null, 
@@ -175,7 +187,7 @@ class FinderSuite extends FunSuite {
                              new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on push"), null, Array(), "in", () => {})
                            ), "-", () => {})
                      ), "-", () => {})
-    LocationUtils.fillAstNodeParent(aStackNode)
+    
     val aStackTest = finder.find(aStackNode)
     expectTest(aStackTest, suiteClass.getName, "A Stack", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
