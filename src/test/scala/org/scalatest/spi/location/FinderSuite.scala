@@ -10,12 +10,12 @@ import org.scalatest.FreeSpec
 
 class FinderSuite extends FunSuite {
   
-  def expectTest(testOpt: Option[Test], expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {
-    assert(testOpt.getClass == classOf[Some[_]], "Test is None, expected className=" + expectedClassName + ", displayName=" + expectedDisplayName + ", testNames=" + expectedTestNames.deepToString)
-    val test = testOpt.get
-    expect(expectedClassName)(test.className)
-    expect(expectedDisplayName)(test.displayName)
-    expect(expectedTestNames.deepToString)(test.testNames.deepToString)
+  def expectTest(selectionOpt: Option[Selection], expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {
+    assert(selectionOpt.getClass == classOf[Some[_]], "Test is None, expected className=" + expectedClassName + ", displayName=" + expectedDisplayName + ", testNames=" + expectedTestNames.deepToString)
+    val selection = selectionOpt.get
+    expect(expectedClassName)(selection.className)
+    expect(expectedDisplayName)(selection.displayName)
+    expect(expectedTestNames.deepToString)(selection.testNames.deepToString)
   }
 
   test("MethodTestResolver should resolve test name for tests written in test suite that extends org.scalatest.Suite") {

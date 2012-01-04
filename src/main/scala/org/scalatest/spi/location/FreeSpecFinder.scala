@@ -31,17 +31,17 @@ class FreeSpecFinder extends Finder {
     getTestNamesTopDownAcc(List(invocation), List.empty).reverse
   }
   
-  def find(node: AstNode): Option[Test] = {
+  def find(node: AstNode): Option[Selection] = {
     node match {
       case invocation @ MethodInvocation(className, target, parent, children, name, args) =>
         name match {
           case "in" | "is" =>
             val testName = getTestNameBottomUp(invocation)
-            Some(new Test(className, testName, Array(testName)))
+            Some(new Selection(className, testName, Array(testName)))
           case "-" =>
             val displayName = getTestNameBottomUp(invocation)
             val testNames = getTestNamesTopDown(invocation)
-            Some(new Test(className, displayName, testNames.toArray))
+            Some(new Selection(className, displayName, testNames.toArray))
           case _ => None
         }
       case _ => None

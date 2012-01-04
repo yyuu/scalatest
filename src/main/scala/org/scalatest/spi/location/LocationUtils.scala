@@ -2,6 +2,7 @@ package org.scalatest.spi.location
 import org.scalatest.Style
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
+import org.scalatest.Suite
 
 object LocationUtils {
   
@@ -43,7 +44,7 @@ object LocationUtils {
       None
   }
 
-  def getFinder(clazz: Class[_]) = {
+  def getFinder[T <: Suite](clazz: Class[T]) = {
     val ownFinderOpt = getFinderInstance(clazz)
     ownFinderOpt match {
       case Some(ownFinder) => Some(ownFinder)
