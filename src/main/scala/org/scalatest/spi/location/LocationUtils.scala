@@ -59,4 +59,34 @@ object LocationUtils {
         }
     }
   }
+  
+  @tailrec
+  def getParentOfType[T <: AstNode](node: AstNode, clazz: Class[T]): Option[T] = {
+    if (node.parent == null)
+      None
+    else {
+      if (node.parent.getClass == clazz)
+        Some(node.parent.asInstanceOf[T])
+      else
+        getParentOfType(node.parent, clazz)
+    }
+  }
+  
+  @tailrec
+  def getParentBeforeType[T <: AstNode](node: AstNode, clazz: Class[T]): Option[AstNode] = {
+    if (node.parent == null)
+      None
+    else {
+      if (node.parent.getClass == clazz)
+        Some(node)
+      else
+        getParentBeforeType(node.parent, clazz)
+    }
+  }
+  
+  def isSingleStringParamInvocationWithName(invocation: MethodInvocation, validNames: Set[String]): Boolean = {
+    isValidName(invocation.name, validNames) && invocation.args.length == 1 && invocation.args(0).getClass == classOf[String]
+  }
+  
+  def isValidName(name: String, validNames: Set[String]) = validNames.contains(name)
 }
