@@ -192,32 +192,18 @@ trait TestNGSuite extends Suite { thisSuite =>
    * @param    testName    the name of the test method to be executed
    */
   private def setupTestNGToRunSingleMethod(testName: String, testng: TestNG) = {
-    
-    import org.testng.internal.annotations.IAnnotationTransformer
-    import org.testng.annotations.ITestAnnotation
-    import java.lang.reflect.Method
-    import java.lang.reflect.Constructor
-    
-    class MyTransformer extends IAnnotationTransformer {
-      override def transform( annotation: ITestAnnotation, testClass: java.lang.Class[_], testConstructor: Constructor[_], testMethod: Method){
-        if (testName.equals(testMethod.getName)) {
-          annotation.setGroups(Array("org.scalatest.testng.singlemethodrun.methodname"))  
-        }
+    val runner = 
+      try {
+        val testng5RunnerClass = Class.forName("org.scalatest.testng.TestNG5SingleMethodRunner")
+        val constructor = testng5RunnerClass.getConstructor()
+        constructor.newInstance(testName).asInstanceOf[SingleMethodRunner]
       }
-    }
-    testng.setGroups("org.scalatest.testng.singlemethodrun.methodname")
-    testng.setAnnotationTransformer(new MyTransformer())
-    
-    /*val transformer = try {
-      Class.forName("org.testng.internal.annotations.ITest")
-      new TestNG5Transformer(testName)
-    }
-    catch {
-      case e: ClassNotFoundException => new TestNG6Transformer(testName)
-    }
-    testng.setGroups("org.scalatest.testng.singlemethodrun.methodname")
-    testng.setAnnotationTransformer(transformer)*/
-    
+      catch {
+        case e: ClassNotFoundException => 
+          new TestNG6SingleMethodRunner()
+      }
+      
+    runner.run(testName, testng)
   }
   
   /**
