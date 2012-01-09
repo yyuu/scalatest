@@ -33,7 +33,7 @@ class TestFailedException(
   messageFun: StackDepthException => Option[String],
   cause: Option[Throwable],
   failedCodeStackDepthFun: StackDepthException => Int
-) extends StackDepthException(messageFun, cause, failedCodeStackDepthFun) with ModifiableMessage[TestFailedException] { 
+) extends StackDepthException(messageFun, cause, failedCodeStackDepthFun) with ModifiableMessage[TestFailedException] {
 
   /**
    * Constructs a <code>TestFailedException</code> with pre-determined <code>message</code> and <code>failedCodeStackDepth</code>. (This was
@@ -47,7 +47,11 @@ class TestFailedException(
    */
   def this(message: Option[String], cause: Option[Throwable], failedCodeStackDepth: Int) =
     this(
-      StackDepthException.toExceptionFunction(message),
+      message match {
+        case null => throw new NullPointerException("message was null")
+        case Some(null) => throw new NullPointerException("message was a Some(null)")
+        case _ => { e => message }
+      },
       cause,
       e => failedCodeStackDepth
     )

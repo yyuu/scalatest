@@ -47,9 +47,7 @@ class ConductorFixtureSuite extends fixture.FunSuite with ConductorFixture with 
   // On Mac, got "BACDEFGHI" was not equal to "ABCDEFGHI"
   // And got: "ABDCEFGHI" was not equal to "ABCDEFGHI"
   // And "ABCFDEGHI" was not equal to "ABCDEFGHI"
-  // TODO: ignoring this test for now. Need to figure out why it occassionally failes, but
-  // until then, may as well ignore it.
-  ignore("metronome order") { conductor => import conductor._
+  test("metronome order") { conductor => import conductor._
 
     thread("t1") {
       waitForBeat(1)

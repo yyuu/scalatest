@@ -41,39 +41,39 @@ class CatchReporterSuite extends Suite {
     catchReporter(RunStarting(new Ordinal(99), 1, Map()))
 
     intercept[RuntimeException] {
-      buggyReporter(TestStarting(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+      buggyReporter(TestStarting(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
     }
-    catchReporter(TestStarting(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+    catchReporter(TestStarting(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
 
     intercept[RuntimeException] {
-      buggyReporter(TestSucceeded(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+      buggyReporter(TestSucceeded(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
     }
-    catchReporter(TestSucceeded(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+    catchReporter(TestSucceeded(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
 
     intercept[RuntimeException] {
-      buggyReporter(TestIgnored(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+      buggyReporter(TestIgnored(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
     }
-    catchReporter(TestIgnored(new Ordinal(99), "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None))
+    catchReporter(TestIgnored(new Ordinal(99), "suite name", Some("suite.className"), "test name"))
 
     intercept[RuntimeException] {
-      buggyReporter(TestFailed(new Ordinal(99), "message", "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None, None))
+      buggyReporter(TestFailed(new Ordinal(99), "message", "suite name", Some("suite.className"), "test name", None))
     }
-    catchReporter(TestFailed(new Ordinal(99), "message", "suite name", "suite ID", Some("suite.className"), None, "test name", "test name", None, None))
+    catchReporter(TestFailed(new Ordinal(99), "message", "suite name", Some("suite.className"), "test name", None))
 
     intercept[RuntimeException] {
-      buggyReporter(SuiteStarting(new Ordinal(99), "suite name", "suite ID", None, None))
+      buggyReporter(SuiteStarting(new Ordinal(99), "suite name", None))
     }
-    catchReporter(SuiteStarting(new Ordinal(99), "suite name", "suite ID", None, None))
+    catchReporter(SuiteStarting(new Ordinal(99), "suite name", None))
 
     intercept[RuntimeException] {
-      buggyReporter(SuiteCompleted(new Ordinal(99), "suite name", "suite ID", None, None))
+      buggyReporter(SuiteCompleted(new Ordinal(99), "suite name", None))
     }
-    catchReporter(SuiteCompleted(new Ordinal(99), "suite name", "suite ID", None, None))
+    catchReporter(SuiteCompleted(new Ordinal(99), "suite name", None))
 
     intercept[RuntimeException] {
-      buggyReporter(SuiteAborted(new Ordinal(99), "msg", "suiteName", "suite ID", None, None))
+      buggyReporter(SuiteAborted(new Ordinal(99), "msg", "suiteName", None, None))
     }
-    catchReporter(SuiteAborted(new Ordinal(99), "msg", "suiteName", "suite ID", None, None))
+    catchReporter(SuiteAborted(new Ordinal(99), "msg", "suiteName", None, None))
 
     intercept[RuntimeException] {
       buggyReporter(InfoProvided(new Ordinal(99), "msg", None))

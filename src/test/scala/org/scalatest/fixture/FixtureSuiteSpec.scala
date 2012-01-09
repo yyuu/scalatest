@@ -336,7 +336,7 @@ class FixtureSuiteSpec extends org.scalatest.FunSpec with PrivateMethodTester wi
       assert(!d.theTestThatCalled)
     }
 
-    it("should run a test marked as ignored if run is invoked with that testName") {
+    it("should ignore a test marked as ignored if run is invoked with that testName") {
 
       val e = new FixtureSuite {
         type FixtureParam = String
@@ -350,8 +350,8 @@ class FixtureSuiteSpec extends org.scalatest.FunSpec with PrivateMethodTester wi
 
       val repE = new TestIgnoredTrackingReporter
       e.run(Some("testThis(FixtureParam)"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(!repE.testIgnoredReceived)
-      assert(e.theTestThisCalled)
+      assert(repE.testIgnoredReceived)
+      assert(!e.theTestThisCalled)
       assert(!e.theTestThatCalled)
     }
 
@@ -692,54 +692,6 @@ class FixtureSuiteSpec extends org.scalatest.FunSpec with PrivateMethodTester wi
       val tp = rep.testPendingEventsReceived
       assert(tp.size === 2)
     }
-    it("should generate a TestCanceled message when the test body has a cancel invocation") {
-      val a = new FixtureSuite {
-        type FixtureParam = String
-        val hello = "Hello, world!"
-        def withFixture(test: OneArgTest) {
-          test(hello)
-        }
-
-        def testDoThis(fixture: FixtureParam) { cancel() }
-
-        def testDoThat(fixture: FixtureParam) {
-          assert(fixture === hello)
-        }
-
-        def testDoSomethingElse(fixture: FixtureParam) {
-          assert(fixture === hello)
-          cancel("meant to do that")
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
-      assert(tp.size === 2)
-    }
-    it("should generate a TestCanceled message when the test body has an assume invocation") {
-      val a = new FixtureSuite {
-        type FixtureParam = String
-        val hello = "Hello, world!"
-        def withFixture(test: OneArgTest) {
-          test(hello)
-        }
-
-        def testDoThis(fixture: FixtureParam) { assume(1 === 2) }
-
-        def testDoThat(fixture: FixtureParam) {
-          assert(fixture === hello)
-        }
-
-        def testDoSomethingElse(fixture: FixtureParam) {
-          assert(fixture === hello)
-          assume(1 === 2, "meant to do that")
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
-      assert(tp.size === 2)
-    }
     it("should generate a test failure if a Throwable, or an Error other than direct Error subtypes " +
             "known in JDK 1.5, excluding AssertionError") {
       val a = new FixtureSuite {
@@ -970,91 +922,6 @@ class FixtureSuiteSpec extends org.scalatest.FunSpec with PrivateMethodTester wi
       }
       a.run(None, SilentReporter, new Stopper {}, Filter(), Map("hi" -> 7), None, new Tracker())
       assert(a.correctConfigMapWasPassed)
-    }
-    it("should send InfoProvided events with aboutAPendingTest set to true and aboutACanceledTest set to false for info " +
-            "calls made from a test that is pending") {
-      val a = new FixtureSuite {
-        type FixtureParam = String
-        def withFixture(test: OneArgTest) {
-          test("hi")
-        }
-        def testSomething(s: String, info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          pending
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && !event.aboutACanceledTest.get)
-      }
-    }
-    it("should send InfoProvided events with aboutAPendingTest and aboutACanceledTest set to false for info " +
-            "calls made from a test that is not pending or canceled") {
-      val a = new FixtureSuite {
-        type FixtureParam = String
-        def withFixture(test: OneArgTest) {
-          test("hi")
-        }
-        def testSomething(s: String, info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          assert(1 + 1 === 2)
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && !event.aboutACanceledTest.get)
-      }
-    }
-    it("should send InfoProvided events with aboutAPendingTest set to false and aboutACanceledTest set to true for info " +
-            "calls made from a test that is canceled") {
-      val a = new FixtureSuite {
-        type FixtureParam = String
-        def withFixture(test: OneArgTest) {
-          test("hi")
-        }
-        def testSomething(s: String, info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          cancel()
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && event.aboutACanceledTest.get)
-      }
-    }
-    it("should, when a test method takes an Informer and writes to it, report the info after the test completion event") {
-      val msg = "hi there dude"
-      class MySuite extends FixtureSuite {
-        type FixtureParam = String
-        def withFixture(test: OneArgTest) {
-          test("hi")
-        }
-        def testWithInformer(s: String, info: Informer) {
-          info(msg)
-        }
-      }
-      val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
-        getIndexesForInformerEventOrderTests(new MySuite, "testWithInformer(FixtureParam, Informer)", msg)
-      assert(testStartingIndex < testSucceededIndex)
-      assert(testSucceededIndex < infoProvidedIndex)
     }
   }
   describe("A OneArgTest") {

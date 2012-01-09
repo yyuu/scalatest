@@ -602,7 +602,7 @@ class FreeSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       assert(!d.theTestThatCalled)
     }
 
-    it("should run a test marked as ignored if run is invoked with that testName") {
+    it("should ignore a test marked as ignored if run is invoked with that testName") {
       // If I provide a specific testName to run, then it should ignore an Ignore on that test
       // method and actually invoke it.
       val e = new FreeSpec {
@@ -614,8 +614,8 @@ class FreeSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
 
       val repE = new TestIgnoredTrackingReporter
       e.run(Some("test this"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(!repE.testIgnoredReceived)
-      assert(e.theTestThisCalled)
+      assert(repE.testIgnoredReceived)
+      assert(!e.theTestThisCalled)
       assert(!e.theTestThatCalled)
     }
 
@@ -851,43 +851,6 @@ class FreeSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       val tp = rep.testPendingEventsReceived
       assert(tp.size === 2)
     }
-    it("should generate a TestCanceled message when the test body includes a cancel() invocation") {
-      val a = new FreeSpec {
-
-        "should do this" in { cancel("changed my mind") }
-
-        "should do that" in {
-          assert(2 + 2 === 4)
-        }
-        "should do something else" in {
-          assert(2 + 2 === 4)
-          cancel()
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
-      assert(tp.size === 2)
-    }
-    it("should generate a TestCanceled message when the test body includes a failed assume() invocation") {
-      val a = new FreeSpec {
-
-        "should do this" in { assume(2 === 3, "changed my mind") }
-
-        "should do that" in {
-          assume(1 + 1 === 2)
-          assert(2 + 2 === 4)
-        }
-        "should do something else" in {
-          assert(2 + 2 === 4)
-          assume(1 + 1 === 3)
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
-      assert(tp.size === 2)
-    }
     it("should generate a test failure if a Throwable, or an Error other than direct Error subtypes " +
             "known in JDK 1.5, excluding AssertionError") {
       val a = new FreeSpec {
@@ -928,19 +891,9 @@ class FreeSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
+      assert(ip.size === 4)
       for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && event.aboutAPendingTest.get)
-      }
-      val so = rep.scopeOpenedEventsReceived
-      assert(so.size === 1)
-      for (event <- so) {
-        assert(event.message == "A FreeSpec")
-      }
-      val sc = rep.scopeClosedEventsReceived
-      assert(so.size === 1)
-      for (event <- sc) {
-        assert(event.message == "A FreeSpec")
+        assert(event.message == "A FreeSpec" || event.aboutAPendingTest.isDefined && event.aboutAPendingTest.get)
       }
     }
     it("should send InfoProvided events with aboutAPendingTest set to false for info " +
@@ -958,19 +911,9 @@ class FreeSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
+      assert(ip.size === 4)
       for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
-      }
-      val so = rep.scopeOpenedEventsReceived
-      assert(so.size === 1)
-      for (event <- so) {
-        assert(event.message == "A FreeSpec")
-      }
-      val sc = rep.scopeClosedEventsReceived
-      assert(so.size === 1)
-      for (event <- sc) {
-        assert(event.message == "A FreeSpec")
+        assert(event.message == "A FreeSpec" || event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
       }
     }
     it("should not put parentheses around should clauses that follow when") {

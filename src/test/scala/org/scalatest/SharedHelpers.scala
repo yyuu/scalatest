@@ -80,48 +80,12 @@ trait SharedHelpers extends Assertions {
         case _ => throw new RuntimeException("should never happen")
       }
     }
-    def markupProvidedEventsReceived: List[MarkupProvided] = {
-      eventsReceived filter {
-        case event: MarkupProvided => true
-        case _ => false
-      } map {
-        case event: MarkupProvided => event
-        case _ => throw new RuntimeException("should never happen")
-      }
-    }
-    def scopeOpenedEventsReceived: List[ScopeOpened] = {
-      eventsReceived filter {
-        case event: ScopeOpened => true
-        case _ => false
-      } map {
-        case event: ScopeOpened => event
-        case _ => throw new RuntimeException("should never happen")
-      }
-    }
-    def scopeClosedEventsReceived: List[ScopeClosed] = {
-      eventsReceived filter {
-        case event: ScopeClosed => true
-        case _ => false
-      } map {
-        case event: ScopeClosed => event
-        case _ => throw new RuntimeException("should never happen")
-      }
-    }
     def testPendingEventsReceived: List[TestPending] = {
       eventsReceived filter {
         case event: TestPending => true
         case _ => false
       } map {
         case event: TestPending => event
-        case _ => throw new RuntimeException("should never happen")
-      }
-    }
-    def testCanceledEventsReceived: List[TestCanceled] = {
-      eventsReceived filter {
-        case event: TestCanceled => true
-        case _ => false
-      } map {
-        case event: TestCanceled => event
         case _ => throw new RuntimeException("should never happen")
       }
     }
@@ -159,9 +123,9 @@ trait SharedHelpers extends Assertions {
     val infoProvidedOption = indexedList.find(_._1.isInstanceOf[InfoProvided])
     val testSucceededOption = indexedList.find(_._1.isInstanceOf[TestSucceeded])
 
-    assert(testStartingOption.isDefined, "TestStarting for Suite='" + suite.suiteID + "', testName='" + testName + "' not defined.")
-    assert(infoProvidedOption.isDefined, "InfoProvided for Suite='" + suite.suiteID + "', testName='" + testName + "' not defined.")
-    assert(testSucceededOption.isDefined, "TestSucceeded for Suite='" + suite.suiteID + "', testName='" + testName + "' not defined.")
+    assert(testStartingOption.isDefined)
+    assert(infoProvidedOption.isDefined)
+    assert(testSucceededOption.isDefined)
 
     val testStartingIndex = testStartingOption.get._2
     val infoProvidedIndex = infoProvidedOption.get._2
@@ -171,9 +135,9 @@ trait SharedHelpers extends Assertions {
     val infoProvided = infoProvidedOption.get._1.asInstanceOf[InfoProvided]
     val testSucceeded = testSucceededOption.get._1.asInstanceOf[TestSucceeded]
 
-    assert(testStarting.testName === testName, "TestStarting.testName expected to be '" + testName + "', but got '" + testStarting.testName + "'.")
-    assert(infoProvided.message === infoMsg, "InfoProvide.message expected to be '" + infoMsg + "', but got '" + infoProvided.message + "'.")
-    assert(testSucceeded.testName === testName, "TestSucceeded.testName expected to be '" + testName + "', but got '" + testSucceeded.testName + "'.")
+    assert(testStarting.testName === testName)
+    assert(infoProvided.message === infoMsg)
+    assert(testSucceeded.testName === testName)
 
     (infoProvidedIndex, testStartingIndex, testSucceededIndex)
   }

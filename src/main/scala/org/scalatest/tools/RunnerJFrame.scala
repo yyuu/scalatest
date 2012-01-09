@@ -75,7 +75,7 @@ import EventToPresent.eventToEventToPresent
 private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresent],
     reporterConfigurations: ReporterConfigurations, suitesList: List[String], junitsList: List[String], runpathList: List[String], filter: Filter,
     propertiesMap: Map[String, String], concurrent: Boolean, memberOfList: List[String], beginsWithList: List[String],
-    testNGList: List[String], passFailReporter: Option[Reporter], numThreads: Int, dollar: Boolean) extends
+    testNGList: List[String], passFailReporter: Option[Reporter], numThreads: Int) extends
     JFrame(Resources("ScalaTestTitle")) with RunDoneListener with RunnerGUI {
 
   // This should only be updated by the event handler thread.
@@ -334,35 +334,29 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
 
             import EventHolder.suiteAndTestName
 
-            def nameFromNameInfo(nameInfo: Option[NameInfo]): Option[String] = 
-              nameInfo match {
-                case Some(NameInfo(suiteName, suiteID, suiteClassName, decodedSuiteName, testNameInfo)) =>
-                  testNameInfo match {
-                    case Some(tnInfo) => Some(suiteAndTestName(suiteName, decodedSuiteName, tnInfo.testName, tnInfo.decodedTestName))
-                    case None => Some(suiteName)
-                  }
-                case None => None
-              }
-
             val name =
               holder.event match {
                 case event: RunStarting => None
                 case event: RunStopped => None
                 case event: RunAborted => None
                 case event: RunCompleted => None
-                case event: InfoProvided => nameFromNameInfo(event.nameInfo)
-                case event: ScopeOpened => nameFromNameInfo(Some(event.nameInfo))
-                case event: ScopeClosed => nameFromNameInfo(Some(event.nameInfo))
-                case event: MarkupProvided => nameFromNameInfo(event.nameInfo) // Should not get here because I'm not registering MarkupInfos
+                case event: InfoProvided =>
+                  event.nameInfo match {
+                    case Some(NameInfo(suiteName, suiteClassName, testName)) =>
+                      testName match {
+                        case Some(tn) => Some(suiteAndTestName(suiteName, tn))
+                        case None => Some(suiteName)
+                      }
+                    case None => None
+                  }
                 case event: SuiteStarting => Some(event.suiteName)
                 case event: SuiteCompleted => Some(event.suiteName)
                 case event: SuiteAborted => Some(event.suiteName)
-                case event: TestStarting => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-                case event: TestPending => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-                case event: TestCanceled => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-                case event: TestIgnored => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-                case event: TestSucceeded => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-                case event: TestFailed => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
+                case event: TestStarting => Some(suiteAndTestName(event.suiteName, event.testName))
+                case event: TestPending => Some(suiteAndTestName(event.suiteName, event.testName))
+                case event: TestIgnored => Some(suiteAndTestName(event.suiteName, event.testName))
+                case event: TestSucceeded => Some(suiteAndTestName(event.suiteName, event.testName))
+                case event: TestFailed => Some(suiteAndTestName(event.suiteName, event.testName))
               }
 
             val duration =
@@ -372,15 +366,11 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
                 case event: RunAborted => event.duration
                 case event: RunCompleted => event.duration
                 case event: InfoProvided => None
-                case event: ScopeOpened => None
-                case event: ScopeClosed => None
-                case event: MarkupProvided => None // Shouldn't get here because not registering MarkupInfos
                 case event: SuiteStarting => None
                 case event: SuiteCompleted => event.duration
                 case event: SuiteAborted => event.duration
                 case event: TestStarting => None
                 case event: TestPending => None
-                case event: TestCanceled => event.duration
                 case event: TestIgnored => None
                 case event: TestSucceeded => event.duration
                 case event: TestFailed => event.duration
@@ -827,7 +817,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     override def apply(event: Event) {
       event match {
 
-        case RunStarting(ordinal, testCount, configMap, formatter, location, payload, threadName, timeStamp) =>
+        case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) =>
 
           // Create the Event outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -854,7 +844,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
               eventsListModel.addElement(eventHolder)
           }
 
-        case RunCompleted(ordinal, duration, summary, formatter, location, payload, threadName, timeStamp) =>
+        case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
 
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -868,7 +858,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             refreshEventsJList()
           }
   
-        case RunAborted(ordinal, message, throwable, duration, summary, formatter, location, payload, threadName, timeStamp) => 
+        case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             progressBar.setRed()
@@ -882,7 +872,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             selectFirstFailureIfExistsAndNothingElseAlreadySelected()
           }
 
-        case RunStopped(ordinal, duration, summary, formatter, location, payload, threadName, timeStamp) =>
+        case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
 
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -891,19 +881,19 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerEvent(event)
           }
 
-        case SuiteStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunner, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             registerEvent(event)
           }
   
-        case SuiteCompleted(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunner, payload, threadName, timeStamp) => 
   
           usingEventDispatchThread {
             registerEvent(event)
           }
 
-        case SuiteAborted(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, throwable, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             progressBar.setRed()
@@ -917,19 +907,19 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             selectFirstFailureIfExistsAndNothingElseAlreadySelected()
           }
 
-        case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case TestStarting(ordinal, suiteName, suiteClassName, testName, formatter, rerunner, payload, threadName, timeStamp) =>
   
           usingEventDispatchThread {
             registerEvent(event)
           }
 
-        case TestIgnored(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, payload, threadName, timeStamp) => 
+        case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             registerEvent(event)
           }
   
-        case TestPending(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, duration, formatter, location, payload, threadName, timeStamp) =>
+        case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             testsCompletedCount += 1
@@ -938,16 +928,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerEvent(event)
           }
 
-        case TestCanceled(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            testsCompletedCount += 1
-            statusJPanel.setTestsRun(testsCompletedCount, true)
-            progressBar.setValue(testsCompletedCount)
-            registerEvent(event)
-          }
-
-        case TestSucceeded(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, duration, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunner, payload, threadName, timeStamp) =>
   
           usingEventDispatchThread {
             testsCompletedCount += 1
@@ -956,7 +937,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerEvent(event)
           }
   
-        case TestFailed(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             testsCompletedCount += 1
@@ -975,25 +956,11 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             selectFirstFailureIfExistsAndNothingElseAlreadySelected()
           }
 
-        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, throwable, formatter, location, payload, threadName, timeStamp) =>
+        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             registerEvent(event)
           }
-
-        case ScopeOpened(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            registerEvent(event)
-          }
-
-        case ScopeClosed(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            registerEvent(event)
-          }
-
-        case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
       }
     }
   }
@@ -1252,7 +1219,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     def apply(event: Event) {
 
       event match {
-        case RunStarting(ordinal, testCount, configMap, formatter, location, payload, threadName, timeStamp) =>
+        case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) =>
 
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -1268,7 +1235,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             anErrorHasOccurredAlready = false;
           }
 
-        case RunCompleted(ordinal, duration, summary, formatter, location, payload, threadName, timeStamp) =>
+        case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
 
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -1279,7 +1246,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             scrollTheRerunStartingEventToTheTopOfVisibleEvents()
           }
   
-        case RunAborted(ordinal, message, throwable, duration, summary, formatter, location, payload, threadName, timeStamp) => 
+        case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             rerunColorBox.setRed()
@@ -1290,7 +1257,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             }
           }
 
-        case RunStopped(ordinal, duration, summary, formatter, location, payload, threadName, timeStamp) =>
+        case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
   
           // Create the Report outside of the event handler thread, because otherwise
           // the event handler thread shows up as the originating thread of this event,
@@ -1300,19 +1267,19 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             scrollTheRerunStartingEventToTheTopOfVisibleEvents()
           }
 
-        case SuiteStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunner, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             registerRerunEvent(event)
           }
   
-        case SuiteCompleted(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunner, payload, threadName, timeStamp) => 
   
           usingEventDispatchThread {
             registerRerunEvent(event)
           }
 
-        case SuiteAborted(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, throwable, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             rerunColorBox.setRed()
@@ -1323,34 +1290,27 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             }
           }
  
-        case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case TestStarting(ordinal, suiteName, suiteClassName, testName, formatter, rerunner, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             registerRerunEvent(event)
           }
   
-        case TestIgnored(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, payload, threadName, timeStamp) => 
+        case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             rerunColorBox.setValue(rerunTestsCompletedCount)
             registerRerunEvent(event)
           }
 
-        case TestPending(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, duration, formatter, location, payload, threadName, timeStamp) =>
+        case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             rerunColorBox.setValue(rerunTestsCompletedCount)
             registerRerunEvent(event)
           }
 
-        case TestCanceled(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            rerunColorBox.setValue(rerunTestsCompletedCount)
-            registerRerunEvent(event)
-          }
-
-        case TestSucceeded(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, duration, formatter, location, rerunner, payload, threadName, timeStamp) =>
+        case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunner, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             rerunTestsCompletedCount += 1
@@ -1358,7 +1318,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             registerRerunEvent(event)
           }
 
-        case TestFailed(ordinal, message, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, throwable, duration, formatter, location, rerunner, payload, threadName, timeStamp) => 
+        case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
 
           usingEventDispatchThread {
             rerunTestsCompletedCount += 1
@@ -1371,25 +1331,11 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             }
           }
   
-        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, throwable, formatter, location, payload, threadName, timeStamp) =>
+        case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
 
           usingEventDispatchThread {
             registerRerunEvent(event)
           }
-  
-        case ScopeOpened(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            registerRerunEvent(event)
-          }
-  
-        case ScopeClosed(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
-
-          usingEventDispatchThread {
-            registerRerunEvent(event)
-          }
-  
-        case MarkupProvided(ordinal, message, nameInfo, aboutAPendingTest, aboutACanceledTest, formatter, location, payload, threadName, timeStamp) =>
       }
     }
   }
@@ -1411,7 +1357,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
         (loader, dispatchReporter) => {
           try {
             Runner.doRunRunRunDaDoRunRun(dispatchReporter, suitesList, junitsList, stopper, filter,
-                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, runpathList, loader, RunnerJFrame.this, nextRunStamp, numThreads, dollar) 
+                propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, runpathList, loader, RunnerJFrame.this, nextRunStamp, numThreads) 
           }
           finally {
             stopper.reset()
@@ -1467,14 +1413,10 @@ private[tools] object RunnerJFrame {
       case PresentTestSucceeded => "TEST_SUCCEEDED"
       case PresentTestIgnored => "TEST_IGNORED"
       case PresentTestPending => "TEST_PENDING"
-      case PresentTestCanceled => "TEST_CANCELED"
       case PresentSuiteStarting => "SUITE_STARTING"
       case PresentSuiteAborted => "SUITE_ABORTED"
       case PresentSuiteCompleted => "SUITE_COMPLETED"
       case PresentInfoProvided => "INFO_PROVIDED"
-      case PresentScopeOpened => "SCOPE_OPENED"
-      case PresentScopeClosed => "SCOPE_CLOSED"
-      case PresentMarkupProvided => "MARKUP_PROVIDED" // Shouldn't get here, because not registering these events in the GUI
       case PresentRunStopped => "RUN_STOPPED"
       case PresentRunAborted => "RUN_ABORTED"
       case PresentRunCompleted => "RUN_COMPLETED"

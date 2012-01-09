@@ -15,13 +15,13 @@
  */
 package org.scalatest
 
-sealed abstract class Selection
-
-final case class SingleLineSelection(lineNum: Int)
-
-final case class MultiLineSelection(fromLineNum: Int, toLineNum: Int)
-
-final case class MethodSelection(methodId: String)
-
-final case class ClassSelection(className: String)
-
+class NonImplicitAssertionsSuite extends FunSuite with NonImplicitAssertions {
+  test("make sure all the non-implicit assertions work") {
+    assert(1 + 1 == 2)
+    val thrown =
+      intercept[TestFailedException] {
+        expect(2) { 1 + 1 + 1 }
+      }
+    expect("Expected 2, but got 3") { thrown.getMessage }
+  }
+}

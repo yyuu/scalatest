@@ -36,7 +36,7 @@ import java.io.IOException
  */
 private[scalatest] object SuiteDiscoveryHelper {
 
-  def discoverSuiteNames(runpath: List[String], loader: ClassLoader, dollar: Boolean): Set[String] = {
+  def discoverSuiteNames(runpath: List[String], loader: ClassLoader): Set[String] = {
 
     val fileSeparatorString = System.getProperty("path.separator")
     val fileSeparator = if (!fileSeparatorString.isEmpty) fileSeparatorString(0) else ':'
@@ -86,12 +86,12 @@ private[scalatest] object SuiteDiscoveryHelper {
               }
     
             jarFileOption match {
-              case Some(jf) => processFileNames(getFileNamesIteratorFromJar(jf), '/', loader, dollar)
+              case Some(jf) => processFileNames(getFileNamesIteratorFromJar(jf), '/', loader)
               case None => Set[String]()
             }
           }
           else {
-            processFileNames(getFileNamesSetFromFile(new File(path), fileSeparator).iterator, fileSeparator, loader, dollar)
+            processFileNames(getFileNamesSetFromFile(new File(path), fileSeparator).iterator, fileSeparator, loader)
           }
         }
 
@@ -138,20 +138,6 @@ private[scalatest] object SuiteDiscoveryHelper {
     }
   }
   
-  private[scalatest] def isDiscoverableSuite(clazz: java.lang.Class[_]): Boolean = {
-    !clazz.isAnnotationPresent(classOf[DoNotDiscover])
-  }
-  
-  private def isDiscoverableSuite(className: String, loader: ClassLoader): Boolean = {
-    try {
-      isDiscoverableSuite(loader.loadClass(className))
-    }
-    catch {
-      case e: ClassNotFoundException => false
-      case e: NoClassDefFoundError => false
-    }
-  }
-  
   private[scalatest] def isRunnable(clazz: java.lang.Class[_]): Boolean = {
     val runWithAnnotation = clazz.getAnnotation(classOf[WrapWith])
     if (runWithAnnotation != null) {
@@ -177,28 +163,22 @@ private[scalatest] object SuiteDiscoveryHelper {
   }
 
   // Returns Some(<class name>) if processed, else None
-  //
-  // Parameter 'dollar' indicates that files containing dollar
-  // signs in their names should be included in the scan.
-  // Otherwise they are omitted to speed up processing.
-  //
-  private def processClassName(className: String, loader: ClassLoader, dollar: Boolean): Option[String] = {
-    if ((dollar || className.indexOf('$') == -1)
-        &&
-        isAccessibleSuite(className, loader)
-        && 
-        (isDiscoverableSuite(className, loader) || isRunnable(className, loader))) 
+  private def processClassName(className: String, loader: ClassLoader): Option[String] = {
+
+    if (isAccessibleSuite(className, loader) || isRunnable(className, loader)) {
       Some(className)
-    else 
-      None 
+    }
+    else {
+      None
+    }
   }
 
   // Returns a set of class names that were processed
-  private def processFileNames(fileNames: Iterator[String], fileSeparator: Char, loader: ClassLoader, dollar: Boolean): Set[String] = {
+  private def processFileNames(fileNames: Iterator[String], fileSeparator: Char, loader: ClassLoader): Set[String] = {
 
     val classNameOptions = // elements are Some(<class name>) if processed, else None
       for (className <- extractClassNames(fileNames, fileSeparator))
-        yield processClassName(className, loader, dollar)
+        yield processClassName(className, loader)
 
     val classNames = 
       for (Some(className) <- classNameOptions)

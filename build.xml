@@ -7,7 +7,7 @@
              classpathref="maven-ant-tasks.classpath" />
 
     <!-- set global properties for this build -->
-    <property name="release" value="2.0-SNAPSHOT" />
+    <property name="release" value="1.6.3-SNAPSHOT" />
     <property name="scala.version" value="2.9.0" />
 
     <property name="scalasrc" value="src/main/scala" />
@@ -77,7 +77,6 @@
 	
         <path id="build.class.path">
             <pathelement location="${classes}" />
-            <pathelement location="lib/txtmark.jar" />
             <path refid="lib.path"></path>
         </path>
 
@@ -186,9 +185,7 @@
     <target name="compile" depends="compile-main, compile-tests, compile-examples"/>
 
     <!--<target name="compile-main" depends="init">-->
-    <target name="compile-main" depends="get-jvm, init, gentables, gengen">
-        <fail message="Wrong JVM [${ant.java.version}]. Include 'java6' target to use java 6."
-              unless="jvm.ok"/>
+    <target name="compile-main" depends="init, gentables, gengen">
 
         <!-- If ever want to see the typer output, add -Xprint:typer to the addparams like this: -->
         <!--<scalac srcdir="${scalasrc}:${build.generated.src}:${javasrc}" destdir="${classes}" target="jvm-1.5" classpathref="build.class.path" addparams="-no-specialization -Xprint:typer" fork="true" jvmargs="${jvmargs}" />-->
@@ -200,27 +197,16 @@
     	<!-- Compile the Java code from ${javasrc} into ${classes} -->
     	<javac srcdir="${javasrc}" destdir="${classes}" compiler="javac1.5" memoryMaximumSize="1500M" fork="true" classpathref="build.class.path" debug="yes">
     	    <include name="org/scalatest/Ignore.java" />
-    	    <include name="org/scalatest/DoNotDiscover.java" />
     	    <include name="org/scalatest/tools/ScalaTestTask.java" />
     	    <include name="org/scalatest/WrapWith.java" />
     	</javac>
     	
        <!-- copy these here not in dist because sometimes I like to do -cp target/jar_contents things, such as REPL sessions -->
-       <antcall target="copy-resources"/>
-<!-- TODO: Delete this if the antcall works
         <copy file="${resources}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
         <copy todir="${jar.contents}/images">
             <fileset dir="${images}" />
         </copy>
--->
 
-    </target>
-
-    <target name="copy-resources">
-        <copy file="${resources}/org/scalatest/ScalaTestBundle.properties" todir="${jar.contents}/org/scalatest" />
-        <copy todir="${jar.contents}/images">
-            <fileset dir="${images}" />
-        </copy>
     </target>
 
     <target name="compile-tests" depends="compile-main">
@@ -337,11 +323,9 @@
       - Called from 'test' and 'testfromjar' targets.
       -->
     <target name="runtest" depends="compile,copyprops,taskdefscalatest">
-        <mkdir dir="target/dash" />
         <scalatest fork="true" runpath="${test.runpath}" parallel="true" haltonfailure="true">
             <jvmarg value="-XX:MaxPermSize=512m"/>
             <reporter type="graphic"/>
-            <reporter type="dashboard" directory="target/dash" numfiles="3" />
             <reporter type="junitxml" directory="target"/>
             <reporter type="stdout" config="D"/>
             <membersonly package="org.scalatest" />
@@ -558,9 +542,9 @@
               unless="class" />
 
         <scalatest runpath="${build.tests};${classes}" haltonfailure="true">
-            <reporter type="graphic"/>
+            <!--<reporter type="graphic"/>-->
             <!--<reporter type="file" filename="test.out" config="ND"/>-->
-            <reporter type="stdout" config="N"/>
+            <reporter type="stdout" config="ND"/>
             <suite classname="${class}"/>
         </scalatest>
     </target>
@@ -668,7 +652,6 @@
         <fileset dir="src/main/resources" includes="org/**"/>
         <fileset dir="src/examples/scala"/>
         <fileset dir="src/examples/java"/>
-        <fileset dir="target/generated/src/main/scala"/>
       </jar>
     </target>
 
@@ -676,7 +659,6 @@
       <jar jarfile="${build}/scalatest-test-sources.jar">
         <fileset dir="src/test/scala"/>
         <fileset dir="src/test/java"/>
-        <fileset dir="target/generated/src/test/scala"/>
       </jar>
     </target>
 
@@ -696,133 +678,6 @@
       - 
       -->
      <target name="deploy" depends="jar,jartests,jarsrc,jartestsrc,doc">
-
-      <jar jarfile="${build}/scalatest-scaladoc.jar" basedir="${doc}"/>
-      <jar jarfile="${build}/scalatest-javadoc.jar"  basedir="${jdoc}"/>
-
-      <property name="deploy.main"
-                value="${dist}/lib/scalatest.jar"/>
-      <property name="deploy.tests" 
-                value="${build.tests.jar}"/>
-      <property name="deploy.sources" 
-                value="${build}/scalatest-sources.jar"/>
-      <property name="deploy.test-sources" 
-                value="${build}/scalatest-test-sources.jar"/>
-      <property name="deploy.scaladoc" 
-                value="${build}/scalatest-scaladoc.jar"/>
-      <property name="deploy.javadoc" 
-                value="${build}/scalatest-javadoc.jar"/>
-
-      <antcall target="deploy-jars"/>
-    </target>
-
-    <!--
-      - Redeploys an already-deployed release, naming it with a different
-      - scala version.  E.g., if you have a release based on artifact:
-      -
-      -    scalatest_2.9.0
-      -
-      - then this target could be used to redeploy it to an artifact named,
-      - e.g.:
-      -
-      -    scalatest_2.9.0-1
-      -
-      - Requires three properties, old.scala.version, new.scala.version,
-      - and scalatest.version to be defined on the command line, e.g.:
-      -
-      -   ant redeploy -Dold.scala.version='2.9.0'
-      -                -Dnew.scala.version='2.9.0-1'
-      -                -Dscalatest.version=1.6.1
-      -
-      - Retrieves the specified jars from the maven repo, in this case
-      - for artifact scalatest_2.9.0, version 1.6.1, and redeploys them
-      - using the new artifact name, in this case scalatest_2.9.0-1.
-      -->
-    <target name="redeploy"
-          description="redeploy a release using a different scala version tag">
-      <fail message="Missing old.scala.version definition."
-            unless="old.scala.version" />
-      <fail message="Missing new.scala.version definition." 
-            unless="new.scala.version" />
-      <fail message="Missing scalatest.version definition." 
-            unless="scalatest.version"  />
-
-      <artifact:dependencies filesetId="old.scala.fileset"
-                             versionsId="dependency.versions">
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}" />
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}"
-                    classifier="tests"/>
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}"
-                    classifier="sources"/>
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}"
-                    classifier="test-sources"/>
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}"
-                    classifier="scaladoc"/>
-        <dependency groupId="org.scalatest"
-                    artifactId="scalatest_${old.scala.version}"
-                    version="${scalatest.version}"
-                    classifier="javadoc"/>
-      </artifact:dependencies>
-
-      <copy file="pom_template.xml" tofile="${build}/pom.xml" overwrite="true">
-        <filterset>
-          <filter token="RELEASE" value="${scalatest.version}" />
-          <filter token="SCALA_VERSION" value="${new.scala.version}" />
-        </filterset>
-      </copy>
-
-      <mkdir dir="target/redeploy" />
-      <copy todir="target/redeploy">
-        <fileset refid="old.scala.fileset" />
-        <mapper classpathref="maven-ant-tasks.classpath"
-                classname="org.apache.maven.artifact.ant.VersionMapper"
-                from="${dependency.versions}" to="flatten" />
-      </copy>
-
-      <move todir="target/redeploy">
-        <fileset dir="target/redeploy" includes="scalatest_*.jar"/>
-        <globmapper from="scalatest_${old.scala.version}*" to="scalatest*"/>
-      </move>
-
-      <property name="deploy.main"
-                value="target/redeploy/scalatest.jar"/>
-      <property name="deploy.tests" 
-                value="target/redeploy/scalatest-tests.jar"/>
-      <property name="deploy.sources" 
-                value="target/redeploy/scalatest-sources.jar"/>
-      <property name="deploy.test-sources" 
-                value="target/redeploy/scalatest-test-sources.jar"/>
-      <property name="deploy.scaladoc" 
-                value="target/redeploy/scalatest-scaladoc.jar"/>
-      <property name="deploy.javadoc" 
-                value="target/redeploy/scalatest-javadoc.jar"/>
-
-      <antcall target="deploy-jars"/>
-    </target>
-
-    <!--
-      - For internal use by targets 'deploy' and 'redeploy'.  Deploys jars
-      - specified by following properties:
-      -   
-      -    deploy.main
-      -    deploy.tests
-      -    deploy.sources
-      -    deploy.test-sources
-      -    deploy.scaladoc
-      -    deploy.javadoc
-      -
-      -->
-    <target name="deploy-jars">
       <artifact:pom id="pom" file="${build}/pom.xml" />
 
       <property name="snapshot.repository"
@@ -846,9 +701,12 @@
         <contains string="${release}" substring="-SNAPSHOT"/>
       </condition>
 
+      <jar jarfile="${build}/scalatest-scaladoc.jar" basedir="${doc}"/>
+      <jar jarfile="${build}/scalatest-javadoc.jar"  basedir="${jdoc}"/>
+
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.main}" />
+        <arg value="-Dfile=${dist}/lib/scalatest.jar" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
         <arg value="-DrepositoryId=${repository.id}" />
@@ -858,7 +716,7 @@
 
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.tests}" />
+        <arg value="-Dfile=${build.tests.jar}" />
         <arg value="-Dclassifier=tests" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
@@ -869,7 +727,7 @@
 
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.sources}" />
+        <arg value="-Dfile=${build}/scalatest-sources.jar" />
         <arg value="-Dclassifier=sources" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
@@ -880,7 +738,7 @@
 
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.test-sources}" />
+        <arg value="-Dfile=${build}/scalatest-test-sources.jar" />
         <arg value="-Dclassifier=test-sources" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
@@ -891,7 +749,7 @@
 
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.scaladoc}" />
+        <arg value="-Dfile=${build}/scalatest-scaladoc.jar" />
         <arg value="-Dclassifier=scaladoc" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
@@ -902,7 +760,7 @@
 
       <artifact:mvn>
         <arg value="${mvn.deploy.plugin}" />
-        <arg value="-Dfile=${deploy.javadoc}" />
+        <arg value="-Dfile=${build}/scalatest-javadoc.jar" />
         <arg value="-Dclassifier=javadoc" />
         <arg value="-Durl=${maven.repository.url}" />
         <arg value="-DpomFile=${build}/pom.xml" />
@@ -928,25 +786,6 @@
 -->
             <classpath refid="test.class.path" />
         </junit>
-    </target>
-
-    <!--
-      - Allows build to succeed when using a JVM other than 1.5.
-      -->
-    <target name="java6">
-        <property name="java6" value="true" />
-    </target>
-
-    <!--
-      - Sets property jvm.ok if JVM version 1.5 is being used.
-      -->
-    <target name="get-jvm">
-        <condition property="jvm.ok">
-            <or>
-                <equals arg1="${java6}" arg2="true"/>
-                <equals arg1="${ant.java.version}" arg2="1.5"/>
-            </or>
-        </condition>
     </target>
 </project>
 

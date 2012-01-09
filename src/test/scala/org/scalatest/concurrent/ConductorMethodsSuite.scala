@@ -36,9 +36,7 @@ class ConductorMethodsSuite extends FunSuite with ConductorMethods with ShouldMa
   @volatile var hh = false
   @volatile var ii = false
 
-  // TODO: ignoring this test for now. Need to figure out why it occassionally failes, but
-  // until then, may as well ignore it.
-  ignore("metronome order") {
+  test("metronome order") {
 
     thread("t1") {
       waitForBeat(1)

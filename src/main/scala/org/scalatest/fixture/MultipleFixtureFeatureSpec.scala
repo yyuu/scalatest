@@ -15,8 +15,6 @@
  */
 package org.scalatest.fixture
 
-import org.scalatest._
-
 /**
  * <b>MultipleFixtureFeatureSpec has been deprecated and will be removed in a future version of ScalaTest.
  * Please use FixtureFeatureSpec with ConfigMapFixture instead.</b>

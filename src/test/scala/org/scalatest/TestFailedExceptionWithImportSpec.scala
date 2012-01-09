@@ -19,6 +19,8 @@ import org.scalatest.matchers.ShouldMatchers._
 
 class TestFailedExceptionWithImportSpec extends FunSpec {
 
+  val baseLineNumber = 22
+
   describe("The TestFailedException") {
 
     it("should give the proper line on fail()") {
@@ -28,7 +30,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 6))
             case None => fail("fail() didn't produce a file name and line number string: " + e.failedCodeFileNameAndLineNumberString, e)
           }
         case e =>
@@ -43,7 +45,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 21))
             case None => fail("fail(\"some message\") didn't produce a file name and line number string", e)
           }
         case e =>
@@ -58,7 +60,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 36))
             case None => fail("fail(throwable) didn't produce a file name and line number string", e)
           }
         case e =>
@@ -73,7 +75,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 51))
             case None => fail("fail(\"some message\", throwable) didn't produce a file name and line number string", e)
           }
         case e =>
@@ -88,7 +90,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 66))
             case None => fail("assert(false) didn't produce a file name and line number string", e)
           }
         case e =>
@@ -103,7 +105,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 81))
             case None => fail("assert(false, \"some message\") didn't produce a file name and line number string", e)
           }
         case e =>
@@ -118,7 +120,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 96))
             case None => fail("assert(1 === 2) didn't produce a file name and line number string", e)
           }
         case e =>
@@ -133,7 +135,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 111))
             case None => fail("assert(1 === 2, \"some message\") didn't produce a file name and line number string", e)
           }
         case e =>
@@ -148,7 +150,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 126))
             case None => fail("expect(1) { 2 } didn't produce a file name and line number string", e)
           }
         case e =>
@@ -163,7 +165,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 141))
             case None => fail("expect(1, \"some message\") { 2 } didn't produce a file name and line number string", e)
           }
         case e =>
@@ -178,7 +180,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 156))
             case None => fail("intercept[IllegalArgumentException] {} didn't produce a file name and line number string", e)
           }
         case e =>
@@ -193,7 +195,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 171))
             case None => fail("intercept[IllegalArgumentException] { throw new RuntimeException } didn't produce a file name and line number string", e)
           }
         case e =>
@@ -209,7 +211,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              if (s != ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 6))) {
+              if (s != ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 186))) {
                 fail("s was: " + s, e)
               }
             case None => fail("assert(1 === 2) didn't produce a file name and line number string", e)
@@ -227,7 +229,7 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) => 
-            if (s != ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 6))) {
+            if (s != ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 204))) {
                 fail("s was: " + s, e)
               }
             case None => fail("evaluating {} should produce [IllegalArgumentException] didn't produce a file name and line number string", e)
@@ -244,29 +246,13 @@ class TestFailedExceptionWithImportSpec extends FunSpec {
       catch {
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
-            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (thisLineNumber - 5))
+            case Some(s) => s should equal ("TestFailedExceptionWithImportSpec.scala:" + (baseLineNumber + 222))
             case None => fail("evaluating { throw new RuntimeException } should produce [IllegalArgumentException] didn't produce a file name and line number string", e)
           }
         case e =>
           fail("evaluating { throw new RuntimeException } should produce [IllegalArgumentException] didn't produce a TestFailedException", e)
       }
     }
-  }
-  
-  //
-  // Returns the line number from which this method was called.
-  //
-  // Found that on some machines it was in the third element in the stack
-  // trace, and on others it was the fourth, so here we check the method
-  // name of the third element to decide which of the two to return.
-  //
-  private def thisLineNumber = {
-    val st = Thread.currentThread.getStackTrace
-
-    if (!st(2).getMethodName.contains("thisLineNum"))
-      st(2).getLineNumber
-    else
-      st(3).getLineNumber
   }
 }
  

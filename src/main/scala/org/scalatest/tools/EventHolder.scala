@@ -59,37 +59,20 @@ private[tools] class EventHolder(val event: Event, val message: Option[String], 
           case event: RunStopped => firstString
           case event: RunAborted => firstString
           case event: RunCompleted => firstString
-          case event: ScopeOpened => firstString + " - " + event.message
-          case event: ScopeClosed => firstString
           case event: InfoProvided => firstString + " - " + event.message
-          case event: MarkupProvided => firstString + " - " + event.text
           case event: SuiteStarting => firstAndSecondString(firstString, event.suiteName)
           case event: SuiteCompleted => firstAndSecondString(firstString, event.suiteName)
           case event: SuiteAborted => firstAndSecondString(firstString, event.suiteName)
-          case event: TestStarting => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-          case event: TestPending => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-          case event: TestIgnored => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-          case event: TestSucceeded => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-          case event: TestFailed => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
-          case event: TestCanceled => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
+          case event: TestStarting => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.testName))
+          case event: TestPending => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.testName))
+          case event: TestIgnored => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.testName))
+          case event: TestSucceeded => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.testName))
+          case event: TestFailed => firstAndSecondString(firstString, suiteAndTestName(event.suiteName, event.testName))
         }
     }
   }
 }
 
 private[tools] object EventHolder {
-  
-  def makeSuiteName(suiteName: String, decodedSuiteName:Option[String]) = suiteName + 
-                                                                      (decodedSuiteName match {
-                                                                      	case Some(name) => " (" + name + ")"
-                                                                      	case None => ""
-                                                                      })
-  
-  def makeTestName(testName: String, decodedTestName:Option[String]) = testName + 
-                                                                   (decodedTestName match {
-                                                                     case Some(name) => " (" + name + ")"
-                                                                     case None => ""
-                                                                   })
-  
-  def suiteAndTestName(suiteName: String, decodedSuiteName:Option[String], testName: String, decodedTestName:Option[String]) = makeSuiteName(suiteName, decodedSuiteName) + ": " + makeTestName(testName, decodedTestName)
+  def suiteAndTestName(suiteName: String, testName: String) = suiteName + ": " + testName
 }

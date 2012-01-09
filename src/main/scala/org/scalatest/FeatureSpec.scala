@@ -153,10 +153,6 @@ import Suite.anErrorThatShouldCauseAnAbort
  * See also: <a href="http://www.scalatest.org/getting_started_with_feature_spec" target="_blank">Getting started with <code>FeatureSpec</code>.</a>
  * </p>
  * 
- * <p>
- * <em>Note: Trait <code>FeatureSpec</code>'s syntax is in part inspired by <a href="http://cukes.info/" target="_blank">Cucumber</a>, a Ruby BDD framework.</em>
- *</p>
- *
  * <h2>Ignored tests</h2>
  *
  * <p>
@@ -769,8 +765,8 @@ import Suite.anErrorThatShouldCauseAnAbort
  * <h4>Overriding <code>withFixture(OneArgTest)</code></h4>
  *
  * <p>
- * To use the loan pattern, you can extend <code>fixture.FeatureSpec</code> (from the <code>org.scalatest.fixture</code> package) instead of
- * <code>FeatureSpec</code>. Each test in a <code>fixture.FeatureSpec</code> takes a fixture as a parameter, allowing you to pass the fixture into
+ * To use the loan pattern, you can extend <code>FeatureSpec</code> (from the <code>org.scalatest.fixture</code> package) instead of
+ * <code>FeatureSpec</code>. Each test in a <code>FeatureSpec</code> takes a fixture as a parameter, allowing you to pass the fixture into
  * the test. You must indicate the type of the fixture parameter by specifying <code>FixtureParam</code>, and implement a
  * <code>withFixture</code> method that takes a <code>OneArgTest</code>. This <code>withFixture</code> method is responsible for
  * invoking the one-arg test function, so you can perform fixture set up before, and clean up after, invoking and passing
@@ -817,7 +813,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * </pre>
  *
  * <p>
- * For more information, see the <a href="fixture/FeatureSpec.html">documentation for <code>fixture.FeatureSpec</code></a>.
+ * For more information, see the <a href="fixture/FeatureSpec.html">documentation for <code>FeatureSpec</code></a>.
  * </p>
  *
  * <a name="differentFixtures"></a><h2>Providing different fixtures to different tests</h2>
@@ -919,7 +915,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  *
  * <p>
  * Note that in this case, the loan pattern is being implemented via the <code>withWriter</code> method that takes a function, not
- * by overriding <code>fixture.FeatureSpec</code>'s <code>withFixture(OneArgTest)</code> method. <code>fixture.FeatureSpec</code> makes the most sense
+ * by overriding <code>FeatureSpec</code>'s <code>withFixture(OneArgTest)</code> method. <code>FeatureSpec</code> makes the most sense
  * if all (or at least most) tests need the same fixture, whereas in this <code>Suite</code> only two tests need the
  * <code>FileWriter</code>.
  * </p>
@@ -1543,7 +1539,6 @@ import Suite.anErrorThatShouldCauseAnAbort
 trait FeatureSpec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFeatureSpecMod", "FeatureSpec")
-  private final val stackDepth = 4
   import engine._
 
   /**
@@ -1555,16 +1550,6 @@ trait FeatureSpec extends Suite { thisSuite =>
    * throw an exception. This method can be called safely by any thread.
    */
   implicit protected def info: Informer = atomicInformer.get
-
-  /**
-   * Returns a <code>Documenter</code> that during test execution will forward strings passed to its
-   * <code>apply</code> method to the current reporter. If invoked in a constructor, it
-   * will register the passed string for forwarding later during test execution. If invoked while this
-   * <code>FeatureSpec</code> is being executed, such as from inside a test function, it will forward the information to
-   * the current reporter immediately. If invoked at any other time, it will
-   * throw an exception. This method can be called safely by any thread.
-   */
-  implicit protected def markup: Documenter = atomicDocumenter.get
 
   /**
    * Register a test with the given spec text, optional tags, and test function value that takes no arguments.
@@ -1586,7 +1571,7 @@ trait FeatureSpec extends Suite { thisSuite =>
    */
   protected def scenario(specText: String, testTags: Tag*)(testFun: => Unit) {
 
-    registerTest(Resources("scenario", specText), testFun _, "scenarioCannotAppearInsideAnotherScenario", "FeatureSpec.scala", "scenario", stackDepth, testTags: _*)
+    registerTest(Resources("scenario", specText), testFun _, "scenarioCannotAppearInsideAnotherScenario", "FeatureSpec.scala", "scenario", testTags: _*)
   }
 
   /**
@@ -1608,7 +1593,7 @@ trait FeatureSpec extends Suite { thisSuite =>
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
   protected def ignore(specText: String, testTags: Tag*)(testFun: => Unit) {
-    registerIgnoredTest(Resources("scenario", specText), testFun _, "ignoreCannotAppearInsideAScenario", "FeatureSpec.scala", "ignore", stackDepth, testTags: _*)
+    registerIgnoredTest(Resources("scenario", specText), testFun _, "ignoreCannotAppearInsideAScenario", "FeatureSpec.scala", "ignore", testTags: _*)
   }
   
   /**
@@ -1622,7 +1607,7 @@ trait FeatureSpec extends Suite { thisSuite =>
     if (!currentBranchIsTrunk)
       throw new NotAllowedException(Resources("cantNestFeatureClauses"), getStackDepthFun("FeatureSpec.scala", "feature"))
 
-    registerNestedBranch(description, None, fun, "featureCannotAppearInsideAScenario", "FeatureSpec.scala", "feature", stackDepth)
+    registerNestedBranch(description, None, fun, "featureCannotAppearInsideAScenario", "FeatureSpec.scala", "feature")
   }
 
   /**

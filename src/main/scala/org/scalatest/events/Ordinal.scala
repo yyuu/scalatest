@@ -34,7 +34,7 @@ import java.util.Arrays
  * will have run stamp 0. Subsequent reruns will have run stamps 1,
  * 2, 3, <em>etc.</em>, so that reports in the GUI can simply be sorted in "ordinal" order. Another
  * use case is a set of servers used to run multiple tests simultaneously in a distributed
- * fashion. The run stamp can be used to identify the run to which an event belongs.
+ * fashion. The run stamp can be used to identify the run for which an event belongs.
  * </p>
  *
  * <p>
@@ -58,7 +58,7 @@ import java.util.Arrays
  * Each event reported during a run should be given a unique <code>Ordinal</code>. An <code>Ordinal</code> is required
  * by all <code>Event</code> subclasses, instances of which are used to send information to the <code>report</code>
  * function passed to a <code>Suite</code>'s <code>execute</code> method. The first <code>Ordinal</code> for a run
- * can be produced by passing a run stamp to <code>Ordinal</code>'s lone public constructor:
+ * can be produced be passing a run stamp to <code>Ordinal</code>'s lone public constructor:
  * </p>
  * 
  * <pre class="stHighlight">
@@ -283,9 +283,4 @@ final class Ordinal private (val runStamp: Int, private val stamps: Array[Int]) 
     41 * (
       41 + runStamp
     ) + Arrays.hashCode(stamps)
-
-  /**
-   * Returns a string that includes the integers returned by <code>toList</code>.
-   */
-  override def toString: String = toList.mkString("Ordinal(", ", ", ")")
 }

@@ -28,8 +28,6 @@ private[tools] case class GraphicReporterConfiguration(configSet: Set[ReporterCo
 private[tools] case class StandardOutReporterConfiguration(configSet: Set[ReporterConfigParam]) extends ReporterConfiguration
 private[tools] case class StandardErrReporterConfiguration(configSet: Set[ReporterConfigParam]) extends ReporterConfiguration
 private[tools] case class FileReporterConfiguration(configSet: Set[ReporterConfigParam], fileName: String) extends ReporterConfiguration
-private[tools] case class JunitXmlReporterConfiguration(configSet: Set[ReporterConfigParam], fileName: String) extends ReporterConfiguration
-private[tools] case class DashboardReporterConfiguration(configSet: Set[ReporterConfigParam], fileName: String, numOldFilesToKeep: Int) extends ReporterConfiguration
 private[tools] case class XmlReporterConfiguration(configSet: Set[ReporterConfigParam], fileName: String) extends ReporterConfiguration
 private[tools] case class HtmlReporterConfiguration(configSet: Set[ReporterConfigParam], fileName: String) extends ReporterConfiguration
 private[tools] case class CustomReporterConfiguration(configSet: Set[ReporterConfigParam], reporterClass: String) extends ReporterConfiguration
@@ -39,8 +37,6 @@ private[tools] case class CustomReporterConfiguration(configSet: Set[ReporterCon
 private[tools] case class ReporterConfigurations(
   val graphicReporterConfiguration: Option[GraphicReporterConfiguration],
   val fileReporterConfigurationList: List[FileReporterConfiguration],
-  val junitXmlReporterConfigurationList: List[JunitXmlReporterConfiguration],
-  val dashboardReporterConfigurationList: List[DashboardReporterConfiguration],
   val xmlReporterConfigurationList: List[XmlReporterConfiguration],
   val standardOutReporterConfiguration: Option[StandardOutReporterConfiguration],
   val standardErrReporterConfiguration: Option[StandardErrReporterConfiguration],
@@ -52,8 +48,6 @@ private[tools] case class ReporterConfigurations(
     List.concat[ReporterConfiguration](
       graphicReporterConfiguration.toList,
       fileReporterConfigurationList,
-      junitXmlReporterConfigurationList,
-      dashboardReporterConfigurationList,
       xmlReporterConfigurationList,
       standardOutReporterConfiguration.toList,
       standardErrReporterConfiguration.toList,

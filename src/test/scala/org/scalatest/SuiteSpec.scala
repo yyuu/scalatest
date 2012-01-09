@@ -31,63 +31,6 @@ class SuiteSpec extends FunSpec with PrivateMethodTester with SharedHelpers {
   }
 
   describe("A Suite") {
-    it("should send InfoProvided events with aboutAPendingTest set to true and aboutACanceledTest set to false for info " +
-            "calls made from a test that is pending") {
-      val a = new Suite {
-        def testSomething(info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          pending
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && !event.aboutACanceledTest.get)
-      }
-    }
-    it("should send InfoProvided events with aboutAPendingTest and aboutACanceledTest set to false for info " +
-            "calls made from a test that is not pending or canceled") {
-      val a = new Suite {
-        def testSomething(info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          assert(1 + 1 === 2)
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && !event.aboutACanceledTest.get)
-      }
-    }
-    it("should send InfoProvided events with aboutAPendingTest set to false and aboutACanceledTest set to true for info " +
-            "calls made from a test that is canceled") {
-      val a = new Suite {
-        def testSomething(info: Informer) {
-          info("two integers")
-          info("one is subracted from the other")
-          info("the result is the difference between the two numbers")
-          cancel()
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val ip = rep.infoProvidedEventsReceived
-      assert(ip.size === 3)
-      for (event <- ip) {
-        assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
-        assert(event.aboutACanceledTest.isDefined && event.aboutACanceledTest.get)
-      }
-    }
     it("should return the test names in alphabetical order from testNames") {
       val a = new Suite {
         def testThis() {}
@@ -255,7 +198,7 @@ class SuiteSpec extends FunSpec with PrivateMethodTester with SharedHelpers {
       assert(!d.theTestThatCalled)
     }
     
-    it("should run a test marked as ignored if run is invoked with that testName") {
+    it("should ignore a test marked as ignored if run is invoked with that testName") {
 
       val e = new Suite {
         var theTestThisCalled = false
@@ -267,8 +210,25 @@ class SuiteSpec extends FunSpec with PrivateMethodTester with SharedHelpers {
 
       val repE = new TestIgnoredTrackingReporter
       e.run(Some("testThis"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
+      assert(repE.testIgnoredReceived)
+      assert(!e.theTestThisCalled)
+      assert(!e.theTestThatCalled)
+    }
+
+    it("should exclude a test with a tag included in the tagsToExclude set even if run is invoked with that testName") {
+
+      val e = new Suite {
+        var theTestThisCalled = false
+        var theTestThatCalled = false
+        @SlowAsMolasses
+        def testThis() { theTestThisCalled = true }
+        def testThat(info: Informer) { theTestThatCalled = true }
+      }
+
+      val repE = new TestIgnoredTrackingReporter
+      e.run(Some("testThis"), repE, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
       assert(!repE.testIgnoredReceived)
-      assert(e.theTestThisCalled)
+      assert(!e.theTestThisCalled)
       assert(!e.theTestThatCalled)
     }
 
@@ -562,44 +522,6 @@ class SuiteSpec extends FunSpec with PrivateMethodTester with SharedHelpers {
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val tp = rep.testPendingEventsReceived
-      assert(tp.size === 2)
-    }
-    it("should generate a TestCanceled message when the test body includes a cancel call") {
-      val a = new Suite {
-
-        def testDoThis() { cancel() }
-
-        def testDoThat() {
-          assert(2 + 2 === 4)
-        }
-
-        def testDoSomethingElse() {
-          assert(2 + 2 === 4)
-          cancel()
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
-      assert(tp.size === 2)
-    }
-    it("should generate a TestCanceled message when the test body includes a failed assume call") {
-      val a = new Suite {
-
-        def testDoThis() { assume(1 === 2) }
-
-        def testDoThat() {
-          assert(2 + 2 === 4)
-        }
-
-        def testDoSomethingElse() {
-          assert(2 + 2 === 4)
-          assume(3 === 4)
-        }
-      }
-      val rep = new EventRecordingReporter
-      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
-      val tp = rep.testCanceledEventsReceived
       assert(tp.size === 2)
     }
     it("should generate a test failure if a Throwable, or an Error other than direct Error subtypes " +

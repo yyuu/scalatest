@@ -19,6 +19,8 @@ import org.scalatest.matchers.ShouldMatchers
 
 class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
+  val baseLineNumber = 22
+
   describe("A severed TestFailedException") {
 
     it("should give the proper line on fail()") {
@@ -29,7 +31,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 6))
               checkFileNameAndLineNumber(e, s)
             case None => fail("fail() didn't produce a file name and line number string: " + e.failedCodeFileNameAndLineNumberString, e)
           }
@@ -47,7 +49,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 24))
               checkFileNameAndLineNumber(e, s)
             case None => fail("fail(\"some message\") didn't produce a file name and line number string", e)
           }
@@ -65,7 +67,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 42))
               checkFileNameAndLineNumber(e, s)
             case None => fail("fail(throwable) didn't produce a file name and line number string", e)
           }
@@ -83,7 +85,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 60))
               checkFileNameAndLineNumber(e, s)
             case None => fail("fail(\"some message\", throwable) didn't produce a file name and line number string", e)
           }
@@ -101,7 +103,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 78))
               checkFileNameAndLineNumber(e, s)
             case None => fail("assert(false) didn't produce a file name and line number string", e)
           }
@@ -119,7 +121,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 96))
               checkFileNameAndLineNumber(e, s)
             case None => fail("assert(false, \"some message\") didn't produce a file name and line number string", e)
           }
@@ -137,7 +139,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 114))
               checkFileNameAndLineNumber(e, s)
             case None => fail("assert(1 === 2) didn't produce a file name and line number string", e)
           }
@@ -155,7 +157,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 132))
               checkFileNameAndLineNumber(e, s)
             case None => fail("assert(1 === 2, \"some message\") didn't produce a file name and line number string", e)
           }
@@ -173,7 +175,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 150))
               checkFileNameAndLineNumber(e, s)
             case None => fail("expect(1) { 2 } didn't produce a file name and line number string", e)
           }
@@ -191,7 +193,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 168))
               checkFileNameAndLineNumber(e, s)
             case None => fail("expect(1, \"some message\") { 2 } didn't produce a file name and line number string", e)
           }
@@ -209,7 +211,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 186))
               checkFileNameAndLineNumber(e, s)
             case None => fail("intercept[IllegalArgumentException] {} didn't produce a file name and line number string", e)
           }
@@ -227,7 +229,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 204))
               checkFileNameAndLineNumber(e, s)
             case None => fail("intercept[IllegalArgumentException] { throw new RuntimeException } didn't produce a file name and line number string", e)
           }
@@ -245,7 +247,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              if (s != ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))) {
+              if (s != ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 222))) {
                 fail("s was: " + s, e)
               }
               checkFileNameAndLineNumber(e, s)
@@ -265,7 +267,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) => // s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 204))
-              if (s != ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))) {
+              if (s != ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 242))) {
                 fail("s was: " + s, e)
               }
               checkFileNameAndLineNumber(e, s)
@@ -285,7 +287,7 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
         case e: TestFailedException =>
           e.failedCodeFileNameAndLineNumberString match {
             case Some(s) =>
-              s should equal ("SeveredStackTracesSpec.scala:" + (thisLineNumber - 6))
+              s should equal ("SeveredStackTracesSpec.scala:" + (baseLineNumber + 262))
               checkFileNameAndLineNumber(e, s)
             case None => fail("evaluating { throw new RuntimeException } should produce [IllegalArgumentException] didn't produce a file name and line number string", e)
           }
@@ -314,21 +316,5 @@ class SeveredStackTracesSpec extends FunSpec with ShouldMatchers with SeveredSta
     val fileName = stackTraceElement.getFileName
     val lineNumber = stackTraceElement.getLineNumber
     failedCodeFileNameAndLineNumberString should equal (fileName + ":" + lineNumber)
-  }
-  
-  //
-  // Returns the line number from which this method was called.
-  //
-  // Found that on some machines it was in the third element in the stack
-  // trace, and on others it was the fourth, so here we check the method
-  // name of the third element to decide which of the two to return.
-  //
-  private def thisLineNumber = {
-    val st = Thread.currentThread.getStackTrace
-
-    if (!st(2).getMethodName.contains("thisLineNum"))
-      st(2).getLineNumber
-    else
-      st(3).getLineNumber
   }
 }

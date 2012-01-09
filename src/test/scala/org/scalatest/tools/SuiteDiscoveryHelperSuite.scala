@@ -53,9 +53,9 @@ class SuiteDiscoveryHelperFriend(sdt: SuiteDiscoveryHelper.type) {
   def processFileNames(fileNames: Iterator[String], fileSeparator: Char, loader: ClassLoader): Set[String] = {
 
     val m = Class.forName("org.scalatest.tools.SuiteDiscoveryHelper$").getDeclaredMethod("org$scalatest$tools$SuiteDiscoveryHelper$$processFileNames",
-      Array(classOf[Iterator[String]], classOf[Char], classOf[ClassLoader], classOf[Boolean]): _*)
+      Array(classOf[Iterator[String]], classOf[Char], classOf[ClassLoader]): _*)
     m.setAccessible(true)
-    m.invoke(sdt, Array[Object](fileNames, new java.lang.Character(fileSeparator), loader, false.asInstanceOf[AnyRef]): _*).asInstanceOf[Set[String]]
+    m.invoke(sdt, Array[Object](fileNames, new java.lang.Character(fileSeparator), loader): _*).asInstanceOf[Set[String]]
   }
 
   def getFileNamesSetFromFile(file: File, fileSeparator: Char): Set[String] = {
@@ -63,13 +63,6 @@ class SuiteDiscoveryHelperFriend(sdt: SuiteDiscoveryHelper.type) {
       Array(classOf[File], classOf[Char]): _*)
     m.setAccessible(true)
     m.invoke(sdt, Array[Object](file, new java.lang.Character(fileSeparator)): _*).asInstanceOf[Set[String]]
-  }
-  
-  def isDiscoverableSuite(clazz: java.lang.Class[_]): Boolean = {
-    val m = Class.forName("org.scalatest.tools.SuiteDiscoveryHelper$").getDeclaredMethod("isDiscoverableSuite",
-      Array(classOf[Class[_]]): _*)
-    m.setAccessible(true)
-    m.invoke(sdt, Array[Object](clazz): _*).asInstanceOf[Boolean]
   }
 }
 
@@ -171,12 +164,6 @@ class SuiteDiscoveryHelperSuite extends Suite {
     assert(sdtf.getFileNamesSetFromFile(new File("harness/fnIteratorTest"), '/') === Set("subDir2/inSubDir2.class",
       "subDir2/subSubDir/inSubSubDir.class", "empty.txt", "empty.class", "subDir1/inSubDir1.class"))
     */
-  }
-
-  def testIsDiscoverableSuite() {
-    assert(sdtf.isDiscoverableSuite(classOf[SuiteDiscoveryHelperSuite])) 
-    @DoNotDiscover class NotDiscoverable {}
-    assert(!sdtf.isDiscoverableSuite(classOf[NotDiscoverable]))
   }
   
   def testIsRunnable {

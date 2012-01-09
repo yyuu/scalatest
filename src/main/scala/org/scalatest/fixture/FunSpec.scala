@@ -387,7 +387,6 @@ import FunSuite.IgnoreTagName
 trait FunSpec extends Suite { thisSuite =>
 
   private final val engine = new FixtureEngine[FixtureParam]("concurrentFixtureSpecMod", "FixtureSpec")
-  private final val stackDepth = 3
   import engine._
   
   protected[scalatest] val fileName = "FunSpec.scala"
@@ -445,7 +444,7 @@ trait FunSpec extends Suite { thisSuite =>
      * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
      */
     def apply(specText: String, testTags: Tag*)(testFun: FixtureParam => Any) {
-      registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", fileName, "apply", stackDepth, testTags: _*)
+      registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
     }
 
     /**
@@ -530,7 +529,7 @@ trait FunSpec extends Suite { thisSuite =>
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
   protected def ignore(specText: String, testTags: Tag*)(testFun: FixtureParam => Any) {
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", fileName, "ignore", stackDepth + 3, testTags: _*)
+    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", fileName, "ignore", testTags: _*)
   }
 
   /**
@@ -563,7 +562,7 @@ trait FunSpec extends Suite { thisSuite =>
    * description string and immediately invoke the passed function.
    */
   protected def describe(description: String)(fun: => Unit) {
-    registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", fileName, "describe", stackDepth + 1)
+    registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", fileName, "describe")
   }
 
   /**
