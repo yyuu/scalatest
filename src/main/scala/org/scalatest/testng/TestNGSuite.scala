@@ -194,12 +194,12 @@ trait TestNGSuite extends Suite { thisSuite =>
   private def setupTestNGToRunSingleMethod(testName: String, testng: TestNG) = {
     
     import org.testng.internal.annotations.IAnnotationTransformer
-    import org.testng.internal.annotations.ITest
+    import org.testng.annotations.ITestAnnotation
     import java.lang.reflect.Method
     import java.lang.reflect.Constructor
     
     class MyTransformer extends IAnnotationTransformer {
-      override def transform( annotation: ITest, testClass: java.lang.Class[_], testConstructor: Constructor[_], testMethod: Method){
+      override def transform( annotation: ITestAnnotation, testClass: java.lang.Class[_], testConstructor: Constructor[_], testMethod: Method){
         if (testName.equals(testMethod.getName)) {
           annotation.setGroups(Array("org.scalatest.testng.singlemethodrun.methodname"))  
         }
@@ -207,6 +207,17 @@ trait TestNGSuite extends Suite { thisSuite =>
     }
     testng.setGroups("org.scalatest.testng.singlemethodrun.methodname")
     testng.setAnnotationTransformer(new MyTransformer())
+    
+    /*val transformer = try {
+      Class.forName("org.testng.internal.annotations.ITest")
+      new TestNG5Transformer(testName)
+    }
+    catch {
+      case e: ClassNotFoundException => new TestNG6Transformer(testName)
+    }
+    testng.setGroups("org.scalatest.testng.singlemethodrun.methodname")
+    testng.setAnnotationTransformer(transformer)*/
+    
   }
   
   /**
