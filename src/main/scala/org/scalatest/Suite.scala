@@ -3085,9 +3085,26 @@ used for test events like succeeded/failed, etc.
     }
   }*/
   
+  //
+  // Apparently different machines have different stack traces.  
+  // stackDepthAdjustment attempts to compensate by adding one to
+  // depth if it finds that the second line in the stack trace
+  // is java.lang.Thread.getStackTrace().  My suspicion is that
+  // that's the top element in the stack trace on some boxes and
+  // the second element on others (like mine). [gcb]
+  //
   def getLineInFile(stackTraceList: Array[StackTraceElement], stackDepth: Int) = {
     if(stackDepth >= 0 && stackDepth < stackTraceList.length) {
-      val stackTrace = stackTraceList(stackDepth)
+
+      val stackDepthAdjustment =
+        if ((stackTraceList.length > 1) &&
+            (stackTraceList(1).getClassName == "java.lang.Thread"))
+          1
+        else
+          0
+            
+      val stackTrace = stackTraceList(stackDepth + stackDepthAdjustment)
+
       if(stackTrace.getLineNumber >= 0 && stackTrace.getFileName != null)
         Some(LineInFile(stackTrace.getLineNumber, stackTrace.getFileName))
       else

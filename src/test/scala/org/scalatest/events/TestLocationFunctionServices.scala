@@ -19,7 +19,7 @@ trait TestLocationFunctionServices {
     event.location match {
       case Some(evt) =>
         val lineInFile = event.location.get.asInstanceOf[LineInFile]
-        assert(expectedFileName == lineInFile.fileName, "Suite " + suiteName + " - Event " + event.getClass.getName + " expected LocationFunctionSuiteProp.scala, got " + lineInFile.fileName)
+        assert(expectedFileName == lineInFile.fileName, "Suite " + suiteName + " - Event " + event.getClass.getName + " expected " + expectedFileName + ", got " + lineInFile.fileName)
         assert(expectedLineNumber == lineInFile.lineNumber, "Suite " + suiteName + " - Event " + event.getClass.getName + " expected " + expectedLineNumber + ", got " + lineInFile.lineNumber)
         true
       case None => 

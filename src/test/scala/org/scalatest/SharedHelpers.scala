@@ -208,8 +208,10 @@ trait SharedHelpers extends Assertions {
 
     if (!st(2).getMethodName.contains("thisLineNumber"))
       st(2).getLineNumber
-    else
+    else if (!st(3).getMethodName.contains("thisLineNumber"))
       st(3).getLineNumber
+    else
+      st(4).getLineNumber
   }
 
   class TestIgnoredTrackingReporter extends Reporter {
