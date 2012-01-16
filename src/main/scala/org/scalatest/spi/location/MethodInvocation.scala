@@ -1,10 +1,14 @@
 package org.scalatest.spi.location
 
 case class MethodInvocation (
-  pClassName: String,
+  className: String,
   target: AstNode, 
-  pParent: AstNode,
-  pChildren: Array[AstNode],
-  pName: String, 
+  parent: AstNode,
+  var children: Array[AstNode],
+  name: String, 
   args: AnyRef*) 
-extends AstNode(pClassName, pParent, pChildren, pName)
+extends AstNode {
+  def addChild(node: AstNode) {
+    children = (children.toList ::: List(node)).toArray
+  }
+}

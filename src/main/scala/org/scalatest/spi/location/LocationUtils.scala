@@ -85,7 +85,7 @@ object LocationUtils {
   }
   
   def isSingleStringParamInvocationWithName(invocation: MethodInvocation, validNames: Set[String]): Boolean = {
-    isValidName(invocation.name, validNames) && invocation.args.length == 1 && invocation.args(0).getClass == classOf[String]
+    isValidName(invocation.name, validNames) && invocation.args.length == 1
   }
   
   def isValidName(name: String, validNames: Set[String]) = validNames.contains(name)

@@ -206,7 +206,7 @@ class FinderSuite extends FunSuite {
       "A Stack whenever it is empty certainly ought to complain on pop"
     ))
     
-    val certainlyOughtToNode = aStackNode.children(0).children(0)
+    val certainlyOughtToNode = aStackNode.children.apply(0).children.apply(0)//aStackNode.children()(0).children()(0)
     val certainlyOughtToTest = finder.find(certainlyOughtToNode)
     expectSelection(certainlyOughtToTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
@@ -214,15 +214,15 @@ class FinderSuite extends FunSuite {
       "A Stack whenever it is empty certainly ought to complain on pop"
     ))
     
-    val beEmptyNode = aStackNode.children(0).children(0).children(0)
+    val beEmptyNode = aStackNode.children.apply(0).children.apply(0).children.apply(0)
     val beEmptyTest = finder.find(beEmptyNode)
     expectSelection(beEmptyTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to be empty", Array("A Stack whenever it is empty certainly ought to be empty"))
     
-    val complainOnPeekNode = aStackNode.children(0).children(0).children(1)
+    val complainOnPeekNode = aStackNode.children.apply(0).children.apply(0).children.apply(1)
     val complainOnPeekTest = finder.find(complainOnPeekNode)
     expectSelection(complainOnPeekTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on peek", Array("A Stack whenever it is empty certainly ought to complain on peek"))
     
-    val complainOnPopNode = aStackNode.children(0).children(0).children(2)
+    val complainOnPopNode = aStackNode.children.apply(0).children.apply(0).children.apply(2)
     val complainOnPopTest = finder.find(complainOnPopNode)
     expectSelection(complainOnPopTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on pop", Array("A Stack whenever it is empty certainly ought to complain on pop"))
     
@@ -233,11 +233,11 @@ class FinderSuite extends FunSuite {
       "A Stack but when full, by contrast, must complain on push"    
     ))
     
-    val beFullNode = aStackNode.children(1).children(0)
+    val beFullNode = aStackNode.children.apply(1).children.apply(0)
     val beFullTest = finder.find(beFullNode)
     expectSelection(beFullTest, suiteClass.getName, "A Stack but when full, by contrast, must be full", Array("A Stack but when full, by contrast, must be full"))
     
-    val complainOnPushNode = aStackNode.children(1).children(1)
+    val complainOnPushNode = aStackNode.children.apply(1).children.apply(1)
     val complainOnPushTest = finder.find(complainOnPushNode)
     expectSelection(complainOnPushTest, suiteClass.getName, "A Stack but when full, by contrast, must complain on push", Array("A Stack but when full, by contrast, must complain on push"))
   }

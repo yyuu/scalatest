@@ -4,6 +4,13 @@ import LocationUtils._
 import scala.annotation.tailrec
 
 class FlatSpecFinder extends Finder {
+  
+  private def getRootTarget(target: AstNode): String = {
+    if (target.parent == null)
+      target.toString
+    else
+      getRootTarget(target.parent)  
+  }
 
   def find(node: AstNode): Option[Selection] = {
     val constructorOpt: Option[ConstructorBlock] = node match {
@@ -17,7 +24,7 @@ class FlatSpecFinder extends Finder {
         val branchNodeOpt = constructor.children.find { node => 
           node match {
             case invocation: MethodInvocation => 
-              isSingleStringParamInvocationWithName(invocation, Set("of", "should"))
+              isSingleStringParamInvocationWithName(invocation, Set("of", "in"))
             case _ => false
           }
         }
@@ -27,8 +34,9 @@ class FlatSpecFinder extends Finder {
             val branchInvocation = branchNode.asInstanceOf[MethodInvocation]
             if (branchInvocation.name == "of")
               branchInvocation.args(0).toString
-            else // should
-              branchInvocation.target.toString
+            else { // in 
+              getRootTarget(branchInvocation.target)
+            }
           case None => ""
         }
         // Now get the test names.
@@ -37,20 +45,17 @@ class FlatSpecFinder extends Finder {
             val testNames = getTestNamesFromChildren(prefix, children)
             Some(new Selection(className, if (prefix.length > 0) prefix else className, testNames))
           case invocation @ MethodInvocation(className, target, parent, children, name, args @ _*) =>
-            if (target.toString == "behaviour" && name == "of") {
+            if (name == "of") {
               // behaviour of get selected.
               val testNames = getTestNamesFromChildren(prefix, constructor.children)
               Some(new Selection(className, prefix, testNames))
             }
-            else {
-              val shouldMustInvocationOpt = findShouldMustMethodInvocation(invocation)
-              shouldMustInvocationOpt match {
-                case Some(shouldMustInvocation) => 
-                  val testName = getTestName(prefix, shouldMustInvocation)
-                  Some(new Selection(className, testName, Array[String](testName)))
-                case None => None
-              }
+            else if (name == "in") {
+              val testName = getTestName(prefix, invocation)
+              Some(new Selection(className, testName, Array[String](testName)))
             }
+            else 
+              None
           case _ => None
         }
       case None => None
@@ -59,24 +64,31 @@ class FlatSpecFinder extends Finder {
 
   private def getTestNamesFromChildren(prefix: String, children: Array[AstNode]) = {
     children
-      .filter(node => node.isInstanceOf[MethodInvocation] && isValidName(node.name, Set("should", "must")))
+      .filter(node => node.isInstanceOf[MethodInvocation] && isValidName(node.name, Set("in")))
       .map { node =>
         val invocation = node.asInstanceOf[MethodInvocation]
         getTestName(prefix, invocation)
       }
   }
   
-  private def getTestName(prefix: String, invocation: MethodInvocation) = {
-    prefix + " " + invocation.name  + " " + invocation.args(0)
+  @tailrec
+  private def getTargetString(target: AstNode, prefix: String, postfix: String): String = {
+    if (target == null)
+      postfix
+    else {
+      val nextPostfix = 
+        if (target.parent == null && (target.toString == prefix || target.toString == "it"))
+          postfix
+        else
+          target.toString + " " + postfix
+      if (target.parent == null)
+        nextPostfix
+      else
+        getTargetString(target.parent, prefix, nextPostfix)
+    } 
   }
   
-  @tailrec
-  private def findShouldMustMethodInvocation(invocation: MethodInvocation): Option[MethodInvocation] = {
-    if (isSingleStringParamInvocationWithName(invocation, Set("should", "must")))
-      Some(invocation)
-    else if (invocation.target.isInstanceOf[MethodInvocation])
-      findShouldMustMethodInvocation(invocation.target.asInstanceOf[MethodInvocation])
-    else
-      None
+  private def getTestName(prefix: String, invocation: MethodInvocation) = {
+    prefix + " " + getTargetString(invocation.target, prefix, "")
   }
 }
