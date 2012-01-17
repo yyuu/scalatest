@@ -199,8 +199,8 @@ private[scalatest] trait Eventually {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class EventuallyConfig(maxAttempts: Int = 100, interval: Int = 10) {
-    require(maxAttempts > 0, "maxAttempts had value " + maxAttempts + ", but must be greater than zero")
+  final case class EventuallyConfig(timeout: Int = 1000, interval: Int = 10) {
+    require(timeout > 0, "timeout had value " + timeout + ", but must be greater than zero")
     require(interval >= 0, "interval had value " + interval + ", but must be greater than or equal to zero")
   }
 
@@ -227,7 +227,7 @@ private[scalatest] trait Eventually {
    *
    * @author Bill Venners
    */
-  case class MaxAttempts(value: Int) extends EventuallyConfigParam {
+  case class Timeout(value: Int) extends EventuallyConfigParam {
     require(value > 0, "The passed value, " + value + ", was not greater than zero")
   }
 
@@ -261,7 +261,7 @@ private[scalatest] trait Eventually {
    *
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */
-  def maxAttempts(value: Int) = MaxAttempts(value)
+  def timeout(value: Int) = Timeout(value)
 
   /**
    * Returns an <code>Interval</code> configuration parameter containing the passed value, which
@@ -297,8 +297,8 @@ private[scalatest] trait Eventually {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](maxAttempts: MaxAttempts, interval: Interval)(fun: => T)(implicit config: EventuallyConfig): T =
-    eventually(fun)(EventuallyConfig(maxAttempts.value, interval.value))
+  def eventually[T](timeout: Timeout, interval: Interval)(fun: => T)(implicit config: EventuallyConfig): T =
+    eventually(fun)(EventuallyConfig(timeout.value, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or fails a configured maximum
@@ -325,8 +325,8 @@ private[scalatest] trait Eventually {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](interval: Interval, maxAttempts: MaxAttempts)(fun: => T)(implicit config: EventuallyConfig): T =
-    eventually(fun)(EventuallyConfig(maxAttempts.value, interval.value))
+  def eventually[T](interval: Interval, timeout: Timeout)(fun: => T)(implicit config: EventuallyConfig): T =
+    eventually(fun)(EventuallyConfig(timeout.value, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or fails a configured maximum
@@ -352,8 +352,8 @@ private[scalatest] trait Eventually {
    *          (used) <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](maxAttempts: MaxAttempts)(fun: => T)(implicit config: EventuallyConfig): T =
-    eventually(fun)(EventuallyConfig(maxAttempts.value, config.interval))
+  def eventually[T](timeout: Timeout)(fun: => T)(implicit config: EventuallyConfig): T =
+    eventually(fun)(EventuallyConfig(timeout.value, config.interval))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or fails a configured maximum
@@ -380,7 +380,7 @@ private[scalatest] trait Eventually {
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
   def eventually[T](interval: Interval)(fun: => T)(implicit config: EventuallyConfig): T =
-    eventually(fun)(EventuallyConfig(config.maxAttempts, interval.value))
+    eventually(fun)(EventuallyConfig(config.timeout, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or fails a configured maximum
@@ -406,7 +406,7 @@ private[scalatest] trait Eventually {
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
   def eventually[T](fun: => T)(implicit config: EventuallyConfig): T = {
-
+    val startMillis = System.currentTimeMillis
     def makeAValiantAttempt(): Either[Throwable, T] = {
       try {
         Right(fun)
@@ -418,16 +418,17 @@ private[scalatest] trait Eventually {
 
     @tailrec
     def tryTryAgain(attempt: Int): T = {
-      val maxAttempts = config.maxAttempts
+      val timeout = config.timeout
       val interval = config.interval
       makeAValiantAttempt() match {
         case Right(result) => result
         case Left(e) => 
-          if (attempt < maxAttempts)
+          val duration = System.currentTimeMillis - startMillis
+          if (duration < timeout)
             Thread.sleep(interval)
           else
             throw new TestFailedException(
-              sde => Some(Resources("didNotEventuallySucceed", maxAttempts.toString, interval.toString)),
+              sde => Some(Resources("didNotEventuallySucceed", attempt.toString, interval.toString)),
               Some(e),
               getStackDepthFun("Eventually.scala", "eventually")
             )
