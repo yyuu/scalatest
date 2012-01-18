@@ -13,9 +13,9 @@ import org.specs.runner.NotifierRunner
 import org.specs.specification.Example
 import org.specs.specification.Sus
 
-class Spec1Runner(specification: Specification) extends Suite { thisSuite =>
+class Spec1Runner(specificationClass: Class[_ <: Specification]) extends Suite { thisSuite =>
   
-  val spec = specification
+  val spec = specificationClass.newInstance()
   
   def getSpecTestCount(theSpec: Specification): Int = {
     theSpec.systems.foldLeft(0)(_ + getSusTestCount(_)) +
@@ -65,9 +65,6 @@ class Spec1Runner(specification: Specification) extends Suite { thisSuite =>
   }
   
   def runSpec(specification: Option[Specification], tracker: Tracker, reporter: Reporter): Option[Specification] = {
-    /*def testInterfaceRunner(s: Specification) = new ScalaTestNotifierRunner(s, new ScalaTestNotifier(spec, tracker, reporter)) {
-      override protected def countExamples(specToRun: Specification) = ()
-    }*/
     def testInterfaceRunner(s: Specification) = new ScalaTestNotifierRunner(s, new ScalaTestNotifier(spec, tracker, reporter))
     specification.map(testInterfaceRunner(_).reportSpecs)
     specification match {
