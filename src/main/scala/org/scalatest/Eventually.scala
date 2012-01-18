@@ -420,6 +420,7 @@ trait Eventually {
         Right(fun)
       }
       catch {
+        case tpe: TestPendingException => throw tpe
         case e: Throwable if !anErrorThatShouldCauseAnAbort(e) => Left(e)
       }
     }
