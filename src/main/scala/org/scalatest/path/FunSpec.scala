@@ -196,8 +196,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected def describe(description: String)(fun: => Unit) {
     val nextPath = getNextPath()
-    val a = targetPath
-    val b = usedPathSet
     if (!targetPath.isDefined || isInTargetPath(nextPath, targetPath.get)) {
       val oldCurrentPath = currentPath
       currentPath = nextPath
