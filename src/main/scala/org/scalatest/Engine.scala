@@ -18,10 +18,11 @@ package org.scalatest
 import java.util.concurrent.atomic.AtomicReference
 import java.util.ConcurrentModificationException
 import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
-import FunSuite.IgnoreTagName 
+import FunSuite.IgnoreTagName
 import org.scalatest.NodeFamily.TestLeaf
 import org.scalatest.Suite._
 import fixture.NoArgTestWrapper
+import scala.annotation.tailrec
 
 // T will be () => Unit for FunSuite and FixtureParam => Any for fixture.FunSuite
 private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResourceName: String, simpleClassName: String)  {
@@ -476,6 +477,27 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       throw new NullPointerException("testText was null")
     if (testTags.exists(_ == null))
       throw new NullPointerException("a test tag was null")
+  }
+  
+  private[scalatest] def testPath(testName: String): List[Int] = {
+    val theTestOpt = atomic.get.testsMap.get(testName)
+    theTestOpt match {
+      case Some(theTest) =>
+        findPath(theTest.parent, theTest, List.empty)
+      case None => 
+        throw new IllegalArgumentException("Test name '" + testName + "' not found.")
+    }
+  }
+  
+  @tailrec
+  private def findPath(branch: Branch, node: Node, currentPath: List[Int]): List[Int] = {
+    val idx = branch.subNodes.reverse.indexOf(node)
+    branch.parentOption match {
+      case Some(parent) => 
+        findPath(parent, branch, idx :: currentPath)
+      case None => 
+        idx :: currentPath
+    }
   }
 }
 
