@@ -5,8 +5,12 @@ case class MethodDefinition(
   parent: AstNode,
   var children: Array[AstNode],
   name: String, 
-  paramTypes: Class[_]*) 
+  paramTypes: String*) 
 extends AstNode {
+  
+  if (parent != null)
+    parent.addChild(this)
+  
   def addChild(node: AstNode) {
     children = (children.toList ::: List(node)).toArray
   }

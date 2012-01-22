@@ -36,11 +36,11 @@ class FinderSuite extends FunSuite {
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.Suite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.Suite should use MethodFinder.")
-    val selectionMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
+    val selectionMethod1 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
     expectSelection(selectionMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val selectionMethod2 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
+    val selectionMethod2 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
     expectSelection(selectionMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val selectionMethod3 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
+    val selectionMethod3 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
     expectSelection(selectionMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
   }
   
@@ -61,11 +61,11 @@ class FinderSuite extends FunSuite {
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.fixture.FixtureSuite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodFinder.")
-    val selectionMethod1 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
+    val selectionMethod1 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
     expectSelection(selectionMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val selectionMethod2 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
+    val selectionMethod2 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
     expectSelection(selectionMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val selectionMethod3 = finder.find(new MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
+    val selectionMethod3 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
     expectSelection(selectionMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
   }
   
@@ -86,11 +86,11 @@ class FinderSuite extends FunSuite {
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FunSuite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FunctionFinder], "Suite that uses org.scalatest.FunSuite should use FunctionFinder.")
-    val test1 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 1"))
+    val test1 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 1")))
     expectSelection(test1, suiteClass.getName, suiteClass.getName + ": \"test 1\"", Array("test 1"))
-    val test2 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 2"))
+    val test2 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 2")))
     expectSelection(test2, suiteClass.getName, suiteClass.getName + ": \"test 2\"", Array("test 2"))
-    val test3 = finder.find(new MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", "test 3"))
+    val test3 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 3")))
     expectSelection(test3, suiteClass.getName, suiteClass.getName + ": \"test 3\"", Array("test 3"))
   }
   
@@ -113,32 +113,37 @@ class FinderSuite extends FunSuite {
         }
       }
     }
+    
     val suiteClass = classOf[TestingFeatureSpec]
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FeatureSpec.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FeatureSpecFinder], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecFinder.")
     
-    val f1s1 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 1"))
+    val feature1: MethodInvocation = MethodInvocation(suiteClass.getName, null, null, Array(), "feature", StringLiteral(suiteClass.getName, null, "feature 1"), ToStringTarget(null, Array.empty, "{}"))
+    val feature1Scenario1 = MethodInvocation(suiteClass.getName, null, feature1, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(null, Array.empty, "{}"))
+    val feature1Scenario2 = MethodInvocation(suiteClass.getName, null, feature1, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(null, Array.empty, "{}"))
+    
+    val feature2: MethodInvocation = MethodInvocation(suiteClass.getName, null, null, Array(), "feature", StringLiteral(suiteClass.getName, null, "feature 2"), ToStringTarget(null, Array.empty, "{}"))
+    val feature2Scenario1 = MethodInvocation(suiteClass.getName, null, feature2, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(null, Array.empty, "{}"))
+    val feature2Scenario2 = MethodInvocation(suiteClass.getName, null, feature2, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(null, Array.empty, "{}"))
+    
+    val featureSpecConstructor = ConstructorBlock(suiteClass.getName, Array(feature1, feature2))
+    
+    val f1s1 = finder.find(feature1Scenario1)                      
     expectSelection(f1s1, suiteClass.getName, "feature 1 scenario 1", Array("feature 1 scenario 1"))
-    val f1s2 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 1"), Array.empty, "scenario", "scenario 2"))
+    val f1s2 = finder.find(feature1Scenario2)
     expectSelection(f1s2, suiteClass.getName, "feature 1 scenario 2", Array("feature 1 scenario 2"))
     
-    val f2s1 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 1"))
+    val f2s1 = finder.find(feature2Scenario1)
     expectSelection(f2s1, suiteClass.getName, "feature 2 scenario 1", Array("feature 2 scenario 1"))
-    val f2s2 = finder.find(new MethodInvocation(suiteClass.getName, null, new MethodInvocation(suiteClass.getName, null, null, Array.empty, "feature", "feature 2"), Array.empty, "scenario", "scenario 2"))
+    val f2s2 = finder.find(feature2Scenario2)
     expectSelection(f2s2, suiteClass.getName, "feature 2 scenario 2", Array("feature 2 scenario 2"))
     
-    val f1 = finder.find(new MethodInvocation(suiteClass.getName(), null, null, Array(
-      new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 1"),
-      new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 2")
-     ), "feature", "feature 1" ))
+    val f1 = finder.find(feature1)
     expectSelection(f1, suiteClass.getName, "feature 1", Array("feature 1 scenario 1", "feature 1 scenario 2"))
     
-    val f2 = finder.find(new MethodInvocation(suiteClass.getName(), null, null, Array(
-      new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 1"),
-      new MethodInvocation(suiteClass.getName(), null, null, Array.empty, "scenario", "scenario 2")
-     ), "feature", "feature 2" ))
+    val f2 = finder.find(feature2)
     expectSelection(f2, suiteClass.getName, "feature 2", Array("feature 2 scenario 1", "feature 2 scenario 2"))
   }
   
@@ -174,20 +179,15 @@ class FinderSuite extends FunSuite {
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
     
-    val aStackNode = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "A Stack"), null, 
-                     Array(
-                           new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "whenever it is empty"), null, Array(
-                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "certainly ought to"), null, Array(
-                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "be empty"), null, Array(), "in", () => {}), 
-                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on peek"), null, Array(), "in", () => {}), 
-                               new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on pop"), null, Array(), "in", () => {})
-                             ), "-", () => {})
-                           ), "-", () => {}), 
-                           new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "but when full, by contrast, must"), null, Array(
-                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "be full"), null, Array(), "in", () => {}), 
-                             new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "complain on push"), null, Array(), "in", () => {})
-                           ), "-", () => {})
-                     ), "-", () => {})
+    val aStackNode: MethodInvocation = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "A Stack"), null, Array.empty, "-", ToStringTarget(null, Array.empty, "{}"))
+    val wheneverItIsEmpty = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "whenever it is empty"), aStackNode, Array.empty, "-", ToStringTarget(null, Array.empty, "{}")) 
+    val certainlyOughtTo = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "certainly ought to"), wheneverItIsEmpty, Array.empty, "-", ToStringTarget(null, Array.empty, "{}"))
+    val beEmpty = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "be empty"), certainlyOughtTo, Array(), "in", ToStringTarget(null, Array.empty, "{}"))
+    val complainOnPeek = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "complain on peek"), certainlyOughtTo, Array(), "in", ToStringTarget(null, Array.empty, "{}")) 
+    val complainOnPop = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "complain on pop"), certainlyOughtTo, Array(), "in", ToStringTarget(null, Array.empty, "{}"))
+    val butWhenFullByContrastMust = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "but when full, by contrast, must"), aStackNode, Array.empty, "-", ToStringTarget(null, Array.empty, "{}"))
+    val beFull = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "be full"), butWhenFullByContrastMust, Array(), "in", ToStringTarget(null, Array.empty, "{}"))
+    val complainOnPush = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "complain on push"), butWhenFullByContrastMust, Array(), "in", ToStringTarget(null, Array.empty, "{}"))
     
     val aStackTest = finder.find(aStackNode)
     expectSelection(aStackTest, suiteClass.getName, "A Stack", Array(
@@ -198,47 +198,39 @@ class FinderSuite extends FunSuite {
       "A Stack but when full, by contrast, must complain on push"
     ))
     
-    val wheneverItIsEmptyNode = aStackNode.children(0)
-    val wheneverItIsEmptyTest = finder.find(wheneverItIsEmptyNode)
+    val wheneverItIsEmptyTest = finder.find(wheneverItIsEmpty)
     expectSelection(wheneverItIsEmptyTest, suiteClass.getName, "A Stack whenever it is empty", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
       "A Stack whenever it is empty certainly ought to complain on pop"
     ))
     
-    val certainlyOughtToNode = aStackNode.children.apply(0).children.apply(0)//aStackNode.children()(0).children()(0)
-    val certainlyOughtToTest = finder.find(certainlyOughtToNode)
+    val certainlyOughtToTest = finder.find(certainlyOughtTo)
     expectSelection(certainlyOughtToTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
       "A Stack whenever it is empty certainly ought to complain on pop"
     ))
     
-    val beEmptyNode = aStackNode.children.apply(0).children.apply(0).children.apply(0)
-    val beEmptyTest = finder.find(beEmptyNode)
+    val beEmptyTest = finder.find(beEmpty)
     expectSelection(beEmptyTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to be empty", Array("A Stack whenever it is empty certainly ought to be empty"))
     
-    val complainOnPeekNode = aStackNode.children.apply(0).children.apply(0).children.apply(1)
-    val complainOnPeekTest = finder.find(complainOnPeekNode)
+    val complainOnPeekTest = finder.find(complainOnPeek)
     expectSelection(complainOnPeekTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on peek", Array("A Stack whenever it is empty certainly ought to complain on peek"))
     
-    val complainOnPopNode = aStackNode.children.apply(0).children.apply(0).children.apply(2)
-    val complainOnPopTest = finder.find(complainOnPopNode)
+    val complainOnPopTest = finder.find(complainOnPop)
     expectSelection(complainOnPopTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on pop", Array("A Stack whenever it is empty certainly ought to complain on pop"))
     
-    val butWhenFullByContrastMustNode = aStackNode.children(1)
-    val butWhenFullByContrastMustTest = finder.find(butWhenFullByContrastMustNode)
+    val butWhenFullByContrastMustTest = finder.find(butWhenFullByContrastMust)
     expectSelection(butWhenFullByContrastMustTest, suiteClass.getName, "A Stack but when full, by contrast, must", Array(
       "A Stack but when full, by contrast, must be full", 
       "A Stack but when full, by contrast, must complain on push"    
     ))
     
-    val beFullNode = aStackNode.children.apply(1).children.apply(0)
-    val beFullTest = finder.find(beFullNode)
+    val beFullTest = finder.find(beFull)
     expectSelection(beFullTest, suiteClass.getName, "A Stack but when full, by contrast, must be full", Array("A Stack but when full, by contrast, must be full"))
     
-    val complainOnPushNode = aStackNode.children.apply(1).children.apply(1)
-    val complainOnPushTest = finder.find(complainOnPushNode)
+    val complainOnPushTest = finder.find(complainOnPush)
     expectSelection(complainOnPushTest, suiteClass.getName, "A Stack but when full, by contrast, must complain on push", Array("A Stack but when full, by contrast, must complain on push"))
   }
   
@@ -255,18 +247,12 @@ class FinderSuite extends FunSuite {
       }
     }
     val suiteClass = classOf[TestingFlatSpec1]
-    val spec1BehaviourOf = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "behaviour"), null, Array.empty, "of", "A Stack")
-    val spec1ItShould1 = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", "pop values in last-in-first-out order")
-    val spec1ItShouldIn1 = new MethodInvocation(suiteClass.getName, spec1ItShould1, null, Array.empty, "in", () => {})
-    val spec1ItShould2 = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", "throw NoSuchElementException if an empty stack is popped")
-    val spec1ItShouldIn2 = new MethodInvocation(suiteClass.getName, spec1ItShould2, null, Array.empty, "in", () => {})
-    val spec1Constructor = new ConstructorBlock(suiteClass.getName, Array(
-                                 spec1BehaviourOf, 
-                                 spec1ItShould1, 
-                                 spec1ItShouldIn1, 
-                                 spec1ItShould2, 
-                                 spec1ItShouldIn2
-                               ))
+    val spec1Constructor = ConstructorBlock(suiteClass.getName, Array.empty)
+    val spec1BehaviourOf = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "behaviour"), spec1Constructor, Array.empty, "of", StringLiteral(suiteClass.getName, null, "A Stack"))
+    val spec1ItShould1 = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "pop values in last-in-first-out order"))
+    val spec1ItShouldIn1 = MethodInvocation(suiteClass.getName, spec1ItShould1, spec1Constructor, Array.empty, "in", ToStringTarget(null, Array.empty, "{}"))
+    val spec1ItShould2 = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "throw NoSuchElementException if an empty stack is popped"))
+    val spec1ItShouldIn2 = MethodInvocation(suiteClass.getName, spec1ItShould2, spec1Constructor, Array.empty, "in", ToStringTarget(null, Array.empty, "{}"))
     
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FlatSpec.")
@@ -279,14 +265,8 @@ class FinderSuite extends FunSuite {
     val spec1BehaviourOfSelection = finder.find(spec1BehaviourOf)
     expectSelection(spec1BehaviourOfSelection, suiteClass.getName, "A Stack", Array("A Stack should pop values in last-in-first-out order", "A Stack should throw NoSuchElementException if an empty stack is popped"))
     
-    val spec1ItShould1Selection = finder.find(spec1ItShould1)
-    expectSelection(spec1ItShould1Selection, suiteClass.getName, "A Stack should pop values in last-in-first-out order", Array("A Stack should pop values in last-in-first-out order"))
-    
     val spec1ItShouldIn1Selection = finder.find(spec1ItShouldIn1)
     expectSelection(spec1ItShouldIn1Selection, suiteClass.getName, "A Stack should pop values in last-in-first-out order", Array("A Stack should pop values in last-in-first-out order"))
-    
-    val spec1ItShould2Selection = finder.find(spec1ItShould2)
-    expectSelection(spec1ItShould2Selection, suiteClass.getName, "A Stack should throw NoSuchElementException if an empty stack is popped", Array("A Stack should throw NoSuchElementException if an empty stack is popped"))
     
     val spec1ItShouldIn2Selection = finder.find(spec1ItShouldIn2)
     expectSelection(spec1ItShouldIn2Selection, suiteClass.getName, "A Stack should throw NoSuchElementException if an empty stack is popped", Array("A Stack should throw NoSuchElementException if an empty stack is popped"))
@@ -302,17 +282,13 @@ class FinderSuite extends FunSuite {
         
       }
     }
+    
     val suiteClass = classOf[TestingFlatSpec2]
-    val spec2ItShould1 = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "A Stack"), null, Array.empty, "should", "pop values in last-in-first-out order")
-    val spec2ItShouldIn1 = new MethodInvocation(suiteClass.getName, spec2ItShould1, null, Array.empty, "in", () => {})
-    val spec2ItShould2 = new MethodInvocation(suiteClass.getName, new ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", "throw NoSuchElementException if an empty stack is popped")
-    val spec2ItShouldIn2 = new MethodInvocation(suiteClass.getName, spec2ItShould2, null, Array.empty, "in", () => {})
-    val spec2Constructor = new ConstructorBlock(suiteClass.getName, Array(
-                                 spec2ItShould1, 
-                                 spec2ItShouldIn1, 
-                                 spec2ItShould2, 
-                                 spec2ItShouldIn2
-                               ))
+    val spec2Constructor = ConstructorBlock(suiteClass.getName, Array.empty)
+    val spec2ItShould1 = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "A Stack"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "pop values in last-in-first-out order"))
+    val spec2ItShouldIn1 = MethodInvocation(suiteClass.getName, spec2ItShould1, spec2Constructor, Array.empty, "in", ToStringTarget(null, Array.empty, "{}"))
+    val spec2ItShould2 = MethodInvocation(suiteClass.getName, ToStringTarget(null, Array.empty, "it"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "throw NoSuchElementException if an empty stack is popped"))
+    val spec2ItShouldIn2 = MethodInvocation(suiteClass.getName, spec2ItShould2, spec2Constructor, Array.empty, "in", ToStringTarget(null, Array.empty, "{}"))
     
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FlatSpec.")
@@ -322,14 +298,8 @@ class FinderSuite extends FunSuite {
     val spec2ConstructorSelection = finder.find(spec2Constructor)
     expectSelection(spec2ConstructorSelection, suiteClass.getName, "A Stack", Array("A Stack should pop values in last-in-first-out order", "A Stack should throw NoSuchElementException if an empty stack is popped"))
     
-    val spec2ItShould1Selection = finder.find(spec2ItShould1)
-    expectSelection(spec2ItShould1Selection, suiteClass.getName, "A Stack should pop values in last-in-first-out order", Array("A Stack should pop values in last-in-first-out order"))
-    
     val spec2ItShouldIn1Selection = finder.find(spec2ItShouldIn1)
     expectSelection(spec2ItShouldIn1Selection, suiteClass.getName, "A Stack should pop values in last-in-first-out order", Array("A Stack should pop values in last-in-first-out order"))
-    
-    val spec2ItShould2Selection = finder.find(spec2ItShould2)
-    expectSelection(spec2ItShould2Selection, suiteClass.getName, "A Stack should throw NoSuchElementException if an empty stack is popped", Array("A Stack should throw NoSuchElementException if an empty stack is popped"))
     
     val spec2ItShouldIn2Selection = finder.find(spec2ItShouldIn2)
     expectSelection(spec2ItShouldIn2Selection, suiteClass.getName, "A Stack should throw NoSuchElementException if an empty stack is popped", Array("A Stack should throw NoSuchElementException if an empty stack is popped"))

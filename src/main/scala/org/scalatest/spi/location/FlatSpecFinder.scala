@@ -4,13 +4,6 @@ import LocationUtils._
 import scala.annotation.tailrec
 
 class FlatSpecFinder extends Finder {
-  
-  private def getRootTarget(target: AstNode): String = {
-    if (target.parent == null)
-      target.toString
-    else
-      getRootTarget(target.parent)  
-  }
 
   def find(node: AstNode): Option[Selection] = {
     val constructorOpt: Option[ConstructorBlock] = node match {
@@ -35,7 +28,11 @@ class FlatSpecFinder extends Finder {
             if (branchInvocation.name == "of")
               branchInvocation.args(0).toString
             else { // in 
-              getRootTarget(branchInvocation.target)
+              branchInvocation.target match {
+                case MethodInvocation(className, target, parent, children, name, args @ _*) => 
+                  target.toString
+                case _ => ""
+              }
             }
           case None => ""
         }
@@ -71,20 +68,16 @@ class FlatSpecFinder extends Finder {
       }
   }
   
-  @tailrec
   private def getTargetString(target: AstNode, prefix: String, postfix: String): String = {
     if (target == null)
       postfix
     else {
-      val nextPostfix = 
-        if (target.parent == null && (target.toString == prefix || target.toString == "it"))
-          postfix
-        else
-          target.toString + " " + postfix
-      if (target.parent == null)
-        nextPostfix
-      else
-        getTargetString(target.parent, prefix, nextPostfix)
+      target match {
+        case MethodInvocation(className, targetTarget, parent, children, "should", args @ _*) if (args.length > 0) => 
+          "should " + args(0).toString
+        case _ => 
+          target.toString
+      }
     } 
   }
   

@@ -6,8 +6,12 @@ case class MethodInvocation (
   parent: AstNode,
   var children: Array[AstNode],
   name: String, 
-  args: AnyRef*) 
+  args: AstNode*) 
 extends AstNode {
+  
+  if (parent != null)
+    parent.addChild(this)
+  
   def addChild(node: AstNode) {
     children = (children.toList ::: List(node)).toArray
   }
