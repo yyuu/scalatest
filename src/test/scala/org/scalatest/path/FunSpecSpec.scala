@@ -25,9 +25,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
     import scala.collection.mutable.ListBuffer
     import MyFunSpec._
     
-    count += 1 
-    //val getPath = PrivateMethod[Option[List[Int]]]('getPath)
-    //pathBuf += FunSpec invokePrivate getPath() 
+    instanceCount += 1 
     
     describe("An empty list") {
       val list = ListBuffer[Int]() 
@@ -36,6 +34,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
         it("should have only 1 in it") {
           list += 1 
           list should be (ListBuffer(1)) 
+          firstTestCount += 1
         }
         firstDescCount += 1
       }
@@ -44,6 +43,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
         it("should have only 2 in it") {
           list += 2
           list should be (ListBuffer(2))
+          secondTestCount += 1
         }
         secondDescCount += 1
       }
@@ -56,27 +56,41 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
   object MyFunSpec {
     import scala.collection.mutable.ListBuffer
     
-    var count = 0
-    //val pathBuf = ListBuffer.empty[Option[List[Int]]]
+    var instanceCount = 0
     var firstDescCount = 0
     var secondDescCount = 0
     var outerDescCount = 0
+    var firstTestCount = 0
+    var secondTestCount = 0
+    
+    def resetCounts() {
+      instanceCount = 0
+      firstDescCount = 0
+      secondDescCount = 0
+      outerDescCount = 0
+      firstTestCount = 0
+      secondTestCount = 0
+    }
   }
   
   describe("FunSpec") {
     
-    it("should create one instance per test +1") {
+    it("should create an one instance per test, running each describe clause once plus once per path ") {
+      MyFunSpec.resetCounts()
       val mySpec = new MyFunSpec()
       mySpec.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
-      assert(MyFunSpec.count === 3)
-      //assert(MyFunSpec.pathBuf.size === 3)
-      //assert(MyFunSpec.pathBuf.exists(_ == Some(List(0, 0, 0))))
-      //assert(MyFunSpec.pathBuf.exists(_ == Some(List(0, 1, 0))))
-      //assert(MyFunSpec.pathBuf.exists(_ == None))
+      assert(MyFunSpec.instanceCount === 3)
       assert(MyFunSpec.firstDescCount === 2)
       assert(MyFunSpec.secondDescCount === 2)
       assert(MyFunSpec.outerDescCount === 3)
     }
+    
+    it("should execute each test once") {
+      MyFunSpec.resetCounts()
+      val mySpec = new MyFunSpec()
+      mySpec.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
+      assert(MyFunSpec.firstTestCount === 1)
+      assert(MyFunSpec.secondTestCount === 1)
+    }
   }
-  
 }
