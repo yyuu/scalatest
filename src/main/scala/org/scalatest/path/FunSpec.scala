@@ -1,4 +1,6 @@
 package org.scalatest.path
+
+import org.scalatest.Suite
 import org.scalatest.OneInstancePerTest
 import org.scalatest.Reporter
 import org.scalatest.Stopper
@@ -13,14 +15,20 @@ import scala.collection.immutable.ListSet
 
 trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   
+  // This one is no longer used. Disentanglement
+  final override def withFixture(test: NoArgTest) {
+    throw new UnsupportedOperationException
+  }
+  
   import FunSpec.getPath  
   private val targetPath = getPath
   
   private final val engine = new Engine("concurrentSpecMod", "Spec")
   import engine._
   
+  // TODO: Should these be private? What are they used for?
   protected[scalatest] val fileName = "FunSpec.scala"
-
+  
   /**
    * Returns an <code>Informer</code> that during test execution will forward strings (and other objects) passed to its
    * <code>apply</code> method to the current reporter. If invoked in a constructor, it
@@ -78,7 +86,28 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
      * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
      */
     def apply(specText: String, testTags: Tag*)(testFun: => Unit) {
-      registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
+      val nextPath = getNextPath()
+      if (!targetPath.isDefined) {
+        registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
+      }
+      else if (isInTargetPath(nextPath, targetPath.get)) {
+        // Default value of None indicates successful test
+        var resultOfRunningTest: Option[Throwable] = None
+        
+        try { // TODO: add a test that ensures withFixture is called
+          testFun
+          // If no exception, leave at None to indicate success
+        }
+        catch {
+          case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
+            resultOfRunningTest = Some(e)
+        }
+        val newTestFun = { () =>
+          if (resultOfRunningTest.isDefined)
+            throw resultOfRunningTest.get
+        }
+        registerTest(specText, newTestFun, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
+      }
     }
 
     /**
@@ -260,7 +289,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
 
-    def invokeWithFixture(theTest: TestLeaf) {
+    def dontInvokeWithFixture(theTest: TestLeaf) {
+      theTest.testFun()
+      /*
       val theConfigMap = configMap
       withFixture(
         new NoArgTest {
@@ -268,10 +299,10 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
           def apply() { theTest.testFun() }
           def configMap = theConfigMap
         }
-      )
+      )*/
     }
 
-    runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, invokeWithFixture)
+    runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, dontInvokeWithFixture)
   }
 
   /**
