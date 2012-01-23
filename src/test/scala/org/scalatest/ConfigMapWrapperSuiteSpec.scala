@@ -2,10 +2,6 @@ package org.scalatest
 
 class ConfigMapWrapperSuiteSpec extends FunSuite with SharedHelpers {
 
-  test("A suite that is wrapped by ConfigMapWrapperSuite should be instantiated") {
-    assert(WantsConfigMapSuite.wasInstantiated)
-  }
-  
   // Need a test that ensures the passed config map gets in there.
   test("configMap should get passed into the wrapped Suite") {
     SavesConfigMapSuite.resetConfigMap()
