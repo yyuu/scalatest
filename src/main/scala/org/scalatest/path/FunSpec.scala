@@ -277,7 +277,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   /**
    * Run a test. This trait's implementation runs the test registered with the name specified by
    * <code>testName</code>. Each test's name is a concatenation of the text of all describers surrounding a test,
-   * from outside in, and the test's  spec text, with one space placed between each item. (See the documenation
+   * from outside in, and the test's spec text, with one space placed between each item. (See the documenation
    * for <code>testNames</code> for an example.)
    *
    * @param testName the name of one test to execute.
@@ -341,33 +341,38 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected val behave = new BehaveWord
 
+/* This is the same
   protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
     testName match {
       case Some(tn) => super.runTests(testName, reporter, stopper, filter, configMap, None, tracker)
       case None =>
         for (tn <- testNames) {
-          FunSpec.setPath(engine.testPath(tn))
-          val oneInstance = newInstance
+          val oneInstance = prepareNewInstanceFor(tn)
           oneInstance.run(Some(tn), reporter, stopper, filter, configMap, None, tracker)
         }
     }
   }
+*/
+  final override def prepareNewInstanceFor(testName: String): Suite = {
+    FunSpec.setPath(engine.testPath(testName))
+    newInstance
+  }
 }
 
 private[path] object FunSpec {
-   private[this] val path = new ThreadLocal[Option[List[Int]]]
-   path.set(None)
+   private[this] val path = new ThreadLocal[List[Int]]
+   // path "None" must be null in this case, because that's the default in any thread
 
    private def setPath(ints: List[Int]) {
-     if (path.get.isDefined)
+     if (path.get != null)
        throw new IllegalStateException("Path was already defined when setPath was called, as: " + path.get)
-     path.set(Some(ints))
+     path.set(ints)
    }
 
    private def getPath(): Option[List[Int]] = {
      val p = path.get
-     path.set(None)
-     p
+     path.set(null)
+     if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
    }
 }

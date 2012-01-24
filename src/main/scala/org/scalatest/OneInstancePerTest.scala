@@ -97,7 +97,7 @@ trait OneInstancePerTest extends AbstractSuite {
       case Some(tn) => super.runTests(testName, reporter, stopper, filter, configMap, None, tracker)
       case None =>
         for (tn <- testNames) {
-          val oneInstance = newInstance
+          val oneInstance = prepareNewInstanceFor(tn)
           oneInstance.run(Some(tn), reporter, stopper, filter, configMap, None, tracker)
         }
     }
@@ -138,5 +138,7 @@ trait OneInstancePerTest extends AbstractSuite {
    * }
    * </pre>
    */
-  def newInstance = this.getClass.newInstance.asInstanceOf[Suite]
+  def newInstance: Suite = this.getClass.newInstance.asInstanceOf[Suite]
+
+  def prepareNewInstanceFor(testName: String): Suite = newInstance
 }
