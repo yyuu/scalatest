@@ -37,8 +37,8 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       val list = ListBuffer[Int]() 
       
       describe("when 1 is inserted") {
+        list += 1 
         it("should have only 1 in it") {
-          list += 1 
           list should be (ListBuffer(1)) 
           firstTestCount += 1
           inTest1FirstDescWas = firstDescCount
@@ -49,8 +49,8 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       }
       
       describe("when 2 is inserted") {
+        list += 2
         it("should have only 2 in it") {
-          list += 2
           list should be (ListBuffer(2))
           secondTestCount += 1
           inTest2FirstDescWas = firstDescCount
@@ -156,6 +156,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       assert(repo.testIgnoredEventsReceived.size === 1)
     }
   }
+ /* Will disallow parallel in path traits probably.
   
   class MyParallelFunSpec extends org.scalatest.path.FunSpec with ShouldMatchers with ParallelTestExecution {
     
@@ -168,8 +169,8 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       val list = ListBuffer[Int]() 
       
       describe("when 1 is inserted") {
+        list += 1 
         it("should have only 1 in it") {
-          list += 1 
           list should be (ListBuffer(1)) 
           firstTestCount += 1
           inTest1FirstDescWas = firstDescCount
@@ -182,8 +183,8 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       }
       
       describe("when 2 is inserted") {
+        list += 2
         it("should have only 2 in it") {
-          list += 2
           list should be (ListBuffer(2))
           secondTestCount += 1
           inTest2FirstDescWas = firstDescCount
@@ -316,7 +317,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       assert(inTest1FirstDescWas === 1)
       assert(inTest1SecondDescWas === 1)
       assert(inTest1OuterDescWas >= 1) // Because now in parallel
-      assert(inTest2FirstDescWas === 2)
+      assert(inTest2FirstDescWas >= 1) // Because now in parallel
       assert(inTest2SecondDescWas === 1)
       assert(inTest2OuterDescWas >= 1) // Because now in parallel
     }
@@ -347,4 +348,5 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       assert(repo.testIgnoredEventsReceived.size === 1)
     }
   }
+  */
 }

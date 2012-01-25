@@ -225,6 +225,15 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected def describe(description: String)(fun: => Unit) {
     val nextPath = getNextPath()
+    val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
+    val nextPathOne = if (nextPath.length > 1) nextPath(1) else -1
+    val nextPathTwo = if (nextPath.length > 2) nextPath(2) else -1
+    val isDef = targetPath.isDefined
+    val isInTarget = if (isDef) isInTargetPath(nextPath, targetPath.get) else false
+    val theTarget = if (isDef) targetPath.get else List()
+    val targetPathZero = if (theTarget.length > 0) theTarget(0) else -1
+    val targetPathOne = if (theTarget.length > 1) theTarget(1) else -1
+    val targetPathTwo = if (theTarget.length > 2) theTarget(2) else -1
     if (!targetPath.isDefined || isInTargetPath(nextPath, targetPath.get)) {
       val oldCurrentPath = currentPath
       currentPath = nextPath
@@ -354,10 +363,11 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     }
   }
 */
+  /*
   final override def prepareNewInstanceFor(testName: String): Suite = {
     FunSpec.setPath(engine.testPath(testName))
     newInstance
-  }
+  }*/
 }
 
 private[path] object FunSpec {
