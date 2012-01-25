@@ -17,15 +17,9 @@ package org.scalatest.tools
 
 import org.scalatest._
 
-private[scalatest] class DistributedTestRunnerSuite(suiteFun: () => ParallelTestExecution, testName: String) extends Suite {
-  println("DistributedTestRunnerSuite got created")
+private[scalatest] class DistributedTestRunnerSuite(suite: ParallelTestExecution, testName: String) extends Suite {
   override def run(ignoreThisTestName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
           configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
-    // suite.runOneTest(testName, reporter, stopper, configMap, tracker)
-    println("run was called on the DistributedTestRunnerSuite for " + testName)
-    val suite = suiteFun()
-    // TODO: when suiteFun() threw an exception, I saw it firing a SuiteAborted, but I never saw the Suite aborted come out to
-    // the GUI reporter. This was when testing FunSpecSpec.
-    suite.run(Some(testName), reporter, stopper, filter, configMap, None, tracker)
+    suite.runOneTest(testName, reporter, stopper, configMap, tracker)
   }
 }

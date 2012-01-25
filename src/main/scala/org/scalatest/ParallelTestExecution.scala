@@ -96,7 +96,7 @@ trait ParallelTestExecution extends OneInstancePerTest {
             for (tn <- testNames) {
               val wrappedInstance =
                 new DistributedTestRunnerSuite(
-                  () => prepareNewInstanceFor(tn).asInstanceOf[ParallelTestExecution],
+                  newInstance.asInstanceOf[ParallelTestExecution],
                   tn
                 )
               distribute(wrappedInstance, tracker.nextTracker)
