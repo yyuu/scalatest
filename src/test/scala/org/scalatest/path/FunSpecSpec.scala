@@ -212,23 +212,6 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
         assert(firstTestCount === 1)
         assert(secondTestCount === 0)
       }
-      {
-        import StackSpec._
-        resetCounts()
-        val stackSpec = new StackSpec() 
-        assert(firstTestCount === 1)
-        assert(secondTestCount === 0)
-        assert(thirdTestCount === 0)
-        assert(fourthTestCount === 0)
-        assert(fifthTestCount === 0)
-        assert(sixthTestCount === 0)
-        assert(firstSharedTestCount === 0)
-        assert(secondSharedTestCount === 0)
-        assert(thirdSharedTestCount === 0)
-        assert(fourthSharedTestCount === 0)
-        assert(fifthSharedTestCount === 0)
-        assert(sixthSharedTestCount === 0)
-      }
     }
 
     ignore("should create an one instance per test, running each describe clause once plus once per path ") {

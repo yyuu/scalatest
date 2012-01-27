@@ -79,8 +79,14 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     def allZeros(xs: List[Int]) = xs.count(_ == 0) == xs.length
     if (targetPath.isEmpty)
       allZeros(currentPath)
-    else
-      targetPath.get.take(currentPath.length) == currentPath // TODO: deal with sibling describes
+    else {
+      if (currentPath.length < targetPath.get.length)
+        targetPath.get.take(currentPath.length) == currentPath // TODO: deal with sibling describes
+      else if (currentPath.length > targetPath.get.length)
+        (currentPath.take(targetPath.get.length) == targetPath.get) && (!currentPath.drop(targetPath.get.length).exists(_ != 0)) // TODO: deal with sibling describes
+      else
+        targetPath.get == currentPath
+    }
   }
 
   /**
@@ -266,7 +272,10 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     // val targetPathZero = if (theTarget.length > 0) theTarget(0) else -1
     // val targetPathOne = if (theTarget.length > 1) theTarget(1) else -1
     // val targetPathTwo = if (theTarget.length > 2) theTarget(2) else -1
-    if (isInTargetPath(nextPath, targetPath)) {
+    if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
+      nextTargetPath = Some(nextPath)
+    }
+    else if (isInTargetPath(nextPath, targetPath)) { // TODO: check if !targetLeafHasBeenReached like it() does. Probably this is empty describe behavior
       val oldCurrentPath = currentPath
       currentPath = nextPath
       if (!registeredPathSet.contains(nextPath)) {
@@ -277,9 +286,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         navigateToNestedBranch(nextPath, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
       }
       currentPath = oldCurrentPath
-    }
-    else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
-      nextTargetPath = Some(nextPath)
     }
   }
 

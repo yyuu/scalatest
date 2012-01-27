@@ -393,7 +393,9 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     def getBranch(b: Branch, path: List[Int]): Branch = {
       path match {
         case Nil => b
-        case i :: tail => getBranch(b.subNodes(i).asInstanceOf[Branch], tail)
+        case i :: tail =>
+          val index = b.subNodes.length - 1 - i // They are in reverse order
+          getBranch(b.subNodes(index).asInstanceOf[Branch], tail)
       }
     }
     
