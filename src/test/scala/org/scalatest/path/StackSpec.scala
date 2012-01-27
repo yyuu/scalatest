@@ -68,7 +68,7 @@ class StackSpec extends org.scalatest.path.FunSpec {
         }
       }
     }
-
+  
     describe("(with one item)") {
       
       // val sizeOne = stack.size

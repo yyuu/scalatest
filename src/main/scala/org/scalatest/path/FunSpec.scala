@@ -20,10 +20,10 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     throw new UnsupportedOperationException
   }
   
-  import FunSpec.getPath  
-  private val targetPath: Option[List[Int]] = getPath
+  private final val targetPath: Option[List[Int]] = FunSpec.getPath
+  private final val isAnInitialInstance = targetPath.isEmpty
   
-  private final val engine = new Engine("concurrentSpecMod", "Spec")
+  private final val engine = FunSpec.getEngine()
   import engine._
   
   // TODO: Should these be private? What are they used for?
@@ -50,7 +50,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   private var testsResultsRegistered = false
   private def ensureTestResultsRegistered() {
     synchronized {
-       testsResultsRegistered = true 
+      if (isAnInitialInstance) {
+        testsResultsRegistered = true
+      }
     }
   }
   
@@ -408,6 +410,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
 private[path] object FunSpec {
    private[this] val path = new ThreadLocal[List[Int]]
    // path "None" must be null in this case, because that's the default in any thread
+   private[this] val engine = new ThreadLocal[Engine]
 
    private def setPath(ints: List[Int]) {
      if (path.get != null)
@@ -419,5 +422,17 @@ private[path] object FunSpec {
      val p = path.get
      path.set(null)
      if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
+   }
+
+   private def setEngine(en: Engine) {
+     if (engine.get != null)
+       throw new IllegalStateException("Engine was already defined when setEngine was called")
+     engine.set(en)
+   }
+
+   private def getEngine(): Engine = {
+     val en = engine.get
+     engine.set(null)
+     if (en == null) (new Engine("concurrentSpecMod", "Spec")) else en
    }
 }

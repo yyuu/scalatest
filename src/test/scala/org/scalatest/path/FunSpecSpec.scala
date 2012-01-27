@@ -66,7 +66,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
   }
   
   object MyFunSpec {
-    
+       
     var instanceCount = 0
     var firstDescCount = 0
     var secondDescCount = 0
