@@ -30,16 +30,122 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
     
     import scala.collection.mutable.ListBuffer
     import MyFunSpec._
-    
+
+    var begin = 0
+    var begin0 = 0
+    var begin00 = 0
+    var begin000 = 0
+    var begin01 = 0
+    var begin010 = 0
+        
+    var end = 0
+    var end0 = 0
+    var end00 = 0
+    var end000 = 0
+    var end01 = 0
+    var end010 = 0
+
     instanceCount += 1 
+    begin += 1
     
-    describe("An empty list") {
-      val list = ListBuffer[Int]() 
+    describe("An empty list buffer") {
+
+      begin0 += 1
+      val buf = ListBuffer[Int]() 
       
       describe("when 1 is inserted") {
-        list += 1 
+
+        begin00 += 1
+        buf += 1 
+
         it("should have only 1 in it") {
-          list should be (ListBuffer(1)) 
+          begin000 += 1
+          buf should be (ListBuffer(1)) 
+          firstTestCount += 1
+          assert(begin === 1)
+          assert(begin0 === 1)
+          assert(begin00 === 1)
+          assert(begin000 === 1)
+          assert(begin01 === 0)
+          assert(begin010 === 0)
+          assert(end === 0)
+          assert(end0 === 0)
+          assert(end00 === 0)
+          assert(end000 === 0)
+          assert(end01 === 0)
+          assert(end010 === 0)
+          end000 += 1
+        }
+        firstDescCount += 1
+        end00 += 1
+      }
+      
+      describe("when 2 is inserted") {
+        begin01 += 1
+        buf += 2
+        it("should have only 2 in it") {
+          begin010 += 1
+          buf should be (ListBuffer(2))
+          secondTestCount += 1
+          assert(begin === 1)
+          assert(begin0 === 1)
+          assert(begin00 === 0)
+          assert(begin000 === 0)
+          assert(begin01 === 1)
+          assert(begin010 === 1)
+          assert(end === 0)
+          assert(end0 === 0)
+          assert(end00 === 0)
+          assert(end000 === 0)
+          assert(end01 === 0)
+          assert(end010 === 0)
+          end010 += 1
+        }
+        secondDescCount += 1
+        end01 += 1
+      }
+      outerDescCount += 1
+      end0 += 1
+    }
+    end += 1
+    if (end000 == 1) {
+      assert(begin === 1)
+      assert(begin0 === 1)
+      assert(begin00 === 1)
+      assert(begin000 === 1)
+      assert(begin01 === 0)
+      assert(begin010 === 0)
+      assert(end010 === 0)
+      assert(end01 === 0)
+      assert(end000 === 1)
+      assert(end00 === 1)
+      assert(end0 === 1)
+      assert(end === 1)
+    }
+    else if (end010 == 1) {
+      assert(begin === 1)
+      assert(begin0 === 1)
+      assert(begin00 === 0)
+      assert(begin000 === 0)
+      assert(begin01 === 1)
+      assert(begin010 === 1)
+      assert(end010 === 1)
+      assert(end01 === 1)
+      assert(end000 === 0)
+      assert(end00 === 0)
+      assert(end0 === 1)
+      assert(end === 1)
+    }
+/*    
+    import scala.collection.mutable.ArrayBuffer
+
+    describe("A empty array buffer") {
+      val buf = ArrayBuffer[Int]() 
+      
+      describe("when 1 is inserted") {
+        buf += 1 
+        it("should have only 1 in it") {
+          buf should be (ArrayBuffer(1)) 
           firstTestCount += 1
           inTest1FirstDescWas = firstDescCount
           inTest1SecondDescWas = secondDescCount
@@ -49,9 +155,9 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       }
       
       describe("when 2 is inserted") {
-        list += 2
+        buf += 2
         it("should have only 2 in it") {
-          list should be (ListBuffer(2))
+          buf should be (ArrayBuffer(2))
           secondTestCount += 1
           inTest2FirstDescWas = firstDescCount
           inTest2SecondDescWas = secondDescCount
@@ -61,7 +167,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       }
       outerDescCount += 1
     }
-    
+*/
     override def newInstance = new MyFunSpec
   }
   
@@ -95,7 +201,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       inTest2OuterDescWas = 0
     }
   }
-  
+      
   describe("A path.FunSpec") {
     
     it("should execute the first test, and only the first test, on initial instance creation") {

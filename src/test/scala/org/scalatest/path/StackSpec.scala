@@ -44,7 +44,7 @@ class StackSpec extends org.scalatest.path.FunSpec {
   val lastValuePushed = 9
 
   describe("A Stack") {
-    
+       
     val stack = new Stack[Int]
     
     describe("(when empty)") {
