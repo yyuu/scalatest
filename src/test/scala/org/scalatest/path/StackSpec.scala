@@ -37,6 +37,10 @@ class Stack[T] {
 
 class StackSpec extends org.scalatest.path.FunSpec {
 
+  import StackSpec._
+    
+  instanceCount += 1 
+
   val lastValuePushed = 9
 
   describe("A Stack") {
@@ -46,16 +50,19 @@ class StackSpec extends org.scalatest.path.FunSpec {
     describe("(when empty)") {
 
       it("should be empty") {
+        firstTestCount += 1
         assert(stack.empty)
       }
 
       it("should complain on peek") {
+        secondTestCount += 1
         intercept[IllegalStateException] {
           stack.peek
         }
       }
 
       it("should complain on pop") {
+        thirdTestCount += 1
         intercept[IllegalStateException] {
           stack.pop
         }
@@ -64,14 +71,15 @@ class StackSpec extends org.scalatest.path.FunSpec {
 
     describe("(with one item)") {
       
-      val sizeOne = stack.size
+      // val sizeOne = stack.size
       stack.push(9)
-      val sizeTwo = stack.size
-      val outerStack = stack
+      // val sizeTwo = stack.size
+      // val outerStack = stack
       
       it("should be non-empty, DUDE!") {
-        val size = stack.size
-        val stacksAreSame = stack == outerStack
+        // val size = stack.size
+        // val stacksAreSame = stack == outerStack
+        fourthTestCount += 1
         assert(!stack.empty)
       }
 
@@ -106,12 +114,14 @@ class StackSpec extends org.scalatest.path.FunSpec {
         stack.push(i)
 
       it("should be full") {
+        fifthTestCount += 1
         assert(stack.full)
       }
 
       it should behave like nonEmptyStack
 
       it("should complain on a push") {
+        sixthTestCount += 1
         intercept[IllegalStateException] {
           stack.push(10)
         }
@@ -121,20 +131,24 @@ class StackSpec extends org.scalatest.path.FunSpec {
     def nonEmptyStack {
 
       it("should be non-empty") {
+        firstSharedTestCount += 1
         assert(!stack.empty)
       }
 
       it("should return the top item on peek") {
+        secondSharedTestCount += 1
         assert(stack.peek === lastValuePushed)
       }
 
       it("should not remove the top item on peek") {
+        thirdSharedTestCount += 1
         val size = stack.size
         assert(stack.peek === lastValuePushed)
         assert(stack.size === size)
       }
 
       it("should remove the top item on pop") {
+        fourthSharedTestCount += 1
         val size = stack.size
         assert(stack.pop === lastValuePushed)
         assert(stack.size === size - 1)
@@ -144,15 +158,46 @@ class StackSpec extends org.scalatest.path.FunSpec {
     def nonFullStack {
 
       it("should not be full") {
+        fifthSharedTestCount += 1
         assert(!stack.full)
       }
 
       it("should add to the top on push") {
+        sixthSharedTestCount += 1
         val size = stack.size
         stack.push(7)
         assert(stack.size === size + 1)
         assert(stack.peek === 7)
       }
     }
+  }
+}
+
+object StackSpec {
+
+  var instanceCount = 0
+  var firstDescCount = 0
+  var secondDescCount = 0
+  var outerDescCount = 0
+  var firstTestCount = 0
+  var secondTestCount = 0
+  var thirdTestCount = 0
+  var fourthTestCount = 0
+  var fifthTestCount = 0
+  var sixthTestCount = 0
+  var firstSharedTestCount = 0
+  var secondSharedTestCount = 0
+  var thirdSharedTestCount = 0
+  var fourthSharedTestCount = 0
+  var fifthSharedTestCount = 0
+  var sixthSharedTestCount = 0
+    
+  def resetCounts() {
+    instanceCount = 0
+    firstDescCount = 0
+    secondDescCount = 0
+    outerDescCount = 0
+    firstTestCount = 0
+    secondTestCount = 0
   }
 }

@@ -21,14 +21,44 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
   
   import FunSpec.getPath  
-  private val targetPath = getPath
+  private val targetPath: Option[List[Int]] = getPath
   
   private final val engine = new Engine("concurrentSpecMod", "Spec")
   import engine._
   
   // TODO: Should these be private? What are they used for?
-  protected[scalatest] val fileName = "FunSpec.scala"
+  private val sourceFileName = "FunSpec.scala"
   
+  private var currentPath = List.empty[Int]
+  private var usedPathSet = Set.empty[String]
+  
+  private def getNextPath() = {
+    var next: List[Int] = null
+    var count = 0
+    while (next == null) {
+      val candidate = currentPath ::: List(count)
+      if (!usedPathSet.contains(candidate.toList.toString)) {
+        next = candidate
+        usedPathSet += candidate.toList.toString
+      }
+      else
+        count += 1
+    }
+    next
+  }
+
+  /*
+   * First time this is instantiated, targetPath will be null. In that case, execute the
+   * first test, and each describe clause on the way to the first test (the all zeros path).
+   */
+  private def isInTargetPath(currentPath: List[Int], targetPath: Option[List[Int]]): Boolean = {
+    def allZeros(xs: List[Int]) = xs.count(_ == 0) == xs.length
+    if (targetPath.isEmpty)
+      allZeros(currentPath)
+    else
+      targetPath.get.take(currentPath.length) == currentPath
+  }
+
   /**
    * Returns an <code>Informer</code> that during test execution will forward strings (and other objects) passed to its
    * <code>apply</code> method to the current reporter. If invoked in a constructor, it
@@ -87,10 +117,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
      */
     def apply(specText: String, testTags: Tag*)(testFun: => Unit) {
       val nextPath = getNextPath()
-      if (!targetPath.isDefined) {
-        registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
-      }
-      else if (isInTargetPath(nextPath, targetPath.get)) {
+      if (isInTargetPath(nextPath, targetPath)) {
         // Default value of None indicates successful test
         var resultOfRunningTest: Option[Throwable] = None
         
@@ -106,7 +133,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
           if (resultOfRunningTest.isDefined)
             throw resultOfRunningTest.get
         }
-        registerTest(specText, newTestFun, "itCannotAppearInsideAnotherIt", fileName, "apply", testTags: _*)
+        registerTest(specText, newTestFun, "itCannotAppearInsideAnotherIt", sourceFileName, "apply", testTags: _*)
       }
     }
 
@@ -191,32 +218,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
   protected def ignore(testText: String, testTags: Tag*)(testFun: => Unit) {
-    registerIgnoredTest(testText, testFun _, "ignoreCannotAppearInsideAnIt", fileName, "ignore", testTags: _*)
+    registerIgnoredTest(testText, testFun _, "ignoreCannotAppearInsideAnIt", sourceFileName, "ignore", testTags: _*)
   }
   
-  import scala.collection.mutable.ListBuffer
-  private var currentPath = List.empty[Int]
-  private var usedPathSet = Set.empty[String]
-  
-  private def getNextPath() = {
-    var next: List[Int] = null
-    var count = 0
-    while (next == null) {
-      val candidate = currentPath ::: List(count)
-      if (!usedPathSet.contains(candidate.toList.toString)) {
-        next = candidate
-        usedPathSet += candidate.toList.toString
-      }
-      else
-        count += 1
-    }
-    next
-  }
-  
-  private def isInTargetPath(currentPath: List[Int], targetPath: List[Int]): Boolean = {
-    targetPath.take(currentPath.length) == currentPath
-  }
-
   /**
    * Describe a &#8220;subject&#8221; being specified and tested by the passed function value. The
    * passed function value may contain more describers (defined with <code>describe</code>) and/or tests
@@ -225,19 +229,19 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected def describe(description: String)(fun: => Unit) {
     val nextPath = getNextPath()
-    val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
-    val nextPathOne = if (nextPath.length > 1) nextPath(1) else -1
-    val nextPathTwo = if (nextPath.length > 2) nextPath(2) else -1
-    val isDef = targetPath.isDefined
-    val isInTarget = if (isDef) isInTargetPath(nextPath, targetPath.get) else false
-    val theTarget = if (isDef) targetPath.get else List()
-    val targetPathZero = if (theTarget.length > 0) theTarget(0) else -1
-    val targetPathOne = if (theTarget.length > 1) theTarget(1) else -1
-    val targetPathTwo = if (theTarget.length > 2) theTarget(2) else -1
-    if (!targetPath.isDefined || isInTargetPath(nextPath, targetPath.get)) {
+    // val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
+    // val nextPathOne = if (nextPath.length > 1) nextPath(1) else -1
+    // val nextPathTwo = if (nextPath.length > 2) nextPath(2) else -1
+    // val isDef = targetPath.isDefined
+    // val isInTarget = if (isDef) isInTargetPath(nextPath, targetPath) else false
+    // val theTarget = if (isDef) targetPath.get else List()
+    // val targetPathZero = if (theTarget.length > 0) theTarget(0) else -1
+    // val targetPathOne = if (theTarget.length > 1) theTarget(1) else -1
+    // val targetPathTwo = if (theTarget.length > 2) theTarget(2) else -1
+    if (isInTargetPath(nextPath, targetPath)) {
       val oldCurrentPath = currentPath
       currentPath = nextPath
-      registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", fileName, "describe")
+      registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", sourceFileName, "describe")
       currentPath = oldCurrentPath
     }
   }
@@ -283,6 +287,10 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     ListSet(atomic.get.testNamesList.toArray: _*)
   }
 
+  /*
+   * Will need to implement things like testNames, tags, and expectedTestCount to do the isolation many instance thing, because
+   * otherwise, it will not work. Can't just instantiate one of these.
+   */
   /**
    * Run a test. This trait's implementation runs the test registered with the name specified by
    * <code>testName</code>. Each test's name is a concatenation of the text of all describers surrounding a test,
@@ -296,7 +304,11 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * @throws NullPointerException if any of <code>testName</code>, <code>reporter</code>, <code>stopper</code>, or <code>configMap</code>
    *     is <code>null</code>.
    */
-  protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
+    final protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
+      throw new UnsupportedOperationException
+    }
+
+/*  protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
 
     def dontInvokeWithFixture(theTest: TestLeaf) {
       theTest.testFun()
@@ -313,7 +325,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
 
     runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, dontInvokeWithFixture)
   }
-
+*/
   /**
    * A <code>Map</code> whose keys are <code>String</code> tag names to which tests in this <code>FunSpec</code> belong, and values
    * the <code>Set</code> of test names that belong to each tag. If this <code>FunSpec</code> contains no tags, this method returns an empty <code>Map</code>.
@@ -324,13 +336,21 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * </p>
    */
   override def tags: Map[String, Set[String]] = atomic.get.tagsMap
+/*
+ * Use Suite.run implementation. Allow overriding nestedSuites and runNestedSuites. implement runTests to do the funky thing.
+ */
+  final override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
+      configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
+    super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
+  }
+/* OLD
   override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
     runImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, super.run)
   }
-
+*/
   /**
    * Supports shared test registration in <code>FunSpec</code>s.
    *
@@ -350,7 +370,19 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   protected val behave = new BehaveWord
 
-/* This is the same
+  // This guy must check the path. If null, that's the first instance, so go zero zero zero until hit first test, then execute it (if testName is
+  // undefined. (If testName is defined, keep going until you hit that chosen test name.) Anyway, after executing test one in the initial instance,
+  // need to write the path and return, then. Oh wait, that's not runTests, that just the constructor. How can that work?
+  /*
+   * I think the first instance, when the path is null, it will need to run the first test. Then the first time a method is called, be it
+   * expectedTestCount, testNames, tags, etc., I'll fill in the remaining ones and freeze dry them. Next tiem those things are called, it
+   * will use the cached stuff. If run is called again it just returns the old results, because can't rerun the zeros test until I get
+   * a new instance.
+   */
+  final protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
+                             configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+  }
+    /* This is the same
   protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
     testName match {
@@ -362,12 +394,12 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         }
     }
   }
-*/
-  /*
+*//*
   final override def prepareNewInstanceFor(testName: String): Suite = {
     FunSpec.setPath(engine.testPath(testName))
     newInstance
-  }*/
+  }
+  */
 }
 
 private[path] object FunSpec {

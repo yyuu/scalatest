@@ -66,7 +66,6 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
   }
   
   object MyFunSpec {
-    import scala.collection.mutable.ListBuffer
     
     var instanceCount = 0
     var firstDescCount = 0
@@ -99,18 +98,46 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
   
   describe("A path.FunSpec") {
     
-    import MyFunSpec._
-    it("should create an one instance per test, running each describe clause once plus once per path ") {
+    it("should execute the first test, and only the first test, on initial instance creation") {
+      {
+        import MyFunSpec._
+        resetCounts()
+        val mySpec = new MyFunSpec() 
+        assert(firstTestCount === 1)
+        assert(secondTestCount === 0)
+      }
+      {
+        import StackSpec._
+        resetCounts()
+        val stackSpec = new StackSpec() 
+        assert(firstTestCount === 1)
+        assert(secondTestCount === 0)
+        assert(thirdTestCount === 0)
+        assert(fourthTestCount === 0)
+        assert(fifthTestCount === 0)
+        assert(sixthTestCount === 0)
+        assert(firstSharedTestCount === 0)
+        assert(secondSharedTestCount === 0)
+        assert(thirdSharedTestCount === 0)
+        assert(fourthSharedTestCount === 0)
+        assert(fifthSharedTestCount === 0)
+        assert(sixthSharedTestCount === 0)
+      }
+    }
+
+    ignore("should create an one instance per test, running each describe clause once plus once per path ") {
+      import MyFunSpec._
       resetCounts()
       val mySpec = new MyFunSpec()
       mySpec.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
-      assert(instanceCount === 3)
-      assert(firstDescCount === 2)
-      assert(secondDescCount === 2)
-      assert(outerDescCount === 3)
+      assert(instanceCount === 2)
+      assert(firstDescCount === 1)
+      assert(secondDescCount === 1)
+      assert(outerDescCount === 2)
     }
     
-    it("should execute each test once") {
+    ignore("should execute each test once") {
+      import MyFunSpec._
       resetCounts()
       val mySpec = new MyFunSpec()
       mySpec.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
@@ -118,15 +145,16 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       assert(secondTestCount === 1)
     }
     
-    it("should execute each test before anything textually after the tests") {
+    ignore("should execute each test before anything textually after the tests") {
+      import MyFunSpec._
       resetCounts()
       val mySpec = new MyFunSpec()
       mySpec.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
-      assert(inTest1FirstDescWas === 1)
-      assert(inTest1SecondDescWas === 1)
-      assert(inTest1OuterDescWas === 1)
-      assert(inTest2FirstDescWas === 2)
-      assert(inTest2SecondDescWas === 1)
+      assert(inTest1FirstDescWas === 0)
+      assert(inTest1SecondDescWas === 0)
+      assert(inTest1OuterDescWas === 0)
+      assert(inTest2FirstDescWas === 1)
+      assert(inTest2SecondDescWas === 0)
       assert(inTest2OuterDescWas === 2)
     }
  
@@ -145,7 +173,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       override def newInstance = new AllResultsSpec
 	}
 
-    it("should report a sucessful/failed/pending/ignored tests correctly") {
+    ignore("should report a sucessful/failed/pending/ignored tests correctly") {
 
       val mySpec = new AllResultsSpec()
       val repo = new EventRecordingReporter
@@ -156,6 +184,8 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       assert(repo.testIgnoredEventsReceived.size === 1)
     }
   }
+}
+
  /* Will disallow parallel in path traits probably.
   
   class MyParallelFunSpec extends org.scalatest.path.FunSpec with ShouldMatchers with ParallelTestExecution {
@@ -349,4 +379,4 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
     }
   }
   */
-}
+
