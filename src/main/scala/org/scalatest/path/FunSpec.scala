@@ -291,7 +291,8 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   final override def testNames: Set[String] = {
     ensureTestResultsRegistered()
-    super.testNames
+    // I'm returning a ListSet here so that they tests will be run in registration order
+    ListSet(atomic.get.testNamesList.toArray: _*)
   }
 
   final override def expectedTestCount(filter: Filter): Int = {
@@ -315,28 +316,17 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * @throws NullPointerException if any of <code>testName</code>, <code>reporter</code>, <code>stopper</code>, or <code>configMap</code>
    *     is <code>null</code>.
    */
-    final protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
-      throw new UnsupportedOperationException
-    }
+  final protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
 
-/*  protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
-
+    ensureTestResultsRegistered()
+    
     def dontInvokeWithFixture(theTest: TestLeaf) {
       theTest.testFun()
-      /*
-      val theConfigMap = configMap
-      withFixture(
-        new NoArgTest {
-          def name = testName
-          def apply() { theTest.testFun() }
-          def configMap = theConfigMap
-        }
-      )*/
     }
 
     runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, dontInvokeWithFixture)
   }
-*/
+
   /**
    * A <code>Map</code> whose keys are <code>String</code> tag names to which tests in this <code>FunSpec</code> belong, and values
    * the <code>Set</code> of test names that belong to each tag. If this <code>FunSpec</code> contains no tags, this method returns an empty <code>Map</code>.
@@ -346,22 +336,21 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * methods <code>test</code> and <code>ignore</code>. 
    * </p>
    */
-  override def tags: Map[String, Set[String]] = atomic.get.tagsMap
+  final override def tags: Map[String, Set[String]] = {
+    ensureTestResultsRegistered()
+    atomic.get.tagsMap
+  }
+  
 /*
- * Use Suite.run implementation. Allow overriding nestedSuites and runNestedSuites. implement runTests to do the funky thing.
+ * Use Suite.run implementation. Allow overriding nestedSuites and runNestedSuites.
  */
   final override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
-    super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
+   ensureTestResultsRegistered()
+   super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
   }
-/* OLD
-  override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
-      configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
-    runImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, super.run)
-  }
-*/
   /**
    * Supports shared test registration in <code>FunSpec</code>s.
    *
@@ -393,7 +382,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   final protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
     ensureTestResultsRegistered()
-    super.runTests(testName, reporter, stopper, filter, configMap, distributor, tracker)
+    runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
   
   /* This is the same
