@@ -47,6 +47,13 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     next
   }
 
+  private var testsResultsRegistered = false
+  private def ensureTestResultsRegistered() {
+    synchronized {
+       testsResultsRegistered = true 
+    }
+  }
+  
   /*
    * First time this is instantiated, targetPath will be null. In that case, execute the
    * first test, and each describe clause on the way to the first test (the all zeros path).
@@ -282,11 +289,15 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * "A Stack (when not full) must allow me to push"
    * </pre>
    */
-  override def testNames: Set[String] = {
-    // I'm returning a ListSet here so that they tests will be run in registration order
-    ListSet(atomic.get.testNamesList.toArray: _*)
+  final override def testNames: Set[String] = {
+    ensureTestResultsRegistered()
+    super.testNames
   }
 
+  final override def expectedTestCount(filter: Filter): Int = {
+    ensureTestResultsRegistered()
+    super.expectedTestCount(filter)
+  }
   /*
    * Will need to implement things like testNames, tags, and expectedTestCount to do the isolation many instance thing, because
    * otherwise, it will not work. Can't just instantiate one of these.
@@ -381,8 +392,11 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   final protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+    ensureTestResultsRegistered()
+    super.runTests(testName, reporter, stopper, filter, configMap, distributor, tracker)
   }
-    /* This is the same
+  
+  /* This is the same
   protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
     testName match {
