@@ -364,13 +364,15 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     ensureTestResultsRegistered()
     runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
-  
-/*
-  final override def prepareNewInstanceFor(testName: String): Suite = {
-    FunSpec.setPath(engine.testPath(testName))
-    newInstance
+
+  final protected override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
+                                configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
   }
-  */
+  
+  // Don't even allow nested suites in here, for starters at least, because they would run *after* the tests run, which 
+  // would be inconsistent with the rest of ScalaTest. If you want to do nested suites, can wrap one of these in another
+  // one that does nested suites.
+  final override def nestedSuites: List[Suite] = Nil
 }
 
 private[path] object FunSpec {
