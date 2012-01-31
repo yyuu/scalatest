@@ -25,7 +25,7 @@ class FreeSpecFinder extends Finder {
             }
             else
               getTestNamesTopDownAcc(invocation.children.toList ::: rs, acc)
-          case _ => acc
+          case _ => getTestNamesTopDownAcc(rs, acc)
         }
     }
     getTestNamesTopDownAcc(List(invocation), List.empty).reverse
