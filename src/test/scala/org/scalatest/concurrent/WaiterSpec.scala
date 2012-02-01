@@ -184,5 +184,30 @@ class WaiterSpec extends fixture.FunSpec with ShouldMatchers with SharedHelpers 
       }
       con.conduct()
     }
+    
+    it("should await to be called multiple times") { con => import con._
+
+      @volatile var w: Waiter = null
+
+      thread {
+        waitForBeat(1)
+        w.dismiss()
+        waitForBeat(3)
+        w { fail("I meant to do that!") }
+      }
+
+      thread {
+        w = new Waiter
+        w.await()
+        waitForBeat(2)
+        val caught =
+          intercept[TestFailedException] {
+            w.await()
+          }
+        caught.message.value should be ("I meant to do that!")
+      }
+
+      con.conduct()
+    }
   }
 }

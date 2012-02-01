@@ -166,9 +166,10 @@ class Waiter {
    * Wait for an exception to be produced by the by-name passed to <code>apply</code> or the specified number of dismissals.
    * 
    * <p>
-   * This method may only be invoked by the thread that created the <code>Waiter</code>, but may be invoked multiple times. 
-   * Each time this method is invoked, its internal dismissal count is reset to zero. The default value for the <code>dismissals</code>
-   * parameter is 1.
+   * This method may only be invoked by the thread that created the <code>Waiter</code>. 
+   * Each time this method completes, its internal dismissal count is reset to zero, so it can be invoked multiple times. However,
+   * once <code>await</code> has completed abruptly with an exception produced during a call to <code>apply</code>, it will continue
+   * to complete abruptly with that exception. The default value for the <code>dismissals</code> parameter is 1.
    * </p>
    * 
    * <p>
@@ -185,12 +186,13 @@ class Waiter {
   def await(timeout: Long = -1, dismissals: Int = 1) {
     if (Thread.currentThread != creatingThread)
       fail(Resources("awaitMustBeCalledOnCreatingThread")) // TODO: This should be a new NotAllowedEx so it can have a stack depth
-      
+    
     val startTime = System.currentTimeMillis
     def timedOut = timeout >= 0 && startTime + timeout < System.currentTimeMillis
     while (dismissedCount < dismissals && !timedOut && thrown.isEmpty)
       Thread.sleep(10)
-  
+
+    dismissedCount = 0 // reset the dismissed count to support multiple await calls
     if (thrown.isDefined)
       throw thrown.get
     else if (timedOut)
