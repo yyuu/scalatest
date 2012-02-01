@@ -74,52 +74,52 @@ import Assertions.fail
  * </p>
  * 
  * <pre class="stHighlight">
-import org.scalatest._
-import concurrent.Waiter
-import matchers.ShouldMatchers
-import scala.actors.Actor
-
-class ExampleSuite extends FunSuite with ShouldMatchers {
-
-  case class Message(text: String)
-
-  class Publisher extends Actor {
-
-    @volatile private var handle: Message => Unit = { (msg) => }
-
-    def registerHandler(f: Message => Unit) {
-      handle = f
-    }
-
-    def act() {
-      var done = false
-      while (!done) {
-        receive {
-          case msg: Message => handle(msg)
-          case "Exit" => done = true
-        }
-      }
-    }
-  }
-
-  test("example one") {
-    
-    val publisher = new Publisher
-    val message = new Message("hi")
-    val w = new Waiter
-
-    publisher.start()
-
-    publisher.registerHandler { msg =>
-      w { msg should equal (message) }
-      w.dismiss()
-    }
-
-    publisher ! message
-    w.await()
-    publisher ! "Exit"
-  }
-}
+ * import org.scalatest._
+ * import concurrent.Waiter
+ * import matchers.ShouldMatchers
+ * import scala.actors.Actor
+ * 
+ * class ExampleSuite extends FunSuite with ShouldMatchers {
+ * 
+ *   case class Message(text: String)
+ * 
+ *   class Publisher extends Actor {
+ * 
+ *     @volatile private var handle: Message => Unit = { (msg) => }
+ * 
+ *     def registerHandler(f: Message => Unit) {
+ *       handle = f
+ *     }
+ * 
+ *     def act() {
+ *       var done = false
+ *       while (!done) {
+ *         receive {
+ *           case msg: Message => handle(msg)
+ *           case "Exit" => done = true
+ *         }
+ *       }
+ *     }
+ *   }
+ * 
+ *   test("example one") {
+ *     
+ *     val publisher = new Publisher
+ *     val message = new Message("hi")
+ *     val w = new Waiter
+ * 
+ *     publisher.start()
+ * 
+ *     publisher.registerHandler { msg =>
+ *       w { msg should equal (message) }
+ *       w.dismiss()
+ *     }
+ * 
+ *     publisher ! message
+ *     w.await()
+ *     publisher ! "Exit"
+ *   }
+ * }
  * </pre>
  * 
  * @author Bill Venners
