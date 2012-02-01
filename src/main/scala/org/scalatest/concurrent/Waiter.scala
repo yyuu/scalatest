@@ -137,6 +137,21 @@ class Waiter {
     }
   }
   
+  /**
+   * Executes the passed by-name, and if it throws an exception, forwards it to the thread that calls <code>await</code>, unless
+   * a by-name passed during a previous invocation of this method threw an exception.
+   * 
+   * <p>
+   * This method returns normally whether or not the passed function completes abruptly. If called multiple times, only the
+   * first invocation that yields an exception will "win" and have its exception forwarded to the thread that calls <code>await</code>.
+   * Any subsequent exceptions will be "swallowed." This method may be invoked by multiple threads concurrently, in which case it is a race
+   * to see who wins and has their exception forwarded to <code>await</code>. The <code>await</code> call will eventually complete
+   * abruptly with the winning exception, or return normally if that instance of <code>Waiter</code> is dismissed. Any exception thrown by
+   * a by-name passed to <code>apply</code> after the <code>Waiter</code> has been dismissed will also be "swallowed."
+   * </p>
+   * 
+   * @param fun the by-name function to execute
+   */
   def apply(fun: => Unit) {
     try {
       fun
@@ -147,9 +162,29 @@ class Waiter {
   }
   
   // -1 is forever? Or should I have a default of 1000?
+  /**
+   * Wait for an exception to be produced by the by-name passed to <code>apply</code> or the specified number of dismissals.
+   * 
+   * <p>
+   * This method may only be invoked by the thread that created the <code>Waiter</code>, but may be invoked multiple times. 
+   * Each time this method is invoked, its internal dismissal count is reset to zero. The default value for the <code>dismissals</code>
+   * parameter is 1.
+   * </p>
+   * 
+   * <p>
+   * The <code>timeout</code> parameter allows you to specify a timeout after which a <code>TestFailedException</code> will be thrown with
+   * a detail message indicating the <code>await</code> call timed out. The default value for <code>timeout</code> is -1, which indicates
+   * no timeout at all. Any positive value (or zero) will be interpreted as a timeout expressed in milliseconds. If no calls to <code>apply</code>
+   * have produced an exception and an insufficient number of dismissals has been received by the time the <code>timeout</code> number
+   * of milliseconds has passed, <code>await</code> will complete abruptly with <code>TestFailedException</code>.
+   * </p>
+   * 
+   * @param timeout the number of milliseconds timeout, or -1 to indicate no timeout (default is -1)
+   * @param dismissals the number of dismissals to wait for (default is 1)
+   */
   def await(timeout: Long = -1, dismissals: Int = 1) {
     if (Thread.currentThread != creatingThread)
-      fail(Resources("awaitMustBeCalledOnCreatingThread"))
+      fail(Resources("awaitMustBeCalledOnCreatingThread")) // TODO: This should be a new NotAllowedEx so it can have a stack depth
       
     val startTime = System.currentTimeMillis
     def timedOut = timeout >= 0 && startTime + timeout < System.currentTimeMillis
@@ -159,9 +194,17 @@ class Waiter {
     if (thrown.isDefined)
       throw thrown.get
     else if (timedOut)
-      fail(Resources("awaitTimedOut"))
+      fail(Resources("awaitTimedOut")) // This should be a new TFE so it can have the correct stack depth
   }
   
+  /**
+   * Increases the dismissal count by one. 
+   * 
+   * <p>
+   * Once the dismissal count has reached the value passed to <code>await</code> (and no prior invocations of <code>apply</code>
+   * produced an exception), <code>await</code> will return normally. 
+   * </p>
+   */
   def dismiss() {
     dismissedCount += 1
   }
