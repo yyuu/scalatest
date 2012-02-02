@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 
 /**
  * Provides the base for all mojos.
- * 
+ *
  * @author Jon-Anders Teigen
  * @author Sean Griffin
  * @author Mike Pilquist
@@ -119,6 +119,36 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      */
     String forkMode;
 
+    /**
+     * Option to specify additional JVM options to pass to the forked process.
+     *
+     * @parameter expression="${argLine}"
+     */
+    String argLine;
+
+    /**
+     * Option to specify whether the forked process should wait at startup for a remote debugger to attach.
+     *
+     * <p>If set to <code>true</code>, the forked process will suspend at startup and wait for a remote
+     * debugger to attach to the configured port.</p>
+     *
+     * <p>If set to any other string, the string will be concatenated with <code>argLine</code>, allowing
+     * arbitrary debug options to be set without having to manually concatenate <code>argLine</code>.</p>
+     *
+     * <p>Note: this behavior is compatible with maven-surefire-plugin's usage of <code>debugForkedProcess</code> and
+     * <code>argLine</code>.</p>
+     *
+     * @parameter expression="${debugForkedProcess}"
+     */
+    String debugForkedProcess;
+
+    /**
+     * Port to listen on when debugging the forked process.
+     *
+     * @parameter expression="${debuggerPort}" default-value="5005"
+     */
+    int debuggerPort = 5005;
+
     // runScalaTest is called by the concrete mojo subclasses  TODO: make it protected and others too
     // Returns true if all tests pass
     boolean runScalaTest(String[] args) {
@@ -154,7 +184,6 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     // Returns true if all tests pass
     private boolean runForkingOnce(String[] args) {
 
-        // System.out.println("##### testClasspathElements:");
         StringBuffer buf = new StringBuffer();
         boolean first = true;
         for (String e : testClasspathElements) {
@@ -165,31 +194,27 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
                 buf.append(File.pathSeparator);
             }
             buf.append(e);
-            // System.out.println(e);
         }
         String classPath = buf.toString();
-        // System.out.println("##### classPath: " + classPath);
-        // System.out.println("##### testOutputDirectory: " + testOutputDirectory);
-        // System.out.println("##### outputDirectory: " + outputDirectory);
-        String[] commandArgs = new String[args.length + 3];
-        commandArgs[0] = "java";
-        commandArgs[1] = String.format("-Dbasedir=%s", System.getProperty("basedir"));
-        commandArgs[2] = "org.scalatest.tools.Runner";
-        int i = 3;
-        for (String a : args) {
-            commandArgs[i] = a;
-            ++i;
+
+        List<String> commandArgs = new ArrayList<String>();
+        commandArgs.add("java");
+        commandArgs.add(String.format("-Dbasedir=%s", System.getProperty("basedir")));
+        if (argLine != null) {
+            commandArgs.add(argLine);
         }
-        // System.out.println("##### classPath: " + classPath);
-        // System.out.println("##### commandArgs:");
-        // for (String e : commandArgs) {
-        //     System.out.println(e);
-        // }
-        // System.out.println("##### I AM USING PROCESSBUILDER");
+        if (shouldDebugForkedProcess()) {
+            commandArgs.addAll(forkedProcessDebuggingArguments());
+        }
+        commandArgs.add("org.scalatest.tools.Runner");
+        commandArgs.addAll(Arrays.asList(args));
+
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Forking java process via: " + commandArgs);
+        }
 
         try {
-            // Process process = Runtime.getRuntime().exec(commandArgs);
-            ProcessBuilder builder = new ProcessBuilder(Arrays.asList(commandArgs));
+            ProcessBuilder builder = new ProcessBuilder(commandArgs);
             builder.redirectErrorStream(true);
             builder.environment().put("CLASSPATH", classPath);
             Process process = builder.start();
@@ -212,6 +237,22 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private boolean shouldDebugForkedProcess() {
+        return debugForkedProcess != null && debugForkedProcess.trim().length() > 0;
+    }
+
+    private List<String> forkedProcessDebuggingArguments() {
+        final String trimmedDebugForkedProcess = debugForkedProcess.trim();
+        if ("true".equals(trimmedDebugForkedProcess)) {
+            return Arrays.asList(
+                "-Xdebug",
+                String.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%s", debuggerPort)
+            );
+        } else {
+            return Arrays.asList(trimmedDebugForkedProcess);
         }
     }
 
