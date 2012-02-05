@@ -70,7 +70,18 @@ import Assertions.fail
  * </p>
  * 
  * <p>
- * Here's an example:
+ * Finally, to perform an assertion in a different thread, you just apply the <code>Waiter</code> to the assertion code. Here are
+ * some examples:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * w { assert(1 + 1 === 3) }    // Can use assertions
+ * w { 1 + 1 should equal (3) } // Or matchers
+ * w { "hi".charAt(-1) }        // Any exceptions will be forwarded to await
+ * </pre>
+ * 
+ * <p>
+ * Here's a complete example:
  * </p>
  * 
  * <pre class="stHighlight">
