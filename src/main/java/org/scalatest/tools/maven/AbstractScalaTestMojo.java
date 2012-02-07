@@ -1,6 +1,15 @@
 package org.scalatest.tools.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineTimeOutException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.codehaus.plexus.util.cli.Commandline;
+import org.codehaus.plexus.util.cli.StreamConsumer;
+
 import static org.scalatest.tools.maven.MojoUtils.*;
 
 import java.io.*;
@@ -8,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+
 import static java.util.Collections.singletonList;
 
 import java.net.MalformedURLException;
@@ -27,6 +38,13 @@ import java.lang.reflect.Method;
  * @requiresDependencyResolution test
  */
 abstract class AbstractScalaTestMojo extends AbstractMojo {
+    /**
+     * @parameter default-value="${project}"
+     * @required
+     * @readonly
+     */
+    MavenProject project;
+
     /**
      * @parameter expression="${project.testClasspathElements}"
      * @required
@@ -127,20 +145,39 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     String argLine;
 
     /**
+     * Additional environment variables to pass to the forked process.
+     *
+     * @parameter
+     */
+    Map<String, String> environmentVariables;
+
+    /**
+     * Additional system properties to pass to the forked process.
+     *
+     * @parameter
+     */
+    Map<String, String> systemProperties;
+
+    /**
      * Option to specify whether the forked process should wait at startup for a remote debugger to attach.
      *
      * <p>If set to <code>true</code>, the forked process will suspend at startup and wait for a remote
      * debugger to attach to the configured port.</p>
      *
-     * <p>If set to any other string, the string will be concatenated with <code>argLine</code>, allowing
-     * arbitrary debug options to be set without having to manually concatenate <code>argLine</code>.</p>
-     *
-     * <p>Note: this behavior is compatible with maven-surefire-plugin's usage of <code>debugForkedProcess</code> and
-     * <code>argLine</code>.</p>
-     *
-     * @parameter expression="${debugForkedProcess}"
+     * @parameter expression="${debugForkedProcess}" default-value="false"
      */
-    String debugForkedProcess;
+    boolean debugForkedProcess;
+
+    /**
+     * JVM options to pass to the forked process when <code>debugForkedProcess</code> is true.
+     *
+     * <p>If set to a non-empty value, the standard debug arguments are replaced by the specified arguments.
+     * This allows customization of how remote debugging is done, without having to reconfigure the JVM
+     * options in <code>argLine</code>.
+     *
+     * @parameter expression="${debugArgLine}"
+     */
+    String debugArgLine;
 
     /**
      * Port to listen on when debugging the forked process.
@@ -149,11 +186,27 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      */
     int debuggerPort = 5005;
 
+    /**
+     * Timeout in seconds to allow the forked process to run before killing it and failing the test run.
+     *
+     * <p>If set to 0, process never times out.</p>
+     *
+     * @parameter expression="${timeout}" default-value="0"
+     */
+    int forkedProcessTimeoutInSeconds = 0;
+
+    /**
+     * Whether or not to log the command used to launch the forked process.
+     *
+     * @parameter expression="${logForkedProcessCommand}" default-value="false"
+     */
+    boolean logForkedProcessCommand;
+
+
     // runScalaTest is called by the concrete mojo subclasses  TODO: make it protected and others too
     // Returns true if all tests pass
-    boolean runScalaTest(String[] args) {
+    boolean runScalaTest(String[] args) throws MojoFailureException {
         getLog().debug(Arrays.toString(args));
-        // System.out.println("##### " + Arrays.toString(args));
         if (forkMode.equals("never")) {
             return runWithoutForking(args);
         }
@@ -182,8 +235,70 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     }
 
     // Returns true if all tests pass
-    private boolean runForkingOnce(String[] args) {
+    private boolean runForkingOnce(String[] args) throws MojoFailureException {
 
+        final Commandline cli = new Commandline();
+        cli.setWorkingDirectory(project.getBasedir());
+        cli.setExecutable("java");
+
+        // Set up environment
+        if (environmentVariables != null) {
+            for (final Map.Entry<String, String> entry : environmentVariables.entrySet()) {
+                cli.addEnvironment(entry.getKey(), entry.getValue());
+            }
+        }
+        cli.addEnvironment("CLASSPATH", buildClassPathEnvironment());
+
+        // Set up system properties
+        if (systemProperties != null) {
+            for (final Map.Entry<String, String> entry : systemProperties.entrySet()) {
+                cli.createArg().setValue(String.format("-D%s=%s", entry.getKey(), entry.getValue()));
+            }
+        }
+        cli.createArg().setValue(String.format("-Dbasedir=%s", project.getBasedir().getAbsolutePath()));
+
+        // Set user specified JVM arguments
+        if (argLine != null) {
+            cli.createArg().setLine(argLine);
+        }
+
+        // Set debugging JVM arguments if debugging is enabled
+        if (debugForkedProcess) {
+            cli.createArg().setLine(forkedProcessDebuggingArguments());
+        }
+
+        // Set ScalaTest arguments
+        cli.createArg().setValue("org.scalatest.tools.Runner");
+        for (final String arg : args) {
+            cli.createArg().setValue(arg);
+        }
+
+        // Log command string
+        final String commandLogStatement = "Forking ScalaTest via: " + cli;
+        if (logForkedProcessCommand) {
+            getLog().info(commandLogStatement);
+        } else {
+            getLog().debug(commandLogStatement);
+        }
+
+        final StreamConsumer streamConsumer = new StreamConsumer() {
+            public void consumeLine(final String line) {
+                System.out.println(line);
+            }
+        };
+        try {
+            final int result = CommandLineUtils.executeCommandLine(cli, streamConsumer, streamConsumer, forkedProcessTimeoutInSeconds);
+            return result == 0;
+        }
+        catch (final CommandLineTimeOutException e) {
+            throw new MojoFailureException(String.format("Timed out after %d seconds waiting for forked process to complete.", forkedProcessTimeoutInSeconds));
+        }
+        catch (final CommandLineException e) {
+            throw new MojoFailureException("Exception while executing forked process.", e);
+        }
+    }
+
+    private String buildClassPathEnvironment() {
         StringBuffer buf = new StringBuffer();
         boolean first = true;
         for (String e : testClasspathElements) {
@@ -195,85 +310,15 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
             }
             buf.append(e);
         }
-        String classPath = buf.toString();
-
-        List<String> commandArgs = new ArrayList<String>();
-        commandArgs.add("java");
-        commandArgs.add(String.format("-Dbasedir=%s", System.getProperty("basedir")));
-        if (argLine != null) {
-            commandArgs.add(argLine);
-        }
-        if (shouldDebugForkedProcess()) {
-            commandArgs.addAll(forkedProcessDebuggingArguments());
-        }
-        commandArgs.add("org.scalatest.tools.Runner");
-        commandArgs.addAll(Arrays.asList(args));
-
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Forking java process via: " + commandArgs);
-        }
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(commandArgs);
-            builder.redirectErrorStream(true);
-            builder.environment().put("CLASSPATH", classPath);
-            Process process = builder.start();
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                try {
-                    String line = reader.readLine();
-                    while (line != null) {
-                        System.out.println(line);
-                        line = reader.readLine();
-                    }
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                int exitValue = process.waitFor();
-                return exitValue == 0;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return buf.toString();
     }
 
-    private boolean shouldDebugForkedProcess() {
-        return debugForkedProcess != null && debugForkedProcess.trim().length() > 0;
-    }
-
-    private List<String> forkedProcessDebuggingArguments() {
-        final String trimmedDebugForkedProcess = debugForkedProcess.trim();
-        if ("true".equals(trimmedDebugForkedProcess)) {
-            return Arrays.asList(
-                "-Xdebug",
-                String.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%s", debuggerPort)
-            );
+    private String forkedProcessDebuggingArguments() {
+        if (debugArgLine == null) {
+            return String.format("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%s", debuggerPort);
         } else {
-            return Arrays.asList(trimmedDebugForkedProcess);
+            return debugArgLine;
         }
-    }
-
-    // sideeffect! Currently not used, was probably used for debugging
-    private void print(String[] args) {
-        StringBuffer sb = new StringBuffer("org.scalatest.tools.Runner.run(");
-        for (int i = 0; i < args.length; i++) {
-            boolean ws = args[i].contains(" ");
-            if (ws) {
-                sb.append("\"");
-            }
-            sb.append(args[i]);
-            if (ws) {
-                sb.append("\"");
-            }
-            if (i + 1 < args.length) {
-                sb.append(", ");
-            }
-        }
-        sb.append(")");
-        getLog().info(sb.toString());
     }
 
     // This is just used by runScalaTest to get the method to invoke

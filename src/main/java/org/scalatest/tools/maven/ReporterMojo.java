@@ -46,6 +46,9 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
         try {
             runScalaTest(configuration());
         }
+        catch (MojoFailureException e) {
+            throw new MavenReportException("Failure executing ScalaTest", e);
+        }
         catch (RuntimeException e) {
             throw new MavenReportException("Failure executing ScalaTest", e);
         }
