@@ -17,22 +17,50 @@ package org.scalatest.concurrent
 
 import org.scalatest._
 import matchers.ShouldMatchers
+import SharedHelpers.thisLineNumber
 
 class WaiterSpec extends fixture.FunSpec with ShouldMatchers with SharedHelpers with ConductorFixture with OptionValues {
-
-  val baseLineNumber = 23
-
+/*
+  def withCause(cause: Throwable)(fun: => Unit) {
+    try {
+      fun  
+    }
+    catch {
+      case e: TestFailedException =>
+        def setCause(oldEx: Throwable) {
+          if (oldEx.getCause == null)
+            oldEx.initCause(cause)  
+          else
+            setCause(oldEx.getCause)
+        }
+        try {
+          setCause(e)
+        }
+        catch {
+          // Swallow IAEs and ISEs. IAE can occur if they try to set an exception's cause to itself
+          // The ISE can happen if initCause was already invoked on an exception. In either case, withCause
+          // will just fail.
+          case iae: IllegalArgumentException => println("Got an IAE")
+          case ise: IllegalStateException => println("Got an ISE")
+        }
+        throw e // Rethrow the same exception with its cause augmented
+    }
+  }
+  */
   describe("A Waiter") {
 
-    it("should throw an exception if await is called by a thread different from the" +
+    it("should throw a NotAllowedException if await is called by a thread different from the" +
     		"thread that constructed the Waiter") { con => import con._
       val w = new Waiter
       thread {
         val caught =
-          intercept[TestFailedException] {
+          intercept[NotAllowedException] {
   	        w.await()
           }
         caught.message.value should be (Resources("awaitMustBeCalledOnCreatingThread"))
+        if (caught.failedCodeLineNumber.value != thisLineNumber - 3)
+          fail("stack depth was " + caught.failedCodeLineNumber.value + " but expected " + (thisLineNumber - 4), caught)
+        //caught.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       }
       con.conduct()
     }
@@ -125,6 +153,8 @@ class WaiterSpec extends fixture.FunSpec with ShouldMatchers with SharedHelpers 
           w.await(timeout = 10)
         }
       caught.message.value should be (Resources("awaitTimedOut"))
+      if (caught.failedCodeLineNumber.value != thisLineNumber - 3)
+        fail("stack depth was " + caught.failedCodeLineNumber.value + " but expected " + (thisLineNumber - 4), caught)
     }
 
     it("should still return the thrown exception if thrown before await is called") { con => import con._

@@ -196,7 +196,7 @@ class Waiter {
    */
   def await(timeout: Long = -1, dismissals: Int = 1) {
     if (Thread.currentThread != creatingThread)
-      fail(Resources("awaitMustBeCalledOnCreatingThread")) // TODO: This should be a new NotAllowedEx so it can have a stack depth
+      throw new NotAllowedException(Resources("awaitMustBeCalledOnCreatingThread"), 1)
     
     val startTime = System.currentTimeMillis
     def timedOut = timeout >= 0 && startTime + timeout < System.currentTimeMillis
@@ -207,7 +207,7 @@ class Waiter {
     if (thrown.isDefined)
       throw thrown.get
     else if (timedOut)
-      fail(Resources("awaitTimedOut")) // This should be a new TFE so it can have the correct stack depth
+      throw new TestFailedException(Resources("awaitTimedOut"), 1)
   }
   
   /**
