@@ -435,12 +435,18 @@ trait Eventually {
           val duration = System.currentTimeMillis - startMillis
           if (duration < timeout)
             Thread.sleep(interval)
-          else
+          else {
+            def msg =
+              if (e.getMessage == null)
+                Resources("didNotEventuallySucceed", attempt.toString, interval.toString)
+              else
+                Resources("didNotEventuallySucceedBecause", attempt.toString, interval.toString, e.getMessage)
             throw new TestFailedException(
-              sde => Some(Resources("didNotEventuallySucceed", attempt.toString, interval.toString)),
+              sde => Some(msg),
               Some(e),
               getStackDepthFun("Eventually.scala", "eventually")
             )
+          }
 
           tryTryAgain(attempt + 1)
       }

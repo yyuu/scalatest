@@ -67,11 +67,27 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
       val caught = evaluating {
         eventually {
           count += 1
-          1 + 1 should equal (3)
+          throw new RuntimeException
+          ()
         }
       } should produce [TestFailedException]
 
       caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "10"))
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
+      caught.failedCodeFileName.value should be ("EventuallySpec.scala")
+    }
+
+    it("should eventually blow up with a TFE if the by-name continuously throws an exception, and include the last failure message in the TFE message") {
+
+      var count = 0
+      val caught = evaluating {
+        eventually {
+          count += 1
+          1 + 1 should equal (3)
+        }
+      } should produce [TestFailedException]
+
+      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "10", "2 did not equal 3"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 7)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
