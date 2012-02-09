@@ -29,6 +29,18 @@ trait WhenReady extends RetryConfiguration {
     def tryTryAgain(attempt: Int): U = {
       val timeout = config.timeout
       val interval = config.interval
+      if (future.isCanceled)
+        throw new TestFailedException(
+          sde => Some(Resources("futureWasCanceled", attempt.toString, interval.toString)),
+          None,
+          getStackDepthFun("WhenReady.scala", "whenReady")
+        )
+      if (future.isExpired)
+        throw new TestFailedException(
+          sde => Some(Resources("futureExpired", attempt.toString, interval.toString)),
+          None,
+          getStackDepthFun("WhenReady.scala", "whenReady")
+        )
       future.value match {
         case Some(Right(v)) => fun(v)
         case Some(Left(tpe: TestPendingException)) => throw tpe // TODO: In 2.0 add TestCanceledException here

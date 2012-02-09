@@ -107,7 +107,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
       count should equal (5)
     }
 // TODO: tests for isDropped and isExpired
-    ignore("should throw TFE with appropriate detail message if the future is canceled") {
+    it("should throw TFE with appropriate detail message if the future is canceled") {
       val canceledFuture =
         new SuperFutureOfJava {
           override def isCancelled = true
@@ -117,11 +117,28 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           s should equal ("hi")
         }
       } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureWasCanceled"))
+      caught.message.value should be (Resources("futureWasCanceled", "1", "10"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
       caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
     
+    it("should throw TFE with appropriate detail message if the future expires") {
+      val expiredFuture =
+        new FutureSoBright[Int] {
+          def value = Some(Right(99))
+          def isCanceled = false
+          def isExpired = true
+        }
+      val caught = evaluating {
+        whenReady(expiredFuture) { s =>
+          s should equal (99)
+        }
+      } should produce [TestFailedException]
+      caught.message.value should be (Resources("futureExpired", "1", "10"))
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
+      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+    }
+
     it("should eventually blow up with a TFE if the future is never ready") {
 
       var count = 0
