@@ -75,7 +75,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     it("should eventually blow up with a TFE if the future is never ready") {
 
       var count = 0
-      val neverReadyFuture =
+      val neverReadyCountingFuture =
         new SuperFutureOfJava {
           override def isDone = {
             count += 1
@@ -83,7 +83,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           }
         }
       val caught = evaluating {
-        whenReady(neverReadyFuture) { s =>
+        whenReady(neverReadyCountingFuture) { s =>
           s should equal ("hi")
         }
       } should produce [TestFailedException]
@@ -95,128 +95,141 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     
 // TODO: tests for the whole thing blowing up with the failure once a future is ready
     
+    val neverReadyFuture =
+      new SuperFutureOfJava {
+        override def isDone = false
+      }
+
     it("should provides correct stack depth") {
-      pending /*
       val caught1 = evaluating {
-        eventually(timeout(100), interval(1)) { 1 + 1 should equal (3) }
+        whenReady(neverReadyFuture, timeout(100), interval(1)) { s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught1.failedCodeFileName.value should be ("EventuallySpec.scala")
-      
+      caught1.failedCodeFileName.value should be ("WhenReadySpec.scala")
+     
       val caught2 = evaluating {
-        eventually(interval(1), timeout(100)) { 1 + 1 should equal (3) }
+        whenReady(neverReadyFuture, interval(1), timeout(100)) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught2.failedCodeFileName.value should be ("EventuallySpec.scala")
+      caught2.failedCodeFileName.value should be ("WhenReadySpec.scala")
       
       val caught3 = evaluating {
-        eventually(timeout(100)) { 1 + 1 should equal (3) }
+       whenReady(neverReadyFuture, timeout(100)) {  s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught3.failedCodeFileName.value should be ("EventuallySpec.scala")
-      
+      caught3.failedCodeFileName.value should be ("WhenReadySpec.scala")
+     
       val caught4 = evaluating {
-        eventually(interval(1)) { 1 + 1 should equal (3) }
+        whenReady(neverReadyFuture, interval(1)) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught4.failedCodeFileName.value should be ("EventuallySpec.scala") */
+      caught4.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
 
     it("should by default query a never-ready future for at least 1 second") {
-      pending /*
-      var startTime: Option[Long] = None
+      var startTime = System.currentTimeMillis
       evaluating {
-        eventually {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
-          1 + 1 should equal (3)
+        whenReady(neverReadyFuture) { s =>
+          s should equal ("hi")
         }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1000) */
+      (System.currentTimeMillis - startTime).toInt should be >= (1000)
     }
 
     it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-      pending /*
-      implicit val eventuallyConfig = EventuallyConfig(timeout = 1500)
+      implicit val retryConfig = RetryConfig(timeout = 1500)
 
-      var startTime: Option[Long] = None
+      var startTime = System.currentTimeMillis
       evaluating {
-        eventually {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
-          1 + 1 should equal (3)
+        whenReady(neverReadyFuture) { s =>
+          s should equal ("hi")
         }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1500) */
+      (System.currentTimeMillis - startTime).toInt should be >= (1500)
     }
 
     it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
-      pending /*
-      var startTime: Option[Long] = None
+      var startTime = System.currentTimeMillis
       evaluating {
-        eventually (timeout(1250)) {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
-          1 + 1 should equal (3)
-        } 
+        whenReady(neverReadyFuture, timeout(1250)) { s =>
+          s should equal ("hi")
+        }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1250) */
+      (System.currentTimeMillis - startTime).toInt should be >= (1250)
     }
 
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-      pending /*
-      implicit val eventuallyConfig = EventuallyConfig(timeout = 500, interval = 2)
+      implicit val retryConfig = RetryConfig(timeout = 500, interval = 2)
       
-      var startTime: Option[Long] = None
+      var startTime = System.currentTimeMillis
       evaluating {
-        eventually (timeout(1388), interval(1)) {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
-          1 + 1 should equal (3)
-        } 
+        whenReady(neverReadyFuture, timeout(1388), interval(1)) { s =>
+          s should equal ("hi")
+        }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1388) */
+      (System.currentTimeMillis - startTime).toInt should be >= (1388)
     }
     
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-      pending /*
-      implicit val eventuallyConfig = EventuallyConfig(interval = 2, timeout = 500)
+      implicit val retryConfig = RetryConfig(interval = 2, timeout = 500)
       
-      var startTime: Option[Long] = None
+      var startTime = System.currentTimeMillis
       evaluating {
-        eventually (interval(1), timeout(1388)) {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
-          1 + 1 should equal (3)
-        } 
+        whenReady(neverReadyFuture, interval(1), timeout(1388)) { s =>
+          s should equal ("hi")
+        }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1388) */
+      (System.currentTimeMillis - startTime).toInt should be >= (1388)
     }
-// TODO: tests that make sure a Throwable is thrown. I think that those should just go rather than
-// being wrapped in a stack depth? Not sure. If wrapped, then this test is relevant:
+
+    it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+
+      val vmeFuture =
+        new FutureSoBright[String] {
+          def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
+          def isExpired: Boolean = false
+          def isCanceled: Boolean = false
+        }
+      val caught =
+        intercept[TestFailedException] {
+          whenReady(vmeFuture) { s =>
+            s should equal ("hi")
+          }
+        }
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      assert(caught.cause.value.isInstanceOf[RuntimeException])
+      caught.cause.value.getMessage should be ("oops")
+    }
+    
     it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
-      pending /*
-      var count = 0
+
+      val vmeFuture =
+        new FutureSoBright[String] {
+          def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
+          def isExpired: Boolean = false
+          def isCanceled: Boolean = false
+        }
       intercept[VirtualMachineError] {
-        eventually {
-          count += 1
-          throw new VirtualMachineError {}
-          1 + 1 should equal (3)
+        whenReady(vmeFuture) { s =>
+          s should equal ("hi")
         }
       }
-      count should equal (1) */
     }
+    
     // Same thing here and in 2.0 need to add a test for TestCanceledException
     it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
-      pending /*
-      var count = 0
+      val tpeFuture =
+        new FutureSoBright[String] {
+          def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
+          def isExpired: Boolean = false
+          def isCanceled: Boolean = false
+        }
       intercept[TestPendingException] {
-        eventually {
-          count += 1
-          pending
+        whenReady(tpeFuture) { s =>
+          s should equal ("hi")
         }
       }
-      count should equal (1) */
     }
   }
 }
