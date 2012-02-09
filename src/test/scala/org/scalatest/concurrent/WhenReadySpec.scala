@@ -34,12 +34,47 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
         def isCancelled: Boolean = false
         def isDone: Boolean = true
       }
-    // TODO: Make sure the right value is returned (the U). I think I may need an eventually test for this as well
+
     it("should just return if the function arg returns normally") {
       val futureIsNow = new SuperFutureOfJava
       whenReady(futureIsNow) { s =>
         s should equal ("hi")
       }
+    }
+
+    it("should return the last value if the function arg returns normally") {
+      val futureIsNow = new SuperFutureOfJava
+      val result =
+        whenReady(futureIsNow) { s =>
+          s should equal ("hi")
+          99
+        }
+      result should equal (99)
+    }
+
+    it("should, if the function arg completes abruptly with a TFE, complete abruptly with the same exception") {
+      val futureIsNow = new SuperFutureOfJava
+      val caught =
+        evaluating {
+          whenReady(futureIsNow) { s =>
+            s should equal ("ho")
+          }
+        } should produce [TestFailedException]
+      caught.message.value should be ("\"h[i]\" did not equal \"h[o]\"")
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+    }
+
+    it("should, if the function arg completes abruptly with a non-stack depth exception, complete abruptly with the same exception") {
+      val futureIsNow = new SuperFutureOfJava
+      val caught =
+        evaluating {
+          whenReady(futureIsNow) { s =>
+            s should equal ("hi")
+            throw new RuntimeException("oops")
+          }
+        } should produce [RuntimeException]
+      caught.getMessage should be ("oops")
     }
 
     it("should query the future just once if the future is ready the first time") {
@@ -72,6 +107,21 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
       count should equal (5)
     }
 // TODO: tests for isDropped and isExpired
+    ignore("should throw TFE with appropriate detail message if the future is canceled") {
+      val canceledFuture =
+        new SuperFutureOfJava {
+          override def isCancelled = true
+        }
+      val caught = evaluating {
+        whenReady(canceledFuture) { s =>
+          s should equal ("hi")
+        }
+      } should produce [TestFailedException]
+      caught.message.value should be (Resources("futureWasCanceled"))
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
+      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+    }
+    
     it("should eventually blow up with a TFE if the future is never ready") {
 
       var count = 0
@@ -92,8 +142,6 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
       caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
-    
-// TODO: tests for the whole thing blowing up with the failure once a future is ready
     
     val neverReadyFuture =
       new SuperFutureOfJava {
