@@ -25,10 +25,17 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
 import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
 import scala.annotation.tailrec
 
+/**
+ * Trait providing methods and classes used to configure retries performed by the
+ * the <code>eventually</code> methods of trait <code>Eventually</code> 
+ * and the <code>whenReady</code> methods of trait <code>WhenReady</code>.
+ *
+ * @author Bill Venners
+ */
 trait RetryConfiguration {
 
   /**
-   * Configuration object for the <code>eventually</code> construct.
+   * Configuration object for traits <code>Eventually</code> and <code>WhenReady</code>.
    *
    * <p>
    * The default values for the parameters are:
@@ -53,7 +60,7 @@ trait RetryConfiguration {
    * </tr>
    * </table>
    *
-   * @param timeout the maximum amount of time in milliseconds to allow unsuccessful attempts before giving up and throwing
+   * @param timeout the maximum amount of time in milliseconds to retry before giving up and throwing
    *   <code>TestFailedException</code>.
    * @param interval the number of milliseconds to sleep between each attempt
    * @throws IllegalArgumentException if the specified <code>timeout</code> value is less than or equal to zero,
@@ -68,11 +75,11 @@ trait RetryConfiguration {
   }
 
   /**
-   * Abstract class defining a family of configuration parameters for the <code>eventually</code> construct.
+   * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>WhenReady</code>.
    * 
    * <p>
    * The subclasses of this abstract class are used to pass configuration information to
-   * the <code>eventually</code> methods of trait <code>Eventually</code>.
+   * the <code>eventually</code> methods of trait <code>Eventually</code> and the <code>whenReady</code> method of trait <code>WhenReady</code>.
    * </p>
    *
    * @author Bill Venners
@@ -81,10 +88,11 @@ trait RetryConfiguration {
   sealed abstract class RetryConfigParam
 
   /**
-   * An <code>RetryConfigParam</code> that specifies the maximum amount of time in milliseconds to allow invocations of the
-   * by-name parameter passed to <code>eventually</code> to give an unsucessful result.
+   * A <code>RetryConfigParam</code> that specifies the maximum amount of time in milliseconds to allow retries: either invocations of the
+   * by-name parameter passed to <code>eventually</code> that give an unsucessful result, or futures passed to <code>whenReady</code> that
+   * are not ready, canceled, or expired.
    *
-   * @param value the maximum amount of time in milliseconds to allow unsuccessful attempts before giving up and throwing
+   * @param value the maximum amount of time in milliseconds to retry before giving up and throwing
    *   <code>TestFailedException</code>.
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    *
@@ -95,8 +103,9 @@ trait RetryConfiguration {
   }
 
   /**
-   * An <code>RetryConfigParam</code> that specifies the number of milliseconds to sleep after
-   * each unsuccessful invocation of the by-name parameter passed to <code>eventually</code>.
+   * A <code>RetryConfigParam</code> that specifies the number of milliseconds to sleep after
+   * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code> or
+   * each query of a future passed to <code>whenReady</code>.
    *
    * @param value the number of milliseconds to sleep between each attempt
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
@@ -119,8 +128,9 @@ trait RetryConfiguration {
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which
-   * specifies the maximum amount of time in milliseconds to allow invocations of the
-   * by-name parameter passed to <code>eventually</code> to give an unsucessful result.
+   * specifies the maximum amount of time in milliseconds to retry: to allow invocations of the
+   * by-name parameter passed to <code>eventually</code> to give an unsucessful result, or to
+   * allow a future passed to <code>whenReady</code> to not be ready, canceled, or expired.
    *
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */
@@ -129,7 +139,8 @@ trait RetryConfiguration {
   /**
    * Returns an <code>Interval</code> configuration parameter containing the passed value, which
    * specifies the number of milliseconds to sleep after
-   * each unsuccessful invocation of the by-name parameter passed to <code>eventually</code>.
+   * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code>
+   * or each query of a non-ready, canceled, or expired future passed to <code>whenReady</code>.
    *
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */

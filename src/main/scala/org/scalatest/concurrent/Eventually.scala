@@ -68,7 +68,7 @@ import scala.annotation.tailrec
  * <code>The code passed to eventually never returned normally. Attempted 2 times, sleeping 10 milliseconds between each attempt.</code>
  * </p>
  *
- * <a name="eventuallyConfig"></a><h2>Configuration of <code>eventually</code></h2>
+ * <a name="retryConfig"></a><h2>Configuration of <code>eventually</code></h2>
  *
  * <p>
  * The <code>eventually</code> methods of this trait can be flexibly configured.
@@ -115,17 +115,17 @@ import scala.annotation.tailrec
 * <p>
  * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>RetryConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
- * <code>Eventually</code> provides an implicit <code>val</code> named <code>eventuallyConfig</code> with each
+ * <code>Eventually</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
  * configuration parameter set to its default value. 
  * If you want to set one or more configuration parameters to a different value for all invocations of
  * <code>eventually</code> in a suite you can override this
  * val (or hide it, for example, if you are importing the members of the <code>Eventually</code> companion object rather
  * than mixing in the trait). For example, if
  * you always want the default <code>timeout</code> to be 2 seconds and the default <code>interval</code> to be 5 milliseconds, you
- * can override <code>eventuallyConfig</code>, like this:
+ * can override <code>retryConfig</code>, like this:
  *
  * <pre class="stHighlight">
- * implicit override val eventuallyConfig =
+ * implicit override val retryConfig =
  *   RetryConfig(timeout = 2000, interval = 5)
  * </pre>
  *
@@ -134,7 +134,7 @@ import scala.annotation.tailrec
  * </p>
  *
  * <pre class="stHighlight">
- * implicit val eventuallyConfig =
+ * implicit val retryConfig =
  *   RetryConfig(timeout = 2000, interval = 5)
  * </pre>
  *
