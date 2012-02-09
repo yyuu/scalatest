@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest
+package org.scalatest.concurrent
 
-import org.scalatest.Eventually._
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.SharedHelpers.thisLineNumber
+import org.scalatest._
+import Eventually._
+import matchers.ShouldMatchers
+import SharedHelpers.thisLineNumber
 
 class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
