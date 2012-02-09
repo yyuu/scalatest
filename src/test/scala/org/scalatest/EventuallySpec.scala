@@ -189,7 +189,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
       (System.currentTimeMillis - startTime.get).toInt should be >= (1388)
     }
 
-    it("should allow errors that do not normaly cause a test to fail through immediately when thrown") {
+    it("should allow errors that do not normally cause a test to fail through immediately when thrown") {
 
       var count = 0
       intercept[VirtualMachineError] {
@@ -201,7 +201,8 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
       }
       count should equal (1)
     }
-    it("should allow TestPendingException, which does not normaly cause a test to fail, through immediately when thrown") {
+    
+    it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
 
       var count = 0
       intercept[TestPendingException] {
