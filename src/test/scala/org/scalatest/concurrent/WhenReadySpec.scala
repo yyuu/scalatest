@@ -73,7 +73,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     }
 // TODO: tests for isDropped and isExpired
     it("should eventually blow up with a TFE if the future is never ready") {
-      pending
+
       var count = 0
       val neverReadyFuture =
         new SuperFutureOfJava {
@@ -88,9 +88,9 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "10"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
-      caught.failedCodeFileName.value should be ("EventuallySpec.scala")
+      caught.message.value should be (Resources("wasNeverReady", count.toString, "10"))
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
+      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
     
 // TODO: tests for the whole thing blowing up with the failure once a future is ready

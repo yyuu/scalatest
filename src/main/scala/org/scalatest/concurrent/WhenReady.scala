@@ -1,62 +1,40 @@
 package org.scalatest.concurrent
 
+import org.scalatest._
+import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
 import java.util.concurrent.{Future => FutureOfJava}
 import java.util.concurrent.TimeUnit
 import scala.annotation.tailrec
 
-trait WhenReady {
+trait WhenReady extends RetryConfiguration {
 
-  def whenReady[T, U](future: FutureSoBright[T])(fun: T => U)/*(implicit config: EventuallyConfig)*/ {
-   
-    @tailrec
-    def tryTryAgain {
-      future.value match {
-        case Some(Right(v)) => () // fun(v)
-        case Some(Left(e)) => () // throw e? or wrap it in a TFE?
-        case None => tryTryAgain
-      }
-    }
-    
-    tryTryAgain 
-    /*
+  def whenReady[T, U](future: FutureSoBright[T])(fun: T => U)(implicit config: RetryConfig) {
+
     val startMillis = System.currentTimeMillis
-    def makeAValiantAttempt(): Either[Throwable, T] = {
-      try {
-        Right(fun)
-      }
-      catch {
-        case tpe: TestPendingException => throw tpe
-        case e: Throwable if !anErrorThatShouldCauseAnAbort(e) => Left(e)
-      }
-    }
 
     @tailrec
-    def tryTryAgain(attempt: Int): T = {
+    def tryTryAgain(attempt: Int): U = {
       val timeout = config.timeout
       val interval = config.interval
-      makeAValiantAttempt() match {
-        case Right(result) => result
-        case Left(e) => 
+      future.value match {
+        case Some(Right(v)) => fun(v)
+        case Some(Left(e)) => throw e // throw e? or wrap it in a TFE?
+        case None => 
           val duration = System.currentTimeMillis - startMillis
           if (duration < timeout)
             Thread.sleep(interval)
           else {
-            def msg =
-              if (e.getMessage == null)
-                Resources("didNotEventuallySucceed", attempt.toString, interval.toString)
-              else
-                Resources("didNotEventuallySucceedBecause", attempt.toString, interval.toString, e.getMessage)
             throw new TestFailedException(
-              sde => Some(msg),
-              Some(e),
-              getStackDepthFun("Eventually.scala", "eventually")
+              sde => Some(Resources("wasNeverReady", attempt.toString, interval.toString)),
+              None,
+              getStackDepthFun("WhenReady.scala", "whenReady")
             )
           }
 
           tryTryAgain(attempt + 1)
       }
     }
-    tryTryAgain(1) */
+    tryTryAgain(1)
   }
   
   implicit def convertFutureOfJava[T](futureOfJava: FutureOfJava[T]) =
