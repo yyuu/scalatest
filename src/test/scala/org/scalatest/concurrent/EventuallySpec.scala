@@ -134,7 +134,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
     it("should, if an alternate implicit Timeout is provided, invoke an always-failing by-name by at least the specified timeout") {
 
-      implicit val eventuallyConfig = EventuallyConfig(timeout = 1500)
+      implicit val retryConfig = RetryConfig(timeout = 1500)
 
       var startTime: Option[Long] = None
       evaluating {
@@ -162,7 +162,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
     it("should, if an alternate explicit timeout is provided along with an explicit interval, invoke an always-failing by-name by at least the specified timeout, even if a different implicit is provided") {
 
-      implicit val eventuallyConfig = EventuallyConfig(timeout = 500, interval = 2)
+      implicit val retryConfig = RetryConfig(timeout = 500, interval = 2)
       
       var startTime: Option[Long] = None
       evaluating {
@@ -177,7 +177,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
     
     it("should, if an alternate explicit timeout is provided along with an explicit interval, invoke an always-failing by-name by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
 
-      implicit val eventuallyConfig = EventuallyConfig(interval = 2, timeout = 500)
+      implicit val retryConfig = RetryConfig(interval = 2, timeout = 500)
       
       var startTime: Option[Long] = None
       evaluating {
