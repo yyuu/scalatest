@@ -4,7 +4,7 @@ class FeatureSpecFinder extends Finder {
   
   def find(node: AstNode): Option[Selection] = {
     node match {
-      case MethodInvocation(className, target, parent, children, "scenario", args @ _*) =>
+      case MethodInvocation(className, target, parent, children, "scenario", args) =>
         parent match {
           case parentInvocation: MethodInvocation => 
             if (parentInvocation.name == "feature" && parentInvocation.args.length > 1 && parentInvocation.args(0).getClass == classOf[StringLiteral]) {
@@ -17,7 +17,7 @@ class FeatureSpecFinder extends Finder {
             Some(new Selection(className, args(0).toString, Array(args(0).toString)))
         }
         
-      case MethodInvocation(className, target, parent, children, "feature", args @ _*) =>
+      case MethodInvocation(className, target, parent, children, "feature", args) =>
         if (args.length > 0 && args(0).getClass == classOf[StringLiteral]) {
           val featureText = args(0).toString
           val testNameList = children.filter( childNode => 

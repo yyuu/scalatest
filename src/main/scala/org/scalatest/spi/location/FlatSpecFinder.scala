@@ -29,7 +29,7 @@ class FlatSpecFinder extends Finder {
               branchInvocation.args(0).toString
             else { // in 
               branchInvocation.target match {
-                case MethodInvocation(className, target, parent, children, name, args @ _*) => 
+                case MethodInvocation(className, target, parent, children, name, args) => 
                   target.toString
                 case _ => ""
               }
@@ -41,7 +41,7 @@ class FlatSpecFinder extends Finder {
           case ConstructorBlock(className, children) => 
             val testNames = getTestNamesFromChildren(prefix, children)
             Some(new Selection(className, if (prefix.length > 0) prefix else className, testNames))
-          case invocation @ MethodInvocation(className, target, parent, children, name, args @ _*) =>
+          case invocation @ MethodInvocation(className, target, parent, children, name, args) =>
             if (name == "of") {
               // behaviour of get selected.
               val testNames = getTestNamesFromChildren(prefix, constructor.children)
@@ -73,7 +73,7 @@ class FlatSpecFinder extends Finder {
       postfix
     else {
       target match {
-        case MethodInvocation(className, targetTarget, parent, children, "should", args @ _*) if (args.length > 0) => 
+        case MethodInvocation(className, targetTarget, parent, children, "should", args) if (args.length > 0) => 
           "should " + args(0).toString
         case _ => 
           target.toString
