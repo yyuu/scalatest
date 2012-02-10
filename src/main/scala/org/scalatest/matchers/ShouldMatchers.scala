@@ -19,6 +19,7 @@ import org.scalatest._
 import scala.reflect.Manifest
 import org.scalatest.verb.ShouldVerb
 import scala.collection.Traversable
+import Assertions.areEqualComparingArraysStructurally
 
 /**
  * Trait that provides a domain specific language (DSL) for expressing assertions in tests
@@ -920,6 +921,21 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      * </pre>
      */
     def should(notWord: NotWord) = new ResultOfNotWord[T](left, false)
+
+    /**
+     * This method enables syntax such as the following:
+     *
+     * <pre class="stHighlight">
+     * result shouldEqual 3
+     *        ^
+     * </pre>
+     */
+    def shouldEqual(right: Any) {
+      if (!areEqualComparingArraysStructurally(left, right)) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("didNotEqual", leftee, rightee))
+      }
+    }
   }
 
   // I think the type hasn't been converted yet here. It is just a pass-through. It finally gets
