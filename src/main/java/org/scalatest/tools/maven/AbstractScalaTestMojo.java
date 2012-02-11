@@ -39,6 +39,8 @@ import java.lang.reflect.Method;
  */
 abstract class AbstractScalaTestMojo extends AbstractMojo {
     /**
+     * Injected by Maven so that forked process can be
+     * launched from the working directory of current maven project in a multi-module build.  Should not be user facing.
      * @parameter default-value="${project}"
      * @required
      * @readonly
@@ -46,6 +48,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     MavenProject project;
 
     /**
+     * Injected by Maven in order to build up the class path.  Should not be user facing.
      * @parameter expression="${project.testClasspathElements}"
      * @required
      * @readOnly
@@ -53,6 +56,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     List<String> testClasspathElements;
 
     /**
+     * Injected by Maven so that it can be included in the run path.  Should not be user facing.
      * @parameter expression="${project.build.testOutputDirectory}"
      * @required
      * @readOnly
@@ -60,6 +64,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     File testOutputDirectory;
 
     /**
+     * Injected by Maven so that it can be included in the run path.  Should not be user facing.
      * @parameter expression="${project.build.outputDirectory}"
      * @required
      * @readOnly

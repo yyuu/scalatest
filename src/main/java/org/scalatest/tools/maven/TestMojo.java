@@ -24,6 +24,7 @@ import java.util.List;
 public class TestMojo extends AbstractScalaTestMojo {
 
     /**
+     * Output directory in which ScalaTest file reports should be written to.  Passed to ScalaTest via the -f argument.
      * @parameter expression="${project.build.directory}/scalatest-reports"
      * @required
      */
