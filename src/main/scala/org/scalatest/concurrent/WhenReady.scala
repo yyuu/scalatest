@@ -9,19 +9,19 @@ import scala.annotation.tailrec
 
 trait WhenReady extends RetryConfiguration {
 
-  def whenReady[T, U](future: FutureSoBright[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: RetryConfig): U =
+  def whenReady[T, U](future: BrightFuture[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: RetryConfig): U =
     whenReady(future)(fun)(RetryConfig(timeout.value, interval.value))
 
-  def whenReady[T, U](future: FutureSoBright[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: RetryConfig): U =
+  def whenReady[T, U](future: BrightFuture[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: RetryConfig): U =
     whenReady(future)(fun)(RetryConfig(timeout.value, interval.value))
 
-  def whenReady[T, U](future: FutureSoBright[T], timeout: Timeout)(fun: T => U)(implicit config: RetryConfig): U =
+  def whenReady[T, U](future: BrightFuture[T], timeout: Timeout)(fun: T => U)(implicit config: RetryConfig): U =
     whenReady(future)(fun)(RetryConfig(timeout.value, config.interval))
 
-  def whenReady[T, U](future: FutureSoBright[T], interval: Interval)(fun: T => U)(implicit config: RetryConfig): U =
+  def whenReady[T, U](future: BrightFuture[T], interval: Interval)(fun: T => U)(implicit config: RetryConfig): U =
     whenReady(future)(fun)(RetryConfig(config.timeout, interval.value))
 
-  def whenReady[T, U](future: FutureSoBright[T])(fun: T => U)(implicit config: RetryConfig): U = {
+  def whenReady[T, U](future: BrightFuture[T])(fun: T => U)(implicit config: RetryConfig): U = {
 
     val startMillis = System.currentTimeMillis
 
@@ -76,7 +76,7 @@ trait WhenReady extends RetryConfiguration {
   }
   
   implicit def convertFutureOfJava[T](futureOfJava: FutureOfJava[T]) =
-    new FutureSoBright[T] {
+    new BrightFuture[T] {
       def value: Option[Either[Throwable, T]] = 
         if (futureOfJava.isDone())
           Some(Right(futureOfJava.get))

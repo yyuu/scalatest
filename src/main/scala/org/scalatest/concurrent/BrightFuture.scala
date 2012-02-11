@@ -1,6 +1,6 @@
 package org.scalatest.concurrent
 
-trait FutureSoBright[T] {
+trait BrightFuture[T] {
 
   /**
    * Queries this future for its value.

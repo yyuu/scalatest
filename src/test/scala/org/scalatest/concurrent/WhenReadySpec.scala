@@ -124,7 +124,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     
     it("should throw TFE with appropriate detail message if the future expires") {
       val expiredFuture =
-        new FutureSoBright[Int] {
+        new BrightFuture[Int] {
           def value = Some(Right(99))
           def isCanceled = false
           def isExpired = true
@@ -250,7 +250,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
 
       val vmeFuture =
-        new FutureSoBright[String] {
+        new BrightFuture[String] {
           def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
@@ -270,7 +270,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
 
       val vmeFuture =
-        new FutureSoBright[String] {
+        new BrightFuture[String] {
           def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
@@ -285,7 +285,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     // Same thing here and in 2.0 need to add a test for TestCanceledException
     it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
       val tpeFuture =
-        new FutureSoBright[String] {
+        new BrightFuture[String] {
           def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
