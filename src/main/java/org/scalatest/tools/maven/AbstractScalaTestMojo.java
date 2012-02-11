@@ -68,8 +68,8 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
 
     /**
      * Comma separated list of additional elements to be added
-     * to the scalatest runpath. ${project.build.outputDirectory} and
-     * ${project.build.testOutputDirectory} are included by default
+     * to the ScalaTest runpath. <code>${project.build.outputDirectory}</code> and
+     * <code>${project.build.testOutputDirectory}</code> are included by default
      * @parameter expression="${runpath}"
      */
     String runpath;
@@ -93,7 +93,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     String tagsToExclude;
 
     /**
-     * Comma separated list of configuration parameters to pass to scalatest.
+     * Comma separated list of configuration parameters to pass to ScalaTest.
      * The parameters must be of the format &lt;key&gt;=&lt;value&gt;. E.g <code>foo=bar,monkey=donkey</code>
      * @parameter expression="${config}"
      */
@@ -106,13 +106,14 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     boolean parallel;
 
     /**
-     * Comma separated list of members to execute
+     * Comma separated list of packages containing suites to execute
      * @parameter expression="${membersOnlySuites}"
      */
     String membersOnlySuites;
 
+// TODO: Change this to wildcard and membersOnly
     /**
-     * Comma separated list of wildcard suites to execute
+     * Comma separated list of wildcard suite names to execute
      * @parameter expression="${wildcardSuites}"
      */
     String wildcardSuites;

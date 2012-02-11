@@ -14,7 +14,10 @@ import java.util.List;
  * Many of the configuration options available on this goal
  * are directly reflected in the Runner ScalaDoc on http://www.scalatest.org.
  * 
+ * @author Sean Griffin
+ * @author Mike Pilquist
  * @author Jon-Anders Teigen
+ * @author Bill Venners
  * @phase test
  * @goal test
  */
@@ -51,7 +54,7 @@ public class TestMojo extends AbstractScalaTestMojo {
      * and a mandatory reporter classname, separated by whitespace. The reporter classname
      * must be the fully qualified name of a class extending <code>org.scalatest.Reporter</code>
      * E.g <code>C my.SuccessReporter,my.EverythingReporter</code>
-     * For more info on configuring reporters, see the scalatest documentation.
+     * For more info on configuring reporters, see the ScalaTest documentation.
      * @parameter expression="${reporters}"
      */
     String reporters;

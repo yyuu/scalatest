@@ -16,7 +16,10 @@ import static org.scalatest.tools.maven.MojoUtils.*;
 /**
  * A reporting mojo to capture the ScalaTest output as a file that integrates into the Maven site of a project.
  *
+ * @author Jon-Anders Teigen
  * @author Sean Griffin
+ * @author Mike Pilquist
+ * @author Bill Venners
  * @phase site
  * @goal reporter
  */
