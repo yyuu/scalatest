@@ -1,6 +1,12 @@
 package org.scalatest.concurrent
 
-trait BrightFuture[T] {
+/**
+ * Concept trait for futures, instances of which are passed to the <code>whenReady</code>
+ * methods of trait <code>WhenReady</code>.
+ *
+ * @author Bill Venners
+ */
+trait FutureConcept[T] {
 
   /**
    * Queries this future for its value.
@@ -11,7 +17,7 @@ trait BrightFuture[T] {
    * </p>
    */
   def value: Option[Either[Throwable, T]]
-  
+
   /**
    * Indicates whether this future has expired (timed out).
    * 
@@ -22,7 +28,7 @@ trait BrightFuture[T] {
    * </p>
    */
   def isExpired: Boolean
-  
+
   /**
    * Indicates whether this future has been canceled.
    * 
