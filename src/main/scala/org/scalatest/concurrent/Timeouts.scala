@@ -65,16 +65,15 @@ import java.net.Socket
 trait Timeouts {
 
   private class TimeoutTask(testThread: Thread, interruptor: Interruptor) extends TimerTask {
-    @volatile
-    var timedOut = false // This should be timedOut. True if it actually timed out.
-    var isTimeoutInterrupted = false // Should probably be testThreadWasInterrupted, or maybe, needToResetInterruptFlag
+    @volatile var timedOut = false
+    @volatile var needToResetInterruptedStatus = false
     override def run() {
       timedOut = true
       val beforeIsInterrupted = testThread.isInterrupted()
       interruptor.interrupt(testThread)
       val afterIsInterrupted = testThread.isInterrupted()
       if(!beforeIsInterrupted && afterIsInterrupted)
-        isTimeoutInterrupted = true
+        needToResetInterruptedStatus = true
     }
   }
 
@@ -105,7 +104,7 @@ trait Timeouts {
       val result = f
       timer.cancel()
       if (task.timedOut) {
-        if (task.isTimeoutInterrupted)
+        if (task.needToResetInterruptedStatus)
           Thread.interrupted() // To reset the flag probably. He only does this if it was not set before and was set after, I think.
         throw exceptionFun(None)
       }
@@ -115,7 +114,7 @@ trait Timeouts {
       case t => 
         timer.cancel() // Duplicate code could be factored out I think. Maybe into a finally? Oh, not that doesn't work. So a method.
         if(task.timedOut) {
-          if (task.isTimeoutInterrupted)
+          if (task.needToResetInterruptedStatus)
             Thread.interrupted() // Clear the interrupt status (There's a race condition here, but not sure we an do anything about that.)
           throw exceptionFun(Some(t))
         }
