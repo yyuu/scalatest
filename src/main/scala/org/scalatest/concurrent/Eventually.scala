@@ -48,7 +48,7 @@ import scala.annotation.tailrec
  * </pre>
  *
  * <p>
- * However, because the default timeout one second, the following invocation of
+ * However, because the default timeout is one second, the following invocation of
  * <code>eventually</code> would ultimately produce a <code>TestFailedException</code>:
  * </p>
  *
@@ -365,8 +365,8 @@ trait Eventually extends RetryConfiguration {
  * scala&gt; import matchers.ShouldMatchers._
  * import matchers.ShouldMatchers._
  *
- * scala&gt; import Eventually._
- * import Eventually._
+ * scala&gt; import concurrent.Eventually._
+ * import concurrent.Eventually._
  *
  * scala&gt; val xs = 1 to 125
  * xs: scala.collection.immutable.Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ..., 125)
