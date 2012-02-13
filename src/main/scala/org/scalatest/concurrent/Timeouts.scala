@@ -48,16 +48,6 @@ import java.net.Socket
  * <code>The code passed to failAfter did not complete before the specified timeout of 100 milliseconds.</code>
  * </p>
  *
- * <!--
- * <p>
- * The <code>TestFailedException</code> should we do a TimeoutException that has info in it, like specified timeout
- * and actual time? Make it a trait that can be mixed into a TestFailedException or a TestCanceledException?
- * Yes, and may as well have, ah, internally? Yes, internally I can have a TestFailedDueToTimeoutException, which
- * has a constructor that takes the extra info. That way the withFixture thing can change the message to
- * the "Test did not complete within 2000 milliseconds" message.
- * I think TimeoutException and a TimeLimitedTests.
- * </p>
- * -->
  *
  * @author Chua Chee Seng
  * @author Bill Venners
