@@ -189,6 +189,9 @@ class FinderSuite extends FunSuite {
     val beFull = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "be full"), butWhenFullByContrastMust, Array(), "in", ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
     val complainOnPush = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "complain on push"), butWhenFullByContrastMust, Array(), "in", ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
     
+    List[AstNode](aStackNode, wheneverItIsEmpty, certainlyOughtTo, beEmpty, complainOnPeek, complainOnPop, butWhenFullByContrastMust, 
+        beFull, complainOnPush).foreach(_.parent)
+    
     val aStackTest = finder.find(aStackNode)
     expectSelection(aStackTest, suiteClass.getName, "A Stack", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
@@ -254,6 +257,8 @@ class FinderSuite extends FunSuite {
     val spec1ItShould2 = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "throw NoSuchElementException if an empty stack is popped"))
     val spec1ItShouldIn2 = MethodInvocation(suiteClass.getName, spec1ItShould2, spec1Constructor, Array.empty, "in", ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
     
+    List[AstNode](spec1Constructor, spec1BehaviourOf, spec1ItShould1, spec1ItShouldIn1, spec1ItShould2, spec1ItShouldIn2).foreach(_.parent)
+    
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FlatSpec.")
     val finder = finderOpt.get
@@ -289,6 +294,8 @@ class FinderSuite extends FunSuite {
     val spec2ItShouldIn1 = MethodInvocation(suiteClass.getName, spec2ItShould1, spec2Constructor, Array.empty, "in", ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
     val spec2ItShould2 = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), null, Array.empty, "should", StringLiteral(suiteClass.getName, null, "throw NoSuchElementException if an empty stack is popped"))
     val spec2ItShouldIn2 = MethodInvocation(suiteClass.getName, spec2ItShould2, spec2Constructor, Array.empty, "in", ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    
+    List[AstNode](spec2Constructor, spec2ItShould1, spec2ItShouldIn1, spec2ItShould2, spec2ItShouldIn2).foreach(_.parent)
     
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FlatSpec.")

@@ -13,12 +13,15 @@ extends AstNode {
   childrenBuffer ++= pChildren
     
   def className = pClassName
-  def parent = pParent
-  if (parent != null)
-    parent.addChild(this)
+  lazy val parent = getParent
+  protected def getParent() = {
+    if (pParent != null)
+      pParent.addChild(this)
+    pParent
+  }
   def children = childrenBuffer.toArray
   def name = pName
-  def addChild(node: AstNode) = childrenBuffer += node
+  def addChild(node: AstNode) = if (!childrenBuffer.contains(node)) childrenBuffer += node
   def target = pTarget
   def args = pArgs
 }

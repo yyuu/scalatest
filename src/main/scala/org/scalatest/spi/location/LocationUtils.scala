@@ -65,7 +65,7 @@ object LocationUtils {
     if (node.parent == null)
       None
     else {
-      if (node.parent.getClass == clazz)
+      if (clazz.isAssignableFrom(node.parent.getClass))
         Some(node.parent.asInstanceOf[T])
       else
         getParentOfType(node.parent, clazz)
@@ -77,7 +77,7 @@ object LocationUtils {
     if (node.parent == null)
       None
     else {
-      if (node.parent.getClass == clazz)
+      if (clazz.isAssignableFrom(node.parent.getClass))
         Some(node)
       else
         getParentBeforeType(node.parent, clazz)

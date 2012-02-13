@@ -23,8 +23,9 @@ class FreeSpecFinder extends Finder {
               val testName = getTestNameBottomUp(invocation)
               getTestNamesTopDownAcc(rs, testName :: acc)
             }
-            else
+            else {
               getTestNamesTopDownAcc(invocation.children.toList ::: rs, acc)
+            }
           case _ => getTestNamesTopDownAcc(rs, acc)
         }
     }

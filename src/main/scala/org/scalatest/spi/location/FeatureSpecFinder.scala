@@ -7,7 +7,7 @@ class FeatureSpecFinder extends Finder {
       case MethodInvocation(className, target, parent, children, "scenario", args) =>
         parent match {
           case parentInvocation: MethodInvocation => 
-            if (parentInvocation.name == "feature" && parentInvocation.args.length > 1 && parentInvocation.args(0).getClass == classOf[StringLiteral]) {
+            if (parentInvocation.name == "feature" && parentInvocation.args.length > 1 && parentInvocation.args(0).isInstanceOf[StringLiteral]) {
               val testName = parentInvocation.args(0) + " " + args(0).toString
               Some(new Selection(className, testName, Array(testName)))
             }
@@ -18,13 +18,13 @@ class FeatureSpecFinder extends Finder {
         }
         
       case MethodInvocation(className, target, parent, children, "feature", args) =>
-        if (args.length > 0 && args(0).getClass == classOf[StringLiteral]) {
+        if (args.length > 0 && args(0).isInstanceOf[StringLiteral]) {
           val featureText = args(0).toString
           val testNameList = children.filter( childNode => 
                                childNode.isInstanceOf[MethodInvocation] 
                                && childNode.name == "scenario" 
-                               && childNode.asInstanceOf[MethodInvocation].args.length > 1
-                               && childNode.asInstanceOf[MethodInvocation].args(0).getClass == classOf[StringLiteral]
+                               && childNode.asInstanceOf[MethodInvocation].args.length > 0
+                               && childNode.asInstanceOf[MethodInvocation].args(0).isInstanceOf[StringLiteral]
                                ).map { childNode => 
                                  val child = childNode.asInstanceOf[MethodInvocation]
                                  featureText + " " + child.args(0)

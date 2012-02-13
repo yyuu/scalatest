@@ -8,14 +8,11 @@ extends AstNode {
   private val childrenBuffer = new ListBuffer[AstNode]()
   childrenBuffer ++= pChildren
   // Because parent of constructor block is always null now, should enable this when we add ClassDef later.
-  //if (parent != null)
-    //parent.addChild(this)
-  
   def className = pClassName
   def parent = null
   def children = childrenBuffer.toArray
   def name = "constructor"
-  def addChild(node: AstNode) = childrenBuffer += node
+  def addChild(node: AstNode) = if (!childrenBuffer.contains(node)) childrenBuffer += node
 }
 
 object ConstructorBlock {

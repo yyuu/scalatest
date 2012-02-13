@@ -2,9 +2,12 @@ package org.scalatest.spi.location
 
 class StringLiteral(pClassName: String, pParent: AstNode, pValue: String) extends AstNode {
   def className = pClassName
-  def parent = pParent
-  if (parent != null)
-    parent.addChild(this)
+  lazy val parent = getParent
+  protected def getParent() = {
+    if (pParent != null)
+      pParent.addChild(this)
+    pParent
+  }
   def children = Array.empty
   def name = "StringLiteral"
   def addChild(node: AstNode) = throw new UnsupportedOperationException("StringLiteral does not support addChild method.")

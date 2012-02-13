@@ -17,7 +17,8 @@ class FlatSpecFinder extends Finder {
         val branchNodeOpt = constructor.children.find { node => 
           node match {
             case invocation: MethodInvocation => 
-              isSingleStringParamInvocationWithName(invocation, Set("of", "in"))
+              //isSingleStringParamInvocationWithName(invocation, Set("of", "in"))
+              Set("of", "in").contains(invocation.name)
             case _ => false
           }
         }
@@ -28,10 +29,11 @@ class FlatSpecFinder extends Finder {
             if (branchInvocation.name == "of")
               branchInvocation.args(0).toString
             else { // in 
+              //branchInvocation.target.toString
               branchInvocation.target match {
                 case MethodInvocation(className, target, parent, children, name, args) => 
                   target.toString
-                case _ => ""
+                case _ => branchInvocation.target.toString
               }
             }
           case None => ""
@@ -46,6 +48,15 @@ class FlatSpecFinder extends Finder {
               // behaviour of get selected.
               val testNames = getTestNamesFromChildren(prefix, constructor.children)
               Some(new Selection(className, prefix, testNames))
+            }
+            else if (name == "should") {
+              invocation.parent match {
+                case invocationParent @ MethodInvocation(className, target, parent, children, "in", args) => 
+                  val testName = getTestName(prefix, invocationParent)
+                  Some(new Selection(className, testName, Array(testName)))
+                case _ => 
+                  None
+              }
             }
             else if (name == "in") {
               val testName = getTestName(prefix, invocation)
