@@ -55,10 +55,10 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
 
     it("should blow up with TestFailedException when the task does not response interrupt request and pass after the timeout") {
       val caught = evaluating {
-        failAfter(timeout = 1000) {
+        failAfter(timeout = 100) {
           for (i <- 1 to 10) {
             try {
-              Thread.sleep(500)
+              Thread.sleep(50)
             }
             catch {
               case _: InterruptedException =>
@@ -71,7 +71,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
 
     it("should not catch exception thrown from the test") {
       val caught = evaluating {
-        failAfter(1000) {
+        failAfter(100) {
           throw new InterruptedException
         }
       } should produce [InterruptedException]
@@ -79,17 +79,17 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
 
     it("should set the exception thrown from the test after timeout as cause of TestFailedException") {
       val caught = evaluating {
-        failAfter(1000) {
+        failAfter(100) {
           for (i <- 1 to 10) {
             try {
-              Thread.sleep(500)
+              Thread.sleep(50)
             }
             catch {
               case _: InterruptedException =>
                 Thread.interrupted() // Swallow the interrupt
             }
           }
-          throw new IllegalArgumentException("Something goes wrong!")
+          throw new IllegalArgumentException("Something went wrong!")
         }
       } should produce [TestFailedException]
       caught.getCause().getClass === classOf[IllegalArgumentException]
@@ -104,7 +104,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
           val clientSocket = serverSocket.accept()
           while(drag) {
             try {
-              Thread.sleep(1000)
+              Thread.sleep(100)
             }
             catch {
               case _: InterruptedException => Thread.interrupted()
@@ -118,7 +118,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
-        failAfter(1000) {
+        failAfter(100) {
           inputStream.read()
         } (SocketInterruptor(clientSocket))
       } should produce [TestFailedException]
@@ -135,7 +135,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
           val clientSocket = serverSocket.accept()
           while(drag) {
             try {
-              Thread.sleep(1000)
+              Thread.sleep(100)
             }
             catch {
               case _: InterruptedException => Thread.interrupted()
@@ -149,7 +149,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
-        failAfter(1000) {
+        failAfter(100) {
           inputStream.read()
         } ( Interruptor { clientSocket.close() } )
       } should produce [TestFailedException]
@@ -187,7 +187,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
               val ssChannel = selKey.channel().asInstanceOf[ServerSocketChannel]
               while(drag) {
                 try {
-                  Thread.sleep(1000)
+                  Thread.sleep(100)
                 }
                 catch {
                   case _: InterruptedException => Thread.interrupted()
@@ -206,7 +206,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       sChannel.register(selector, sChannel.validOps());
     
       val caught = evaluating {
-        failAfter(1000) {
+        failAfter(100) {
           clientSelector.select()
         } (SelectorInterruptor(clientSelector))
       } should produce [TestFailedException]
