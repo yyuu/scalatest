@@ -15,25 +15,41 @@
  */
 package org.scalatest
 
+/**
+ * Trait providing two implicit conversions that allow you to specify <code>Long</code> durations of time
+ * with units such as <code>millis</code>, <code>seconds</code>, and <code>minutes</code>.
+ */
 trait TimeSugar {
 
   // Not calling this Duration because everyone else does, so avoids name clash
-  class GrainOfTime(left: Long) {
-    def millisecond: Long = left
-    def milliseconds: Long = left
-    def millis: Long = left
-    def second: Long = left * 1000    
-    def seconds: Long = left * 1000    
-    def minute: Long = left * 1000 * 60   
-    def minutes: Long = left * 1000 * 60
-    def hour: Long = left * 1000 * 60 * 60  
-    def hours: Long = left * 1000 * 60 * 60
-    def day: Long = left * 1000 * 60 * 60 * 24 
-    def days: Long = left * 1000 * 60 * 60 * 24
+  /**
+   * Class containing methods that return a <code>Long</code> time value calculated from the
+   * value passed to the <code>GrainOfTime</code> constructor.
+   * 
+   * @param value the value to be converted
+   */
+  class GrainOfTime(value: Long) {
+    def millisecond: Long = value
+    def milliseconds: Long = value
+    def millis: Long = value
+    def second: Long = value * 1000    
+    def seconds: Long = value * 1000    
+    def minute: Long = value * 1000 * 60   
+    def minutes: Long = value * 1000 * 60
+    def hour: Long = value * 1000 * 60 * 60  
+    def hours: Long = value * 1000 * 60 * 60
+    def day: Long = value * 1000 * 60 * 60 * 24 
+    def days: Long = value * 1000 * 60 * 60 * 24
   }
   
   implicit def convertIntToGrainOfTime(i: Int) = new GrainOfTime(i)
   implicit def convertLongToGrainOfTime(i: Long) = new GrainOfTime(i)
 }
 
+/**
+ * Companion object that facilitates the importing of <code>TimeSugar</code> members as 
+ * an alternative to mixing it in. One use case is to import <code>TimeSugar</code> members so you can use
+ * them in the Scala interpreter:
+ *
+ */
 object TimeSugar extends TimeSugar
