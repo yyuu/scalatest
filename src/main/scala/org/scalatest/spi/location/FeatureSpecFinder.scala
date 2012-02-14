@@ -7,7 +7,7 @@ class FeatureSpecFinder extends Finder {
       case MethodInvocation(className, target, parent, children, "scenario", args) =>
         parent match {
           case parentInvocation: MethodInvocation => 
-            if (parentInvocation.name == "feature" && parentInvocation.args.length > 1 && parentInvocation.args(0).isInstanceOf[StringLiteral]) {
+            if (parentInvocation.name == "feature" && parentInvocation.args.length > 0 && parentInvocation.args(0).isInstanceOf[StringLiteral]) {
               val testName = parentInvocation.args(0) + " " + args(0).toString
               Some(new Selection(className, testName, Array(testName)))
             }
