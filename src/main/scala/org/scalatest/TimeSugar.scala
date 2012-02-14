@@ -18,6 +18,27 @@ package org.scalatest
 /**
  * Trait providing two implicit conversions that allow you to specify <code>Long</code> durations of time
  * with units such as <code>millis</code>, <code>seconds</code>, and <code>minutes</code>.
+ * 
+ * <p>
+ * This trait enables you to specify units of time when you need a <code>Long</code> number of milliseconds. This
+ * can be used, for example, with the <code>failAfter</code> method of trait <code>Timeouts</code> or the
+ * <code>timeLimit</code> field of trait <code>TimeLimitedTests</code>. Here are examples of each unit enabled
+ * by this trait: 
+ * </p>
+ * 
+ * <pre>
+ * Thread.sleep(1 millisecond)
+ * Thread.sleep(2 milliseconds)
+ * Thread.sleep(2 millis)
+ * Thread.sleep(1 second)
+ * Thread.sleep(2 seconds)
+ * Thread.sleep(1 minute)
+ * Thread.sleep(2 minutes)
+ * Thread.sleep(1 hour)
+ * Thread.sleep(2 hours)
+ * Thread.sleep(1 day)
+ * Thread.sleep(2 days) // A nice nap indeed
+ * </pre>
  */
 trait TimeSugar {
 
@@ -29,20 +50,99 @@ trait TimeSugar {
    * @param value the value to be converted
    */
   class GrainOfTime(value: Long) {
+    
+    /**
+     * A units method for one millisecond. 
+     * 
+     * @return the value passed to the constructor
+     */
     def millisecond: Long = value
+    
+    /**
+     * A units method for milliseconds. 
+     * 
+     * @return the value passed to the constructor
+     */
     def milliseconds: Long = value
+    
+    /**
+     * A shorter units method for milliseconds. 
+     * 
+     * @return the value passed to the constructor
+     */
     def millis: Long = value
+    
+    /**
+     * A units method for one second. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000
+     */
     def second: Long = value * 1000    
+    
+    /**
+     * A units method for seconds. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000
+     */
     def seconds: Long = value * 1000    
+        
+    /**
+     * A units method for one minute. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60
+     */
     def minute: Long = value * 1000 * 60   
+
+    /**
+     * A units method for minutes. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60
+     */
     def minutes: Long = value * 1000 * 60
+    
+    /**
+     * A units method for one hour. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60 * 60
+     */
     def hour: Long = value * 1000 * 60 * 60  
+
+    /**
+     * A units method for hours. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60 * 60
+     */
     def hours: Long = value * 1000 * 60 * 60
+    
+    /**
+     * A units method for one day. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60 * 60 * 24
+     */
     def day: Long = value * 1000 * 60 * 60 * 24 
+
+    /**
+     * A units method for days. 
+     * 
+     * @return the value passed to the constructor multiplied by 1000 * 60 * 60 * 24
+     */
     def days: Long = value * 1000 * 60 * 60 * 24
   }
   
+  /**
+   * Implicit conversion that adds time units methods to <code>Int</code>s.
+   * 
+   * @param i: the <code>Int</code> to which to add time units methods
+   * @return a <code>GrainOfTime</code> wrapping the passed <code>Int</code>
+   */
   implicit def convertIntToGrainOfTime(i: Int) = new GrainOfTime(i)
+  
+  /**
+   * Implicit conversion that adds time units methods to <code>Long</code>s.
+   * 
+   * @param i: the <code>Long</code> to which to add time units methods
+   * @return a <code>GrainOfTime</code> wrapping the passed <code>Long</code>
+   */
   implicit def convertLongToGrainOfTime(i: Long) = new GrainOfTime(i)
 }
 
