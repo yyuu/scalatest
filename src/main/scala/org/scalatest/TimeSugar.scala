@@ -51,5 +51,16 @@ trait TimeSugar {
  * an alternative to mixing it in. One use case is to import <code>TimeSugar</code> members so you can use
  * them in the Scala interpreter:
  *
+ * <pre class="stREPL">
+ * $scala -classpath scalatest.jar
+ * Welcome to Scala version 2.9.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_29).
+ * Type in expressions to have them evaluated.
+ * Type :help for more information.
+ *
+ * scala&gt; import org.scalatest.TimeSugar._
+ * import org.scalatest.TimeSugar._
+ *
+ * scala&gt; Thread.sleep(2 seconds)
+ * </pre>
  */
 object TimeSugar extends TimeSugar
