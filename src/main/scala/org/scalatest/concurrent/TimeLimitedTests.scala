@@ -17,22 +17,27 @@ package org.scalatest.concurrent
 
 import org.scalatest.AbstractSuite
 import org.scalatest.Suite
+import Timeouts._
+import org.scalatest.ModifiableMessage
+import org.scalatest.Resources
 
 /**
  * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout.
+ * 
+ * The test did not complete within the specified {0} milliseconds time limit.
  */
 trait TimeLimitedTests extends AbstractSuite { this: Suite =>
 
   abstract override def withFixture(test: NoArgTest) {
-    super.withFixture(test)
-/*
     try {
-      super.withFixture(test)
+      failAfter(timeLimit) {
+        super.withFixture(test)
+      }
     }
     catch {
-      case e: TimeoutException => e.timeout
+      case e: ModifiableMessage[_] with TimeoutException =>
+        throw e.modifyMessage(opts => Some(Resources("testTimedOut", e.timeout.toString)))
     }
-*/
   }
 
   /**

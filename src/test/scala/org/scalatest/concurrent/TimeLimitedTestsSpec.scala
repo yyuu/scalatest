@@ -16,20 +16,58 @@
 package org.scalatest.concurrent
 
 import org.scalatest.FunSpec
+import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Stopper
+import org.scalatest.Filter
+import org.scalatest.Tracker
+import org.scalatest.SharedHelpers
+import org.scalatest.Resources
 
-class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers {
+class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelpers {
   describe("A time-limited test") {
     describe("when it does not timeout") {
       describe("when it succeeds") {
-        it("should succeed") (pending)
+        it("should succeed") {
+          val a =
+            new FunSuite with TimeLimitedTests {
+              val timeLimit = 100L
+              test("plain old success") { assert(1 + 1 === 2) }
+            }
+          val rep = new EventRecordingReporter
+          a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+          val ts = rep.testSucceededEventsReceived
+          ts.size should be (1)
+        }
       }
       describe("when it fails") {
-        it("should fail") (pending)
+        it("should fail") {
+          val a =
+            new FunSuite with TimeLimitedTests {
+              val timeLimit = 100L
+              test("plain old failure") { assert(1 + 1 === 3) }
+            }
+          val rep = new EventRecordingReporter
+          a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+          val tf = rep.testFailedEventsReceived
+          tf.size should be (1)
+        }
       }
     }
-    describe("when it does not timeout") {
-      it("should fail with a timeout exception") (pending)
+    describe("when it times out") {
+      it("should fail with a timeout exception with the proper error message") {
+          val a =
+            new FunSuite with TimeLimitedTests {
+              val timeLimit = 100L
+              test("time out failure") { Thread.sleep(500) }
+            }
+          val rep = new EventRecordingReporter
+          a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+          val tf = rep.testFailedEventsReceived
+          tf.size should be (1)
+          val tfe = tf(0)
+          tfe.message should be (Resources("testTimedOut", "100"))
+        }
     }
   }
 }

@@ -18,7 +18,6 @@ package org.scalatest.concurrent
 import java.util.TimerTask
 import java.util.Timer
 import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
-import org.scalatest.TestFailedException
 import org.scalatest.Resources
 import org.scalatest.StackDepthException
 import java.nio.channels.ClosedByInterruptException
@@ -74,8 +73,8 @@ trait Timeouts {
       timeout,
       fun,
       interruptor,
-      t => new TestFailedException(
-        sde => Some(Resources("timeoutFailedAfter", timeout.toString)), t, getStackDepthFun("Timeouts.scala", "failAfter")
+      t => new TestFailedDueToTimeoutException(
+        sde => Some(Resources("timeoutFailedAfter", timeout.toString)), t, getStackDepthFun("Timeouts.scala", "failAfter"), timeout
       )
     )
   }
