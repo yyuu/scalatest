@@ -15,12 +15,15 @@
  */
 package org.scalatest.concurrent
 
-class DoNotInterrupt extends Interruptor {
-  
-  def interrupt(testThread: Thread) {
-  }
+/**
+ * Interruption strategy in which nothing is done to try and interrupt an operation.
+ */
+object DoNotInterrupt extends Interruptor {
+  /**
+   * Does nothing.
+   *
+   * @param testThread unused by this strategy
+   */
+  def apply(testThread: Thread) {} // Don't do nuthin
 }
 
-object DoNotInterrupt {
-  def apply() = new DoNotInterrupt()
-}

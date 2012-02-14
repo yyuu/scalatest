@@ -15,10 +15,54 @@
  */
 package org.scalatest.concurrent
 
-trait Interruptor {
-  def interrupt(testThread: Thread): Unit
+/**
+ * Strategy for interrupting an operation after a timeout expires.
+ *
+ * <p>
+ * An implicit instance of this trait is passed to the <code>failAfter</code> method
+ * of trait <code>Timeouts</code>.
+ * </p>
+ */
+trait Interruptor extends Function1[Thread, Unit] { thisInterruptor =>
+
+  /**
+   * Interrupts an operation.
+   *
+   * <p>
+   * This method may do anything to attempt to interrupt an operation, or even do nothing.
+   * When called by <code>failAfter</code> method of trait <code>Timeouts</code>, the passed
+   * <code>Thread</code> will represent the main test thread. This <code>Thread</code> is
+   * passed in case it is useful, but need not be used by implementations of this method.
+   * </p>
+   */
+  def apply(testThread: Thread): Unit
+
+/*
+  override def compose[U](g: U => Thread): Interruptor =
+    new Interruptor {
+      def apply(u: U) = thisInterruptor.apply(g(u))
+    }
+*/
 }
 
+/**
+ * Companion object that provides a factory method for an <code>Interruptor</code> defined
+ * in terms of a function from a function of type <code>Thread</code> to </code>Unit</code>.
+ */
 object Interruptor {
-  def apply(fun: => Unit) = new FunInterruptor(fun)
+
+  /**
+   * Factory method for an <code>Interruptor</code> defined in terms of a function from a function of
+   * type <code>Thread</code> to </code>Unit</code>.
+   *
+   * When this <code>apply</code> method is invoked, it will invoke the passed function's <code>apply</code>
+   * method, forwarding along the passed <code>Thread</code>.
+   *
+   * @param fun the function representing the interruption strategy
+   */
+  def apply(fun: Thread => Unit) =
+    new Interruptor {
+      def apply(testThread: Thread) { fun(testThread) }
+    }
 }
+

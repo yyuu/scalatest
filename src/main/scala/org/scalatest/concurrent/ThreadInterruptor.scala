@@ -15,14 +15,18 @@
  */
 package org.scalatest.concurrent
 
-class ThreadInterruptor extends Interruptor {
+/**
+ * Strategy for interrupting an operation in which <code>interrupt</code> is called on the <code>Thread</code> passed
+ * to <code>apply</code>.
+ */
+object ThreadInterruptor extends Interruptor {
 
-  def interrupt(testThread: Thread) {
+  /**
+   * Invokes <code>interrupt</code> on the passed <code>Thread</code>.
+   *
+   * @param testThread the <code>Thread</code> to interrupt
+   */
+  def apply(testThread: Thread) {
     testThread.interrupt()
   }
-  
-}
-
-object ThreadInterruptor {
-  def apply = new ThreadInterruptor()
 }

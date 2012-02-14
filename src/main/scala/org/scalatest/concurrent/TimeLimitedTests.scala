@@ -23,11 +23,60 @@ import org.scalatest.Resources
 
 /**
  * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout.
+ *
+ * <p>
+ * This trait overrides <code>withFixture</code>, wrapping a <code>super.withFixture(test)</code> call
+ * in a <code>failAfter</code> invocation, specifying a timeout obtained by invoking <code>timeLimit</code>
+ * on this instance:
+ * </p>
  * 
- * The test did not complete within the specified {0} milliseconds time limit.
+ * <pre>
+ * failAfter(timeLimit) {
+ *   super.withFixture(test)
+ * }
+ * </pre>
+ *
+ * <p>
+ * The <code>timeLimit</code> field is abstract in this trait. Thus you must specify a time limit when you use it.
+ * For example, the following code specifies that each test must complete within 200 milliseconds:
+ * </p>
+ * 
+ * <pre>
+ * import org.scalatest.FunSpec
+ * import org.scalatest.concurrent.TimeLimitedTests
+ * 
+ * class ExampleSpec extends FunSpec with TimeLimitedTests {
+ *
+ *   val timeLimit = 200L
+ *
+ *   describe("A time-limited test") {
+ *     it("should succeed if it completes within the time limit") {
+ *       Thread.sleep(100)
+ *     }
+ *     it("should fail if it is taking too darn long") {
+ *       Thread.sleep(300)
+ *     }
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * If you prefer, you can mix in or import the members of <code>TimeSugar</code> and place units on the time limit, for example:
+ * </p>
+ *
+ * <pre>
+ * import org.scalatest.TimeSugar._
+ *
+ * val timeLimit = 200 millis
+ * </pre>
+ *
+ * <code>The test did not complete within the specified 100 millisecond time limit.</code>
  */
 trait TimeLimitedTests extends AbstractSuite { this: Suite =>
 
+  /**
+   *
+   */
   abstract override def withFixture(test: NoArgTest) {
     try {
       failAfter(timeLimit) {
@@ -43,8 +92,6 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
   /**
    * The time limit, in milliseconds, in which each test in a <code>Suite</code> that mixes in
    * <code>TimeLimitedTests</code> must complete.
-   *
-   * 
    */
   def timeLimit: Long
 }
