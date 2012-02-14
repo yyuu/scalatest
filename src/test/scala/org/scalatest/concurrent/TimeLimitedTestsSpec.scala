@@ -66,7 +66,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
           val tf = rep.testFailedEventsReceived
           tf.size should be (1)
           val tfe = tf(0)
-          tfe.message should be (Resources("testTimedOut", "100"))
+          tfe.message should be (Resources("testTimeLimitExceeded", "100"))
         }
     }
   }
