@@ -48,21 +48,23 @@ private[scalatest] class ReporterFactory {
   }
   
   protected def createStandardOutReporter(configSet: Set[ReporterConfigParam]) = {
-    
-    val reporter = if (configSet.contains(PresentDots)) 
-                     new ConsoleProgressBarReporter(!configSet.contains(PresentWithoutColor))
-                   else
-                     new StandardOutReporter(
-                       configSet.contains(PresentAllDurations),
-                       !configSet.contains(PresentWithoutColor),
-                       configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-                       configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
-                     )
-    
     if (configSetMinusNonFilterParams(configSet).isEmpty)
-      reporter
+      new StandardOutReporter(
+        configSet.contains(PresentAllDurations),
+        !configSet.contains(PresentWithoutColor),
+        configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
+        configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+      )
     else
-      new FilterReporter(reporter, configSet)
+      new FilterReporter(
+        new StandardOutReporter(
+          configSet.contains(PresentAllDurations),
+          !configSet.contains(PresentWithoutColor),
+          configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
+          configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+        ),
+        configSet
+      )
   }
   
   protected def createStandardErrReporter(configSet: Set[ReporterConfigParam]) = {

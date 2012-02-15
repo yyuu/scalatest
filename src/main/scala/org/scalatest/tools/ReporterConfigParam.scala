@@ -30,4 +30,3 @@ private[tools] case object PresentShortStackTraces extends ReporterConfigParam("
 private[tools] case object PresentFullStackTraces extends ReporterConfigParam("F")
 private[tools] case object PresentWithoutColor extends ReporterConfigParam("W")
 private[tools] case object PresentAllDurations extends ReporterConfigParam("D")
-private[tools] case object PresentDots extends ReporterConfigParam("T")
