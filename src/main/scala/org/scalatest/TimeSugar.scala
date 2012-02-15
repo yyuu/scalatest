@@ -39,6 +39,19 @@ package org.scalatest
  * Thread.sleep(1 day)
  * Thread.sleep(2 days) // A nice nap indeed
  * </pre>
+ * 
+ * <p>
+ * Because the result of these expressions is simply a <code>Long</code> number of milliseconds, you can also 
+ * make arithmetic expressions out of them (so long as you use needed parentheses). For example:
+ * </p>
+ * 
+ * <pre>
+ * scala&gt; import org.scalatest.TimeSugar._
+ * import org.scalatest.TimeSugar._
+ *
+ * scala&gt; (1 second) + 88 milliseconds
+ * res0: Long = 1088
+ * </pre>
  */
 trait TimeSugar {
 

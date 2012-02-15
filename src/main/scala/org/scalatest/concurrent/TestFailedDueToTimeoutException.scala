@@ -26,7 +26,22 @@ class TestFailedDueToTimeoutException(
   cause: Option[Throwable],
   failedCodeStackDepthFun: StackDepthException => Int,
   val timeout: Long
-) extends TestFailedException(messageFun, cause, failedCodeStackDepthFun) with TimeoutException
+) extends TestFailedException(messageFun, cause, failedCodeStackDepthFun) with TimeoutException {
+
+  /**
+   * Returns an instance of this exception's class, identical to this exception,
+   * except with the detail message option string replaced with the result of passing
+   * the current detail message to the passed function, <code>fun</code>.
+   *
+   * @param fun A function that, given the current optional detail message, will produce
+   * the modified optional detail message for the result instance of <code>TestFailedDueToTimeoutException</code>.
+   */
+  override def modifyMessage(fun: Option[String] => Option[String]): TestFailedDueToTimeoutException = {
+    val mod = new TestFailedDueToTimeoutException(sde => fun(message), cause, failedCodeStackDepthFun, timeout)
+    mod.setStackTrace(getStackTrace)
+    mod
+  }
+}
 
 /*
 Will need to add cancelAfter to the doc comment in 2.0.

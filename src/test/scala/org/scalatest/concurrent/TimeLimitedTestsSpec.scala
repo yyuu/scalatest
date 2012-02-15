@@ -56,18 +56,45 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
     }
     describe("when it times out") {
       it("should fail with a timeout exception with the proper error message") {
-          val a =
-            new FunSuite with TimeLimitedTests {
-              val timeLimit = 100L
-              test("time out failure") { Thread.sleep(500) }
+        val a =
+          new FunSuite with TimeLimitedTests {
+            val timeLimit = 100L
+            test("time out failure") { Thread.sleep(500) }
+          }
+        val rep = new EventRecordingReporter
+        a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+        val tf = rep.testFailedEventsReceived
+        tf.size should be (1)
+        val tfe = tf(0)
+        tfe.message should be (Resources("testTimeLimitExceeded", "100"))
+      }
+      it("should fail with a timeout exception with the proper cause, if the test timed out after it completed abruptly") {
+        val a =
+          new FunSuite with TimeLimitedTests {
+            val timeLimit = 10L
+            override val defaultTestInterruptor = DoNotInterrupt
+            test("time out failure") {
+              Thread.sleep(50)
+              throw new RuntimeException("oops!")
             }
-          val rep = new EventRecordingReporter
-          a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
-          val tf = rep.testFailedEventsReceived
-          tf.size should be (1)
-          val tfe = tf(0)
-          tfe.message should be (Resources("testTimeLimitExceeded", "100"))
+          }
+        val rep = new EventRecordingReporter
+        a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+        val tf = rep.testFailedEventsReceived
+        tf.size should be (1)
+        val tfe = tf(0)
+        tfe.message should be (Resources("testTimeLimitExceeded", "10"))
+        import org.scalatest.OptionValues._
+        tfe.throwable.value match {
+          case tfe: TestFailedDueToTimeoutException =>
+          	tfe.cause.value match {
+              case re: RuntimeException =>
+                re.getMessage should be ("oops!")
+              case e => fail("Cause was not a RuntimeException", e)
+          	}
+          case e => fail("Was not a TestFailedDueToTimeoutException", e)
         }
+      }
     }
   }
 }

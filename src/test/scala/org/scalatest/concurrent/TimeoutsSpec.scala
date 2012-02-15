@@ -151,7 +151,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       val caught = evaluating {
         failAfter(100) {
           inputStream.read()
-        } ( Interruptor { clientSocket.close() } )
+        } (Interruptor { t => clientSocket.close() })
       } should produce [TestFailedException]
       clientSocket.close()
       drag = false
@@ -163,7 +163,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
         failAfter(100) {
           Thread.sleep(200)
           x = 1
-        } ( DoNotInterrupt() )
+        } (DoNotInterrupt)
       } should produce [TestFailedException]
       x should be (1)
     }

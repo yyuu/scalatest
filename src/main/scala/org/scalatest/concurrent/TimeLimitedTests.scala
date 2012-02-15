@@ -27,15 +27,22 @@ import org.scalatest.Resources
  * <p>
  * This trait overrides <code>withFixture</code>, wrapping a <code>super.withFixture(test)</code> call
  * in a <code>failAfter</code> invocation, specifying a timeout obtained by invoking <code>timeLimit</code>
- * on this instance:
+ * and an <code>Interruptor</code> by invoking <code>defaultTestInterruptor</code>:
  * </p>
  * 
  * <pre>
  * failAfter(timeLimit) {
  *   super.withFixture(test)
- * }
+ * } (defaultTestInterruptor)
  * </pre>
  *
+ * <p>
+ * Note that the <code>failAfter</code> method executes the body of the by-name passed to it using the same
+ * thread that invoked <code>failAfter</code>. This means that the same thread will run the <code>withFixture</code> method
+ * as well as each test, so no extra synchronization is required. A second thread is used to run a timer, and if the timeout
+ * expires, that second thread will attempt to interrupt the main test thread via the <code>defaultTestInterruptor</code>.
+ * </p>
+ * 
  * <p>
  * The <code>timeLimit</code> field is abstract in this trait. Thus you must specify a time limit when you use it.
  * For example, the following code specifies that each test must complete within 200 milliseconds:
@@ -61,6 +68,14 @@ import org.scalatest.Resources
  * </pre>
  *
  * <p>
+ * If you run the above <code>ExampleSpec</code>, the second test will fail with the error message: 
+ * </p>
+ * 
+ * <p>
+ * <code>The test did not complete within the specified 200 millisecond time limit.</code>
+ * </p>
+ * 
+ * <p>
  * If you prefer, you can mix in or import the members of <code>TimeSugar</code> and place units on the time limit, for example:
  * </p>
  *
@@ -70,7 +85,14 @@ import org.scalatest.Resources
  * val timeLimit = 200 millis
  * </pre>
  *
- * <code>The test did not complete within the specified 100 millisecond time limit.</code>
+ * <p>
+ * The <code>failAfter</code> method uses an <code>Interruptor</code> to attempt to interrupt the main test thread if the timeout
+ * expires. The default <code>Interruptor</code> returned by the <code>defaultTestInterruptor</code> method is a
+ * <code>ThreadInterruptor</code>, which calls <code>interrupt</code> on the main test thread. If you wish to change this
+ * interruption strategy, override <code>defaultTestInterruptor</code> to return a different <code>Interruptor</code>. For example,
+ * here's how you'd change the default to <code>DoNotInterrupt</code>, a very patient interruption strategy that does nothing to
+ * interrupt the main test thread.
+ * </p>
  */
 trait TimeLimitedTests extends AbstractSuite { this: Suite =>
 
@@ -81,7 +103,7 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
     try {
       failAfter(timeLimit) {
         super.withFixture(test)
-      }
+      } (defaultTestInterruptor)
     }
     catch {
       case e: ModifiableMessage[_] with TimeoutException =>
@@ -94,6 +116,8 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
    * <code>TimeLimitedTests</code> must complete.
    */
   def timeLimit: Long
+  
+  val defaultTestInterruptor: Interruptor = ThreadInterruptor
 }
 
 /*
