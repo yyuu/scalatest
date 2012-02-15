@@ -91,13 +91,46 @@ import org.scalatest.Resources
  * <code>ThreadInterruptor</code>, which calls <code>interrupt</code> on the main test thread. If you wish to change this
  * interruption strategy, override <code>defaultTestInterruptor</code> to return a different <code>Interruptor</code>. For example,
  * here's how you'd change the default to <code>DoNotInterrupt</code>, a very patient interruption strategy that does nothing to
- * interrupt the main test thread.
+ * interrupt the main test thread:
+ * </p>
+ * 
+ * <pre>
+ * import org.scalatest.FunSpec
+ * import org.scalatest.concurrent.TimeLimitedTests
+ * import org.scalatest.TimeSugar._
+ * 
+ * class ExampleSpec extends FunSpec with TimeLimitedTests {
+ * 
+ *   val timeLimit = 200 millis
+ * 
+ *   override val defaultTestInterruptor = DoNotInterrupt
+ * 
+ *   describe("A time-limited test") {
+ *     it("should succeed if it completes within the time limit") {
+ *       Thread.sleep(100)
+ *     }
+ *     it("should fail if it is taking too darn long") {
+ *       Thread.sleep(300)
+ *     }
+ *   }
+ * }
+ * </pre>
+ * 
+ * <p>
+ * Like the previous incarnation of <code>ExampleSuite</code>, the second test will fail with an error message that indicates
+ * a timeout expired. But whereas in the previous case, the <code>Thread.sleep</code> would be interrupted after 200 milliseconds,
+ * in this case it is never interrupted. In the previous case, the failed test requires a little over 200 milliseconds to run.
+ * In this case, because the <code>sleep(300)</code> is never interrupted, the failed test requires a little over 300 milliseconds
+ * to run.
  * </p>
  */
 trait TimeLimitedTests extends AbstractSuite { this: Suite =>
 
   /**
-   *
+   * A stackable implementation of <code>withFixture</code> that wraps a call to <code>super.withFixture</code> in a 
+   * <code>failAfter</code> invoation.
+   * 
+   * @param test the test on which to enforce a time limit
    */
   abstract override def withFixture(test: NoArgTest) {
     try {
@@ -117,6 +150,16 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
    */
   def timeLimit: Long
   
+  /**
+   * The default <code>Interruptor</code> strategy used to interrupt tests that exceed their time limit.
+   * 
+   * <p>
+   * This trait's implementation of this method returns <code>ThreadInterruptor</code>, which invokes <code>interrupt</code>
+   * on the main test thread. Override this method to change the test interruption strategy.
+   * </p>
+   * 
+   * @return a <code>ThreadInterruptor</code>
+   */
   val defaultTestInterruptor: Interruptor = ThreadInterruptor
 }
 
