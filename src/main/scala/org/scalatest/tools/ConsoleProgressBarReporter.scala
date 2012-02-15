@@ -7,12 +7,7 @@ import scala.collection.mutable
 class ConsoleProgressBarReporter extends Reporter {
   
   private val WIDTH = 60
-  private val RED = "\033[31m"
-  private val GREEN = "\033[32m"
-  private val BOLD = "\033[1m"
-  private val NORMAL = "\033[0m"
-    
-  private[scalatest] case class ErrorData(suiteClassName: Option[String], formattedName: String, throwable: Option[Throwable])
+   
   private[scalatest] class Duration(val inMilliseconds: Long) {
     lazy val inSeconds = inMilliseconds / 1000
     lazy val inMinutes = inSeconds / 60
@@ -23,8 +18,8 @@ class ConsoleProgressBarReporter extends Reporter {
   private var failed = 0
   private var ignored = 0
   private var pending = 0
-  private val errors = new mutable.ListBuffer[ErrorData]
-
+  private var dotCount = 1
+  
   def apply(event: Event) {
     event match {
       case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timestamp) => {
@@ -36,49 +31,70 @@ class ConsoleProgressBarReporter extends Reporter {
       }
       case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunner, payload, threadName, timestamp) => {
         count += 1
-        updateDisplay()
+        updateDisplay(PrintReporter.ansiGreen)
       }
       case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable, duration, formatter, rerunner, payload, threadName, timestamp) => {
         count += 1
         failed += 1
-        errors += ErrorData(suiteClassName, "%s: %s".format(suiteName, testName), throwable)
-        updateDisplay()
+        printErrorStackTrace("FAILED: " + "%s: %s".format(suiteName, testName), throwable, suiteClassName)
       }
       case TestIgnored (ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
         count += 1
         ignored += 1
-        updateDisplay()
+        updateDisplay(PrintReporter.ansiYellow)
       case TestPending (ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => 
         count += 1
         pending += 1
-        updateDisplay()
+        updateDisplay(PrintReporter.ansiYellow)
       case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timestamp) => {
-        println()
+        if (dotCount % WIDTH != 0)
+          printProgressBar
         if (duration.isDefined)
           println("Finished in " + durationToHuman(new Duration(duration.get)))
         else
           println("Finished, duration not available.")
-        println()
-        errors.foreach { error =>
-          println(RED + "FAILED" + NORMAL + ": " + error.formattedName)
-          error.throwable match {
-            case Some(errorThrowable) => 
-              buildStackTrace(errorThrowable, error.suiteClassName.getOrElse(""), 50).foreach(println)
-            case None =>
-              // Do nothing, probably not going to happen.
-          }
-          println()
-        }
       }
+      case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
+        printErrorStackTrace("SUITE ABORTED: ", throwable, suiteClassName)
+      case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
+        printErrorStackTrace("RUN ABORTED: ", throwable, None)
+      case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) => 
+        printErrorStackTrace("RUN STOPPED", None, None)
       case _ =>
     }
   }
+  
+  def printErrorStackTrace(errorMessage: String, throwableOpt: Option[Throwable], suiteClassNameOpt: Option[String]) {
+    println()
+    println(PrintReporter.ansiRed + errorMessage)
+    throwableOpt match {
+      case Some(t) => 
+        buildStackTrace(t, suiteClassNameOpt.getOrElse(""), 50).foreach(println)
+      case None => 
+        // Do nothing, probably not going to happen.
+    }
+    print(PrintReporter.ansiReset)
+    dotCount = 1
+  }
 
-  def updateDisplay() {
+  def updateDisplay(color: String) {
+    if (dotCount % WIDTH == 0)
+      printProgressBar()
+    else {
+      print(color + "." + PrintReporter.ansiReset)
+      System.out.flush() // Make sure it get flushed to output.
+      dotCount += 1
+    }
+  }
+  
+  def printProgressBar() {
     val hashes = (WIDTH * count.toDouble / total).toInt
-    val bar = (if (failed > 0) RED else GREEN) + ("#" * hashes) + (" " * (WIDTH - hashes)) + NORMAL
+    val bar = (if (failed > 0) PrintReporter.ansiRed else PrintReporter.ansiGreen) + ("#" * hashes) + (" " * (WIDTH - hashes)) + PrintReporter.ansiReset
     val note = if (failed > 0) "(errors: %d)".format(failed) else ""
-    print("\n [%s] %d/%d %s ".format(bar, count, total, note))
+    println()
+    print(" [%s] %d/%d %s ".format(bar, count, total, note))
+    println()
+    dotCount = 1
   }
 
   def durationToHuman(x: Duration) = {
@@ -87,11 +103,12 @@ class ConsoleProgressBarReporter extends Reporter {
 
   def buildStackTrace(throwable: Throwable, highlight: String, limit: Int): List[String] = {
     var out = new mutable.ListBuffer[String]
+    out += throwable.getMessage
     if (limit > 0) {
       out ++= throwable.getStackTrace.map { elem =>
         val line = "    at %s".format(elem.toString)
         if (line contains highlight) {
-          BOLD + line + NORMAL
+          PrintReporter.ansiBold + line + PrintReporter.ansiReset + PrintReporter.ansiRed
         } else {
           line
         }

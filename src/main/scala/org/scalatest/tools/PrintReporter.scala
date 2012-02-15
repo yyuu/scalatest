@@ -134,6 +134,7 @@ private[tools] object PrintReporter {
   final val ansiCyan = "\033[36m"
   final val ansiYellow = "\033[33m"
   final val ansiRed = "\033[31m"
+  final val ansiBold = "\033[1m"
 
   def makeDurationString(duration: Long) = {
 
