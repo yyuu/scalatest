@@ -4,7 +4,7 @@ import org.scalatest.Reporter
 import org.scalatest.events._
 import scala.collection.mutable
 
-class ConsoleProgressBarReporter extends Reporter {
+class ConsoleProgressBarReporter(presentInColor: Boolean = true) extends Reporter {
   
   private val WIDTH = 60
    
@@ -46,34 +46,43 @@ class ConsoleProgressBarReporter extends Reporter {
         count += 1
         pending += 1
         updateDisplay(PrintReporter.ansiYellow)
-      case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timestamp) => {
+      case RunCompleted(ordinal, duration, summary, formatter, payload, threadName, timestamp) => 
         if (dotCount % WIDTH != 0)
           printProgressBar
         if (duration.isDefined)
           println("Finished in " + durationToHuman(new Duration(duration.get)))
         else
           println("Finished, duration not available.")
-      }
+        System.out.flush() // Make sure it get flushed to output.
       case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunner, payload, threadName, timeStamp) => 
         printErrorStackTrace("SUITE ABORTED: ", throwable, suiteClassName)
       case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) => 
         printErrorStackTrace("RUN ABORTED: ", throwable, None)
+        System.out.flush() // Make sure it get flushed to output.
       case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) => 
         printErrorStackTrace("RUN STOPPED", None, None)
+        System.out.flush() // Make sure it get flushed to output.
       case _ =>
     }
   }
   
+  private def checkColor(color: String) = {
+    if (presentInColor)
+      color
+    else
+      ""
+  }
+  
   def printErrorStackTrace(errorMessage: String, throwableOpt: Option[Throwable], suiteClassNameOpt: Option[String]) {
     println()
-    println(PrintReporter.ansiRed + errorMessage)
+    println(checkColor(PrintReporter.ansiRed) + errorMessage)
     throwableOpt match {
       case Some(t) => 
         buildStackTrace(t, suiteClassNameOpt.getOrElse(""), 50).foreach(println)
       case None => 
         // Do nothing, probably not going to happen.
     }
-    print(PrintReporter.ansiReset)
+    print(checkColor(PrintReporter.ansiReset))
     dotCount = 1
   }
 
@@ -81,7 +90,7 @@ class ConsoleProgressBarReporter extends Reporter {
     if (dotCount % WIDTH == 0)
       printProgressBar()
     else {
-      print(color + "." + PrintReporter.ansiReset)
+      print(checkColor(color) + "." + checkColor(PrintReporter.ansiReset))
       System.out.flush() // Make sure it get flushed to output.
       dotCount += 1
     }
@@ -89,7 +98,7 @@ class ConsoleProgressBarReporter extends Reporter {
   
   def printProgressBar() {
     val hashes = (WIDTH * count.toDouble / total).toInt
-    val bar = (if (failed > 0) PrintReporter.ansiRed else PrintReporter.ansiGreen) + ("#" * hashes) + (" " * (WIDTH - hashes)) + PrintReporter.ansiReset
+    val bar = (if (failed > 0) checkColor(PrintReporter.ansiRed) else checkColor(PrintReporter.ansiGreen)) + ("#" * hashes) + (" " * (WIDTH - hashes)) + checkColor(PrintReporter.ansiReset)
     val note = if (failed > 0) "(errors: %d)".format(failed) else ""
     println()
     print(" [%s] %d/%d %s ".format(bar, count, total, note))
@@ -108,7 +117,7 @@ class ConsoleProgressBarReporter extends Reporter {
       out ++= throwable.getStackTrace.map { elem =>
         val line = "    at %s".format(elem.toString)
         if (line contains highlight) {
-          PrintReporter.ansiBold + line + PrintReporter.ansiReset + PrintReporter.ansiRed
+          checkColor(PrintReporter.ansiBold) + line + checkColor(PrintReporter.ansiReset) + checkColor(PrintReporter.ansiRed)
         } else {
           line
         }

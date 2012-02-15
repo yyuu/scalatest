@@ -143,23 +143,20 @@ write a sbt plugin to deploy the task.
         object SbtReporterFactory extends ReporterFactory {
           
           override def createStandardOutReporter(configSet: Set[ReporterConfigParam]) = {
+            val reporter = if (configSet.contains(PresentDots)) 
+                             new ConsoleProgressBarReporter(!configSet.contains(PresentWithoutColor))
+                           else
+                             new SbtLogInfoReporter(
+                               configSet.contains(PresentAllDurations),
+                               !configSet.contains(PresentWithoutColor),
+                               configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
+                               configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
+                             )
+            
             if (configSetMinusNonFilterParams(configSet).isEmpty)
-              new SbtLogInfoReporter(
-                configSet.contains(PresentAllDurations),
-                !configSet.contains(PresentWithoutColor),
-                configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-                configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
-              )
+              reporter
             else
-              new FilterReporter(
-                new SbtLogInfoReporter(
-                  configSet.contains(PresentAllDurations),
-                  !configSet.contains(PresentWithoutColor),
-                  configSet.contains(PresentShortStackTraces) || configSet.contains(PresentFullStackTraces),
-                  configSet.contains(PresentFullStackTraces) // If they say both S and F, F overrules
-                ),
-                configSet
-              )
+              new FilterReporter(reporter, configSet)
           }
         }
         
