@@ -18,15 +18,17 @@ package org.scalatest.suiteprop
 import org.scalatest._
 import prop.TableDrivenPropertyChecks
 
-class InfoInsideTestFiredAfterTestProp extends SuiteProp {
+class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
 
-  test("When info appears in the code of a successful test, it should be reported after the TestSucceeded.") {
+/*
+  property("When info appears in the code of a successful test, it should be reported after the TestSucceeded.") {
     forAll (examples) { suite =>
         val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
           getIndexesForInformerEventOrderTests(suite, suite.testName, suite.msg)
         testSucceededIndex should be < infoProvidedIndex
     }
   }
+*/
 
   trait Services {
     val msg = "hi there, dude"

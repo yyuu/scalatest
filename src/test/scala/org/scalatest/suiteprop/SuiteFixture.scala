@@ -19,4 +19,4 @@ import org.scalatest._
 import prop.TableDrivenPropertyChecks
 import matchers.ShouldMatchers
 
-trait SuiteProp extends FunSuite with SuiteExamples with TableDrivenPropertyChecks with ShouldMatchers with SharedHelpers
+trait SuiteFixture extends SuiteExamples
