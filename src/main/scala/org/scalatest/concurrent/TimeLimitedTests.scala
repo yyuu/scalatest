@@ -27,7 +27,7 @@ import org.scalatest.Resources
  * <p>
  * This trait overrides <code>withFixture</code>, wrapping a <code>super.withFixture(test)</code> call
  * in a <code>failAfter</code> invocation, specifying a timeout obtained by invoking <code>timeLimit</code>
- * and an <code>Interruptor</code> by invoking <code>defaultTestInterruptor</code>:
+ * and an <a href="Interruptor.html"><code>Interruptor</code></a> by invoking <code>defaultTestInterruptor</code>:
  * </p>
  * 
  * <pre>
