@@ -30,7 +30,7 @@ import java.net.Socket
  *
  * <p>
  * The time limit is passed as the first parameter, a <code>Long</code> number of milliseconds. The operation is
- * passed as the second parameter. And an <code>Interruptor</code>, a strategy for interrupting the operation, is
+ * passed as the second parameter. And an <a href="Interruptor.html"><code>Interruptor</code></a>, a strategy for interrupting the operation, is
  * passed as an implicit third parameter.  Here's a simple example of its use:
  * </p>
  *
@@ -41,7 +41,7 @@ import java.net.Socket
  * </pre>
  *
  * <p>
- * The above code, after 100 milliseconds, will produce a <code>TestFailedDueToTimeoutException</code> with a message
+ * The above code, after 100 milliseconds, will produce a <a href="TestFailedDueToTimeoutException.html"><code>TestFailedDueToTimeoutException</code></a> with a message
  * that indicates a timeout expired:
  * </p>
  *
@@ -50,7 +50,7 @@ import java.net.Socket
  * </p>
  *
  * <p>
- * If you prefer you can mix in or import the members of <code>TimeSugar</code> and place a units value after the integer timeout.
+ * If you prefer you can mix in or import the members of <a href="../TimeSugar.html"><code>TimeSugar</code></a> and place a units value after the integer timeout.
  * Here are some examples:
  * </p>
  *
@@ -91,10 +91,10 @@ import java.net.Socket
  *
  * <p>
  * This trait declares an implicit <code>val</code> named <code>defaultInterruptor</code>,
- * initialized with a <code>ThreadInterruptor</code>, which attempts to interrupt the main thread by invoking
+ * initialized with a <a href="ThreadInterruptor$.html"><code>ThreadInterruptor</code></a>, which attempts to interrupt the main thread by invoking
  * <code>Thread.interrupt</code>. If you wish to use a different strategy, you can override this <code>val</code> (or hide
  * it, for example if you imported the members of <code>Timeouts</code> rather than mixing it in). Here's an example
- * in which the default interruption method is changed to <code>DoNotInterrupt</code>, which does not attempt to
+ * in which the default interruption method is changed to <a href="DoNotInterrupt$.html"><code>DoNotInterrupt</code></a>, which does not attempt to
  * interrupt the main thread in any way:
  * </p>
  *
@@ -132,7 +132,7 @@ import java.net.Socket
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * ThreadInterruptor
+ * <a href="ThreadInterruptor$.html">ThreadInterruptor</a>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * The default interruptor, invokes <code>interrupt</code> on the main test thread. This will
@@ -143,7 +143,7 @@ import java.net.Socket
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * DoNotInterrupt
+ * <a href="DoNotInterrupt$.html">DoNotInterrupt</a>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * Does not attempt to interrupt the main test thread in any way
@@ -151,7 +151,7 @@ import java.net.Socket
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * SelectorInterruptor
+ * <a href="SelectorInterruptor.html">SelectorInterruptor</a>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * Invokes <code>wakeup</code> on the passed <code>java.nio.channels.Selector</code>, which
@@ -161,7 +161,7 @@ import java.net.Socket
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * SocketInterruptor
+ * <a href="SocketInterruptor.html">SocketInterruptor</a>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * Invokes <code>close</code> on the <code>java.io.Socket</code>, which

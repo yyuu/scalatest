@@ -76,7 +76,7 @@ import org.scalatest.Resources
  * </p>
  * 
  * <p>
- * If you prefer, you can mix in or import the members of <code>TimeSugar</code> and place units on the time limit, for example:
+ * If you prefer, you can mix in or import the members of <a href="../TimeSugar.html"><code>TimeSugar</code></a> and place units on the time limit, for example:
  * </p>
  *
  * <pre>
@@ -88,9 +88,9 @@ import org.scalatest.Resources
  * <p>
  * The <code>failAfter</code> method uses an <code>Interruptor</code> to attempt to interrupt the main test thread if the timeout
  * expires. The default <code>Interruptor</code> returned by the <code>defaultTestInterruptor</code> method is a
- * <code>ThreadInterruptor</code>, which calls <code>interrupt</code> on the main test thread. If you wish to change this
+ * <a href="ThreadInterruptor$.html"><code>ThreadInterruptor</code></a>, which calls <code>interrupt</code> on the main test thread. If you wish to change this
  * interruption strategy, override <code>defaultTestInterruptor</code> to return a different <code>Interruptor</code>. For example,
- * here's how you'd change the default to <code>DoNotInterrupt</code>, a very patient interruption strategy that does nothing to
+ * here's how you'd change the default to <a href="DoNotInterrupt$.html"><code>DoNotInterrupt</code></a>, a very patient interruption strategy that does nothing to
  * interrupt the main test thread:
  * </p>
  * 
@@ -151,10 +151,10 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
   def timeLimit: Long
   
   /**
-   * The default <code>Interruptor</code> strategy used to interrupt tests that exceed their time limit.
+   * The default <a href="Interruptor.html"><code>Interruptor</code></a> strategy used to interrupt tests that exceed their time limit.
    * 
    * <p>
-   * This trait's implementation of this method returns <code>ThreadInterruptor</code>, which invokes <code>interrupt</code>
+   * This trait's implementation of this method returns <a href="ThreadInterruptor$.html"><code>ThreadInterruptor</code></a>, which invokes <code>interrupt</code>
    * on the main test thread. Override this method to change the test interruption strategy.
    * </p>
    * 

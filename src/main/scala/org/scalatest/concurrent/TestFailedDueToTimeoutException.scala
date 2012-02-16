@@ -19,7 +19,17 @@ import org.scalatest.TestFailedException
 import org.scalatest.StackDepthException
 
 /**
- * Subclass of <code>TestFailedException</code> thrown by <code>failAfter</code> if it times out.
+ * Subclass of <a href="../TestFailedException.html"><code>TestFailedException</code></a> thrown by the <code>failAfter</code>
+ * method of trait <a href="Timeouts.html"><code>Timeouts</code></a> if it times out.
+ *
+ * @param messageFun a function that produces an optional detail message for this <code>TestFailedDueToTimeoutException</code>.
+ * @param cause an optional cause, the <code>Throwable</code> that caused this <code>TestFailedDueToTimeoutException</code> to be thrown.
+ * @param failedCodeStackDepthFun a function that produces the depth in the stack trace of this exception at which the line of test code that failed resides.
+ * @param timeout the timeout that expired
+ *
+ * @throws NullPointerException if either <code>messageFun</code>, <code>cause</code> or <code>failedCodeStackDepthFun</code> is <code>null</code>, or <code>Some(null)</code>.
+ *
+ * @author Bill Venners
  */
 class TestFailedDueToTimeoutException(
   messageFun: StackDepthException => Option[String],

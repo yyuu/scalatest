@@ -16,9 +16,24 @@
 package org.scalatest.concurrent
 
 /**
- * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout.
+ * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout, which offers
+ * a <code>timeout</code> method that returns a <code>Long</code> representing the timeout that expired.
+ *
+ * <p>
+ * This trait is used by trait <a href="TimeLimitedTests.html"><code>TimeLimitedTests</code></a> to detect exceptions thrown because of timeouts, and
+ * for such exceptions, to modify the message to more clearly indicate a test timed out. (Although in its initial
+ * release there is only one subclass of <code>TimeoutException</code> in ScalaTest,
+ * <a href="TestFailedDueToTimeoutException.html"><code>TestFailedDueToTimeoutException</code></a>,
+ * in a future version of ScalaTest, there will be another....)
+ * </p>
  */
 trait TimeoutException {
+
+  /**
+   * The timeout that expired causing this <code>TimeoutException</code>.
+   *
+   * @return the timeout that expired
+   */
   def timeout: Long
 }
 

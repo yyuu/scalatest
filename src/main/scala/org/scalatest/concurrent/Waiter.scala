@@ -66,7 +66,7 @@ import Assertions.fail
  * <p>
  * You may want to put <code>dismiss</code> invocations in a finally clause to ensure they happen even if an exception is thrown.
  * Otherwise if a dismissal is missed because of a thrown exception, an <code>await</code> call without a timeout will block forever. 
- * If the <code>await</code> is called a timeout, though, this won't be a problem.
+ * If the <code>await</code> is called with a timeout, though, this won't be a problem.
  * </p>
  * 
  * <p>
