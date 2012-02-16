@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest
+package org.scalatest.suiteprop
 
-import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import prop.TableDrivenPropertyChecks
+import matchers.ShouldMatchers
 
 trait SuiteProp extends FunSuite with SuiteExamples with TableDrivenPropertyChecks with ShouldMatchers with SharedHelpers

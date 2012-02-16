@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest
+package org.scalatest.suiteprop
 
-import org.scalatest.fixture._
-import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest._
+import prop.TableDrivenPropertyChecks
 
 class InfoInsideTestFiredAfterTestProp extends SuiteProp {
 
