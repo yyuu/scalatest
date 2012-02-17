@@ -510,7 +510,7 @@ private[scalatest] class FixtureEngine[FixtureParam](concurrentBundleModResource
 import scala.collection.mutable
 
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
-    extends Engine(concurrentBundleModResourceName, simpleClassName) {
+    extends Engine(concurrentBundleModResourceName, simpleClassName) { thisEngine =>
  
   final var registeredPathSet = mutable.Set.empty[List[Int]]
   final var targetPath: Option[List[Int]] = None
@@ -522,7 +522,25 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   @volatile var targetLeafHasBeenReached = false
   @volatile var nextTargetPath: Option[List[Int]] = None
   @volatile var testResultsRegistered = false
-  
+    def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: org.scalatest.path.FunSpec) {
+    synchronized {
+      // Only register tests if this is an initial instance (and only if they haven't
+      // already been registered.
+      if (isAnInitialInstance  && !testResultsRegistered) {
+        testResultsRegistered = true
+        var currentInstance = callingInstance
+        while (nextTargetPath.isDefined) {
+          targetPath = Some(nextTargetPath.get)
+          PathEngine.setEngine(thisEngine)
+          targetLeafHasBeenReached = false
+          nextTargetPath = None
+          testResultsRegistered = false
+          currentInstance = callingInstance.newInstance  
+        }
+      }
+    }
+  }
+
  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
     val oldBundle = atomic.get
