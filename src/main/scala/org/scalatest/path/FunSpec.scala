@@ -51,7 +51,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   @volatile private var nextTargetPath: Option[List[Int]] = None
   
   @volatile private var testResultsRegistered = false
-  private def ensureTestResultsRegistered() {
+  private def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: FunSpec) {
     synchronized {
       // Only register tests if this is an initial instance (and only if they haven't
       // already been registered.
@@ -295,19 +295,19 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
   
   final override def testNames: Set[String] = {
-    ensureTestResultsRegistered()
+    ensureTestResultsRegistered(isAnInitialInstance, this)
     // I'm returning a ListSet here so that they tests will be run in registration order
     ListSet(atomic.get.testNamesList.toArray: _*)
   }
 
   final override def expectedTestCount(filter: Filter): Int = {
-    ensureTestResultsRegistered()
+    ensureTestResultsRegistered(isAnInitialInstance, this)
     super.expectedTestCount(filter)
   }
 
   final protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
 
-    ensureTestResultsRegistered()
+    ensureTestResultsRegistered(isAnInitialInstance, this)
     
     def dontInvokeWithFixture(theTest: TestLeaf) {
       theTest.testFun()
@@ -317,7 +317,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
 
   final override def tags: Map[String, Set[String]] = {
-    ensureTestResultsRegistered()
+    ensureTestResultsRegistered(isAnInitialInstance, this)
     atomic.get.tagsMap
   }
   
@@ -327,7 +327,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   final override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
-   ensureTestResultsRegistered()
+   ensureTestResultsRegistered(isAnInitialInstance, this)
    super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
   }
 
@@ -342,7 +342,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   final protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
-    ensureTestResultsRegistered()
+    ensureTestResultsRegistered(isAnInitialInstance, this)
     runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
 
