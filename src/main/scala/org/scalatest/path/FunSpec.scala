@@ -83,32 +83,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
       handleTest(specText, testFun _, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
     }
     
-   def handleTest(testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
-     val nextPath = getNextPath()
-      if (isInTargetPath(nextPath, targetPath)) {
-        // Default value of None indicates successful test
-        var resultOfRunningTest: Option[Throwable] = None
-        
-        try { // TODO: add a test that ensures withFixture is called
-          testFun()
-          // If no exception, leave at None to indicate success
-        }
-        catch {
-          case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
-            resultOfRunningTest = Some(e)
-        }
-        val newTestFun = { () =>
-          if (resultOfRunningTest.isDefined)
-            throw resultOfRunningTest.get
-        }
-        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
-        targetLeafHasBeenReached = true
-      }
-      else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
-        nextTargetPath = Some(nextPath)
-      }
-    }
-
     /**
      * Supports the registration of shared tests.
      *

@@ -23,6 +23,7 @@ import org.scalatest.NodeFamily.TestLeaf
 import org.scalatest.Suite._
 import fixture.NoArgTestWrapper
 import scala.annotation.tailrec
+import org.scalatest.PathEngine.isInTargetPath
 
 // T will be () => Unit for FunSuite and FixtureParam => Any for fixture.FunSuite
 private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResourceName: String, simpleClassName: String)  {
@@ -561,6 +562,32 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       }
     }
   }
+
+   def handleTest(testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
+     val nextPath = getNextPath()
+      if (isInTargetPath(nextPath, targetPath)) {
+        // Default value of None indicates successful test
+        var resultOfRunningTest: Option[Throwable] = None
+        
+        try { // TODO: add a test that ensures withFixture is called
+          testFun()
+          // If no exception, leave at None to indicate success
+        }
+        catch {
+          case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
+            resultOfRunningTest = Some(e)
+        }
+        val newTestFun = { () =>
+          if (resultOfRunningTest.isDefined)
+            throw resultOfRunningTest.get
+        }
+        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
+        targetLeafHasBeenReached = true
+      }
+      else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
+        nextTargetPath = Some(nextPath)
+      }
+    }
 
  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
