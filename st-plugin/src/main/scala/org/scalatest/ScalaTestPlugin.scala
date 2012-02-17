@@ -1,7 +1,6 @@
 package org.scalatest
 import sbt._
 import scala.collection.mutable.ArrayBuffer
-import org.scalatest.tools.Runner
 trait ScalaTestPlugin extends DefaultProject {
 
   private def parseFriendlyParams(friendlyArgs:Array[String]): Array[String] = {
@@ -13,7 +12,7 @@ trait ScalaTestPlugin extends DefaultProject {
     arrayBuffer.toArray
   }
 
-  private def runScalaTest(args: List[String]) {
+  private def runScalaTest(args: List[String], loader: ClassLoader[_]) {
     var arrayBuffer = new ArrayBuffer[String]()
     arrayBuffer += "-p"
     arrayBuffer += testCompilePath.toString + " " + mainCompilePath.toString
@@ -28,8 +27,8 @@ trait ScalaTestPlugin extends DefaultProject {
         // We'll translate suite into existing suite() and passed in together with other stargs
         //arrayBuffer ++= (for(suiteName <- suiteNames) yield { List("-s", suiteName) }).flatten
         for(suiteName <- suiteNames) {
-          arrayBuffer += "-s"
-          arrayBuffer += suiteName
+            arrayBuffer += "-s"
+            arrayBuffer += suiteName
         }
         arrayBuffer ++= parseFriendlyParams(otherArgs.toArray)
       }
@@ -38,23 +37,30 @@ trait ScalaTestPlugin extends DefaultProject {
         // We'll translate suite into existing suite() and passed in together with other stargs
         //arrayBuffer ++= (for(arg <- args) yield { List("-s", arg) }).flatten
         for(arg <- args) {
-          arrayBuffer += "-s"
-          arrayBuffer += arg
+            arrayBuffer += "-s"
+            arrayBuffer += arg
         }
         if (stargs.trim.length > 0)
           arrayBuffer ++= parseFriendlyParams(stargs.trim.split(" "))
       }
     }
-    else if(stargs.trim() != "")
+    else if(stargs.trim() != "") 
       arrayBuffer ++= parseFriendlyParams(stargs.trim.split(" "))
-    Runner.run(arrayBuffer.toArray.filter(!_.equals("")))
+
+    val runnerClass = loader.loadClass("org.scalatest.tools.Runner")
+    val runMethod = runnerClass.getMethod("run", classOf[Array[String]])
+    val runArgs = arrayBuffer.toArray.filter(!_.equals(""))
+    runMethod.invoke(null, Array(runArgs)) // run method is static.
   }
 
+  val stConf = config("st")
   def stargs = ""
-
-  lazy val st = stAction
-  def stAction = task { args => 
-    runScalaTest(args.toList); 
-    task { None }  
-  } //dependsOn(testCompile) describedAs "Runs ScalaTest."
+  def stTask(args: Array[String]) = task {
+    val (loader, path) = TestFramework.createTestLoader(testClasspath.get, buildScalaInstance0)
+    runScalaTest(args.toList, loader)
+    None
+  }
+  lazy val st = task { args => 
+    stTask(args) dependsOn(testCompile) describedAs "Runs ScalaTest."
+  }
 }
