@@ -542,7 +542,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   @volatile private var targetLeafHasBeenReached = false
   @volatile private var nextTargetPath: Option[List[Int]] = None
   @volatile private var testResultsRegistered = false
-  def ensureTestResultsRegistered(callingInstance: org.scalatest.path.FunSpec) {
+  def ensureTestResultsRegistered(callingInstance: Suite with OneInstancePerTest) {
     synchronized {
  
       val isAnInitialInstance = targetPath.isEmpty
@@ -550,7 +550,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       // already been registered).
       if (isAnInitialInstance  && !testResultsRegistered) {
         testResultsRegistered = true
-        var currentInstance = callingInstance
+        var currentInstance: Suite = callingInstance
         while (nextTargetPath.isDefined) {
           targetPath = Some(nextTargetPath.get)
           PathEngine.setEngine(thisEngine)
