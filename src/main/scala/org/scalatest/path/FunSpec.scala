@@ -57,7 +57,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
       // already been registered.
       if (isAnInitialInstance  && !testResultsRegistered) {
         testResultsRegistered = true
-        var currentInstance: FunSpec = this
+        var currentInstance: FunSpec = callingInstance
         while (currentInstance.nextTargetPath.isDefined) {
           PathEngine.setPath(currentInstance.nextTargetPath.get)
           PathEngine.setEngine(engine)
