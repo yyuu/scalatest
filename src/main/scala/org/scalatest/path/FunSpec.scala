@@ -327,8 +327,8 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   final override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
-   ensureTestResultsRegistered(isAnInitialInstance, this)
-   super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
+    ensureTestResultsRegistered(isAnInitialInstance, this)
+    runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
 
   // This guy must check the path. If null, that's the first instance, so go zero zero zero until hit first test, then execute it (if testName is
@@ -342,8 +342,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    */
   final protected override def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
                              configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
-    ensureTestResultsRegistered(isAnInitialInstance, this)
-    runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
+    throw new UnsupportedOperationException
+    // ensureTestResultsRegistered(isAnInitialInstance, this)
+    // runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
 
   final protected override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
