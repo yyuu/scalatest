@@ -513,6 +513,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     extends Engine(concurrentBundleModResourceName, simpleClassName) {
   
   final var registeredPathSet = mutable.Set.empty[List[Int]]
+  final var targetPath: Option[List[Int]] = None
 
   def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
@@ -551,21 +552,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
 
 private[scalatest] object PathEngine {
   
-   private[this] val path = new ThreadLocal[List[Int]]
-   // path "None" must be null in this case, because that's the default in any thread
    private[this] val engine = new ThreadLocal[PathEngine]
-
-   def setPath(ints: List[Int]) {
-     if (path.get != null)
-       throw new IllegalStateException("Path was already defined when setPath was called, as: " + path.get)
-     path.set(ints)
-   }
-
-   def getPath(): Option[List[Int]] = {
-     val p = path.get
-     path.set(null)
-     if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
-   }
 
    def setEngine(en: PathEngine) {
      if (engine.get != null)

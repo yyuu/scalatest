@@ -16,12 +16,11 @@ import org.scalatest.PathEngine.isInTargetPath
 
 trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   
-  private final val targetPath: Option[List[Int]] = PathEngine.getPath
-  private final val isAnInitialInstance = targetPath.isEmpty
-  
   private final val engine = PathEngine.getEngine()
   import engine._
 
+  private final val isAnInitialInstance = targetPath.isEmpty
+  
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
   private var currentPath = List.empty[Int]
@@ -57,7 +56,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         testResultsRegistered = true
         var currentInstance: FunSpec = callingInstance
         while (currentInstance.nextTargetPath.isDefined) {
-          PathEngine.setPath(currentInstance.nextTargetPath.get)
+          targetPath = Some(currentInstance.nextTargetPath.get)
           PathEngine.setEngine(engine)
           currentInstance = newInstance  
         }

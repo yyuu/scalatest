@@ -15,17 +15,6 @@ import org.scalatest.DispatchReporter
 import org.scalatest.PathEngine
 
 class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedHelpers with PrivateMethodTester {
-
-  describe("FunSpec ThreadLocal variable") {
-    it("should be set by setPath and clear by getPath") {
-      val setPath = PrivateMethod[Unit]('setPath)
-      val getPath = PrivateMethod[Option[List[Int]]]('getPath)
-      
-      PathEngine invokePrivate setPath(List(1, 2, 3))
-      PathEngine invokePrivate getPath() should be (Some(List(1, 2, 3)))
-      PathEngine invokePrivate getPath() should be (None)
-    }
-  }
   
   class MyFunSpec extends org.scalatest.path.FunSpec with ShouldMatchers {
     
