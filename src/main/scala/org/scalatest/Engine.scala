@@ -521,6 +521,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   // will stay at None, and the while loop will stop.
   @volatile var targetLeafHasBeenReached = false
   @volatile var nextTargetPath: Option[List[Int]] = None
+  @volatile var testResultsRegistered = false
   
  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 

@@ -39,8 +39,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     }
     next
   }
-
-  @volatile private var testResultsRegistered = false
   private def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: FunSpec) {
     synchronized {
       // Only register tests if this is an initial instance (and only if they haven't
@@ -53,6 +51,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
           PathEngine.setEngine(engine)
           targetLeafHasBeenReached = false
           nextTargetPath = None
+          testResultsRegistered = false
           currentInstance = newInstance  
         }
       }
