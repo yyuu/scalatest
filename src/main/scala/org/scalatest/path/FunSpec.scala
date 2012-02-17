@@ -78,7 +78,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
      * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
      */
     def apply(specText: String, testTags: Tag*)(testFun: => Unit) {
-      handleTest(specText, testFun _, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
+      handleTest(thisSuite, specText, testFun _, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
     }
     
     /**
@@ -214,8 +214,11 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
 
     ensureTestResultsRegistered(thisSuite)
     
-     //  theTest.testFun()
-    replayTest(thisSuite, testName, reporter, stopper, configMap, tracker, true)
+    def dontInvokeWithFixture(theTest: TestLeaf) {
+      theTest.testFun()
+    }
+
+    runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, dontInvokeWithFixture)
   }
 
   final override def tags: Map[String, Set[String]] = {
