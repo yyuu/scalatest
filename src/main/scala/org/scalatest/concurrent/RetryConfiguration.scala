@@ -27,8 +27,8 @@ import scala.annotation.tailrec
 
 /**
  * Trait providing methods and classes used to configure retries performed by the
- * the <code>eventually</code> methods of trait <code>Eventually</code> 
- * and the <code>whenReady</code> methods of trait <code>WhenReady</code>.
+ * the <code>eventually</code> methods of trait <a href="Eventually.html"><code>Eventually</code></a>
+ * and the <code>whenReady</code> methods of trait <a href="WhenReady.html"><code>WhenReady</code></a>.
  *
  * @author Bill Venners
  */

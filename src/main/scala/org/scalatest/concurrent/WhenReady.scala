@@ -171,6 +171,11 @@ import scala.annotation.tailrec
  * }
  * </pre>
  *
+ * <p>
+ * <em>Note: The <code>whenReady</code> construct was in part inspired by the <code>whenDelivered</code> matcher of the 
+ * <a href="http://github.com/jdegoes/blueeyes" target="_blank">BlueEyes</a> project, a lightweight, asynchronous web framework for Scala.</em>
+ * </p>
+ *
  * @author Bill Venners
  */
 trait WhenReady extends RetryConfiguration {
