@@ -20,50 +20,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   import engine._
 
   private final val isAnInitialInstance = targetPath.isEmpty
-  
-  // Used in each instance to track the paths of things encountered, so can figure out
-  // the next path. Each instance must use their own copies of currentPath and usedPathSet.
-  private var currentPath = List.empty[Int]
-  private var usedPathSet = Set.empty[String]
-  private def getNextPath() = {
-    var next: List[Int] = null
-    var count = 0
-    while (next == null) {
-      val candidate = currentPath ::: List(count)
-      if (!usedPathSet.contains(candidate.toList.toString)) {
-        next = candidate
-        usedPathSet += candidate.toList.toString
-      }
-      else
-        count += 1
-    }
-    next
-  }
-  
-  // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
-  // will be set to true. And because of that, the path of the next describe or it encountered will
-  // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
-  // will stay at None, and the while loop will stop.
-  @volatile private var targetLeafHasBeenReached = false
-  @volatile private var nextTargetPath: Option[List[Int]] = None
-  
-  @volatile private var testResultsRegistered = false
-  private def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: FunSpec) {
-    synchronized {
-      // Only register tests if this is an initial instance (and only if they haven't
-      // already been registered.
-      if (isAnInitialInstance  && !testResultsRegistered) {
-        testResultsRegistered = true
-        var currentInstance: FunSpec = callingInstance
-        while (currentInstance.nextTargetPath.isDefined) {
-          targetPath = Some(currentInstance.nextTargetPath.get)
-          PathEngine.setEngine(engine)
-          currentInstance = newInstance  
-        }
-      }
-    }
-  }
-  
+    
   override def newInstance = this.getClass.newInstance.asInstanceOf[FunSpec]
 
   /**
