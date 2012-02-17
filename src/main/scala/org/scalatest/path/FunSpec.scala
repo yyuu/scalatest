@@ -40,9 +40,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     next
   }
 
-  targetLeafHasBeenReached = false
-  nextTargetPath = None
-  
   @volatile private var testResultsRegistered = false
   private def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: FunSpec) {
     synchronized {
@@ -54,6 +51,8 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         while (nextTargetPath.isDefined) {
           targetPath = Some(nextTargetPath.get)
           PathEngine.setEngine(engine)
+          targetLeafHasBeenReached = false
+          nextTargetPath = None
           currentInstance = newInstance  
         }
       }
