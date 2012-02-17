@@ -22,8 +22,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   private final val engine = PathEngine.getEngine()
   import engine._
 
-  private final val registeredPathSet = PathEngine.getRegisteredPathSet()
-  
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
   private var currentPath = List.empty[Int]
@@ -61,7 +59,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         while (currentInstance.nextTargetPath.isDefined) {
           PathEngine.setPath(currentInstance.nextTargetPath.get)
           PathEngine.setEngine(engine)
-          PathEngine.setRegisteredPathSet(registeredPathSet)
           currentInstance = newInstance  
         }
       }

@@ -512,6 +512,8 @@ import scala.collection.mutable
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) {
   
+  final var registeredPathSet = mutable.Set.empty[List[Int]]
+
   def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
     val oldBundle = atomic.get
@@ -553,8 +555,6 @@ private[scalatest] object PathEngine {
    // path "None" must be null in this case, because that's the default in any thread
    private[this] val engine = new ThreadLocal[PathEngine]
 
-   private[this] val registeredPathSet = new ThreadLocal[mutable.Set[List[Int]]]
-
    def setPath(ints: List[Int]) {
      if (path.get != null)
        throw new IllegalStateException("Path was already defined when setPath was called, as: " + path.get)
@@ -578,18 +578,6 @@ private[scalatest] object PathEngine {
      engine.set(null)
      if (en == null) (new PathEngine("concurrentSpecMod", "Spec")) else en
    }
-
-   def setRegisteredPathSet(rps: mutable.Set[List[Int]]) {
-     if (registeredPathSet.get != null)
-       throw new IllegalStateException("Registered path set was already defined when setRegisteredPathSet was called")
-     registeredPathSet.set(rps)
-   }
-// TODO: Can put private back on these defs once all calls are from PathEngine (if that's the case)
-   def getRegisteredPathSet(): mutable.Set[List[Int]] = {
-     val rps = registeredPathSet.get
-     registeredPathSet.set(null)
-     if (rps == null) (mutable.Set.empty[List[Int]]) else rps
-   }
    
   /*
    * First time this is instantiated, targetPath will be None. In that case, execute the
@@ -608,6 +596,4 @@ private[scalatest] object PathEngine {
         targetPath.get == currentPath
     }
   }
-
-
 }
