@@ -12,6 +12,7 @@ import org.scalatest.tools.ConcurrentDistributor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import org.scalatest.DispatchReporter
+import org.scalatest.PathEngine
 
 class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedHelpers with PrivateMethodTester {
 
@@ -20,9 +21,9 @@ class FunSpecSpec extends org.scalatest.FunSpec with ShouldMatchers with SharedH
       val setPath = PrivateMethod[Unit]('setPath)
       val getPath = PrivateMethod[Option[List[Int]]]('getPath)
       
-      FunSpec invokePrivate setPath(List(1, 2, 3))
-      FunSpec invokePrivate getPath() should be (Some(List(1, 2, 3)))
-      FunSpec invokePrivate getPath() should be (None)
+      PathEngine invokePrivate setPath(List(1, 2, 3))
+      PathEngine invokePrivate getPath() should be (Some(List(1, 2, 3)))
+      PathEngine invokePrivate getPath() should be (None)
     }
   }
   

@@ -13,17 +13,15 @@ import org.scalatest.Tag
 import org.scalatest.verb.BehaveWord
 import scala.collection.immutable.ListSet
 
-import scala.collection.mutable
-
 trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   
-  private final val targetPath: Option[List[Int]] = FunSpec.getPath
+  private final val targetPath: Option[List[Int]] = PathEngine.getPath
   private final val isAnInitialInstance = targetPath.isEmpty
   
-  private final val engine = FunSpec.getEngine()
+  private final val engine = PathEngine.getEngine()
   import engine._
 
-  private final val registeredPathSet = FunSpec.getRegisteredPathSet()
+  private final val registeredPathSet = PathEngine.getRegisteredPathSet()
   
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
@@ -60,9 +58,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
         testResultsRegistered = true
         var currentInstance: FunSpec = this
         while (currentInstance.nextTargetPath.isDefined) {
-          FunSpec.setPath(currentInstance.nextTargetPath.get)
-          FunSpec.setEngine(engine)
-          FunSpec.setRegisteredPathSet(registeredPathSet)
+          PathEngine.setPath(currentInstance.nextTargetPath.get)
+          PathEngine.setEngine(engine)
+          PathEngine.setRegisteredPathSet(registeredPathSet)
           currentInstance = newInstance  
         }
       }
@@ -375,47 +373,3 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   final override def nestedSuites: List[Suite] = Nil
 }
 
-private[path] object FunSpec {
-  
-   private[this] val path = new ThreadLocal[List[Int]]
-   // path "None" must be null in this case, because that's the default in any thread
-   private[this] val engine = new ThreadLocal[PathEngine]
-
-   private[this] val registeredPathSet = new ThreadLocal[mutable.Set[List[Int]]]
-
-   private def setPath(ints: List[Int]) {
-     if (path.get != null)
-       throw new IllegalStateException("Path was already defined when setPath was called, as: " + path.get)
-     path.set(ints)
-   }
-
-   private def getPath(): Option[List[Int]] = {
-     val p = path.get
-     path.set(null)
-     if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
-   }
-
-   private def setEngine(en: PathEngine) {
-     if (engine.get != null)
-       throw new IllegalStateException("Engine was already defined when setEngine was called")
-     engine.set(en)
-   }
-
-   private def getEngine(): PathEngine = {
-     val en = engine.get
-     engine.set(null)
-     if (en == null) (new PathEngine("concurrentSpecMod", "Spec")) else en
-   }
-
-   private def setRegisteredPathSet(rps: mutable.Set[List[Int]]) {
-     if (registeredPathSet.get != null)
-       throw new IllegalStateException("Registered path set was already defined when setRegisteredPathSet was called")
-     registeredPathSet.set(rps)
-   }
-
-   private def getRegisteredPathSet(): mutable.Set[List[Int]] = {
-     val rps = registeredPathSet.get
-     registeredPathSet.set(null)
-     if (rps == null) (mutable.Set.empty[List[Int]]) else rps
-   }
-}

@@ -507,6 +507,8 @@ private[scalatest] class Engine(concurrentBundleModResourceName: String, simpleC
 private[scalatest] class FixtureEngine[FixtureParam](concurrentBundleModResourceName: String, simpleClassName: String)
     extends SuperEngine[FixtureParam => Any](concurrentBundleModResourceName, simpleClassName)
 
+import scala.collection.mutable
+
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) {
   
@@ -543,4 +545,49 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       updateAtomic(oldBundle, Bundle(oldBranch, testNamesList, testsMap, tagsMap, registrationClosed))
     }
   }
+}
+
+private[scalatest] object PathEngine {
+  
+   private[this] val path = new ThreadLocal[List[Int]]
+   // path "None" must be null in this case, because that's the default in any thread
+   private[this] val engine = new ThreadLocal[PathEngine]
+
+   private[this] val registeredPathSet = new ThreadLocal[mutable.Set[List[Int]]]
+
+   def setPath(ints: List[Int]) {
+     if (path.get != null)
+       throw new IllegalStateException("Path was already defined when setPath was called, as: " + path.get)
+     path.set(ints)
+   }
+
+   def getPath(): Option[List[Int]] = {
+     val p = path.get
+     path.set(null)
+     if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
+   }
+
+   def setEngine(en: PathEngine) {
+     if (engine.get != null)
+       throw new IllegalStateException("Engine was already defined when setEngine was called")
+     engine.set(en)
+   }
+
+   def getEngine(): PathEngine = {
+     val en = engine.get
+     engine.set(null)
+     if (en == null) (new PathEngine("concurrentSpecMod", "Spec")) else en
+   }
+
+   def setRegisteredPathSet(rps: mutable.Set[List[Int]]) {
+     if (registeredPathSet.get != null)
+       throw new IllegalStateException("Registered path set was already defined when setRegisteredPathSet was called")
+     registeredPathSet.set(rps)
+   }
+// TODO: Can put private back on these defs once all calls are from PathEngine (if that's the case)
+   def getRegisteredPathSet(): mutable.Set[List[Int]] = {
+     val rps = registeredPathSet.get
+     registeredPathSet.set(null)
+     if (rps == null) (mutable.Set.empty[List[Int]]) else rps
+   }
 }
