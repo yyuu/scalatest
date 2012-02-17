@@ -590,4 +590,24 @@ private[scalatest] object PathEngine {
      registeredPathSet.set(null)
      if (rps == null) (mutable.Set.empty[List[Int]]) else rps
    }
+   
+  /*
+   * First time this is instantiated, targetPath will be None. In that case, execute the
+   * first test, and each describe clause on the way to the first test (the all zeros path).
+   */
+  def isInTargetPath(currentPath: List[Int], targetPath: Option[List[Int]]): Boolean = {
+    def allZeros(xs: List[Int]) = xs.count(_ == 0) == xs.length
+    if (targetPath.isEmpty)
+      allZeros(currentPath)
+    else {
+      if (currentPath.length < targetPath.get.length)
+        targetPath.get.take(currentPath.length) == currentPath // TODO: deal with sibling describes
+      else if (currentPath.length > targetPath.get.length)
+        (currentPath.take(targetPath.get.length) == targetPath.get) && (!currentPath.drop(targetPath.get.length).exists(_ != 0)) // TODO: deal with sibling describes
+      else
+        targetPath.get == currentPath
+    }
+  }
+
+
 }
