@@ -513,11 +513,11 @@ import scala.collection.mutable
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) { thisEngine =>
  
-  final var registeredPathSet = mutable.Set.empty[List[Int]]
-  final var targetPath: Option[List[Int]] = None
+  private final var registeredPathSet = mutable.Set.empty[List[Int]]
+  private final var targetPath: Option[List[Int]] = None
 
-  var currentPath = List.empty[Int]
-  var usedPathSet = Set.empty[String]
+  private var currentPath = List.empty[Int]
+  private var usedPathSet = Set.empty[String]
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
   def getNextPath() = {
@@ -539,13 +539,15 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   // will be set to true. And because of that, the path of the next describe or it encountered will
   // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
   // will stay at None, and the while loop will stop.
-  @volatile var targetLeafHasBeenReached = false
-  @volatile var nextTargetPath: Option[List[Int]] = None
-  @volatile var testResultsRegistered = false
-    def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: org.scalatest.path.FunSpec) {
+  @volatile private var targetLeafHasBeenReached = false
+  @volatile private var nextTargetPath: Option[List[Int]] = None
+  @volatile private var testResultsRegistered = false
+  def ensureTestResultsRegistered(callingInstance: org.scalatest.path.FunSpec) {
     synchronized {
+ 
+      val isAnInitialInstance = targetPath.isEmpty
       // Only register tests if this is an initial instance (and only if they haven't
-      // already been registered.
+      // already been registered).
       if (isAnInitialInstance  && !testResultsRegistered) {
         testResultsRegistered = true
         var currentInstance = callingInstance
@@ -563,31 +565,31 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     }
   }
 
-   def handleTest(testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
-     val nextPath = getNextPath()
-      if (isInTargetPath(nextPath, targetPath)) {
-        // Default value of None indicates successful test
-        var resultOfRunningTest: Option[Throwable] = None
+  def handleTest(testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
+    val nextPath = getNextPath()
+    if (isInTargetPath(nextPath, targetPath)) {
+      // Default value of None indicates successful test
+      var resultOfRunningTest: Option[Throwable] = None
         
-        try { // TODO: add a test that ensures withFixture is called
-          testFun()
-          // If no exception, leave at None to indicate success
-        }
-        catch {
-          case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
-            resultOfRunningTest = Some(e)
-        }
-        val newTestFun = { () =>
-          if (resultOfRunningTest.isDefined)
-            throw resultOfRunningTest.get
-        }
-        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
-        targetLeafHasBeenReached = true
+      try { // TODO: add a test that ensures withFixture is called
+        testFun()
+        // If no exception, leave at None to indicate success
       }
-      else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
-        nextTargetPath = Some(nextPath)
+      catch {
+        case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
+          resultOfRunningTest = Some(e)
       }
+      val newTestFun = { () =>
+        if (resultOfRunningTest.isDefined)
+          throw resultOfRunningTest.get
+      }
+      registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", testTags: _*)
+      targetLeafHasBeenReached = true
     }
+    else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
+      nextTargetPath = Some(nextPath)
+    }
+  }
 
   def handleNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
     val nextPath = getNextPath()

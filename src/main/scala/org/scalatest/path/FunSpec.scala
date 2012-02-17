@@ -19,8 +19,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   private final val engine = PathEngine.getEngine()
   import engine._
 
-  private final val isAnInitialInstance = targetPath.isEmpty
-  
   override def newInstance = this.getClass.newInstance.asInstanceOf[FunSpec]
 
   /**
@@ -202,19 +200,19 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
   
   final override def testNames: Set[String] = {
-    ensureTestResultsRegistered(isAnInitialInstance, thisSuite)
+    ensureTestResultsRegistered(thisSuite)
     // I'm returning a ListSet here so that they tests will be run in registration order
     ListSet(atomic.get.testNamesList.toArray: _*)
   }
 
   final override def expectedTestCount(filter: Filter): Int = {
-    ensureTestResultsRegistered(isAnInitialInstance, thisSuite)
+    ensureTestResultsRegistered(thisSuite)
     super.expectedTestCount(filter)
   }
 
   final protected override def runTest(testName: String, reporter: Reporter, stopper: Stopper, configMap: Map[String, Any], tracker: Tracker) {
 
-    ensureTestResultsRegistered(isAnInitialInstance, thisSuite)
+    ensureTestResultsRegistered(thisSuite)
     
     def dontInvokeWithFixture(theTest: TestLeaf) {
       theTest.testFun()
@@ -224,7 +222,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
 
   final override def tags: Map[String, Set[String]] = {
-    ensureTestResultsRegistered(isAnInitialInstance, thisSuite)
+    ensureTestResultsRegistered(thisSuite)
     atomic.get.tagsMap
   }
   
@@ -234,7 +232,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   final override def run(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
-    ensureTestResultsRegistered(isAnInitialInstance, thisSuite)
+    ensureTestResultsRegistered(thisSuite)
     runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
 
