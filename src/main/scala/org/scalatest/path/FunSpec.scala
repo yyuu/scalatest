@@ -39,13 +39,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     }
     next
   }
-  
-  // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
-  // will be set to true. And because of that, the path of the next describe or it encountered will
-  // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
-  // will stay at None, and the while loop will stop.
-  @volatile private var targetLeafHasBeenReached = false
-  @volatile private var nextTargetPath: Option[List[Int]] = None
+
+  targetLeafHasBeenReached = false
+  nextTargetPath = None
   
   @volatile private var testResultsRegistered = false
   private def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: FunSpec) {
@@ -55,8 +51,8 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
       if (isAnInitialInstance  && !testResultsRegistered) {
         testResultsRegistered = true
         var currentInstance: FunSpec = callingInstance
-        while (currentInstance.nextTargetPath.isDefined) {
-          targetPath = Some(currentInstance.nextTargetPath.get)
+        while (nextTargetPath.isDefined) {
+          targetPath = Some(nextTargetPath.get)
           PathEngine.setEngine(engine)
           currentInstance = newInstance  
         }

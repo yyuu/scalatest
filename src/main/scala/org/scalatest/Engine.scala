@@ -511,11 +511,18 @@ import scala.collection.mutable
 
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) {
-  
+ 
   final var registeredPathSet = mutable.Set.empty[List[Int]]
   final var targetPath: Option[List[Int]] = None
 
-  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
+   // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
+  // will be set to true. And because of that, the path of the next describe or it encountered will
+  // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
+  // will stay at None, and the while loop will stop.
+  @volatile var targetLeafHasBeenReached = false
+  @volatile var nextTargetPath: Option[List[Int]] = None
+  
+ def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
     val oldBundle = atomic.get
     val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
