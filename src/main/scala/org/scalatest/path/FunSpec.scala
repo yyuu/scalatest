@@ -7,7 +7,7 @@ import org.scalatest.Stopper
 import org.scalatest.Filter
 import org.scalatest.Tracker
 import org.scalatest.Distributor
-import org.scalatest.Engine
+import org.scalatest.PathEngine
 import org.scalatest.Informer
 import org.scalatest.Tag
 import org.scalatest.verb.BehaveWord
@@ -379,7 +379,7 @@ private[path] object FunSpec {
   
    private[this] val path = new ThreadLocal[List[Int]]
    // path "None" must be null in this case, because that's the default in any thread
-   private[this] val engine = new ThreadLocal[Engine]
+   private[this] val engine = new ThreadLocal[PathEngine]
 
    private[this] val registeredPathSet = new ThreadLocal[mutable.Set[List[Int]]]
 
@@ -395,16 +395,16 @@ private[path] object FunSpec {
      if (p == null) None else Some(p) // Use Option(p) when drop 2.8 support
    }
 
-   private def setEngine(en: Engine) {
+   private def setEngine(en: PathEngine) {
      if (engine.get != null)
        throw new IllegalStateException("Engine was already defined when setEngine was called")
      engine.set(en)
    }
 
-   private def getEngine(): Engine = {
+   private def getEngine(): PathEngine = {
      val en = engine.get
      engine.set(null)
-     if (en == null) (new Engine("concurrentSpecMod", "Spec")) else en
+     if (en == null) (new PathEngine("concurrentSpecMod", "Spec")) else en
    }
 
    private def setRegisteredPathSet(rps: mutable.Set[List[Int]]) {
@@ -412,7 +412,6 @@ private[path] object FunSpec {
        throw new IllegalStateException("Registered path set was already defined when setRegisteredPathSet was called")
      registeredPathSet.set(rps)
    }
-   
 
    private def getRegisteredPathSet(): mutable.Set[List[Int]] = {
      val rps = registeredPathSet.get

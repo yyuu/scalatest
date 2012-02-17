@@ -20,16 +20,6 @@ import prop.TableDrivenPropertyChecks
 
 class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
 
-/*
-  property("When info appears in the code of a successful test, it should be reported after the TestSucceeded.") {
-    forAll (examples) { suite =>
-        val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
-          getIndexesForInformerEventOrderTests(suite, suite.testName, suite.msg)
-        testSucceededIndex should be < infoProvidedIndex
-    }
-  }
-*/
-
   trait Services {
     val msg = "hi there, dude"
     val testName = "test name"
@@ -51,17 +41,25 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
       }
     }
 
-  def spec =
+  def funSpec =
     new FunSpec with Services {
       it(testName) {
         info(msg)
       }
     }
 
-  def fixtureSpec =
+  def fixtureFunSpec =
     new StringFixtureSpec with Services {
       it(testName) { s =>
         info(msg)
       }
     }
+  
+  def pathFunSpec =
+    new path.FunSpec with Services {
+      it(testName) {
+        info(msg)
+      }
+    }
+
 }

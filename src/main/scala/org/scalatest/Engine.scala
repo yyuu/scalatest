@@ -381,40 +381,6 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     }
   }
 
-  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
-
-    val oldBundle = atomic.get
-    val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
-
-    if (registrationClosed)
-      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
-
-    // First look in current branch's subnodes for another branch
-    def getBranch(b: Branch, path: List[Int]): Branch = {
-      path match {
-        case Nil => b
-        case i :: tail =>
-          val index = b.subNodes.length - 1 - i // They are in reverse order
-          getBranch(b.subNodes(index).asInstanceOf[Branch], tail)
-      }
-    }
-    
-    val oldBranch = currentBranch
-    val newBranch = getBranch(Trunk, path)
-    // oldBranch.subNodes ::= newBranch
-
-    // Update atomic, making the current branch to the new branch
-    updateAtomic(oldBundle, Bundle(newBranch, testNamesList, testsMap, tagsMap, registrationClosed))
-
-    fun // Execute the function
-
-    { // Put the old branch back as the current branch
-      val oldBundle = atomic.get
-      val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
-      updateAtomic(oldBundle, Bundle(oldBranch, testNamesList, testsMap, tagsMap, registrationClosed))
-    }
-  }
-
   // Used by FlatSpec, which doesn't nest. So this one just makes a new one off of the trunk
   def registerFlatBranch(description: String, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
@@ -540,3 +506,41 @@ private[scalatest] class Engine(concurrentBundleModResourceName: String, simpleC
 
 private[scalatest] class FixtureEngine[FixtureParam](concurrentBundleModResourceName: String, simpleClassName: String)
     extends SuperEngine[FixtureParam => Any](concurrentBundleModResourceName, simpleClassName)
+
+private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
+    extends Engine(concurrentBundleModResourceName, simpleClassName) {
+  
+  def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
+
+    val oldBundle = atomic.get
+    val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
+
+    if (registrationClosed)
+      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+
+    // First look in current branch's subnodes for another branch
+    def getBranch(b: Branch, path: List[Int]): Branch = {
+      path match {
+        case Nil => b
+        case i :: tail =>
+          val index = b.subNodes.length - 1 - i // They are in reverse order
+          getBranch(b.subNodes(index).asInstanceOf[Branch], tail)
+      }
+    }
+    
+    val oldBranch = currentBranch
+    val newBranch = getBranch(Trunk, path)
+    // oldBranch.subNodes ::= newBranch
+
+    // Update atomic, making the current branch to the new branch
+    updateAtomic(oldBundle, Bundle(newBranch, testNamesList, testsMap, tagsMap, registrationClosed))
+
+    fun // Execute the function
+
+    { // Put the old branch back as the current branch
+      val oldBundle = atomic.get
+      val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
+      updateAtomic(oldBundle, Bundle(oldBranch, testNamesList, testsMap, tagsMap, registrationClosed))
+    }
+  }
+}
