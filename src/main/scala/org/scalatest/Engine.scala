@@ -572,6 +572,8 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       var resultOfRunningTest: Option[Throwable] = None
         
       try { // TODO: add a test that ensures withFixture is called
+        // I think I need to replace the Informer with one that records the message and whether the
+        // thread was this thread, and then...
         testFun()
         // If no exception, leave at None to indicate success
       }
@@ -580,6 +582,10 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
           resultOfRunningTest = Some(e)
       }
       val newTestFun = { () =>
+        // Here in the test function, replay those info calls. But I can't do this from different threads is the issue. Unless
+        // I downcast to MessageRecordingInformer, and have another apply method on it that takes the true/false. Or override
+        // runTestImpl and do something different. How about registering a different kind of test. EagerTest. Then it has
+        // yes, that's how.
         if (resultOfRunningTest.isDefined)
           throw resultOfRunningTest.get
       }
@@ -650,6 +656,64 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       val oldBundle = atomic.get
       val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
       updateAtomic(oldBundle, Bundle(oldBranch, testNamesList, testsMap, tagsMap, registrationClosed))
+    }
+  }
+  
+  def replayTest(
+    theSuite: Suite,
+    testName: String,
+    reporter: Reporter,
+    stopper: Stopper,
+    configMap: Map[String, Any],
+    tracker: Tracker,
+    includeIcon: Boolean
+  ) {
+
+    checkRunTestParamsForNull(testName, reporter, stopper, configMap, tracker)
+
+    val (stopRequested, report, hasPublicNoArgConstructor, rerunnable, testStartTime) =
+      theSuite.getRunTestGoodies(stopper, reporter, testName)
+
+    reportTestStarting(theSuite, report, tracker, testName, rerunnable)
+
+    if (!atomic.get.testsMap.contains(testName))
+      throw new IllegalArgumentException("No test in this suite has name: \"" + testName + "\"")
+
+    val theTest = atomic.get.testsMap(testName)
+
+    val testTextWithOptionalPrefix = prependChildPrefix(theTest.parent, theTest.testText)
+    val formatter = getIndentedText(testTextWithOptionalPrefix, theTest.indentationLevel, includeIcon)
+
+    val informerForThisTest =
+      MessageRecordingInformer2(
+        (message, isConstructingThread, testWasPending) => reportInfoProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, isConstructingThread, includeIcon, Some(testWasPending))
+      )
+
+    val oldInformer = atomicInformer.getAndSet(informerForThisTest)
+    var testWasPending = false
+
+    try {
+
+      theTest.testFun()// invokeWithFixture(theTest)
+
+      val duration = System.currentTimeMillis - testStartTime
+      reportTestSucceeded(theSuite, report, tracker, testName, duration, formatter, rerunnable)
+    }
+    catch { 
+      case _: TestPendingException =>
+        reportTestPending(theSuite, report, tracker, testName, formatter)
+        testWasPending = true // Set so info's printed out in the finally clause show up yellow
+      case e if !anErrorThatShouldCauseAnAbort(e) =>
+        val duration = System.currentTimeMillis - testStartTime
+        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon)
+      case e => throw e
+    }
+    finally {
+      informerForThisTest.fireRecordedMessages(testWasPending)
+      val shouldBeInformerForThisTest = atomicInformer.getAndSet(oldInformer)
+      val swapAndCompareSucceeded = shouldBeInformerForThisTest eq informerForThisTest
+      if (!swapAndCompareSucceeded)
+        throw new ConcurrentModificationException(Resources("concurrentInformerMod", theSuite.getClass.getName))
     }
   }
 }

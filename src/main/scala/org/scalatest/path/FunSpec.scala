@@ -214,11 +214,8 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
 
     ensureTestResultsRegistered(thisSuite)
     
-    def dontInvokeWithFixture(theTest: TestLeaf) {
-      theTest.testFun()
-    }
-
-    runTestImpl(thisSuite, testName, reporter, stopper, configMap, tracker, true, dontInvokeWithFixture)
+     //  theTest.testFun()
+    replayTest(thisSuite, testName, reporter, stopper, configMap, tracker, true)
   }
 
   final override def tags: Map[String, Set[String]] = {
