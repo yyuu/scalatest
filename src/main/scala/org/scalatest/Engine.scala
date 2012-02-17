@@ -515,7 +515,9 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   final var registeredPathSet = mutable.Set.empty[List[Int]]
   final var targetPath: Option[List[Int]] = None
 
-   // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
+  var currentPath = List.empty[Int]
+
+  // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
   // will be set to true. And because of that, the path of the next describe or it encountered will
   // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
   // will stay at None, and the while loop will stop.
@@ -532,6 +534,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
         while (nextTargetPath.isDefined) {
           targetPath = Some(nextTargetPath.get)
           PathEngine.setEngine(thisEngine)
+          currentPath = List.empty[Int]
           targetLeafHasBeenReached = false
           nextTargetPath = None
           testResultsRegistered = false
