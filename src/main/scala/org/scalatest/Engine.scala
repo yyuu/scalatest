@@ -510,55 +510,10 @@ private[scalatest] class FixtureEngine[FixtureParam](concurrentBundleModResource
 import scala.collection.mutable
 
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
-    extends Engine(concurrentBundleModResourceName, simpleClassName) { thisEngine =>
+    extends Engine(concurrentBundleModResourceName, simpleClassName) {
   
   final var registeredPathSet = mutable.Set.empty[List[Int]]
   final var targetPath: Option[List[Int]] = None
-
-    // Used in each instance to track the paths of things encountered, so can figure out
-  // the next path. Each instance must use their own copies of currentPath and usedPathSet.
-  var currentPath = List.empty[Int]
-  private var usedPathSet = Set.empty[String]
-  def getNextPath() = {
-    var next: List[Int] = null
-    var count = 0
-    while (next == null) {
-      val candidate = currentPath ::: List(count)
-      if (!usedPathSet.contains(candidate.toList.toString)) {
-        next = candidate
-        usedPathSet += candidate.toList.toString
-      }
-      else
-        count += 1
-    }
-    next
-  }
-  
-  // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
-  // will be set to true. And because of that, the path of the next describe or it encountered will
-  // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath
-  // will stay at None, and the while loop will stop.
-  @volatile var targetLeafHasBeenReached = false
-  @volatile var nextTargetPath: Option[List[Int]] = None
-  
-  @volatile private var testResultsRegistered = false
-  def ensureTestResultsRegistered(isAnInitialInstance: Boolean, callingInstance: org.scalatest.path.FunSpec) {
-    synchronized {
-      // Only register tests if this is an initial instance (and only if they haven't
-      // already been registered.
-      if (isAnInitialInstance  && !testResultsRegistered) {
-        testResultsRegistered = true
-        var currentInstance = callingInstance
-        while (nextTargetPath.isDefined) {
-          targetPath = Some(nextTargetPath.get)
-          PathEngine.setEngine(thisEngine)
-          currentInstance = callingInstance.newInstance  
-          targetLeafHasBeenReached = false
-          nextTargetPath = None
-        }
-      }
-    }
-  }
 
   def navigateToNestedBranch(path: List[Int], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
