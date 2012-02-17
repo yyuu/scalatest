@@ -177,34 +177,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
     handleNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
   }
   
-  def handleNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
-    val nextPath = getNextPath()
-    // val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
-    // val nextPathOne = if (nextPath.length > 1) nextPath(1) else -1
-    // val nextPathTwo = if (nextPath.length > 2) nextPath(2) else -1
-    // val isDef = targetPath.isDefined
-    // val isInTarget = if (isDef) isInTargetPath(nextPath, targetPath) else false
-    // val theTarget = if (isDef) targetPath.get else List()
-    // val targetPathZero = if (theTarget.length > 0) theTarget(0) else -1
-    // val targetPathOne = if (theTarget.length > 1) theTarget(1) else -1
-    // val targetPathTwo = if (theTarget.length > 2) theTarget(2) else -1
-    if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
-      nextTargetPath = Some(nextPath)
-    }
-    else if (isInTargetPath(nextPath, targetPath)) { // TODO: check if !targetLeafHasBeenReached like it() does. Probably this is empty describe behavior
-      val oldCurrentPath = currentPath
-      currentPath = nextPath
-      if (!registeredPathSet.contains(nextPath)) {
-        registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
-        registeredPathSet += nextPath
-      }
-      else {
-        navigateToNestedBranch(nextPath, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
-      }
-      currentPath = oldCurrentPath
-    }
-  }
-
   /**
    * Supports shared test registration in <code>FunSpec</code>s.
    *
