@@ -23,7 +23,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
-  private var usedPathSet = Set.empty[String]
   private def getNextPath() = {
     var next: List[Int] = null
     var count = 0

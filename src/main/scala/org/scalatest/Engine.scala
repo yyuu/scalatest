@@ -516,6 +516,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   final var targetPath: Option[List[Int]] = None
 
   var currentPath = List.empty[Int]
+  var usedPathSet = Set.empty[String]
 
   // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
   // will be set to true. And because of that, the path of the next describe or it encountered will
@@ -535,6 +536,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
           targetPath = Some(nextTargetPath.get)
           PathEngine.setEngine(thisEngine)
           currentPath = List.empty[Int]
+          usedPathSet = Set.empty[String]
           targetLeafHasBeenReached = false
           nextTargetPath = None
           testResultsRegistered = false
