@@ -517,7 +517,23 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
 
   var currentPath = List.empty[Int]
   var usedPathSet = Set.empty[String]
-
+  // Used in each instance to track the paths of things encountered, so can figure out
+  // the next path. Each instance must use their own copies of currentPath and usedPathSet.
+  def getNextPath() = {
+    var next: List[Int] = null
+    var count = 0
+    while (next == null) {
+      val candidate = currentPath ::: List(count)
+      if (!usedPathSet.contains(candidate.toList.toString)) {
+        next = candidate
+        usedPathSet += candidate.toList.toString
+      }
+      else
+        count += 1
+    }
+    next
+  }
+  
   // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
   // will be set to true. And because of that, the path of the next describe or it encountered will
   // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath

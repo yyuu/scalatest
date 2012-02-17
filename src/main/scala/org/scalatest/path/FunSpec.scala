@@ -21,23 +21,6 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
 
   private final val isAnInitialInstance = targetPath.isEmpty
   
-  // Used in each instance to track the paths of things encountered, so can figure out
-  // the next path. Each instance must use their own copies of currentPath and usedPathSet.
-  private def getNextPath() = {
-    var next: List[Int] = null
-    var count = 0
-    while (next == null) {
-      val candidate = currentPath ::: List(count)
-      if (!usedPathSet.contains(candidate.toList.toString)) {
-        next = candidate
-        usedPathSet += candidate.toList.toString
-      }
-      else
-        count += 1
-    }
-    next
-  }
-  
   override def newInstance = this.getClass.newInstance.asInstanceOf[FunSpec]
 
   /**
