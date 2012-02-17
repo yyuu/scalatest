@@ -98,6 +98,7 @@ class StackSpec extends org.scalatest.path.FunSpec with StackBehaviors {
 
       it("should be empty") {
         println("test")        
+        info("hi there from should be empty")
         assert(stack.empty)
       }
 
