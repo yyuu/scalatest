@@ -45,6 +45,16 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
+  class DeeplyNestedFunSpecExample extends FunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        ignore("should first test") {}
+        it("should second test") {}
+      }
+    }
+    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
+  }
+
   class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
       ignore("first test") { s => }
       it("second test") { s => }
@@ -58,6 +68,16 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
+  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        ignore("should first test") { s => }
+        it("should second test") { s => }
+      }
+    }
+    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
+  }
+
   class PathFunSpecExample extends path.FunSpec with Services {
     ignore("first test") {}
     it("second test") {}
@@ -69,6 +89,16 @@ class FirstTestIgnoredExamples extends SuiteExamples {
       it("should second test") {}
     }
     override val theTestNames = Vector("A subject should first test", "A subject should second test")
+  }
+
+  class DeeplyNestedPathFunSpecExample extends path.FunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        ignore("should first test") {}
+        it("should second test") {}
+      }
+    }
+    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
   }
 
   class WordSpecExample extends WordSpec with Services {
@@ -131,10 +161,13 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def fixtureFunSuite = new FixtureFunSuiteExample
   def funSpec = new FunSpecExample
   def nestedFunSpec = new NestedFunSpecExample
+  def deeplyNestedFunSpec = new DeeplyNestedFunSpecExample
   def fixtureFunSpec = new FixtureFunSpecExample
   def nestedFixtureFunSpec = new NestedFixtureFunSpecExample
+  def deeplyNestedFixtureFunSpec = new DeeplyNestedFixtureFunSpecExample
   def pathFunSpec = new PathFunSpecExample
   def nestedPathFunSpec = new NestedPathFunSpecExample
+  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
   def wordSpec = new WordSpecExample
   def fixtureWordSpec = new FixtureWordSpecExample
   def flatSpec = new FlatSpecExample

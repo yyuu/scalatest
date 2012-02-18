@@ -53,6 +53,12 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class FunSpecExample extends FunSpec with Services {
+    it(theTestName) {
+      info(msg)
+    }
+  }
+
   class NestedFunSpecExample extends FunSpec with Services {
     describe("A subject") {
       it("should test name") {
@@ -62,10 +68,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "A subject should test name"
   }
 
-  class FunSpecExample extends FunSpec with Services {
-    it(theTestName) {
-      info(msg)
+  class DeeplyNestedFunSpecExample extends FunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        it("should test name") {
+          info(msg)
+        }
+      }
     }
+    override val theTestName = "A subject when created should test name"
   }
 
   class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
@@ -83,6 +94,17 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "A subject should test name"
   }
 
+  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        it("should test name") { s =>
+          info(msg)
+        }
+      }
+    }
+    override val theTestName = "A subject when created should test name"
+  }
+
   class PathFunSpecExample extends path.FunSpec with Services {
     it(theTestName) {
       info(msg)
@@ -96,6 +118,17 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
       }
     }
     override val theTestName = "A subject should test name"
+  }
+
+  class DeeplyNestedPathFunSpecExample extends path.FunSpec with Services {
+    describe("A subject") {
+      describe("when created") {
+        it("should test name") {
+          info(msg)
+        }
+      }
+    }
+    override val theTestName = "A subject when created should test name"
   }
 
   class WordSpecExample extends WordSpec with Services {
@@ -168,10 +201,13 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureFunSuite = new FixtureFunSuiteExample
   def funSpec = new FunSpecExample
   def nestedFunSpec = new NestedFunSpecExample
+  def deeplyNestedFunSpec = new DeeplyNestedFunSpecExample
   def fixtureFunSpec = new FixtureFunSpecExample
   def nestedFixtureFunSpec = new NestedFixtureFunSpecExample
+  def deeplyNestedFixtureFunSpec = new DeeplyNestedFixtureFunSpecExample
   def pathFunSpec = new PathFunSpecExample
   def nestedPathFunSpec = new NestedPathFunSpecExample
+  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
   def wordSpec = new WordSpecExample
   def fixtureWordSpec = new FixtureWordSpecExample
   def flatSpec = new FlatSpecExample
