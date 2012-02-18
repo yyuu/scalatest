@@ -36,7 +36,11 @@ trait SuiteExamples extends Tables {
   def nestedPathFunSpec: path.FunSpec with FixtureServices
   def deeplyNestedPathFunSpec: path.FunSpec with FixtureServices
   def wordSpec: WordSpec with FixtureServices
+  def nestedWordSpec: WordSpec with FixtureServices
+  def deeplyNestedWordSpec: WordSpec with FixtureServices
   def fixtureWordSpec: fixture.WordSpec with FixtureServices
+  def nestedFixtureWordSpec: fixture.WordSpec with FixtureServices
+  def deeplyNestedFixtureWordSpec: fixture.WordSpec with FixtureServices
   def flatSpec: FlatSpec with FixtureServices
   def fixtureFlatSpec: fixture.FlatSpec with FixtureServices
   def freeSpec: FreeSpec with FixtureServices
@@ -63,6 +67,8 @@ trait SuiteExamples extends Tables {
       nestedPathFunSpec,
       deeplyNestedPathFunSpec,
       wordSpec,
+      nestedWordSpec,
+      deeplyNestedWordSpec,
       fixtureWordSpec,
       flatSpec,
       fixtureFlatSpec,

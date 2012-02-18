@@ -137,10 +137,50 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class NestedWordSpecExample extends WordSpec with Services {
+    "A subject" should {
+      "test name" in {
+        info(msg)
+      }
+    }
+    override val theTestName = "A subject should test name"
+  }
+
+  class DeeplyNestedWordSpecExample extends WordSpec with Services {
+    "A subject" when {
+      "created" should {
+        "test name" in {
+          info(msg)
+        }
+      }
+    }
+    override val theTestName = "A subject when created should test name"
+  }
+
   class FixtureWordSpecExample extends StringFixtureWordSpec with Services {
     theTestName in { s =>
       info(msg)
     }
+  }
+
+  class NestedFixtureWordSpecExample extends StringFixtureWordSpec with Services {
+    "A subject" should {
+      "test name" in { s =>
+        info(msg)
+      }
+    }
+    override val theTestName = "A subject should test name"
+  }
+
+  class DeeplyNestedFixtureWordSpecExample extends StringFixtureWordSpec with Services {
+    "A subject" when {
+      "created" should {
+        "test name" in { s =>
+          info(msg)
+        }
+      }
+    }
+    override val theTestName = "A subject when created should test name"
   }
 
   class FlatSpecExample extends FlatSpec with Services {
@@ -209,7 +249,11 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def nestedPathFunSpec = new NestedPathFunSpecExample
   def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
   def wordSpec = new WordSpecExample
+  def nestedWordSpec = new NestedWordSpecExample
+  def deeplyNestedWordSpec = new DeeplyNestedWordSpecExample
   def fixtureWordSpec = new FixtureWordSpecExample
+  def nestedFixtureWordSpec = new NestedFixtureWordSpecExample
+  def deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
   def flatSpec = new FlatSpecExample
   def fixtureFlatSpec = new FixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
@@ -226,6 +270,16 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
       info(msg)
     }
     override val theTestName = "should test name"
+  }
+
+Got the same thing ehre:
+  class NestedWordSpecExample extends WordSpec with Services {
+    "A subject" should {
+      theTestName in {
+        info(msg)
+      }
+    }
+    override val theTestName = "A subject should test name"
   }
 
  */

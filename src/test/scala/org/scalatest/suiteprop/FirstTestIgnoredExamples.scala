@@ -8,6 +8,14 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     val theTestNames = Vector("first test", "second test")
   }
 
+  trait NestedTestNames extends Services {
+    override val theTestNames = Vector("A subject should first test", "A subject should second test")
+  }
+
+  trait DeeplyNestedTestNames extends Services {
+    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
+  }
+
   type FixtureServices = Services
 
   class SuiteExample extends Suite with Services {
@@ -106,9 +114,41 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     "second test" in {}
   }
 
+  class NestedWordSpecExample extends WordSpec with NestedTestNames {
+    "A subject" should {
+      "first test" ignore {}
+      "second test" in {}
+    }
+  }
+
+  class DeeplyNestedWordSpecExample extends WordSpec with DeeplyNestedTestNames {
+    "A subject" when {
+      "created" should {
+        "first test" ignore {}
+        "second test" in {}
+      }
+    }
+  }
+
   class FixtureWordSpecExample extends StringFixtureWordSpec with Services {
     "first test" ignore { s => }
     "second test" in { s => }
+  }
+
+  class NestedFixtureWordSpecExample extends StringFixtureWordSpec with NestedTestNames {
+    "A subject" should {
+      "first test" ignore { s => }
+      "second test" in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecExample extends StringFixtureWordSpec with DeeplyNestedTestNames {
+    "A subject" when {
+      "created" should {
+        "first test" ignore { s => }
+        "second test" in { s => }
+      }
+    }
   }
 
   class FlatSpecExample extends FlatSpec with Services {
@@ -169,7 +209,11 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def nestedPathFunSpec = new NestedPathFunSpecExample
   def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
   def wordSpec = new WordSpecExample
+  def nestedWordSpec = new NestedWordSpecExample
+  def deeplyNestedWordSpec = new DeeplyNestedWordSpecExample
   def fixtureWordSpec = new FixtureWordSpecExample
+  def nestedFixtureWordSpec = new NestedFixtureWordSpecExample
+  def deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
   def flatSpec = new FlatSpecExample
   def fixtureFlatSpec = new FixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
