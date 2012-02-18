@@ -25,8 +25,17 @@ class SuiteProperties extends PropSpec with ShouldMatchers with TableDrivenPrope
     new InfoInsideTestFiredAfterTestExamples {
       forAll (examples) { suite =>
         val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
-          getIndexesForInformerEventOrderTests(suite, suite.testName, suite.msg)
+          getIndexesForInformerEventOrderTests(suite, suite.theTestName, suite.msg)
         testSucceededIndex should be < infoProvidedIndex
+      }
+    }
+  }
+  
+  property("should, if the first test is marked as ignored, return a tags map from the tags method that says the first test is ignored") {
+    new FirstTestIgnoredExamples {
+      forAll (examples) { suite =>
+        val firstTestName = suite.theTestNames(0)
+        suite.tags should be (Map(firstTestName -> Set("org.scalatest.Ignore")))
       }
     }
   }

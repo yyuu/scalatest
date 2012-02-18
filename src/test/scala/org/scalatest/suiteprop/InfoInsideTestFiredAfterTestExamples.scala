@@ -22,42 +22,49 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
 
   trait Services {
     val msg = "hi there, dude"
-    val testName = "test name"
+    val theTestName = "test name"
   }
 
   type FixtureServices = Services
 
+  class SuiteExample extends Suite with Services  {
+    def testMethod(info: Informer) {
+      info(msg)
+    }
+    override val theTestName = "testMethod(Informer)"
+  }
+  def suite = new SuiteExample
   def funSuite =
     new FunSuite with Services {
-      test(testName) {
+      test(theTestName) {
         info(msg)
       }
     }
 
   def fixtureFunSuite =
     new StringFixtureFunSuite with Services {
-      test(testName) { s =>
+      test(theTestName) { s =>
         info(msg)
       }
     }
 
   def funSpec =
     new FunSpec with Services {
-      it(testName) {
+      it(theTestName) {
         info(msg)
       }
     }
 
   def fixtureFunSpec =
     new StringFixtureSpec with Services {
-      it(testName) { s =>
+      it(theTestName) { s =>
         info(msg)
       }
     }
   
   def pathFunSpec =
     new path.FunSpec with Services {
-      it(testName) {
+      it(theTestName) {
         info(msg)
       }
     }

@@ -417,37 +417,44 @@ class FunSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
         }
       }
     }
-    it("should return a correct tags map from the tags method") {
+    it("should, if the first test is marked as ignored, return a tags map from the tags method that says the first test is ignored") {
 
       val a = new FunSpec {
-        ignore("test this") {}
-        it("test that") {}
+        ignore("first test") {}
+        it("second test") {}
       }
-      expect(Map("test this" -> Set("org.scalatest.Ignore"))) {
+      expect(Map("first test" -> Set("org.scalatest.Ignore"))) {
         a.tags
       }
+    }
 
+    it("should, if the second test is marked as ignored, return a tags map from the tags method that says the second test is ignored") {
       val b = new FunSpec {
-        it("test this") {}
-        ignore("test that") {}
+        it("first test") {}
+        ignore("second test") {}
       }
-      expect(Map("test that" -> Set("org.scalatest.Ignore"))) {
+      expect(Map("second test" -> Set("org.scalatest.Ignore"))) {
         b.tags
       }
+    }
 
+    it("should, if both the first and second tests are marked as ignored, return a tags map from the tags method that says the both are ignored") {
       val c = new FunSpec {
-        ignore("test this") {}
-        ignore("test that") {}
+        ignore("first test") {}
+        ignore("second test") {}
       }
-      expect(Map("test this" -> Set("org.scalatest.Ignore"), "test that" -> Set("org.scalatest.Ignore"))) {
+      expect(Map("first test" -> Set("org.scalatest.Ignore"), "second test" -> Set("org.scalatest.Ignore"))) {
         c.tags
       }
+    }
+
+    it("should, if both the second test is marked as ignored and both are marked Slow, return a tags map from the tags method that says the second test is ignored and both are Slow") {
 
       val d = new FunSpec {
-        it("test this", mytags.SlowAsMolasses) {}
-        ignore("test that", mytags.SlowAsMolasses) {}
+        it("first test", mytags.SlowAsMolasses) {}
+        ignore("second test", mytags.SlowAsMolasses) {}
       }
-      expect(Map("test this" -> Set("org.scalatest.SlowAsMolasses"), "test that" -> Set("org.scalatest.Ignore", "org.scalatest.SlowAsMolasses"))) {
+      expect(Map("first test" -> Set("org.scalatest.SlowAsMolasses"), "second test" -> Set("org.scalatest.Ignore", "org.scalatest.SlowAsMolasses"))) {
         d.tags
       }
 
@@ -455,12 +462,15 @@ class FunSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       expect(Map()) {
         e.tags
       }
+    }
+
+    it("should, if both tests are marked Slow and the first test Weak, return a tags map from the tags method that says both are Slow and the first also Weak") {
 
       val f = new FunSpec {
-        it("test this", mytags.SlowAsMolasses, mytags.WeakAsAKitten) {}
-        it("test that", mytags.SlowAsMolasses) {}
+        it("first test", mytags.SlowAsMolasses, mytags.WeakAsAKitten) {}
+        it("second test", mytags.SlowAsMolasses) {}
       }
-      expect(Map("test this" -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"), "test that" -> Set("org.scalatest.SlowAsMolasses"))) {
+      expect(Map("first test" -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"), "second test" -> Set("org.scalatest.SlowAsMolasses"))) {
         f.tags
       }
     }

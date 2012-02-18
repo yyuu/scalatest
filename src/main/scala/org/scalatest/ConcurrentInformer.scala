@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference
  This in turn means that a reporter may get hit by multiple threads sending InfoProvided
  messages. If run with the Runner, that will be OK, because DispatchReporter will be in front
  serializing events with its actor. If run() is invoked directly on a suite instance, such as
- from the Scala interpretter, then it may not work. I think I may just say that when running
+ from the Scala interpreter, then it may not work. I think I may just say that when running
  from the interpreter, say with run(), you may get interleaved output. This would only happen
  when doing a multi-threaded test that starts threads that calls informer methods, likely a
  rare case. Also, in that case I think it is reasonable to say you may get interleaved output
