@@ -41,35 +41,35 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "testMethod(FixtureParam, Informer)"
   }
 
-    class FunSuiteExample extends FunSuite with Services {
-      test(theTestName) {
-        info(msg)
-      }
+  class FunSuiteExample extends FunSuite with Services {
+    test(theTestName) {
+      info(msg)
     }
+  }
 
-    class FixtureFunSuiteExample extends StringFixtureFunSuite with Services {
-      test(theTestName) { s =>
-        info(msg)
-      }
+  class FixtureFunSuiteExample extends StringFixtureFunSuite with Services {
+    test(theTestName) { s =>
+      info(msg)
     }
+  }
 
-    class FunSpecExample extends FunSpec with Services {
-      it(theTestName) {
-        info(msg)
-      }
+  class FunSpecExample extends FunSpec with Services {
+    it(theTestName) {
+      info(msg)
     }
+  }
 
-    class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
-      it(theTestName) { s =>
-        info(msg)
-      }
+  class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
+    it(theTestName) { s =>
+      info(msg)
     }
+  }
   
-    class PathFunSpecExample extends path.FunSpec with Services {
-      it(theTestName) {
-        info(msg)
-      }
+  class PathFunSpecExample extends path.FunSpec with Services {
+    it(theTestName) {
+      info(msg)
     }
+  }
     
   class WordSpecExample extends WordSpec with Services {
     theTestName in {
@@ -122,7 +122,19 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
     override val theTestName = "Scenario: test name"
   }
-  
+
+  class PropSpecExample extends PropSpec with Services {
+    property(theTestName) {
+      info(msg)
+    }
+  }
+
+  class FixturePropSpecExample extends StringFixturePropSpec with Services {
+    property(theTestName) { s =>
+      info(msg)
+    }
+  }
+
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
@@ -138,6 +150,8 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureFreeSpec = new FixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
+  def propSpec = new PropSpecExample
+  def fixturePropSpec = new FixturePropSpecExample
 }
 
 /* TODO: This gave me a "null" in the output. string passed in to should was null for some reason

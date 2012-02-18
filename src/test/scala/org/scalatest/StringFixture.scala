@@ -29,3 +29,4 @@ trait StringFixtureWordSpec extends fixture.WordSpec with StringFixture
 trait StringFixtureFlatSpec extends fixture.FlatSpec with StringFixture
 trait StringFixtureFreeSpec extends fixture.FreeSpec with StringFixture
 trait StringFixtureFeatureSpec extends fixture.FeatureSpec with StringFixture
+trait StringFixturePropSpec extends fixture.PropSpec with StringFixture
