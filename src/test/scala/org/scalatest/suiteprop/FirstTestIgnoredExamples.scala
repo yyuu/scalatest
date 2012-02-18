@@ -37,7 +37,7 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
-  class FixtureSpecExample extends StringFixtureFunSpec with Services {
+  class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
       ignore("first test") { s => }
       it("second test") { s => }
   }
@@ -47,11 +47,17 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
+  class WordSpecExample extends WordSpec with Services {
+    "first test" ignore {}
+    "second test" in {}
+  }
+
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
   def fixtureFunSuite = new FixtureFunSuiteExample
   def funSpec = new FunSpecExample
-  def fixtureFunSpec = new FixtureSpecExample
+  def fixtureFunSpec = new FixtureFunSpecExample
   def pathFunSpec = new PathFunSpecExample
+  def wordSpec = new WordSpecExample
 }

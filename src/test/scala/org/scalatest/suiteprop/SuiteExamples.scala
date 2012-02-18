@@ -29,6 +29,7 @@ trait SuiteExamples extends Tables {
   def funSpec: FunSpec with FixtureServices
   def fixtureFunSpec: fixture.FunSpec with FixtureServices
   def pathFunSpec: path.FunSpec with FixtureServices
+  def wordSpec: WordSpec with FixtureServices
 
   def examples =
     Table(
@@ -39,6 +40,7 @@ trait SuiteExamples extends Tables {
       fixtureFunSuite,
       funSpec,
       fixtureFunSpec,
-      pathFunSpec
+      pathFunSpec,
+      wordSpec
     )
 }

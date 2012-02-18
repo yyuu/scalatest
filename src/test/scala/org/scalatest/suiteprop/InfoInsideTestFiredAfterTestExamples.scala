@@ -33,8 +33,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
     override val theTestName = "testMethod(Informer)"
   }
-  def suite = new SuiteExample
-  def fixtureSuite = new FixtureSuiteExample
   
   class FixtureSuiteExample extends StringFixtureSuite with Services {
     def testMethod(s: String, info: Informer) {
@@ -43,39 +41,48 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "testMethod(FixtureParam, Informer)"
   }
 
-  def funSuite =
-    new FunSuite with Services {
+    class FunSuiteExample extends FunSuite with Services {
       test(theTestName) {
         info(msg)
       }
     }
 
-  def fixtureFunSuite =
-    new StringFixtureFunSuite with Services {
+    class FixtureFunSuiteExample extends StringFixtureFunSuite with Services {
       test(theTestName) { s =>
         info(msg)
       }
     }
 
-  def funSpec =
-    new FunSpec with Services {
+    class FunSpecExample extends FunSpec with Services {
       it(theTestName) {
         info(msg)
       }
     }
 
-  def fixtureFunSpec =
-    new StringFixtureFunSpec with Services {
+    class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
       it(theTestName) { s =>
         info(msg)
       }
     }
   
-  def pathFunSpec =
-    new path.FunSpec with Services {
+    class PathFunSpecExample extends path.FunSpec with Services {
       it(theTestName) {
         info(msg)
       }
     }
+    
+    class WordSpecExample extends WordSpec with Services {
+      theTestName in {
+        info(msg)
+      }
+    }
 
+  def suite = new SuiteExample
+  def fixtureSuite = new FixtureSuiteExample
+  def funSuite = new FunSuiteExample
+  def fixtureFunSuite = new FixtureFunSuiteExample
+  def funSpec = new FunSpecExample
+  def fixtureFunSpec = new FixtureFunSpecExample
+  def pathFunSpec = new PathFunSpecExample
+  def wordSpec = new WordSpecExample
 }

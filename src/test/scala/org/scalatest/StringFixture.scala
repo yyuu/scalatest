@@ -15,8 +15,6 @@
  */
 package org.scalatest
 
-import org.scalatest.prop.TableDrivenPropertyChecks
-
 trait StringFixture { this: fixture.Suite =>
   type FixtureParam = String
   def withFixture(test: OneArgTest) {
