@@ -221,14 +221,50 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   }
 
   class FreeSpecExample extends FreeSpec with Services {
-    theTestName in {
+    "test name" in {
       info(msg)
     }
   }
 
+  class NestedFreeSpecExample extends FreeSpec with NestedTestName {
+    "A subject" - {
+      "should test name" in {
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedFreeSpecExample extends FreeSpec with DeeplyNestedTestName {
+    "A subject" - {
+      "when created" - {
+        "should test name" in {
+          info(msg)
+        }
+      }
+    }
+  }
+
   class FixtureFreeSpecExample extends StringFixtureFreeSpec with Services {
-    theTestName in { s =>
+    "test name" in { s =>
       info(msg)
+    }
+  }
+
+  class NestedFixtureFreeSpecExample extends StringFixtureFreeSpec with NestedTestName {
+    "A subject" - {
+      "should test name" in { s =>
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedFixtureFreeSpecExample extends StringFixtureFreeSpec with DeeplyNestedTestName {
+    "A subject" - {
+      "when created" - {
+        "should test name" in { s =>
+          info(msg)
+        }
+      }
     }
   }
 
@@ -284,7 +320,11 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
   def shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
+  def nestedFreeSpec = new NestedFreeSpecExample
+  def deeplyNestedFreeSpec = new DeeplyNestedFreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
+  def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
+  def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
   def propSpec = new PropSpecExample

@@ -184,9 +184,41 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     "second test" in {}
   }
 
+  class NestedFreeSpecExample extends FreeSpec with NestedTestNames {
+    "A subject" - {
+      "should first test" ignore {}
+      "should second test" in {}
+    }
+  }
+
+  class DeeplyNestedFreeSpecExample extends FreeSpec with DeeplyNestedTestNames {
+    "A subject" - {
+      "when created" - {
+        "should first test" ignore {}
+        "should second test" in {}
+      }
+    }
+  }
+
   class FixtureFreeSpecExample extends StringFixtureFreeSpec with Services {
     "first test" ignore { s => }
     "second test" in { s => }
+  }
+
+  class NestedFixtureFreeSpecExample extends StringFixtureFreeSpec with NestedTestNames {
+    "A subject" - {
+      "should first test" ignore { s => }
+      "should second test" in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureFreeSpecExample extends StringFixtureFreeSpec with DeeplyNestedTestNames {
+    "A subject" - {
+      "when created" - {
+        "should first test" ignore { s => }
+        "should second test" in { s => }
+      }
+    }
   }
 
   class FeatureSpecExample extends FeatureSpec with Services {
@@ -237,7 +269,11 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
   def shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
+  def nestedFreeSpec = new NestedFreeSpecExample
+  def deeplyNestedFreeSpec = new DeeplyNestedFreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
+  def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
+  def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
   def propSpec = new PropSpecExample
