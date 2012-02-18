@@ -45,22 +45,20 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
-  class NestedFunSpecExample extends FunSpec with Services {
+  class NestedFunSpecExample extends FunSpec with NestedTestNames {
     describe("A subject") {
       ignore("should first test") {}
       it("should second test") {}
     }
-    override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
-  class DeeplyNestedFunSpecExample extends FunSpec with Services {
+  class DeeplyNestedFunSpecExample extends FunSpec with DeeplyNestedTestNames {
     describe("A subject") {
       describe("when created") {
         ignore("should first test") {}
         it("should second test") {}
       }
     }
-    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
   }
 
   class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
@@ -68,22 +66,20 @@ class FirstTestIgnoredExamples extends SuiteExamples {
       it("second test") { s => }
   }
   
-  class NestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+  class NestedFixtureFunSpecExample extends StringFixtureFunSpec with NestedTestNames {
     describe("A subject") {
       ignore("should first test") { s => }
       it("should second test") { s => }
     }
-    override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
-  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with DeeplyNestedTestNames {
     describe("A subject") {
       describe("when created") {
         ignore("should first test") { s => }
         it("should second test") { s => }
       }
     }
-    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
   }
 
   class PathFunSpecExample extends path.FunSpec with Services {
@@ -91,22 +87,20 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
-  class NestedPathFunSpecExample extends path.FunSpec with Services {
+  class NestedPathFunSpecExample extends path.FunSpec with NestedTestNames {
     describe("A subject") {
       ignore("should first test") {}
       it("should second test") {}
     }
-    override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
-  class DeeplyNestedPathFunSpecExample extends path.FunSpec with Services {
+  class DeeplyNestedPathFunSpecExample extends path.FunSpec with DeeplyNestedTestNames {
     describe("A subject") {
       describe("when created") {
         ignore("should first test") {}
         it("should second test") {}
       }
     }
-    override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
   }
 
   class WordSpecExample extends WordSpec with Services {

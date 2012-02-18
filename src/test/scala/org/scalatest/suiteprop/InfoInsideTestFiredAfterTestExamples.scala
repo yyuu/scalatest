@@ -25,6 +25,14 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     val theTestName = "test name"
   }
 
+  trait NestedTestName extends Services {
+    override val theTestName = "A subject should test name"
+  }
+
+  trait DeeplyNestedTestName extends Services {
+    override val theTestName = "A subject when created should test name"
+  }
+
   type FixtureServices = Services
 
   class SuiteExample extends Suite with Services  {
@@ -59,16 +67,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
-  class NestedFunSpecExample extends FunSpec with Services {
+  class NestedFunSpecExample extends FunSpec with NestedTestName {
     describe("A subject") {
       it("should test name") {
         info(msg)
       }
     }
-    override val theTestName = "A subject should test name"
   }
 
-  class DeeplyNestedFunSpecExample extends FunSpec with Services {
+  class DeeplyNestedFunSpecExample extends FunSpec with DeeplyNestedTestName {
     describe("A subject") {
       describe("when created") {
         it("should test name") {
@@ -76,7 +83,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
         }
       }
     }
-    override val theTestName = "A subject when created should test name"
   }
 
   class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
@@ -85,16 +91,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
   
-  class NestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+  class NestedFixtureFunSpecExample extends StringFixtureFunSpec with NestedTestName {
     describe("A subject") {
       it("should test name") { s =>
         info(msg)
       }
     }
-    override val theTestName = "A subject should test name"
   }
 
-  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+  class DeeplyNestedFixtureFunSpecExample extends StringFixtureFunSpec with DeeplyNestedTestName {
     describe("A subject") {
       describe("when created") {
         it("should test name") { s =>
@@ -102,7 +107,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
         }
       }
     }
-    override val theTestName = "A subject when created should test name"
   }
 
   class PathFunSpecExample extends path.FunSpec with Services {
@@ -111,16 +115,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
     
-  class NestedPathFunSpecExample extends path.FunSpec with Services {
+  class NestedPathFunSpecExample extends path.FunSpec with NestedTestName {
     describe("A subject") {
       it("should test name") {
         info(msg)
       }
     }
-    override val theTestName = "A subject should test name"
   }
 
-  class DeeplyNestedPathFunSpecExample extends path.FunSpec with Services {
+  class DeeplyNestedPathFunSpecExample extends path.FunSpec with DeeplyNestedTestName {
     describe("A subject") {
       describe("when created") {
         it("should test name") {
@@ -128,7 +131,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
         }
       }
     }
-    override val theTestName = "A subject when created should test name"
   }
 
   class WordSpecExample extends WordSpec with Services {
@@ -137,16 +139,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
-  class NestedWordSpecExample extends WordSpec with Services {
+  class NestedWordSpecExample extends WordSpec with NestedTestName {
     "A subject" should {
       "test name" in {
         info(msg)
       }
     }
-    override val theTestName = "A subject should test name"
   }
 
-  class DeeplyNestedWordSpecExample extends WordSpec with Services {
+  class DeeplyNestedWordSpecExample extends WordSpec with DeeplyNestedTestName {
     "A subject" when {
       "created" should {
         "test name" in {
@@ -154,7 +155,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
         }
       }
     }
-    override val theTestName = "A subject when created should test name"
   }
 
   class FixtureWordSpecExample extends StringFixtureWordSpec with Services {
@@ -163,16 +163,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
-  class NestedFixtureWordSpecExample extends StringFixtureWordSpec with Services {
+  class NestedFixtureWordSpecExample extends StringFixtureWordSpec with NestedTestName {
     "A subject" should {
       "test name" in { s =>
         info(msg)
       }
     }
-    override val theTestName = "A subject should test name"
   }
 
-  class DeeplyNestedFixtureWordSpecExample extends StringFixtureWordSpec with Services {
+  class DeeplyNestedFixtureWordSpecExample extends StringFixtureWordSpec with DeeplyNestedTestName {
     "A subject" when {
       "created" should {
         "test name" in { s =>
@@ -180,7 +179,6 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
         }
       }
     }
-    override val theTestName = "A subject when created should test name"
   }
 
   class FlatSpecExample extends FlatSpec with Services {
