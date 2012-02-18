@@ -48,4 +48,14 @@ class SuiteProperties extends PropSpec with ShouldMatchers with TableDrivenPrope
       }
     }
   }
+
+  property("should, if two tests is marked as ignored, return a tags map from the tags method that says that both tests are ignored") {
+    new TwoTestsIgnoredExamples {
+      forAll (examples) { suite =>
+        val firstTestName = suite.theTestNames(0)
+        val secondTestName = suite.theTestNames(1)
+        suite.tags should be (Map(firstTestName -> Set("org.scalatest.Ignore"), secondTestName -> Set("org.scalatest.Ignore")))
+      }
+    }
+  }
 }
