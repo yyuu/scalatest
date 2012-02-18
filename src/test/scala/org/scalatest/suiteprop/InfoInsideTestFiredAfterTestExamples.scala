@@ -275,11 +275,29 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "Scenario: test name"
   }
 
+  class NestedFeatureSpecExample extends FeatureSpec with Services {
+    feature("A feature") {
+      scenario("test name") {
+        info(msg)
+      }
+    }
+    override val theTestName = "A feature Scenario: test name"
+  }
+
   class FixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
     scenario("test name") { s =>
       info(msg)
     }
     override val theTestName = "Scenario: test name"
+  }
+
+  class NestedFixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
+    feature("A feature") {
+      scenario("test name") { s =>
+        info(msg)
+      }
+    }
+    override val theTestName = "A feature Scenario: test name"
   }
 
   class PropSpecExample extends PropSpec with Services {
@@ -326,7 +344,9 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
   def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
+  def nestedFeatureSpec = new NestedFeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
+  def nestedFixtureFeatureSpec = new NestedFixtureFeatureSpecExample
   def propSpec = new PropSpecExample
   def fixturePropSpec = new FixturePropSpecExample
 }

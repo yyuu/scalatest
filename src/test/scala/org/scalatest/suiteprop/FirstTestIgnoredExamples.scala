@@ -227,10 +227,26 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     override val theTestNames = Vector("Scenario: first test", "Scenario: second test")
   }
 
+  class NestedFeatureSpecExample extends FeatureSpec with Services {
+    feature("A feature") {
+      ignore("first test") {}
+      scenario("second test") {}
+    }
+    override val theTestNames = Vector("A feature Scenario: first test", "A feature Scenario: second test")
+  }
+
   class FixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
     ignore("first test") { s => }
     scenario("second test") { s => }
     override val theTestNames = Vector("Scenario: first test", "Scenario: second test")
+  }
+
+  class NestedFixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
+    feature("A feature") {
+      ignore("first test") { s => }
+      scenario("second test") { s => }
+    }
+    override val theTestNames = Vector("A feature Scenario: first test", "A feature Scenario: second test")
   }
 
   class PropSpecExample extends PropSpec with Services {
@@ -275,7 +291,9 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
   def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
+  def nestedFeatureSpec = new NestedFeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
+  def nestedFixtureFeatureSpec = new NestedFixtureFeatureSpecExample
   def propSpec = new PropSpecExample
   def fixturePropSpec = new FixturePropSpecExample
    

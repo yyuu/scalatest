@@ -54,7 +54,9 @@ trait SuiteExamples extends Tables {
   def nestedFixtureFreeSpec: fixture.FreeSpec with FixtureServices
   def deeplyNestedFixtureFreeSpec: fixture.FreeSpec with FixtureServices
   def featureSpec: FeatureSpec with FixtureServices
+  def nestedFeatureSpec: FeatureSpec with FixtureServices
   def fixtureFeatureSpec: fixture.FeatureSpec with FixtureServices
+  def nestedFixtureFeatureSpec: fixture.FeatureSpec with FixtureServices
   def propSpec: PropSpec with FixtureServices
   def fixturePropSpec: fixture.PropSpec with FixtureServices
 
@@ -93,7 +95,9 @@ trait SuiteExamples extends Tables {
       nestedFixtureFreeSpec,
       deeplyNestedFixtureFreeSpec,
       featureSpec,
+      nestedFeatureSpec,
       fixtureFeatureSpec,
+      nestedFixtureFeatureSpec,
       propSpec,
       fixturePropSpec
     )
