@@ -34,6 +34,15 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "testMethod(Informer)"
   }
   def suite = new SuiteExample
+  def fixtureSuite = new FixtureSuiteExample
+  
+  class FixtureSuiteExample extends StringFixtureSuite with Services {
+    def testMethod(s: String, info: Informer) {
+      info(msg)
+    }
+    override val theTestName = "testMethod(FixtureParam, Informer)"
+  }
+
   def funSuite =
     new FunSuite with Services {
       test(theTestName) {
@@ -56,7 +65,7 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
 
   def fixtureFunSpec =
-    new StringFixtureSpec with Services {
+    new StringFixtureFunSpec with Services {
       it(theTestName) { s =>
         info(msg)
       }

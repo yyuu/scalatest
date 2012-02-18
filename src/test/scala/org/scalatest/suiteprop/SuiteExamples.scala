@@ -23,6 +23,7 @@ trait SuiteExamples extends Tables {
   type FixtureServices
 
   def suite: Suite with FixtureServices
+  def fixtureSuite: fixture.Suite with FixtureServices
   def funSuite: FunSuite with FixtureServices
   def fixtureFunSuite: fixture.FunSuite with FixtureServices
   def funSpec: FunSpec with FixtureServices
@@ -33,6 +34,7 @@ trait SuiteExamples extends Tables {
     Table(
       "suite",
       suite,
+      fixtureSuite,
       funSuite,
       fixtureFunSuite,
       funSpec,

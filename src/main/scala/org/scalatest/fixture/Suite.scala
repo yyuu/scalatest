@@ -517,6 +517,12 @@ trait Suite extends org.scalatest.Suite { thisSuite =>
 
     val formatter = getIndentedText(testName, 1, true)
 
+    val informerForThisTest =
+      MessageRecordingInformer2(
+      (message, isConstructingThread, testWasPending) => reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, isConstructingThread, true, Some(testWasPending))
+    )
+
+    var testWasPending = false
     try {
       if (testMethodTakesAFixtureAndInformer(testName) || testMethodTakesAFixture(testName)) {
         val testFun: FixtureParam => Unit = {
@@ -524,6 +530,7 @@ trait Suite extends org.scalatest.Suite { thisSuite =>
             val anyRefFixture: AnyRef = fixture.asInstanceOf[AnyRef] // TODO zap this cast
             val args: Array[Object] =
               if (testMethodTakesAFixtureAndInformer(testName)) {
+/*
                 val informer =
                   new Informer {
                     def apply(message: String) {
@@ -531,8 +538,8 @@ trait Suite extends org.scalatest.Suite { thisSuite =>
                         throw new NullPointerException
                       reportInfoProvided(thisSuite, report, tracker, Some(testName), message, 2, true)
                     }
-                  }
-                Array(anyRefFixture, informer)
+                  }*/
+                Array(anyRefFixture, informerForThisTest)
               }
               else
                 Array(anyRefFixture)
@@ -575,6 +582,7 @@ trait Suite extends org.scalatest.Suite { thisSuite =>
         t match {
           case _: TestPendingException =>
             reportTestPending(thisSuite, report, tracker, testName, formatter)
+            testWasPending = true // Set so info's printed out in the finally clause show up yellow
           case e if !anErrorThatShouldCauseAnAbort(e) =>
             val duration = System.currentTimeMillis - testStartTime
             handleFailedTest(t, hasPublicNoArgConstructor, testName, rerunnable, report, tracker, duration)
@@ -584,6 +592,9 @@ trait Suite extends org.scalatest.Suite { thisSuite =>
         val duration = System.currentTimeMillis - testStartTime
         handleFailedTest(e, hasPublicNoArgConstructor, testName, rerunnable, report, tracker, duration)
       case e => throw e
+    }
+    finally {
+      informerForThisTest.fireRecordedMessages(testWasPending)
     }
   }
 

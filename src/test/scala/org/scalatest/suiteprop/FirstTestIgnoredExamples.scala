@@ -16,6 +16,12 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     override val theTestNames = Vector("testFirst", "testSecond")
   }
 
+  class FixtureSuiteExample extends StringFixtureSuite with Services {
+    @Ignore def testFirst(s: String) {}
+    def testSecond(s: String) {}
+    override val theTestNames = Vector("testFirst(FixtureParam)", "testSecond(FixtureParam)")
+  }
+
   class FunSuiteExample extends FunSuite with Services {
     ignore("first test") {}
     test("second test") {}
@@ -31,7 +37,7 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
-  class FixtureSpecExample extends StringFixtureSpec with Services {
+  class FixtureSpecExample extends StringFixtureFunSpec with Services {
       ignore("first test") { s => }
       it("second test") { s => }
   }
@@ -42,6 +48,7 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   }
 
   def suite = new SuiteExample
+  def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
   def fixtureFunSuite = new FixtureFunSuiteExample
   def funSpec = new FunSpecExample
