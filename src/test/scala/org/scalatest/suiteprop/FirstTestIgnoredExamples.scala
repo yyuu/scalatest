@@ -37,14 +37,38 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it("second test") {}
   }
 
+  class NestedFunSpecExample extends FunSpec with Services {
+    describe("A subject") {
+      ignore("should first test") {}
+      it("should second test") {}
+    }
+    override val theTestNames = Vector("A subject should first test", "A subject should second test")
+  }
+
   class FixtureFunSpecExample extends StringFixtureFunSpec with Services {
       ignore("first test") { s => }
       it("second test") { s => }
   }
   
+  class NestedFixtureFunSpecExample extends StringFixtureFunSpec with Services {
+    describe("A subject") {
+      ignore("should first test") { s => }
+      it("should second test") { s => }
+    }
+    override val theTestNames = Vector("A subject should first test", "A subject should second test")
+  }
+
   class PathFunSpecExample extends path.FunSpec with Services {
     ignore("first test") {}
     it("second test") {}
+  }
+
+  class NestedPathFunSpecExample extends path.FunSpec with Services {
+    describe("A subject") {
+      ignore("should first test") {}
+      it("should second test") {}
+    }
+    override val theTestNames = Vector("A subject should first test", "A subject should second test")
   }
 
   class WordSpecExample extends WordSpec with Services {
@@ -106,8 +130,11 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def funSuite = new FunSuiteExample
   def fixtureFunSuite = new FixtureFunSuiteExample
   def funSpec = new FunSpecExample
+  def nestedFunSpec = new NestedFunSpecExample
   def fixtureFunSpec = new FixtureFunSpecExample
+  def nestedFixtureFunSpec = new NestedFixtureFunSpecExample
   def pathFunSpec = new PathFunSpecExample
+  def nestedPathFunSpec = new NestedPathFunSpecExample
   def wordSpec = new WordSpecExample
   def fixtureWordSpec = new FixtureWordSpecExample
   def flatSpec = new FlatSpecExample
@@ -118,8 +145,10 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
   def propSpec = new PropSpecExample
   def fixturePropSpec = new FixturePropSpecExample
- 
+   
   // Two ways to ignore in a flat spec, so add two more examples
+  override def examples = super.examples ++ List(new FlatSpecExample2, new FixtureFlatSpecExample2)
+
   class FlatSpecExample2 extends FlatSpec with Services {
     ignore should "first test" in {}
     it should "second test" in {}
@@ -131,6 +160,4 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     it should "second test" in { s => }
     override val theTestNames = Vector("should first test", "should second test")
   }
-  
-  override def examples = super.examples ++ List(new FlatSpecExample2, new FixtureFlatSpecExample2)
 }

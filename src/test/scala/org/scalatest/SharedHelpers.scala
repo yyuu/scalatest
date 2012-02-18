@@ -120,7 +120,10 @@ trait SharedHelpers extends Assertions {
     val indexedList = myRep.eventsReceived.zipWithIndex
 
     val testStartingOption = indexedList.find(_._1.isInstanceOf[TestStarting])
-    val infoProvidedOption = indexedList.find(_._1.isInstanceOf[InfoProvided])
+    val infoProvidedOption = indexedList.find {
+      case (event: InfoProvided, index) => event.message == infoMsg
+      case _ => false
+    }
     val testSucceededOption = indexedList.find(_._1.isInstanceOf[TestSucceeded])
 
     assert(testStartingOption.isDefined)

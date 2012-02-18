@@ -27,8 +27,11 @@ trait SuiteExamples extends Tables {
   def funSuite: FunSuite with FixtureServices
   def fixtureFunSuite: fixture.FunSuite with FixtureServices
   def funSpec: FunSpec with FixtureServices
+  def nestedFunSpec: FunSpec with FixtureServices
   def fixtureFunSpec: fixture.FunSpec with FixtureServices
+  def nestedFixtureFunSpec: fixture.FunSpec with FixtureServices
   def pathFunSpec: path.FunSpec with FixtureServices
+  def nestedPathFunSpec: path.FunSpec with FixtureServices
   def wordSpec: WordSpec with FixtureServices
   def fixtureWordSpec: fixture.WordSpec with FixtureServices
   def flatSpec: FlatSpec with FixtureServices
@@ -48,8 +51,11 @@ trait SuiteExamples extends Tables {
       funSuite,
       fixtureFunSuite,
       funSpec,
+      nestedFunSpec,
       fixtureFunSpec,
+      nestedFixtureFunSpec,
       pathFunSpec,
+      nestedPathFunSpec,
       wordSpec,
       fixtureWordSpec,
       flatSpec,
