@@ -97,6 +97,18 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "should test name"
   }
 
+  class FreeSpecExample extends FreeSpec with Services {
+    theTestName in {
+      info(msg)
+    }
+  }
+
+  class FixtureFreeSpecExample extends StringFixtureFreeSpec with Services {
+    theTestName in { s =>
+      info(msg)
+    }
+  }
+
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
@@ -108,4 +120,16 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureWordSpec = new FixtureWordSpecExample
   def flatSpec = new FlatSpecExample
   def fixtureFlatSpec = new FixtureFlatSpecExample
+  def freeSpec = new FreeSpecExample
+  def fixtureFreeSpec = new FixtureFreeSpecExample
 }
+
+/* TODO: This gave me a "null" in the output. string passed in to should was null for some reason
+   class FlatSpecExample extends FlatSpec with Services {
+    it should theTestName in {
+      info(msg)
+    }
+    override val theTestName = "should test name"
+  }
+
+ */
