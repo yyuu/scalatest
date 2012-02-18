@@ -71,11 +71,31 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
       }
     }
     
-    class WordSpecExample extends WordSpec with Services {
-      theTestName in {
-        info(msg)
-      }
+  class WordSpecExample extends WordSpec with Services {
+    theTestName in {
+      info(msg)
     }
+  }
+
+  class FixtureWordSpecExample extends StringFixtureWordSpec with Services {
+    theTestName in { s =>
+      info(msg)
+    }
+  }
+
+  class FlatSpecExample extends FlatSpec with Services {
+    it should "test name" in {
+      info(msg)
+    }
+    override val theTestName = "should test name"
+  }
+
+  class FixtureFlatSpecExample extends StringFixtureFlatSpec with Services {
+    it should "test name" in { s =>
+      info(msg)
+    }
+    override val theTestName = "should test name"
+  }
 
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
@@ -85,4 +105,7 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureFunSpec = new FixtureFunSpecExample
   def pathFunSpec = new PathFunSpecExample
   def wordSpec = new WordSpecExample
+  def fixtureWordSpec = new FixtureWordSpecExample
+  def flatSpec = new FlatSpecExample
+  def fixtureFlatSpec = new FixtureFlatSpecExample
 }

@@ -24,6 +24,12 @@ class SuiteProperties extends PropSpec with ShouldMatchers with TableDrivenPrope
   property("When info appears in the code of a successful test, it should be reported after the TestSucceeded.") {
     new InfoInsideTestFiredAfterTestExamples {
       forAll (examples) { suite =>
+        suite match {
+          case fs: FlatSpec =>
+            val tn = fs.testNames
+            println(tn)
+          case _ =>
+        }
         val (infoProvidedIndex, testStartingIndex, testSucceededIndex) =
           getIndexesForInformerEventOrderTests(suite, suite.theTestName, suite.msg)
         testSucceededIndex should be < infoProvidedIndex
