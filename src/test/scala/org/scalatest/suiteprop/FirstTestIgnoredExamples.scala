@@ -79,6 +79,18 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     "second test" in { s => }
   }
 
+  class FeatureSpecExample extends FeatureSpec with Services {
+    ignore("first test") {}
+    scenario("second test") {}
+    override val theTestNames = Vector("Scenario: first test", "Scenario: second test")
+  }
+
+  class FixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
+    ignore("first test") { s => }
+    scenario("second test") { s => }
+    override val theTestNames = Vector("Scenario: first test", "Scenario: second test")
+  }
+
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
@@ -92,7 +104,9 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def fixtureFlatSpec = new FixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
-  
+  def featureSpec = new FeatureSpecExample
+  def fixtureFeatureSpec = new FixtureFeatureSpecExample
+ 
   // Two ways to ignore in a flat spec, so add two more examples
   class FlatSpecExample2 extends FlatSpec with Services {
     ignore should "first test" in {}

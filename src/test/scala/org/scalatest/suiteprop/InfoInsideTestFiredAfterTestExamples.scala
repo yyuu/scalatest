@@ -109,6 +109,20 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class FeatureSpecExample extends FeatureSpec with Services {
+    scenario("test name") {
+      info(msg)
+    }
+    override val theTestName = "Scenario: test name"
+  }
+
+  class FixtureFeatureSpecExample extends StringFixtureFeatureSpec with Services {
+    scenario("test name") { s =>
+      info(msg)
+    }
+    override val theTestName = "Scenario: test name"
+  }
+  
   def suite = new SuiteExample
   def fixtureSuite = new FixtureSuiteExample
   def funSuite = new FunSuiteExample
@@ -122,6 +136,8 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureFlatSpec = new FixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
+  def featureSpec = new FeatureSpecExample
+  def fixtureFeatureSpec = new FixtureFeatureSpecExample
 }
 
 /* TODO: This gave me a "null" in the output. string passed in to should was null for some reason

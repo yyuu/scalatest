@@ -35,6 +35,8 @@ trait SuiteExamples extends Tables {
   def fixtureFlatSpec: fixture.FlatSpec with FixtureServices
   def freeSpec: FreeSpec with FixtureServices
   def fixtureFreeSpec: fixture.FreeSpec with FixtureServices
+  def featureSpec: FeatureSpec with FixtureServices
+  def fixtureFeatureSpec: fixture.FeatureSpec with FixtureServices
 
   def examples =
     Table(
@@ -51,6 +53,8 @@ trait SuiteExamples extends Tables {
       flatSpec,
       fixtureFlatSpec,
       freeSpec,
-      fixtureFreeSpec
+      fixtureFreeSpec,
+      featureSpec,
+      fixtureFeatureSpec
     )
 }
