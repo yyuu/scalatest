@@ -151,11 +151,33 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     override val theTestNames = Vector("should first test", "should second test")
    }
 
+  class SubjectFlatSpecExample extends FlatSpec with NestedTestNames {
+    behavior of "A subject"
+    it should "first test" ignore {}
+    it should "second test" in {}
+   }
+
+  class ShorthandSubjectFlatSpecExample extends FlatSpec with NestedTestNames {
+    "A subject" should "first test" ignore {}
+    it should "second test" in {}
+   }
+
   class FixtureFlatSpecExample extends StringFixtureFlatSpec with Services {
     it should "first test" ignore { s => }
     it should "second test" in { s => }
     override val theTestNames = Vector("should first test", "should second test")
   }
+
+  class SubjectFixtureFlatSpecExample extends StringFixtureFlatSpec with NestedTestNames {
+    behavior of "A subject"
+    it should "first test" ignore { s => }
+    it should "second test" in { s => }
+   }
+
+  class ShorthandSubjectFixtureFlatSpecExample extends StringFixtureFlatSpec with NestedTestNames {
+    "A subject" should "first test" ignore { s => }
+    it should "second test" in { s => }
+   }
 
   class FreeSpecExample extends FreeSpec with Services {
     "first test" ignore {}
@@ -209,7 +231,11 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def nestedFixtureWordSpec = new NestedFixtureWordSpecExample
   def deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
   def flatSpec = new FlatSpecExample
+  def subjectFlatSpec = new SubjectFlatSpecExample
+  def shorthandSubjectFlatSpec = new ShorthandSubjectFlatSpecExample
   def fixtureFlatSpec = new FixtureFlatSpecExample
+  def subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
+  def shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample

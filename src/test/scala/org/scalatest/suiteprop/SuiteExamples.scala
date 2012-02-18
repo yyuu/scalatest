@@ -42,7 +42,11 @@ trait SuiteExamples extends Tables {
   def nestedFixtureWordSpec: fixture.WordSpec with FixtureServices
   def deeplyNestedFixtureWordSpec: fixture.WordSpec with FixtureServices
   def flatSpec: FlatSpec with FixtureServices
+  def subjectFlatSpec: FlatSpec with FixtureServices
+  def shorthandSubjectFlatSpec: FlatSpec with FixtureServices
   def fixtureFlatSpec: fixture.FlatSpec with FixtureServices
+  def subjectFixtureFlatSpec: fixture.FlatSpec with FixtureServices
+  def shorthandSubjectFixtureFlatSpec: fixture.FlatSpec with FixtureServices
   def freeSpec: FreeSpec with FixtureServices
   def fixtureFreeSpec: fixture.FreeSpec with FixtureServices
   def featureSpec: FeatureSpec with FixtureServices

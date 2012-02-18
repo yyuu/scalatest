@@ -188,11 +188,36 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "should test name"
   }
 
+  class SubjectFlatSpecExample extends FlatSpec with NestedTestName {
+    behavior of "A subject"
+    it should "test name" in {
+      info(msg)
+    }
+  }
+  class ShorthandSubjectFlatSpecExample extends FlatSpec with NestedTestName {
+    "A subject" should "test name" in {
+      info(msg)
+    }
+  }
+
   class FixtureFlatSpecExample extends StringFixtureFlatSpec with Services {
     it should "test name" in { s =>
       info(msg)
     }
     override val theTestName = "should test name"
+  }
+
+  class SubjectFixtureFlatSpecExample extends StringFixtureFlatSpec with NestedTestName {
+    behavior of "A subject"
+    it should "test name" in { s =>
+      info(msg)
+    }
+  }
+  
+  class ShorthandSubjectFixtureFlatSpecExample extends StringFixtureFlatSpec with NestedTestName {
+    "A subject" should "test name" in { s =>
+      info(msg)
+    }
   }
 
   class FreeSpecExample extends FreeSpec with Services {
@@ -253,7 +278,11 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def nestedFixtureWordSpec = new NestedFixtureWordSpecExample
   def deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
   def flatSpec = new FlatSpecExample
+  def subjectFlatSpec = new SubjectFlatSpecExample
+  def shorthandSubjectFlatSpec = new ShorthandSubjectFlatSpecExample
   def fixtureFlatSpec = new FixtureFlatSpecExample
+  def subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
+  def shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
   def freeSpec = new FreeSpecExample
   def fixtureFreeSpec = new FixtureFreeSpecExample
   def featureSpec = new FeatureSpecExample
@@ -270,7 +299,7 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "should test name"
   }
 
-Got the same thing ehre:
+Got the same thing here:
   class NestedWordSpecExample extends WordSpec with Services {
     "A subject" should {
       theTestName in {
@@ -279,6 +308,6 @@ Got the same thing ehre:
     }
     override val theTestName = "A subject should test name"
   }
-
+Has to do with initialization order of an overridden val I think. Curious.
  */
 
