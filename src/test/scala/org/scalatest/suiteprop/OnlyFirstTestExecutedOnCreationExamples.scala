@@ -20,7 +20,11 @@ import prop.TableDrivenPropertyChecks
 
 class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
 
-  case class Counts(var firstTestCount: Int, var secondTestCount: Int)
+  case class Counts(
+    var firstTestCount: Int,
+    var secondTestCount: Int,
+    var instanceCount: Int
+  )
   
   trait Services {
     val theTestNames = Vector("first test", "second test")
@@ -39,30 +43,36 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
 
   class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
     import counts._
+    instanceCount += 1
     it("first test") { firstTestCount += 1 }
     it("second test") { secondTestCount += 1 }
+    override def newInstance = new PathFunSpecExample(counts)
   }
 
   class NestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with NestedTestNames {
     import counts._
+    instanceCount += 1
     describe("A subject") {
       it("should first test") { firstTestCount += 1 }
       it("should second test") { secondTestCount += 1 }
     }
+    override def newInstance = new NestedPathFunSpecExample(counts)
   }
 
   class DeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with DeeplyNestedTestNames {
     import counts._
+    instanceCount += 1
     describe("A subject") {
       describe("when created") {
         it("should first test") { firstTestCount += 1 }
         it("should second test") { secondTestCount += 1 }
       }
     }
+    override def newInstance = new DeeplyNestedPathFunSpecExample(counts)
   }
 
-  def pathFunSpec = new PathFunSpecExample(Counts(0, 0))
-  def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0, 0))
-  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts(0, 0))
+  def pathFunSpec = new PathFunSpecExample(Counts(0, 0, 0))
+  def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0, 0, 0))
+  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
 }
 
