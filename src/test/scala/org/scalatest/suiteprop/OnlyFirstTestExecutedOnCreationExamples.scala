@@ -27,7 +27,8 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
   )
   
   trait Services {
-    val hasTwoTests = true
+    val expectedInstanceCount = 2
+    val expectedTotalTestsCount = 2
     val counts: Counts
   }
 
@@ -37,7 +38,8 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     import counts._
     instanceCount += 1
     override def newInstance = new EmptyPathFunSpecExample(counts)
-    override val hasTwoTests = false
+    override val expectedInstanceCount = 1
+    override val expectedTotalTestsCount = 0
   }
 
   class EmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
@@ -46,7 +48,8 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     describe("A subject") {
     }
     override def newInstance = new EmptyNestedPathFunSpecExample(counts)
-    override val hasTwoTests = false
+    override val expectedInstanceCount = 1
+    override val expectedTotalTestsCount = 0
   }
 
   class SiblingEmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
@@ -57,7 +60,7 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     describe("Another subject") {
     }
     override def newInstance = new SiblingEmptyNestedPathFunSpecExample(counts)
-    override val hasTwoTests = false
+    override val expectedTotalTestsCount = 0
   }
 
   class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {

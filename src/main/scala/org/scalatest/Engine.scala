@@ -525,7 +525,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   private final var registeredPathSet = mutable.Set.empty[List[Int]] // TODO How can this be a final var?
   private final var targetPath: Option[List[Int]] = None
 
-  private var previousDescribeWasEmpty: Boolean = false
+  private var describeRegisteredNoTests: Boolean = false
   
   private var currentPath = List.empty[Int]
   private var usedPathSet = Set.empty[String]
@@ -581,7 +581,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
  * 
  */
   def handleTest(handlingSuite: Suite, testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
-    previousDescribeWasEmpty = false
+    describeRegisteredNoTests = false
     val nextPath = getNextPath()
     if (isInTargetPath(nextPath, targetPath)) {
       // Default value of None indicates successful test
@@ -644,15 +644,17 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
       nextTargetPath = Some(nextPath)
     }
-    else if (isInTargetPath(nextPath, targetPath) || previousDescribeWasEmpty) { 
+    else if (isInTargetPath(nextPath, targetPath)) { 
       val oldCurrentPath = currentPath // I added !previousDescribeWasEmpty to get a sibling describe following an empty describe to get executed.
       currentPath = nextPath
       if (!registeredPathSet.contains(nextPath)) {
         // Set this to true before executing the describe. If it has a test, then handleTest will be invoked
         // and it will set previousDescribeWasEmpty back to false
-        previousDescribeWasEmpty = true
+        describeRegisteredNoTests = true
         registerNestedBranch(description, None, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
         registeredPathSet += nextPath
+        if (describeRegisteredNoTests)
+          targetLeafHasBeenReached = true
       }
       else {
         navigateToNestedBranch(nextPath, fun, "describeCannotAppearInsideAnIt", "FunSpec.scala", "describe")
