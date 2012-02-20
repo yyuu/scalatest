@@ -32,7 +32,9 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
     var after000: Int = 0,
     var after00: Int = 0,
     var after0: Int = 0
-  )
+  ) {
+    val arr = new Array[Int](0)
+  }
   
   trait Services {
     val counts: Counts
@@ -82,6 +84,26 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
     val expectedFirstTestCounts = Counts()
     val expectedSecondTestCounts = Counts()
     val expectedCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after0 = 2)
+  }
+
+  class OneTestSiblingEmptyNestedPathFunSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FunSpec with Services {
+    import counts._
+    println(counts.arr)
+    before0 += 1
+    describe("A subject") {
+      before00 += 1
+    }
+    middle += 1
+    describe("Another subject") {
+      before01 += 1
+      it("first test") { initialInstance.get.firstTestCounts = counts.copy() }
+      after01 += 1
+    }
+    after0 += 1
+    override def newInstance = new OneTestSiblingEmptyNestedPathFunSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after0 = 1)
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after01 = 1, after0 = 2)
   }
 
   class PathFunSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FunSpec with Services {
@@ -209,6 +231,7 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts())
   def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts())
   def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts())
+  def oneTestSiblingEmptyNestedPathFunSpec = new OneTestSiblingEmptyNestedPathFunSpecExample(Counts())
   def pathFunSpec = new PathFunSpecExample(Counts())
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts())
   def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts())

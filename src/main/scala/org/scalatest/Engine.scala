@@ -555,7 +555,6 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   @volatile private var testResultsRegistered = false
   def ensureTestResultsRegistered(callingInstance: Suite with OneInstancePerTest) {
     synchronized {
- 
       val isAnInitialInstance = targetPath.isEmpty
       // Only register tests if this is an initial instance (and only if they haven't
       // already been registered).
