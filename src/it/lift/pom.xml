@@ -12,6 +12,13 @@
     <lift.version>2.2</lift.version>
   </properties>
 
+  <parent>
+    <groupId>maven.scalatest.plugin.its</groupId>
+    <artifactId>it-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../it-parent</relativePath>
+  </parent>
+
   <repositories>
     <repository>
       <id>scala-tools-releases</id>

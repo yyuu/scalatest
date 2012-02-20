@@ -92,7 +92,10 @@ public class ReporterMojo extends AbstractScalaTestMojo implements MavenReport {
 
     private List<String> fileReporterConfig() {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        return reporterArg("-f", fileReporterOptions + " tempScalaTestOutput.txt", fileRelativeTo(tmpDir));
+        if (fileReporterOptions != null) {
+            return reporterArg("-f", fileReporterOptions + " tempScalaTestOutput.txt", fileRelativeTo(tmpDir));
+        }
+        return reporterArg("-f", "tempScalaTestOutput.txt", fileRelativeTo(tmpDir));
     }
 
     private String getScalaTestOutputFromFile() throws IOException {

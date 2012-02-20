@@ -7,6 +7,13 @@
   <packaging>jar</packaging>
   <name>scalatest-examples-it</name>
 
+  <parent>
+    <groupId>maven.scalatest.plugin.its</groupId>
+    <artifactId>it-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../it-parent</relativePath>
+  </parent>
+
   <repositories>
     <repository>
       <id>scala-tools.org - snapshots</id>
