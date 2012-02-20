@@ -40,6 +40,15 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     override val hasTwoTests = false
   }
 
+  class EmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
+    import counts._
+    instanceCount += 1
+    describe("A subject") {
+    }
+    override def newInstance = new EmptyNestedPathFunSpecExample(counts)
+    override val hasTwoTests = false
+  }
+
   class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
     import counts._
     instanceCount += 1
@@ -111,6 +120,7 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
   }
 
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts(0, 0, 0))
+  def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts(0, 0, 0))
   def pathFunSpec = new PathFunSpecExample(Counts(0, 0, 0))
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts(0, 0, 0))

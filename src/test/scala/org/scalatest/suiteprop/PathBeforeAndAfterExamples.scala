@@ -54,6 +54,19 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
     val expectedCounts = Counts(middle = 1)
   }
 
+  class EmptyNestedPathFunSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FunSpec with Services {
+    import counts._
+    before0 += 1
+    describe("A subject") {
+      middle += 1
+    }
+    after0 += 1
+    override def newInstance = new EmptyNestedPathFunSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts()
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 1, middle = 1, after0 = 1)
+  }
+
   class PathFunSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FunSpec with Services {
     import counts._
     before0 += 1
@@ -177,6 +190,7 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
   }
 
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts())
+  def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts())
   def pathFunSpec = new PathFunSpecExample(Counts())
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts())
   def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts())
