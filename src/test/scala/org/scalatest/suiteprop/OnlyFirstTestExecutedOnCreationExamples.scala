@@ -77,6 +77,21 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     override val expectFirstTestToRunInInitialInstance = false
   }
   
+  class OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
+    import counts._
+    instanceCount += 1
+    describe("A subject") {
+    }
+    describe("Another subject") {
+      describe("when created") {
+        it("first test") { firstTestCount += 1 }
+      }
+    }
+    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(counts)
+    override val expectedTotalTestsCount = 1
+    override val expectFirstTestToRunInInitialInstance = false
+  }
+
   class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services {
     import counts._
     instanceCount += 1
@@ -151,6 +166,7 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
   def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts(0, 0, 0))
   def oneTestSiblingEmptyNestedPathFunSpec = new OneTestSiblingEmptyNestedPathFunSpecExample(Counts(0, 0, 0))
+  def oneTestSiblingEmptyDeeplyNestedPathFunSpec = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
   def pathFunSpec = new PathFunSpecExample(Counts(0, 0, 0))
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts(0, 0, 0))
