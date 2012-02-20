@@ -26,4 +26,15 @@ class PathSuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPrope
       }
     }
   }
+
+  property("A path trait should run only the path to and from each test") {
+    new PathBeforeAndAfterExamples {
+      forAll (examples) { suite =>
+        suite.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
+        suite.firstTestCounts should be (suite.expectedFirstTestCounts)
+        suite.secondTestCounts should be (suite.expectedSecondTestCounts)
+        suite.counts should be (suite.expectedCounts)
+      }
+    }
+  }
 }
