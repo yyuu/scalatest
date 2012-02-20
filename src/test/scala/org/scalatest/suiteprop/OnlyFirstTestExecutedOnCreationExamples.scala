@@ -59,6 +59,18 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     override def newInstance = new NestedPathFunSpecExample(counts)
   }
 
+  class SiblingNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with NestedTestNames {
+    import counts._
+    instanceCount += 1
+    describe("A subject") {
+      it("should first test") { firstTestCount += 1 }
+    }
+    describe("Another subject") {
+      it("should second test") { secondTestCount += 1 }
+    }
+    override def newInstance = new SiblingNestedPathFunSpecExample(counts)
+  }
+
   class DeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with DeeplyNestedTestNames {
     import counts._
     instanceCount += 1
@@ -73,6 +85,7 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
 
   def pathFunSpec = new PathFunSpecExample(Counts(0, 0, 0))
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0, 0, 0))
+  def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts(0, 0, 0))
   def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
 }
 

@@ -9,6 +9,7 @@ trait PathSuiteExamples extends Tables {
 
   def pathFunSpec: path.FunSpec with FixtureServices
   def nestedPathFunSpec: path.FunSpec with FixtureServices
+  def siblingNestedPathFunSpec: path.FunSpec with FixtureServices
   def deeplyNestedPathFunSpec: path.FunSpec with FixtureServices
   
   def examples =
@@ -16,6 +17,7 @@ trait PathSuiteExamples extends Tables {
     "path suite",
     pathFunSpec,
     nestedPathFunSpec,
+    siblingNestedPathFunSpec,
     deeplyNestedPathFunSpec
   )
 }
