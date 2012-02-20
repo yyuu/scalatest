@@ -10,8 +10,10 @@ class PathSuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPrope
 
     new OnlyFirstTestExecutedOnCreationExamples {
       forAll (examples) { suite =>
-        suite.counts.firstTestCount should be (1)
-        suite.counts.secondTestCount should be (0)
+        whenever (suite.hasTwoTests) {
+          suite.counts.firstTestCount should be (1)
+          suite.counts.secondTestCount should be (0)
+        }
       }
     }
   }
@@ -19,10 +21,12 @@ class PathSuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPrope
   property("A path trait should run each test once, in its own instance") {
     new OnlyFirstTestExecutedOnCreationExamples {
       forAll (examples) { suite =>
-        suite.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
-        suite.counts.firstTestCount should be (1)
-        suite.counts.secondTestCount should be (1)
-        suite.counts.instanceCount should be (2)
+        whenever (suite.hasTwoTests) {
+          suite.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
+          suite.counts.firstTestCount should be (1)
+          suite.counts.secondTestCount should be (1)
+          suite.counts.instanceCount should be (2)
+        }
       }
     }
   }
