@@ -146,10 +146,32 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
     val expectedCounts = Counts(before0 = 2, before00 = 1, before000 = 1, after000 = 1, after00 = 1, middle = 2, before01 = 1, before010 = 1, after010 = 1, after01 = 1,  after0 = 2)
   }
 
+  class AsymetricalDeeplyNestedPathFunSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FunSpec with Services {
+    import counts._
+    before0 += 1
+    describe("A subject") {
+      before00 += 1
+      describe("when created") {
+        before000 += 1
+        it("should first test") { firstTestCounts = counts.copy() }
+        after000 += 1
+      }
+      middle += 1
+      it("should second test") { initialInstance.get.secondTestCounts = counts.copy() }
+      after00 += 1
+    }
+    after0 += 1
+    override def newInstance = new AsymetricalDeeplyNestedPathFunSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1, before000 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 2, before000 = 1, after000 = 1, middle = 2, after00 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 2, before000 = 1, after000 = 1, middle = 2, after00 = 2, after0 = 2)
+  }
+
   def pathFunSpec = new PathFunSpecExample(Counts())
   def nestedPathFunSpec = new NestedPathFunSpecExample(Counts())
   def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts())
   def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts())
   def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample(Counts())
+  def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample(Counts())
 }
 

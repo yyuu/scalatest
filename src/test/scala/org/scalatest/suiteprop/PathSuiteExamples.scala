@@ -12,6 +12,7 @@ trait PathSuiteExamples extends Tables {
   def siblingNestedPathFunSpec: path.FunSpec with FixtureServices
   def deeplyNestedPathFunSpec: path.FunSpec with FixtureServices
   def siblingDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
+  def asymetricalDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
   
   def examples =
   Table(
@@ -20,6 +21,7 @@ trait PathSuiteExamples extends Tables {
     nestedPathFunSpec,
     siblingNestedPathFunSpec,
     deeplyNestedPathFunSpec,
-    siblingDeeplyNestedPathFunSpec
+    siblingDeeplyNestedPathFunSpec,
+    asymetricalDeeplyNestedPathFunSpec
   )
 }
