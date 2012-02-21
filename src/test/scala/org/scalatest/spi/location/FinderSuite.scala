@@ -21,52 +21,38 @@ class FinderSuite extends FunSuite {
 
   test("MethodFinder should find test name for tests written in test suite that extends org.scalatest.Suite") {
     class TestingSuite extends Suite {
-      def testMethod1() {
+      def testMethod1(aParam: String) {
         
       }
       def testMethod2() {
         
       }
       def testMethod3() {
-        
+        def testNested() {
+          
+        }
       }
     }
+    
     val suiteClass = classOf[TestingSuite]
+    val suiteConstructor = new ConstructorBlock(suiteClass.getName, Array.empty)
+    val testMethod1 = MethodDefinition(suiteClass.getName, suiteConstructor, Array.empty, "testMethod1", "java.lang.String")
+    val testMethod2 = MethodDefinition(suiteClass.getName, suiteConstructor, Array.empty, "testMethod2")
+    val testMethod3 = MethodDefinition(suiteClass.getName, suiteConstructor, Array.empty, "testMethod3")
+    val testNested = MethodDefinition(suiteClass.getName, testMethod3, Array.empty, "testNested")
+    
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.Suite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.Suite should use MethodFinder.")
-    val selectionMethod1 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
-    expectSelection(selectionMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val selectionMethod2 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
+    val selectionMethod1 = finder.find(testMethod1)
+    expect(None)(selectionMethod1)
+    val selectionMethod2 = finder.find(testMethod2)
     expectSelection(selectionMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val selectionMethod3 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
+    val selectionMethod3 = finder.find(testMethod3)
     expectSelection(selectionMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
-  }
-  
-  test("MethodFinder should find test name for tests written in test suite that extends org.scalatest.fixture.FixtureSuite") {
-    class TestingSuite extends FixtureSuite with StringFixture {
-      def testMethod1() { arg: String =>
-        
-      }
-      def testMethod2() { arg: String =>
-        
-      }
-      def testMethod3() { arg: String =>
-        
-      }
-    }
-    val suiteClass = classOf[TestingSuite]
-    val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
-    assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.fixture.FixtureSuite.")
-    val finder = finderOpt.get
-    assert(finder.getClass == classOf[MethodFinder], "Suite that uses org.scalatest.fixture.FixtureSuite should use MethodFinder.")
-    val selectionMethod1 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod1"))
-    expectSelection(selectionMethod1, suiteClass.getName, suiteClass.getName + ".testMethod1", Array("testMethod1"))
-    val selectionMethod2 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod2"))
-    expectSelection(selectionMethod2, suiteClass.getName, suiteClass.getName + ".testMethod2", Array("testMethod2"))
-    val selectionMethod3 = finder.find(MethodDefinition(suiteClass.getName, null, Array.empty, "testMethod3"))
-    expectSelection(selectionMethod3, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
+    val selectionNested = finder.find(testNested)
+    expectSelection(selectionNested, suiteClass.getName, suiteClass.getName + ".testMethod3", Array("testMethod3"))
   }
   
   test("FunctionFinder should find test name for tests written in test suite that extends org.scalatest.FunSuite") {
@@ -75,23 +61,34 @@ class FinderSuite extends FunSuite {
         
       }
       test("test 2") {
-        
+        test("nested") {
+          
+        }
       }
       test("test 3") {
         
       }
     }
+    
     val suiteClass = classOf[TestingFunSuite]
+    val suiteConstructor = ConstructorBlock(suiteClass.getName, Array.empty)
+    val test1 = MethodInvocation(suiteClass.getName, null, suiteConstructor, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 1"))
+    val test2 = MethodInvocation(suiteClass.getName, null, suiteConstructor, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 2"))
+    val nested = MethodInvocation(suiteClass.getName, null, test2, Array.empty, "test", StringLiteral(suiteClass.getName, null, "nested"))
+    val test3 = MethodInvocation(suiteClass.getName, null, suiteConstructor, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 3"))
+    
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FunSuite.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FunctionFinder], "Suite that uses org.scalatest.FunSuite should use FunctionFinder.")
-    val test1 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 1")))
-    expectSelection(test1, suiteClass.getName, suiteClass.getName + ": \"test 1\"", Array("test 1"))
-    val test2 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 2")))
-    expectSelection(test2, suiteClass.getName, suiteClass.getName + ": \"test 2\"", Array("test 2"))
-    val test3 = finder.find(MethodInvocation(suiteClass.getName, null, null, Array.empty, "test", StringLiteral(suiteClass.getName, null, "test 3")))
-    expectSelection(test3, suiteClass.getName, suiteClass.getName + ": \"test 3\"", Array("test 3"))
+    val test1Selection = finder.find(test1)
+    expectSelection(test1Selection, suiteClass.getName, suiteClass.getName + ": \"test 1\"", Array("test 1"))
+    val test2Selection = finder.find(test2)
+    expectSelection(test2Selection, suiteClass.getName, suiteClass.getName + ": \"test 2\"", Array("test 2"))
+    val nestedSelection = finder.find(nested)
+    expectSelection(nestedSelection, suiteClass.getName, suiteClass.getName + ": \"test 2\"", Array("test 2"))
+    val test3Selection = finder.find(test3)
+    expectSelection(test3Selection, suiteClass.getName, suiteClass.getName + ": \"test 3\"", Array("test 3"))
   }
   
   test("FeatureSpecFinder should find test name for tests written in test suite that extends org.scalatest.FeatureSpec") {
@@ -101,7 +98,9 @@ class FinderSuite extends FunSuite {
           
         }
         scenario("scenario 2") {
-          
+          scenario("nested") {
+            
+          }
         }
       }
       feature("feature 2") {
@@ -115,25 +114,27 @@ class FinderSuite extends FunSuite {
     }
     
     val suiteClass = classOf[TestingFeatureSpec]
+    val featureSpecConstructor = ConstructorBlock(suiteClass.getName, Array.empty)
+    val feature1: MethodInvocation = MethodInvocation(suiteClass.getName, null, featureSpecConstructor, Array(), "feature", StringLiteral(suiteClass.getName, null, "feature 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    val feature1Scenario1 = MethodInvocation(suiteClass.getName, null, feature1, Array.empty, "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    val feature1Scenario2 = MethodInvocation(suiteClass.getName, null, feature1, Array.empty, "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    val nestedScenario = MethodInvocation(suiteClass.getName, null, feature1Scenario2, Array.empty, "scenario", StringLiteral(suiteClass.getName, null, "nested"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    
+    val feature2: MethodInvocation = MethodInvocation(suiteClass.getName, null, featureSpecConstructor, Array.empty, "feature", StringLiteral(suiteClass.getName, null, "feature 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    val feature2Scenario1 = MethodInvocation(suiteClass.getName, null, feature2, Array.empty, "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    val feature2Scenario2 = MethodInvocation(suiteClass.getName, null, feature2, Array.empty, "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
+    
     val finderOpt: Option[Finder] = LocationUtils.getFinder(suiteClass)
     assert(finderOpt.isDefined, "Finder not found for suite that uses org.scalatest.FeatureSpec.")
     val finder = finderOpt.get
     assert(finder.getClass == classOf[FeatureSpecFinder], "Suite that uses org.scalatest.FeatureSpec should use FeatureSpecFinder.")
     
-    val feature1: MethodInvocation = MethodInvocation(suiteClass.getName, null, null, Array(), "feature", StringLiteral(suiteClass.getName, null, "feature 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val feature1Scenario1 = MethodInvocation(suiteClass.getName, null, feature1, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val feature1Scenario2 = MethodInvocation(suiteClass.getName, null, feature1, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    
-    val feature2: MethodInvocation = MethodInvocation(suiteClass.getName, null, null, Array(), "feature", StringLiteral(suiteClass.getName, null, "feature 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val feature2Scenario1 = MethodInvocation(suiteClass.getName, null, feature2, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 1"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val feature2Scenario2 = MethodInvocation(suiteClass.getName, null, feature2, Array(), "scenario", StringLiteral(suiteClass.getName, null, "scenario 2"), ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    
-    val featureSpecConstructor = ConstructorBlock(suiteClass.getName, Array(feature1, feature2))
-    
     val f1s1 = finder.find(feature1Scenario1)                      
     expectSelection(f1s1, suiteClass.getName, "feature 1 scenario 1", Array("feature 1 scenario 1"))
     val f1s2 = finder.find(feature1Scenario2)
     expectSelection(f1s2, suiteClass.getName, "feature 1 scenario 2", Array("feature 1 scenario 2"))
+    val ns = finder.find(nestedScenario)
+    expectSelection(ns, suiteClass.getName, "feature 1 scenario 2", Array("feature 1 scenario 2"))
     
     val f2s1 = finder.find(feature2Scenario1)
     expectSelection(f2s1, suiteClass.getName, "feature 2 scenario 1", Array("feature 2 scenario 1"))
