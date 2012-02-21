@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.ConcurrentModificationException
 import org.scalatest.events._
 import Suite.anErrorThatShouldCauseAnAbort
-import org.scalatest.spi.location.FeatureSpecFinder
 
 /**
  * A sister trait to <code>org.scalatest.FeatureSpec</code> that can pass a fixture object into its tests.
@@ -375,7 +374,7 @@ import org.scalatest.spi.location.FeatureSpecFinder
  *
  * @author Bill Venners
  */
-@Style(classOf[FeatureSpecFinder])
+@Style("org.scalatest.finders.FeatureSpecFinder")
 trait FixtureFeatureSpec extends FixtureSuite { thisSuite =>
 
   private final val engine = new FixtureEngine[FixtureParam]("concurrentFeatureSpecMod", "FixtureFeatureSpec")

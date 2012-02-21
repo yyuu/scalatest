@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.ConcurrentModificationException
 import org.scalatest.events._
 import Suite.anErrorThatShouldCauseAnAbort
-import org.scalatest.spi.location.FreeSpecFinder
 
 /**
  * Trait that facilitates a &#8220;behavior-driven&#8221; style of development (BDD), in which tests
@@ -1477,7 +1476,7 @@ import org.scalatest.spi.location.FreeSpecFinder
  *
  * @author Bill Venners
  */
-@Style(classOf[FreeSpecFinder])
+@Style("org.scalatest.finders.FreeSpecFinder")
 trait FreeSpec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFreeSpecMod", "FreeSpec")

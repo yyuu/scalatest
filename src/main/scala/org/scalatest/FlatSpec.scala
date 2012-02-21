@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.ConcurrentModificationException
 import org.scalatest.events._
 import Suite.anErrorThatShouldCauseAnAbort
-import org.scalatest.spi.location.FlatSpecFinder
 
 /**
  * Trait that facilitates a &#8220;behavior-driven&#8221; style of development (BDD), in which tests
@@ -1422,7 +1421,7 @@ import org.scalatest.spi.location.FlatSpecFinder
  *
  * @author Bill Venners
  */
-@Style(classOf[FlatSpecFinder])
+@Style("org.scalatest.finders.FlatSpecFinder")
 trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSuite =>
 
   private final val engine = new Engine("concurrentSpecMod", "Spec")

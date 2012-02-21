@@ -27,7 +27,6 @@ import FixtureSuite.simpleNameForTest
 import FixtureSuite.argsArrayForTestName
 import org.scalatest.events._
 import org.scalatest.Suite._
-import org.scalatest.spi.location.MethodFinder
 
 /**
  * <code>Suite</code> that can pass a fixture object into its tests.
@@ -370,7 +369,7 @@ import org.scalatest.spi.location.MethodFinder
  *
  * @author Bill Venners
  */
-@Style(classOf[MethodFinder])
+@Style("org.scalatest.finders.MethodFinder")
 trait FixtureSuite extends org.scalatest.Suite { thisSuite =>
 
   /**

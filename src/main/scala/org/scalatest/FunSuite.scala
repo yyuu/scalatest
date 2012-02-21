@@ -22,7 +22,6 @@ import org.scalatest.StackDepthExceptionHelper.getStackDepth
 import org.scalatest.events._
 import Suite.anErrorThatShouldCauseAnAbort
 import Suite.checkRunTestParamsForNull
-import org.scalatest.spi.location.FunctionFinder
 
 /**
  * A suite of tests in which each test is represented as a function value. The &#8220;<code>Fun</code>&#8221; in <code>FunSuite</code> stands
@@ -1180,7 +1179,7 @@ import org.scalatest.spi.location.FunctionFinder
  *
  * @author Bill Venners
  */
-@Style(classOf[FunctionFinder])
+@Style("org.scalatest.finders.FunctionFinder")
 trait FunSuite extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentFunSuiteMod", "FunSuite")
