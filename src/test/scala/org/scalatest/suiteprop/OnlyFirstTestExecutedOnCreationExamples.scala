@@ -170,6 +170,125 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     override val expectedTotalTestsCount = 0
   }
 
+  class EmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+    }
+    override def newInstance = new EmptyNestedPathFreeSpecExample(counts)
+    override val expectedInstanceCount = 1
+    override val expectedTotalTestsCount = 0
+  }
+
+  class SiblingEmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+    }
+    "Another subject" - {
+    }
+    override def newInstance = new SiblingEmptyNestedPathFreeSpecExample(counts)
+    override val expectedTotalTestsCount = 0
+  }
+
+  class OneTestSiblingEmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+    }
+    "Another subject" - {
+      "first test" in { firstTestCount += 1 }
+    }
+    override def newInstance = new OneTestSiblingEmptyNestedPathFreeSpecExample(counts)
+    override val expectedTotalTestsCount = 1
+    override val expectFirstTestToRunInInitialInstance = false
+  }
+  
+  class OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+    }
+    "Another subject" - {
+      "when created" - {
+        "first test" in { firstTestCount += 1 }
+      }
+    }
+    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(counts)
+    override val expectedTotalTestsCount = 1
+    override val expectFirstTestToRunInInitialInstance = false
+  }
+
+  class PathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "first test" in { firstTestCount += 1 }
+    "second test" in { secondTestCount += 1 }
+    override def newInstance = new PathFreeSpecExample(counts)
+  }
+
+  class NestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+      "should first test" in { firstTestCount += 1 }
+      "should second test" in { secondTestCount += 1 }
+    }
+    override def newInstance = new NestedPathFreeSpecExample(counts)
+  }
+
+  class SiblingNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+      "should first test" in { firstTestCount += 1 }
+    }
+    "Another subject" - {
+      "should second test" in { secondTestCount += 1 }
+    }
+    override def newInstance = new SiblingNestedPathFreeSpecExample(counts)
+  }
+
+  class DeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+      "when created" - {
+        "should first test" in { firstTestCount += 1 }
+        "should second test" in { secondTestCount += 1 }
+      }
+    }
+    override def newInstance = new DeeplyNestedPathFreeSpecExample(counts)
+  }
+
+  class SiblingDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+      "when created" - {
+        "should first test" in { firstTestCount += 1 }
+      }
+    }
+    "Another subject" - {
+      "when created" - {
+        "should second test" in { secondTestCount += 1 }
+      }
+    }
+    override def newInstance = new SiblingDeeplyNestedPathFreeSpecExample(counts)
+  }
+
+  class AsymetricalDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    "A subject" - {
+      "when created" - {
+        "should first test" in { firstTestCount += 1 }
+      }
+      "should second test" in { secondTestCount += 1 }
+    }
+    override def newInstance = new AsymetricalDeeplyNestedPathFreeSpecExample(counts)
+  }
+
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts(0, 0, 0))
   def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts(0, 0, 0))
@@ -182,5 +301,15 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
   def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
   def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
   def emptyPathFreeSpec = new EmptyPathFreeSpecExample(Counts(0, 0, 0))
+  def emptyNestedPathFreeSpec = new EmptyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def siblingEmptyNestedPathFreeSpec = new SiblingEmptyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def oneTestSiblingEmptyNestedPathFreeSpec = new OneTestSiblingEmptyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def oneTestSiblingEmptyDeeplyNestedPathFreeSpec = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def pathFreeSpec = new PathFreeSpecExample(Counts(0, 0, 0))
+  def nestedPathFreeSpec = new NestedPathFreeSpecExample(Counts(0, 0, 0))
+  def siblingNestedPathFreeSpec = new SiblingNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def siblingDeeplyNestedPathFreeSpec = new SiblingDeeplyNestedPathFreeSpecExample(Counts(0, 0, 0))
+  def asymetricalDeeplyNestedPathFreeSpec = new AsymetricalDeeplyNestedPathFreeSpecExample(Counts(0, 0, 0))
 }
 

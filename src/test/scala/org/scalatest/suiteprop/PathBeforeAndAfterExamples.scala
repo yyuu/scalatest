@@ -258,7 +258,201 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
     val expectedSecondTestCounts = Counts()
     val expectedCounts = Counts(middle = 1)
   }
+  
+  class EmptyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      middle += 1
+    }
+    after0 += 1
+    override def newInstance = new EmptyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts()
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 1, middle = 1, after0 = 1)
+  }
 
+  class SiblingEmptyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+    }
+    middle += 1
+    "Another subject" - {
+      before01 += 1
+    }
+    after0 += 1
+    override def newInstance = new SiblingEmptyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts()
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after0 = 2)
+  }
+
+  class OneTestSiblingEmptyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+    }
+    middle += 1
+    "Another subject" - {
+      before01 += 1
+      "first test" in { initialInstance.get.firstTestCounts = counts.copy() }
+      after01 += 1
+    }
+    after0 += 1
+    override def newInstance = new OneTestSiblingEmptyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after0 = 1)
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, after01 = 1, after0 = 2)
+  }
+
+  class OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+    }
+    middle += 1
+    "Another subject" - {
+      before01 += 1
+      "when created" - {
+        before010 += 1
+        "first test" in { initialInstance.get.firstTestCounts = counts.copy() }
+        after010 += 1
+      }
+      after01 += 1
+    }
+    after0 += 1
+    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, before010 = 1, after0 = 1)
+    val expectedSecondTestCounts = Counts()
+    val expectedCounts = Counts(before0 = 2, before00 = 1, middle = 2, before01 = 1, before010 = 1, after010 = 1, after01 = 1, after0 = 2)
+  }
+
+  class PathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "first test" in { firstTestCounts = counts.copy() }
+    middle += 1
+    "second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+    after0 += 1
+    override def newInstance = new PathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, middle = 2, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, middle = 2, after0 = 2)
+  }
+
+  class NestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+      "should first test" in { firstTestCounts = counts.copy() }
+      middle += 1
+      "should second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+      after00 += 1
+    }
+    after0 += 1
+    override def newInstance = new NestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 2, middle = 2, after00 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 2, middle = 2, after00 = 2, after0 = 2)
+  }
+
+  class SiblingNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+      "should first test" in { firstTestCounts = counts.copy() }
+      after00 += 1
+    }
+    middle += 1
+    "Another subject" - {
+      before01 += 1
+      "should second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+      after01 += 1
+    }
+    after0 += 1
+    override def newInstance = new SiblingNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 1, after00 = 1, middle = 2, before01 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 1, after01 = 1, middle = 2, before01 = 1, after00 = 1, after0 = 2)
+  }
+
+  class DeeplyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+      "when created" - {
+        before000 += 1
+        "should first test" in { firstTestCounts = counts.copy() }
+        middle += 1
+        "should second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+        after000 += 1
+      }
+      after00 += 1
+    }
+    after0 += 1
+    override def newInstance = new DeeplyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1, before000 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 2, before000 = 2, middle = 2, after000 = 1, after00 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 2, before000 = 2, middle = 2, after000 = 2, after00 = 2, after0 = 2)
+  }
+
+  class SiblingDeeplyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+      "when created" - {
+        before000 += 1
+        "should first test" in { firstTestCounts = counts.copy() }
+        after000 += 1
+      }
+      after00 += 1
+    }
+    middle += 1
+    "Another subject" - {
+      before01 += 1 
+      "when created" - {
+        before010 += 1
+        "should second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+        after010 += 1
+      }
+      after01 += 1
+    }
+    after0 += 1
+    override def newInstance = new SiblingDeeplyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1, before000 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 1, before000 = 1, after000 = 1, after00 = 1, middle = 2, before01 = 1, before010 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 1, before000 = 1, after000 = 1, after00 = 1, middle = 2, before01 = 1, before010 = 1, after010 = 1, after01 = 1,  after0 = 2)
+  }
+
+  class AsymetricalDeeplyNestedPathFreeSpecExample(val counts: Counts, initialInstance: Option[Services] = None) extends path.FreeSpec with Services {
+    import counts._
+    before0 += 1
+    "A subject" - {
+      before00 += 1
+      "when created" - {
+        before000 += 1
+        "should first test" in { firstTestCounts = counts.copy() }
+        after000 += 1
+      }
+      middle += 1
+      "should second test" in { initialInstance.get.secondTestCounts = counts.copy() }
+      after00 += 1
+    }
+    after0 += 1
+    override def newInstance = new AsymetricalDeeplyNestedPathFreeSpecExample(counts, Some(this))
+    val expectedFirstTestCounts = Counts(before0 = 1, before00 = 1, before000 = 1)
+    val expectedSecondTestCounts = Counts(before0 = 2, before00 = 2, before000 = 1, after000 = 1, middle = 2, after00 = 1, after0 = 1)
+    val expectedCounts = Counts(before0 = 2, before00 = 2, before000 = 1, after000 = 1, middle = 2, after00 = 2, after0 = 2)
+  }
+  
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts())
   def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts())
   def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts())
@@ -271,5 +465,15 @@ class PathBeforeAndAfterExamples extends PathSuiteExamples {
   def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample(Counts())
   def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample(Counts())
   def emptyPathFreeSpec = new EmptyPathFreeSpecExample(Counts())
+  def emptyNestedPathFreeSpec = new EmptyNestedPathFreeSpecExample(Counts())
+  def siblingEmptyNestedPathFreeSpec = new SiblingEmptyNestedPathFreeSpecExample(Counts())
+  def oneTestSiblingEmptyNestedPathFreeSpec = new OneTestSiblingEmptyNestedPathFreeSpecExample(Counts())
+  def oneTestSiblingEmptyDeeplyNestedPathFreeSpec = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(Counts())
+  def pathFreeSpec = new PathFreeSpecExample(Counts())
+  def nestedPathFreeSpec = new NestedPathFreeSpecExample(Counts())
+  def siblingNestedPathFreeSpec = new SiblingNestedPathFreeSpecExample(Counts())
+  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample(Counts())
+  def siblingDeeplyNestedPathFreeSpec = new SiblingDeeplyNestedPathFreeSpecExample(Counts())
+  def asymetricalDeeplyNestedPathFreeSpec = new AsymetricalDeeplyNestedPathFreeSpecExample(Counts())
 }
 
