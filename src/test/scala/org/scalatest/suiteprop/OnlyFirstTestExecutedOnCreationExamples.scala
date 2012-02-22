@@ -162,6 +162,14 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
     override def newInstance = new AsymetricalDeeplyNestedPathFunSpecExample(counts)
   }
 
+  class EmptyPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services {
+    import counts._
+    instanceCount += 1
+    override def newInstance = new EmptyPathFreeSpecExample(counts)
+    override val expectedInstanceCount = 1
+    override val expectedTotalTestsCount = 0
+  }
+
   def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts(0, 0, 0))
   def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts(0, 0, 0))
@@ -173,5 +181,6 @@ class OnlyFirstTestExecutedOnCreationExamples extends PathSuiteExamples {
   def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
   def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
   def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample(Counts(0, 0, 0))
+  def emptyPathFreeSpec = new EmptyPathFreeSpecExample(Counts(0, 0, 0))
 }
 
