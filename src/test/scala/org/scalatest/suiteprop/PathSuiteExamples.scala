@@ -3,7 +3,7 @@ package org.scalatest.suiteprop
 import org.scalatest._
 import prop.Tables
 
-trait PathSuiteExamples extends Tables {
+abstract class PathSuiteExamples extends Tables {
 
   type FixtureServices
 
