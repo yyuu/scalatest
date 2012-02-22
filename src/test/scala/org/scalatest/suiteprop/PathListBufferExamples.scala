@@ -94,11 +94,10 @@ class PathListBufferExamples extends PathSuiteExamples {
     counts.instanceCount += 1
     val expectedInstanceCount = 8
    
-    describe("A subject") {
-    }
-
     describe("A ListBuffer") {
       val buf = ListBuffer.empty[Int]
+      describe("A subject") {
+      }
       it("should be empty when created") {
         buf should be ('empty)
         buf += 99 // Mutate to make sure no other test sees this
@@ -153,13 +152,12 @@ class PathListBufferExamples extends PathSuiteExamples {
    counts.instanceCount += 1
    val expectedInstanceCount = 9
    
-   describe("A subject") {
-   }
-   describe("Another subject") {
-   }
-
    describe("A ListBuffer") {
       val buf = ListBuffer.empty[Int]
+      describe("A subject") {
+      }
+      describe("Another subject") {
+      }
       it("should be empty when created") {
         buf should be ('empty)
         buf += 99 // Mutate to make sure no other test sees this
@@ -214,13 +212,12 @@ class PathListBufferExamples extends PathSuiteExamples {
    counts.instanceCount += 1
    val expectedInstanceCount = 9
    
-   describe("A subject") {
-   }
-   describe("Another subject") {
-   }
-
    describe("A ListBuffer") {
       val buf = ListBuffer.empty[Int]
+      describe("A subject") {
+      }
+      describe("Another subject") {
+      }
       it("should be empty when created") {
         buf should be ('empty)
         buf += 99 // Mutate to make sure no other test sees this
