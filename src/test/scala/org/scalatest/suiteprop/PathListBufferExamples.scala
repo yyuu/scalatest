@@ -22,238 +22,80 @@ import scala.collection.mutable.ListBuffer
 
 class PathListBufferExamples extends PathSuiteExamples {
 
-  type FixtureServices = AnyRef
-
-  class EmptyPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-
-   describe("A ListBuffer") {
-      val buf = ListBuffer.empty[Int]
-      it("should be empty when created") {
-        buf should be ('empty)
-        buf += 99 // Mutate to make sure no other test sees this
-      }
-      describe("when 1 is appended") {
-        buf += 1
-        it("should contain 1") {
-          buf should equal (Seq(1))
-          buf += 99 // Mutate to make sure no other test sees this
-        }
-        describe("when 2 is appended") {
-          buf += 2
-          it("should contain 1 and 2") {
-            buf should equal (Seq(1, 2))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-          describe("when 2 is removed") {
-            buf -= 2
-            it("should contain only 1 again") {
-              buf should equal (Seq(1))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
-            buf += 3
-            it("should contain 1, 2, and 3") {
-              buf should equal (Seq(1, 2, 3))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-        }
-        describe("when 88 is appended") {
-          buf += 88
-          it("should contain 1 and 88") {
-            buf should equal (Seq(1, 88))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-        }
-      }
-      // At end of previous describe, buf equaled List(1). Now doing it again to make
-      // sure that it is empty
-      it("should again be empty") {
-        buf should be ('empty)
-      }
-    }
-
-    override def newInstance = new EmptyPathFunSpecExample
-  }
-
-  class EmptyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-
-   describe("A subject") {
-   }
-
-   describe("A ListBuffer") {
-      val buf = ListBuffer.empty[Int]
-      it("should be empty when created") {
-        buf should be ('empty)
-        buf += 99 // Mutate to make sure no other test sees this
-      }
-      describe("when 1 is appended") {
-        buf += 1
-        it("should contain 1") {
-          buf should equal (Seq(1))
-          buf += 99 // Mutate to make sure no other test sees this
-        }
-        describe("when 2 is appended") {
-          buf += 2
-          it("should contain 1 and 2") {
-            buf should equal (Seq(1, 2))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-          describe("when 2 is removed") {
-            buf -= 2
-            it("should contain only 1 again") {
-              buf should equal (Seq(1))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
-            buf += 3
-            it("should contain 1, 2, and 3") {
-              buf should equal (Seq(1, 2, 3))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-        }
-        describe("when 88 is appended") {
-          buf += 88
-          it("should contain 1 and 88") {
-            buf should equal (Seq(1, 88))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-        }
-      }
-      // At end of previous describe, buf equaled List(1). Now doing it again to make
-      // sure that it is empty
-      it("should again be empty") {
-        buf should be ('empty)
-      }
-    }
-
-    override def newInstance = new EmptyNestedPathFunSpecExample
-  }
-
-  class SiblingEmptyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-
-   describe("A subject") {
-   }
-   describe("Another subject") {
-   }
-
-   describe("A ListBuffer") {
-      val buf = ListBuffer.empty[Int]
-      it("should be empty when created") {
-        buf should be ('empty)
-        buf += 99 // Mutate to make sure no other test sees this
-      }
-      describe("when 1 is appended") {
-        buf += 1
-        it("should contain 1") {
-          buf should equal (Seq(1))
-          buf += 99 // Mutate to make sure no other test sees this
-        }
-        describe("when 2 is appended") {
-          buf += 2
-          it("should contain 1 and 2") {
-            buf should equal (Seq(1, 2))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-          describe("when 2 is removed") {
-            buf -= 2
-            it("should contain only 1 again") {
-              buf should equal (Seq(1))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
-            buf += 3
-            it("should contain 1, 2, and 3") {
-              buf should equal (Seq(1, 2, 3))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-        }
-        describe("when 88 is appended") {
-          buf += 88
-          it("should contain 1 and 88") {
-            buf should equal (Seq(1, 88))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-        }
-      }
-      // At end of previous describe, buf equaled List(1). Now doing it again to make
-      // sure that it is empty
-      it("should again be empty") {
-        buf should be ('empty)
-      }
-    }
-
-    override def newInstance = new SiblingEmptyNestedPathFunSpecExample
-  }
-
-  class OneTestSiblingEmptyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-
-   describe("A subject") {
-   }
-   describe("Another subject") {
-   }
-
-   describe("A ListBuffer") {
-      val buf = ListBuffer.empty[Int]
-      it("should be empty when created") {
-        buf should be ('empty)
-        buf += 99 // Mutate to make sure no other test sees this
-      }
-      describe("when 1 is appended") {
-        buf += 1
-        it("should contain 1") {
-          buf should equal (Seq(1))
-          buf += 99 // Mutate to make sure no other test sees this
-        }
-        describe("when 2 is appended") {
-          buf += 2
-          it("should contain 1 and 2") {
-            buf should equal (Seq(1, 2))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-          describe("when 2 is removed") {
-            buf -= 2
-            it("should contain only 1 again") {
-              buf should equal (Seq(1))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
-            buf += 3
-            it("should contain 1, 2, and 3") {
-              buf should equal (Seq(1, 2, 3))
-              buf += 99 // Mutate to make sure no other test sees this
-            }
-          }
-        }
-        describe("when 88 is appended") {
-          buf += 88
-          it("should contain 1 and 88") {
-            buf should equal (Seq(1, 88))
-            buf += 99 // Mutate to make sure no other test sees this
-          }
-        }
-      }
-      // At end of previous describe, buf equaled List(1). Now doing it again to make
-      // sure that it is empty
-      it("should again be empty") {
-        buf should be ('empty)
-      }
-    }
-
-    override def newInstance = new OneTestSiblingEmptyNestedPathFunSpecExample
-  }
+  case class Counts(
+    var instanceCount: Int
+  )
   
-  class OneTestSiblingEmptyDeeplyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample
+  trait Services {
+    val expectedInstanceCount: Int
+    val counts: Counts
   }
 
-  class PathFunSpecExample extends path.FunSpec with ShouldMatchers {
+  type FixtureServices = Services
+
+  class EmptyPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+   counts.instanceCount += 1
+   val expectedInstanceCount = 7
+   
+   describe("A ListBuffer") {
+      val buf = ListBuffer.empty[Int]
+      it("should be empty when created") {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        buf += 1
+        it("should contain 1") {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          buf += 2
+          it("should contain 1 and 2") {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            buf -= 2
+            it("should contain only 1 again") {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            it("should contain 1, 2, and 3") {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          buf += 88
+          it("should contain 1 and 88") {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        buf should be ('empty)
+      }
+    }
+
+    override def newInstance = new EmptyPathFunSpecExample(counts)
+  }
+
+  class EmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 8
+   
+    describe("A subject") {
+    }
 
     describe("A ListBuffer") {
       val buf = ListBuffer.empty[Int]
@@ -303,31 +145,240 @@ class PathListBufferExamples extends PathSuiteExamples {
       }
     }
 
-    override def newInstance = new PathFunSpecExample
+    override def newInstance = new EmptyNestedPathFunSpecExample(counts)
   }
 
-  class NestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new NestedPathFunSpecExample
+  class SiblingEmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+   counts.instanceCount += 1
+   val expectedInstanceCount = 9
+   
+   describe("A subject") {
+   }
+   describe("Another subject") {
+   }
+
+   describe("A ListBuffer") {
+      val buf = ListBuffer.empty[Int]
+      it("should be empty when created") {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        buf += 1
+        it("should contain 1") {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          buf += 2
+          it("should contain 1 and 2") {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            buf -= 2
+            it("should contain only 1 again") {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            it("should contain 1, 2, and 3") {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          buf += 88
+          it("should contain 1 and 88") {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        buf should be ('empty)
+      }
+    }
+
+    override def newInstance = new SiblingEmptyNestedPathFunSpecExample(counts)
   }
 
-  class SiblingNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new SiblingNestedPathFunSpecExample
+  class OneTestSiblingEmptyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+   counts.instanceCount += 1
+   val expectedInstanceCount = 9
+   
+   describe("A subject") {
+   }
+   describe("Another subject") {
+   }
+
+   describe("A ListBuffer") {
+      val buf = ListBuffer.empty[Int]
+      it("should be empty when created") {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        buf += 1
+        it("should contain 1") {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          buf += 2
+          it("should contain 1 and 2") {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            buf -= 2
+            it("should contain only 1 again") {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            it("should contain 1, 2, and 3") {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          buf += 88
+          it("should contain 1 and 88") {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        buf should be ('empty)
+      }
+    }
+
+    override def newInstance = new OneTestSiblingEmptyNestedPathFunSpecExample(counts)
+  }
+  
+  class OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(counts)
   }
 
-  class DeeplyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new DeeplyNestedPathFunSpecExample
+  class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 7
+   
+    describe("A ListBuffer") {
+      val buf = ListBuffer.empty[Int]
+      it("should be empty when created") {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        buf += 1
+        it("should contain 1") {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          buf += 2
+          it("should contain 1 and 2") {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            buf -= 2
+            it("should contain only 1 again") {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            it("should contain 1, 2, and 3") {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          buf += 88
+          it("should contain 1 and 88") {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        buf should be ('empty)
+      }
+    }
+
+    override def newInstance = new PathFunSpecExample(counts)
   }
 
-  class SiblingDeeplyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new SiblingDeeplyNestedPathFunSpecExample
+  class NestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new NestedPathFunSpecExample(counts)
   }
 
-  class AsymetricalDeeplyNestedPathFunSpecExample extends path.FunSpec with ShouldMatchers {
-    override def newInstance = new AsymetricalDeeplyNestedPathFunSpecExample
+  class SiblingNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new SiblingNestedPathFunSpecExample(counts)
   }
 
-  class EmptyPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    
+  class DeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new DeeplyNestedPathFunSpecExample(counts)
+  }
+
+  class SiblingDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new SiblingDeeplyNestedPathFunSpecExample(counts)
+  }
+
+  class AsymetricalDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new AsymetricalDeeplyNestedPathFunSpecExample(counts)
+  }
+
+  class EmptyPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 7
+   
     "A ListBuffer" - {
       val buf = ListBuffer.empty[Int]
       "should be empty when created" in {
@@ -376,11 +427,14 @@ class PathListBufferExamples extends PathSuiteExamples {
       }
     }
 
-    override def newInstance = new EmptyPathFreeSpecExample
+    override def newInstance = new EmptyPathFreeSpecExample(counts)
   }
 
-  class EmptyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    
+  class EmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 8
+   
     "A subject" - {
     }
 
@@ -432,11 +486,14 @@ class PathListBufferExamples extends PathSuiteExamples {
       }
     }
 
-    override def newInstance = new EmptyNestedPathFreeSpecExample
+    override def newInstance = new EmptyNestedPathFreeSpecExample(counts)
   }
 
-  class SiblingEmptyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    
+  class SiblingEmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 9
+   
     "A subject" - {
     }
     "Another subject" - {
@@ -490,19 +547,30 @@ class PathListBufferExamples extends PathSuiteExamples {
       }
     }
 
-    override def newInstance = new SiblingEmptyNestedPathFreeSpecExample
+    override def newInstance = new SiblingEmptyNestedPathFreeSpecExample(counts)
   }
 
-  class OneTestSiblingEmptyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new OneTestSiblingEmptyNestedPathFreeSpecExample
+  class OneTestSiblingEmptyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new OneTestSiblingEmptyNestedPathFreeSpecExample(counts)
   }
   
-  class OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample
+  class OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(counts)
   }
 
-  class PathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    
+  class PathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 7
+   
     "A ListBuffer" - {
       val buf = ListBuffer.empty[Int]
       "should be empty when created" in {
@@ -551,50 +619,70 @@ class PathListBufferExamples extends PathSuiteExamples {
       }
     }
 
-    override def newInstance = new PathFreeSpecExample
+    override def newInstance = new PathFreeSpecExample(counts)
   }
 
-  class NestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new NestedPathFreeSpecExample
+  class NestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new NestedPathFreeSpecExample(counts)
   }
 
-  class SiblingNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new SiblingNestedPathFreeSpecExample
+  class SiblingNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new SiblingNestedPathFreeSpecExample(counts)
   }
 
-  class DeeplyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new DeeplyNestedPathFreeSpecExample
+  class DeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new DeeplyNestedPathFreeSpecExample(counts)
   }
 
-  class SiblingDeeplyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new SiblingDeeplyNestedPathFreeSpecExample
+  class SiblingDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new SiblingDeeplyNestedPathFreeSpecExample(counts)
   }
 
-  class AsymetricalDeeplyNestedPathFreeSpecExample extends path.FreeSpec with ShouldMatchers {
-    override def newInstance = new AsymetricalDeeplyNestedPathFreeSpecExample
+  class AsymetricalDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
+
+    counts.instanceCount += 1
+    val expectedInstanceCount = 1
+   
+    override def newInstance = new AsymetricalDeeplyNestedPathFreeSpecExample(counts)
   }
 
-  def emptyPathFunSpec = new EmptyPathFunSpecExample
-  def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample
-  def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample
-  def oneTestSiblingEmptyNestedPathFunSpec = new OneTestSiblingEmptyNestedPathFunSpecExample
-  def oneTestSiblingEmptyDeeplyNestedPathFunSpec = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample
-  def pathFunSpec = new PathFunSpecExample
-  def nestedPathFunSpec = new NestedPathFunSpecExample
-  def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample
-  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
-  def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample
-  def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample
-  def emptyPathFreeSpec = new EmptyPathFreeSpecExample
-  def emptyNestedPathFreeSpec = new EmptyNestedPathFreeSpecExample
-  def siblingEmptyNestedPathFreeSpec = new SiblingEmptyNestedPathFreeSpecExample
-  def oneTestSiblingEmptyNestedPathFreeSpec = new OneTestSiblingEmptyNestedPathFreeSpecExample
-  def oneTestSiblingEmptyDeeplyNestedPathFreeSpec = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample
-  def pathFreeSpec = new PathFreeSpecExample
-  def nestedPathFreeSpec = new NestedPathFreeSpecExample
-  def siblingNestedPathFreeSpec = new SiblingNestedPathFreeSpecExample
-  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample
-  def siblingDeeplyNestedPathFreeSpec = new SiblingDeeplyNestedPathFreeSpecExample
-  def asymetricalDeeplyNestedPathFreeSpec = new AsymetricalDeeplyNestedPathFreeSpecExample
+  def emptyPathFunSpec = new EmptyPathFunSpecExample(Counts(0))
+  def emptyNestedPathFunSpec = new EmptyNestedPathFunSpecExample(Counts(0))
+  def siblingEmptyNestedPathFunSpec = new SiblingEmptyNestedPathFunSpecExample(Counts(0))
+  def oneTestSiblingEmptyNestedPathFunSpec = new OneTestSiblingEmptyNestedPathFunSpecExample(Counts(0))
+  def oneTestSiblingEmptyDeeplyNestedPathFunSpec = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(Counts(0))
+  def pathFunSpec = new PathFunSpecExample(Counts(0))
+  def nestedPathFunSpec = new NestedPathFunSpecExample(Counts(0))
+  def siblingNestedPathFunSpec = new SiblingNestedPathFunSpecExample(Counts(0))
+  def deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample(Counts(0))
+  def siblingDeeplyNestedPathFunSpec = new SiblingDeeplyNestedPathFunSpecExample(Counts(0))
+  def asymetricalDeeplyNestedPathFunSpec = new AsymetricalDeeplyNestedPathFunSpecExample(Counts(0))
+  def emptyPathFreeSpec = new EmptyPathFreeSpecExample(Counts(0))
+  def emptyNestedPathFreeSpec = new EmptyNestedPathFreeSpecExample(Counts(0))
+  def siblingEmptyNestedPathFreeSpec = new SiblingEmptyNestedPathFreeSpecExample(Counts(0))
+  def oneTestSiblingEmptyNestedPathFreeSpec = new OneTestSiblingEmptyNestedPathFreeSpecExample(Counts(0))
+  def oneTestSiblingEmptyDeeplyNestedPathFreeSpec = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(Counts(0))
+  def pathFreeSpec = new PathFreeSpecExample(Counts(0))
+  def nestedPathFreeSpec = new NestedPathFreeSpecExample(Counts(0))
+  def siblingNestedPathFreeSpec = new SiblingNestedPathFreeSpecExample(Counts(0))
+  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample(Counts(0))
+  def siblingDeeplyNestedPathFreeSpec = new SiblingDeeplyNestedPathFreeSpecExample(Counts(0))
+  def asymetricalDeeplyNestedPathFreeSpec = new AsymetricalDeeplyNestedPathFreeSpecExample(Counts(0))
 }
 

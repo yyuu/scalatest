@@ -48,6 +48,7 @@ class PathSuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPrope
         val rec = new EventRecordingReporter
         suite.run(None, rec, new Stopper {}, Filter(), Map(), None, new Tracker())
         rec.testFailedEventsReceived should have size 0
+        suite.counts.instanceCount should be (suite.expectedInstanceCount)
       }
     }
   }
