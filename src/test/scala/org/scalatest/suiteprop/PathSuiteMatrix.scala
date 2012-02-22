@@ -41,4 +41,14 @@ class PathSuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPrope
       }
     }
   }
+
+  property("A path trait properly written to test ListBuffer should execute without any test failures") {
+    new PathListBufferExamples {
+      forAll (examples) { suite =>
+        val rec = new EventRecordingReporter
+        suite.run(None, rec, new Stopper {}, Filter(), Map(), None, new Tracker())
+        rec.testFailedEventsReceived should have size 0
+      }
+    }
+  }
 }
