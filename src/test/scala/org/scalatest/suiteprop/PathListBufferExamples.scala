@@ -272,9 +272,66 @@ class PathListBufferExamples extends PathSuiteExamples {
   
   class OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
-    counts.instanceCount += 1
-    val expectedInstanceCount = 1
+   counts.instanceCount += 1
+   val expectedInstanceCount = 9
    
+   describe("A ListBuffer") {
+      val buf = ListBuffer.empty[Int]
+      describe("A subject") {
+      }
+      describe("Another subject") {
+        describe("when created") {
+          it("first test") {
+            buf += 1000 // To ensure this isn't seen by others
+          }
+        }
+      }
+      it("should be empty when created") {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        buf += 1
+        it("should contain 1") {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          buf += 2
+          it("should contain 1 and 2") {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            buf -= 2
+            it("should contain only 1 again") {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            it("should contain 1, 2, and 3") {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          buf += 88
+          it("should contain 1 and 88") {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        buf should be ('empty)
+      }
+    }
+
     override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(counts)
   }
 
@@ -615,8 +672,66 @@ class PathListBufferExamples extends PathSuiteExamples {
   class OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+   
+    "A ListBuffer" - {
+      val buf = ListBuffer.empty[Int]
+      "A subject" - {
+      }
+      "Another subject" - {
+        "when created" - {
+          "first test" - {
+            buf += 1000 // To ensure this isn't seen by others
+          }
+        }
+      }
+      "should be empty when created" in {
+        buf should be ('empty)
+        buf += 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        buf += 1
+        "should contain 1" in {
+          buf should equal (Seq(1))
+          buf += 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          buf += 2
+          "should contain 1 and 2" in {
+            buf should equal (Seq(1, 2))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            buf -= 2
+            "should contain only 1 again" in {
+              buf should equal (Seq(1))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            buf += 3
+            "should contain 1, 2, and 3" in {
+              buf should equal (Seq(1, 2, 3))
+              buf += 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          buf += 88
+          "should contain 1 and 88" in {
+            buf should equal (Seq(1, 88))
+            buf += 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        buf should be ('empty)
+      }
+    }
+
     override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(counts)
   }
 
