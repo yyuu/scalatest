@@ -221,6 +221,27 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     }
   }
 
+  class PathFreeSpecExample extends path.FreeSpec with Services {
+    "first test" ignore {}
+    "second test" in {}
+  }
+
+  class NestedPathFreeSpecExample extends path.FreeSpec with NestedTestNames {
+    "A subject" - {
+      "should first test" ignore {}
+      "should second test" in {}
+    }
+  }
+
+  class DeeplyNestedPathFreeSpecExample extends path.FreeSpec with DeeplyNestedTestNames {
+    "A subject" - {
+      "when created" - {
+        "should first test" ignore {}
+        "should second test" in {}
+      }
+    }
+  }
+
   class FeatureSpecExample extends FeatureSpec with Services {
     ignore("first test") {}
     scenario("second test") {}
@@ -290,6 +311,9 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   def fixtureFreeSpec = new FixtureFreeSpecExample
   def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
   def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
+  def pathFreeSpec = new PathFreeSpecExample
+  def nestedPathFreeSpec = new NestedPathFreeSpecExample
+  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample
   def featureSpec = new FeatureSpecExample
   def nestedFeatureSpec = new NestedFeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample

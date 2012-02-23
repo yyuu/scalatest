@@ -268,6 +268,30 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class PathFreeSpecExample extends path.FreeSpec with Services {
+    "test name" in {
+      info(msg)
+    }
+  }
+    
+  class NestedPathFreeSpecExample extends path.FreeSpec with NestedTestName {
+    "A subject" - {
+      "should test name" in {
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedPathFreeSpecExample extends path.FreeSpec with DeeplyNestedTestName {
+    "A subject" - {
+      "when created" - {
+        "should test name" in {
+          info(msg)
+        }
+      }
+    }
+  }
+
   class FeatureSpecExample extends FeatureSpec with Services {
     scenario("test name") {
       info(msg)
@@ -343,6 +367,9 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   def fixtureFreeSpec = new FixtureFreeSpecExample
   def nestedFixtureFreeSpec = new NestedFixtureFreeSpecExample
   def deeplyNestedFixtureFreeSpec = new DeeplyNestedFixtureFreeSpecExample
+  def pathFreeSpec = new PathFreeSpecExample
+  def nestedPathFreeSpec = new NestedPathFreeSpecExample
+  def deeplyNestedPathFreeSpec = new DeeplyNestedPathFreeSpecExample
   def featureSpec = new FeatureSpecExample
   def nestedFeatureSpec = new NestedFeatureSpecExample
   def fixtureFeatureSpec = new FixtureFeatureSpecExample
