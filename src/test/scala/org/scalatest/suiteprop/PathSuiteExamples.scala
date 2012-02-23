@@ -7,31 +7,31 @@ abstract class PathSuiteExamples extends Tables {
 
   type FixtureServices
 
-  def emptyPathFunSpec: path.FunSpec with FixtureServices
-  def emptyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def siblingEmptyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def oneTestSiblingEmptyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def oneTestSiblingEmptyDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def pathFunSpec: path.FunSpec with FixtureServices
-  def nestedPathFunSpec: path.FunSpec with FixtureServices
-  def siblingNestedPathFunSpec: path.FunSpec with FixtureServices
-  def deeplyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def siblingDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def asymetricalDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
-  def emptyPathFreeSpec: path.FreeSpec with FixtureServices
-  def emptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def siblingEmptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def oneTestSiblingEmptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def oneTestSiblingEmptyDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def pathFreeSpec: path.FreeSpec with FixtureServices
-  def nestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def siblingNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def deeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def siblingDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
-  def asymetricalDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val emptyPathFunSpec: path.FunSpec with FixtureServices
+  val emptyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val siblingEmptyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val oneTestSiblingEmptyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val oneTestSiblingEmptyDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val pathFunSpec: path.FunSpec with FixtureServices
+  val nestedPathFunSpec: path.FunSpec with FixtureServices
+  val siblingNestedPathFunSpec: path.FunSpec with FixtureServices
+  val deeplyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val siblingDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val asymetricalDeeplyNestedPathFunSpec: path.FunSpec with FixtureServices
+  val emptyPathFreeSpec: path.FreeSpec with FixtureServices
+  val emptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val siblingEmptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val oneTestSiblingEmptyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val oneTestSiblingEmptyDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val pathFreeSpec: path.FreeSpec with FixtureServices
+  val nestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val siblingNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val deeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val siblingDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
+  val asymetricalDeeplyNestedPathFreeSpec: path.FreeSpec with FixtureServices
  
-  def examples =
-  Table(
+  val examples =
+    Table(
     "path suite",
     emptyPathFunSpec,
     emptyNestedPathFunSpec,
