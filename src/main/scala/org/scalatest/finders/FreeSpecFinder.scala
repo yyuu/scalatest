@@ -36,16 +36,24 @@ class FreeSpecFinder extends Finder {
     node match {
       case invocation @ MethodInvocation(className, target, parent, children, name, args) =>
         name match {
-          case "in" | "is" =>
+          case "in" | "is" if parent.name == "-" =>
             val testName = getTestNameBottomUp(invocation)
             Some(new Selection(className, testName, Array(testName)))
           case "-" =>
             val displayName = getTestNameBottomUp(invocation)
             val testNames = getTestNamesTopDown(invocation)
             Some(new Selection(className, displayName, testNames.toArray))
-          case _ => None
+          case _ => 
+            if (node.parent != null)
+              find(node.parent)
+            else
+              None
         }
-      case _ => None
+      case _ => 
+        if (node.parent != null)
+          find(node.parent)
+        else
+          None
     }
   }
 }
