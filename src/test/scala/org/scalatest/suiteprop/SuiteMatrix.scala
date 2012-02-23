@@ -74,4 +74,20 @@ class SuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPropertyC
       }
     }
   }
+  
+  property("should, if both tests are marked Slow and the first test Weak, return a tags map from the tags method that says both are Slow and the first also Weak") {
+
+    new TwoSlowAndOneWeakTestExamples {
+      forAll (examples) { suite =>
+        val firstTestName = suite.theTestNames(0)
+        val secondTestName = suite.theTestNames(1)
+        suite.tags should be (
+          Map(
+            firstTestName -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"),
+            secondTestName -> Set("org.scalatest.SlowAsMolasses")
+          )
+        )
+      }
+    }
+  }
 }
