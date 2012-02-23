@@ -30,8 +30,8 @@ class SuiteMatrix extends PropSpec with ShouldMatchers with TableDrivenPropertyC
       }
     }
   }
-  
-  property("should, if no test is marked as ignored and there are no tags, return an empty tags map") {
+  // Add a property for completely empty suites and their empty tags
+  property("should, if no test is marked as ignored and there are no tests tagged, return an empty tags map") {
     new InfoInsideTestFiredAfterTestExamples {
       forAll (examples) { suite =>
         suite.tags should be ('empty)

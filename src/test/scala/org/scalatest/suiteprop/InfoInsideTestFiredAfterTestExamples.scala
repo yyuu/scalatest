@@ -33,6 +33,22 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     override val theTestName = "A subject when created should test name"
   }
 
+  trait NestedTestNameWithMust extends Services {
+    override val theTestName = "A subject must test name"
+  }
+
+  trait DeeplyNestedTestNameWithMust extends Services {
+    override val theTestName = "A subject when created must test name"
+  }
+
+  trait NestedTestNameWithCan extends Services {
+    override val theTestName = "A subject can test name"
+  }
+
+  trait DeeplyNestedTestNameWithCan extends Services {
+    override val theTestName = "A subject when created can test name"
+  }
+
   type FixtureServices = Services
 
   class SuiteExample extends Suite with Services  {
@@ -220,6 +236,84 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class FlatSpecWithMustExample extends FlatSpec with Services {
+    it must "test name" in {
+      info(msg)
+    }
+    override val theTestName = "must test name"
+  }
+
+  class SubjectFlatSpecWithMustExample extends FlatSpec with NestedTestNameWithMust {
+    behavior of "A subject"
+    it must "test name" in {
+      info(msg)
+    }
+  }
+  class ShorthandSubjectFlatSpecWithMustExample extends FlatSpec with NestedTestNameWithMust {
+    "A subject" must "test name" in {
+      info(msg)
+    }
+  }
+
+  class FixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with Services {
+    it must "test name" in { s =>
+      info(msg)
+    }
+    override val theTestName = "must test name"
+  }
+
+  class SubjectFixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with NestedTestNameWithMust {
+    behavior of "A subject"
+    it must "test name" in { s =>
+      info(msg)
+    }
+  }
+  
+  class ShorthandSubjectFixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with NestedTestNameWithMust {
+    "A subject" must "test name" in { s =>
+      info(msg)
+    }
+  }
+
+  class FlatSpecWithCanExample extends FlatSpec with Services {
+    it can "test name" in {
+      info(msg)
+    }
+    override val theTestName = "can test name"
+  }
+
+  class SubjectFlatSpecWithCanExample extends FlatSpec with NestedTestNameWithCan {
+    behavior of "A subject"
+    it can "test name" in {
+      info(msg)
+    }
+  }
+  class ShorthandSubjectFlatSpecWithCanExample extends FlatSpec with NestedTestNameWithCan {
+    "A subject" can "test name" in {
+      info(msg)
+    }
+  }
+
+  class FixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with Services {
+    it can "test name" in { s =>
+      info(msg)
+    }
+    override val theTestName = "can test name"
+  }
+
+  class SubjectFixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with NestedTestNameWithCan {
+    behavior of "A subject"
+    it can "test name" in { s =>
+      info(msg)
+    }
+  }
+  
+  class ShorthandSubjectFixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with NestedTestNameWithCan {
+    "A subject" can "test name" in { s =>
+      info(msg)
+    }
+  }
+
   class FreeSpecExample extends FreeSpec with Services {
     "test name" in {
       info(msg)
@@ -361,6 +455,21 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   lazy val fixtureFlatSpec = new FixtureFlatSpecExample
   lazy val subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
   lazy val shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
+
+  lazy val flatSpecWithMust = new FlatSpecWithMustExample
+  lazy val subjectFlatSpecWithMust = new SubjectFlatSpecWithMustExample
+  lazy val shorthandSubjectFlatSpecWithMust = new ShorthandSubjectFlatSpecWithMustExample
+  lazy val fixtureFlatSpecWithMust = new FixtureFlatSpecWithMustExample
+  lazy val subjectFixtureFlatSpecWithMust = new SubjectFixtureFlatSpecWithMustExample
+  lazy val shorthandSubjectFixtureFlatSpecWithMust = new ShorthandSubjectFixtureFlatSpecWithMustExample
+
+  lazy val flatSpecWithCan = new FlatSpecWithCanExample
+  lazy val subjectFlatSpecWithCan = new SubjectFlatSpecWithCanExample
+  lazy val shorthandSubjectFlatSpecWithCan = new ShorthandSubjectFlatSpecWithCanExample
+  lazy val fixtureFlatSpecWithCan = new FixtureFlatSpecWithCanExample
+  lazy val subjectFixtureFlatSpecWithCan = new SubjectFixtureFlatSpecWithCanExample
+  lazy val shorthandSubjectFixtureFlatSpecWithCan = new ShorthandSubjectFixtureFlatSpecWithCanExample
+
   lazy val freeSpec = new FreeSpecExample
   lazy val nestedFreeSpec = new NestedFreeSpecExample
   lazy val deeplyNestedFreeSpec = new DeeplyNestedFreeSpecExample

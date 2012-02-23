@@ -16,6 +16,22 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
     override val theTestNames = Vector("A subject when created should first test", "A subject when created should second test")
   }
 
+  trait NestedTestNamesWithMust extends Services {
+    override val theTestNames = Vector("A subject must first test", "A subject must second test")
+  }
+
+  trait DeeplyNestedTestNamesWithMust extends Services {
+    override val theTestNames = Vector("A subject when created must first test", "A subject when created must second test")
+  }
+
+  trait NestedTestNamesWithCan extends Services {
+    override val theTestNames = Vector("A subject can first test", "A subject can second test")
+  }
+
+  trait DeeplyNestedTestNamesWithCan extends Services {
+    override val theTestNames = Vector("A subject when created can first test", "A subject when created can second test")
+  }
+
   type FixtureServices = Services
 
   class SuiteExample extends Suite with Services {
@@ -182,6 +198,74 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
     it should "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
    }
 
+  class FlatSpecWithMustExample extends FlatSpec with Services {
+    it must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in {}
+    override val theTestNames = Vector("must first test", "must second test")
+   }
+
+  class SubjectFlatSpecWithMustExample extends FlatSpec with NestedTestNamesWithMust {
+    behavior of "A subject"
+    it must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in {}
+   }
+
+  class ShorthandSubjectFlatSpecWithMustExample extends FlatSpec with NestedTestNamesWithMust {
+    "A subject" must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in {}
+   }
+
+  class FixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with Services {
+    it must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+    override val theTestNames = Vector("must first test", "must second test")
+  }
+
+  class SubjectFixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with NestedTestNamesWithMust {
+    behavior of "A subject"
+    it must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+   }
+
+  class ShorthandSubjectFixtureFlatSpecWithMustExample extends StringFixtureFlatSpec with NestedTestNamesWithMust {
+    "A subject" must "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it must "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+   }
+
+  class FlatSpecWithCanExample extends FlatSpec with Services {
+    it can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in {}
+    override val theTestNames = Vector("can first test", "can second test")
+   }
+
+  class SubjectFlatSpecWithCanExample extends FlatSpec with NestedTestNamesWithCan {
+    behavior of "A subject"
+    it can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in {}
+   }
+
+  class ShorthandSubjectFlatSpecWithCanExample extends FlatSpec with NestedTestNamesWithCan {
+    "A subject" can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in {}
+   }
+
+  class FixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with Services {
+    it can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+    override val theTestNames = Vector("can first test", "can second test")
+  }
+
+  class SubjectFixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with NestedTestNamesWithCan {
+    behavior of "A subject"
+    it can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+   }
+
+  class ShorthandSubjectFixtureFlatSpecWithCanExample extends StringFixtureFlatSpec with NestedTestNamesWithCan {
+    "A subject" can "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+    it can "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+   }
+
   class FreeSpecExample extends FreeSpec with Services {
     "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
     "second test" taggedAs (mytags.SlowAsMolasses) in {}
@@ -311,6 +395,21 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
   lazy val fixtureFlatSpec = new FixtureFlatSpecExample
   lazy val subjectFixtureFlatSpec = new SubjectFixtureFlatSpecExample
   lazy val shorthandSubjectFixtureFlatSpec = new ShorthandSubjectFixtureFlatSpecExample
+
+  lazy val flatSpecWithMust = new FlatSpecWithMustExample
+  lazy val subjectFlatSpecWithMust = new SubjectFlatSpecWithMustExample
+  lazy val shorthandSubjectFlatSpecWithMust = new ShorthandSubjectFlatSpecWithMustExample
+  lazy val fixtureFlatSpecWithMust = new FixtureFlatSpecWithMustExample
+  lazy val subjectFixtureFlatSpecWithMust = new SubjectFixtureFlatSpecWithMustExample
+  lazy val shorthandSubjectFixtureFlatSpecWithMust = new ShorthandSubjectFixtureFlatSpecWithMustExample
+
+  lazy val flatSpecWithCan = new FlatSpecWithCanExample
+  lazy val subjectFlatSpecWithCan = new SubjectFlatSpecWithCanExample
+  lazy val shorthandSubjectFlatSpecWithCan = new ShorthandSubjectFlatSpecWithCanExample
+  lazy val fixtureFlatSpecWithCan = new FixtureFlatSpecWithCanExample
+  lazy val subjectFixtureFlatSpecWithCan = new SubjectFixtureFlatSpecWithCanExample
+  lazy val shorthandSubjectFixtureFlatSpecWithCan = new ShorthandSubjectFixtureFlatSpecWithCanExample
+
   lazy val freeSpec = new FreeSpecExample
   lazy val nestedFreeSpec = new NestedFreeSpecExample
   lazy val deeplyNestedFreeSpec = new DeeplyNestedFreeSpecExample
@@ -326,19 +425,4 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
   lazy val nestedFixtureFeatureSpec = new NestedFixtureFeatureSpecExample
   lazy val propSpec = new PropSpecExample
   lazy val fixturePropSpec = new FixturePropSpecExample
- /*  
-  // Two ways to ignore in a flat spec, so add two more examples
-  override def examples = super.examples ++ List(new FlatSpecExample2, new FixtureFlatSpecExample2)
-
-  class FlatSpecExample2 extends FlatSpec with Services {
-    it should "first test" taggedAs (mytags.SlowAsMolasses) in {}
-    it should "second test" taggedAs (mytags.SlowAsMolasses) in {}
-    override val theTestNames = Vector("should first test", "should second test")
-   }
-
-  class FixtureFlatSpecExample2 extends StringFixtureFlatSpec with Services {
-    it should "first test" taggedAs (mytags.SlowAsMolasses) in { s => }
-    it should "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
-    override val theTestNames = Vector("should first test", "should second test")
-  }*/
 }
