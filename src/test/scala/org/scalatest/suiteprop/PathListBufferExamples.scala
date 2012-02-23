@@ -335,6 +335,7 @@ class PathListBufferExamples extends PathSuiteExamples {
     override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFunSpecExample(counts)
   }
 
+  // These path.FunSpec examples use a Vector an a var
   class PathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
@@ -394,43 +395,316 @@ class PathListBufferExamples extends PathSuiteExamples {
   class NestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    describe("A Vector") {
+      var vec = Vector.empty[Int]
+      describe("A subject") {
+        it("should first test") { vec ++= Seq(1, 2, 3) }
+        it("should second test") { vec ++= Vector(4, 5, 6) }
+      }
+      it("should be empty when created") {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        vec :+= 1
+        it("should contain 1") {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          vec :+= 2
+          it("should contain 1 and 2") {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            vec = vec.init
+            it("should contain only 1 again") {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            it("should contain 1, 2, and 3") {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          vec :+= 88
+          it("should contain 1 and 88") {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new NestedPathFunSpecExample(counts)
   }
 
   class SiblingNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    describe("A Vector") {
+      var vec = Vector.empty[Int]
+      describe("A subject") {
+        it("should first test") { vec ++= Seq(1, 2, 3) }
+      }
+      describe("Another subject") {
+        it("should second test") { vec ++= Vector(4, 5, 6) }
+      }
+      it("should be empty when created") {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        vec :+= 1
+        it("should contain 1") {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          vec :+= 2
+          it("should contain 1 and 2") {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            vec = vec.init
+            it("should contain only 1 again") {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            it("should contain 1, 2, and 3") {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          vec :+= 88
+          it("should contain 1 and 88") {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new SiblingNestedPathFunSpecExample(counts)
   }
 
   class DeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    describe("A Vector") {
+      var vec = Vector.empty[Int]
+      describe("A subject") {
+        describe("when created") {
+          it("should first test") { vec ++= Seq(1, 2, 3) }
+          it("should second test") { vec ++= Vector(4, 5, 6) }
+        }
+      }
+      it("should be empty when created") {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        vec :+= 1
+        it("should contain 1") {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          vec :+= 2
+          it("should contain 1 and 2") {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            vec = vec.init
+            it("should contain only 1 again") {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            it("should contain 1, 2, and 3") {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          vec :+= 88
+          it("should contain 1 and 88") {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new DeeplyNestedPathFunSpecExample(counts)
   }
 
   class SiblingDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    describe("A Vector") {
+      var vec = Vector.empty[Int]
+      describe("A subject") {
+        describe("when created") {
+          it("should first test") { vec ++= Seq(1, 2, 3) }
+        }
+      }
+      describe("Another subject") {
+        describe("when created") {
+          it("should second test") { vec ++= Vector(4, 5, 6) }
+        }
+      }
+      it("should be empty when created") {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        vec :+= 1
+        it("should contain 1") {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          vec :+= 2
+          it("should contain 1 and 2") {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            vec = vec.init
+            it("should contain only 1 again") {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            it("should contain 1, 2, and 3") {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          vec :+= 88
+          it("should contain 1 and 88") {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new SiblingDeeplyNestedPathFunSpecExample(counts)
   }
 
   class AsymetricalDeeplyNestedPathFunSpecExample(val counts: Counts) extends path.FunSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    describe("A Vector") {
+      var vec = Vector.empty[Int]
+      describe("A subject") {
+        describe("when created") {
+          it("should first test") { vec ++= Seq(1, 2, 3) }
+        }
+        it("should second test") { vec ++= Vector(4, 5, 6) }
+      }
+      it("should be empty when created") {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      describe("when 1 is appended") {
+        vec :+= 1
+        it("should contain 1") {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        describe("when 2 is appended") {
+          vec :+= 2
+          it("should contain 1 and 2") {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          describe("when 2 is removed") {
+            vec = vec.init
+            it("should contain only 1 again") {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          describe("when 3 is appended") { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            it("should contain 1, 2, and 3") {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        describe("when 88 is appended") {
+          vec :+= 88
+          it("should contain 1 and 88") {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      it("should again be empty") {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new AsymetricalDeeplyNestedPathFunSpecExample(counts)
   }
 
+  // These path.FreeSpec examples use a ListBuffer and a val
   class EmptyPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
@@ -674,7 +948,6 @@ class PathListBufferExamples extends PathSuiteExamples {
     counts.instanceCount += 1
     val expectedInstanceCount = 9
    
-   
     "A ListBuffer" - {
       val buf = ListBuffer.empty[Int]
       "A subject" - {
@@ -735,12 +1008,13 @@ class PathListBufferExamples extends PathSuiteExamples {
     override def newInstance = new OneTestSiblingEmptyDeeplyNestedPathFreeSpecExample(counts)
   }
 
+   // These path.FreeSpec examples use a Vector and a var
   class PathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
     val expectedInstanceCount = 7
    
-    "A ListBuffer" - {
+    "A Vector" - {
       var vec = Vector.empty[Int]
       "should be empty when created" in {
         vec should be ('empty)
@@ -794,40 +1068,332 @@ class PathListBufferExamples extends PathSuiteExamples {
   class NestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    "A Vector" - {
+      var vec = Vector.empty[Int]
+      "A subject" - {
+        "should first test" in {
+          vec = Vector(1, 2, 3)
+        }
+        "should second test" in {
+          vec ++= Vector(1, 2, 3)
+        }
+      }
+      "should be empty when created" in {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        vec :+= 1
+        "should contain 1" in {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          vec :+= 2
+          "should contain 1 and 2" in {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            vec = vec.init
+            "should contain only 1 again" in {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            "should contain 1, 2, and 3" in {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          vec :+= 88
+          "should contain 1 and 88" in {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new NestedPathFreeSpecExample(counts)
   }
 
   class SiblingNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    "A Vector" - {
+      var vec = Vector.empty[Int]
+      "A subject" - {
+        "should first test" in {
+          vec = Vector(1, 2, 3)
+        }
+      }
+      "Another subject" - {
+        "should second test" in {
+          vec ++= Vector(1, 2, 3)
+        }
+      }
+      "should be empty when created" in {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        vec :+= 1
+        "should contain 1" in {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          vec :+= 2
+          "should contain 1 and 2" in {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            vec = vec.init
+            "should contain only 1 again" in {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            "should contain 1, 2, and 3" in {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          vec :+= 88
+          "should contain 1 and 88" in {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new SiblingNestedPathFreeSpecExample(counts)
   }
 
   class DeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    "A Vector" - {
+      var vec = Vector.empty[Int]
+      "A subject" - {
+        "when created" - {
+          "should first test" in {
+            vec = Vector(1, 2, 3)
+          }
+          "should second test" in {
+            vec ++= Vector(1, 2, 3)
+          }
+        }
+      }
+      "should be empty when created" in {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        vec :+= 1
+        "should contain 1" in {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          vec :+= 2
+          "should contain 1 and 2" in {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            vec = vec.init
+            "should contain only 1 again" in {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            "should contain 1, 2, and 3" in {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          vec :+= 88
+          "should contain 1 and 88" in {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new DeeplyNestedPathFreeSpecExample(counts)
   }
 
   class SiblingDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    "A Vector" - {
+      var vec = Vector.empty[Int]
+      "A subject" - {
+        "when created" - {
+          "should first test" in {
+            vec = Vector(1, 2, 3)
+          }
+        }
+      }
+      "Another subject" - {
+        "when created" - {
+          "should second test" in {
+            vec ++= Vector(1, 2, 3)
+          }
+        }
+      }
+      "should be empty when created" in {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        vec :+= 1
+        "should contain 1" in {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          vec :+= 2
+          "should contain 1 and 2" in {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            vec = vec.init
+            "should contain only 1 again" in {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            "should contain 1, 2, and 3" in {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          vec :+= 88
+          "should contain 1 and 88" in {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new SiblingDeeplyNestedPathFreeSpecExample(counts)
   }
 
   class AsymetricalDeeplyNestedPathFreeSpecExample(val counts: Counts) extends path.FreeSpec with Services with ShouldMatchers {
 
     counts.instanceCount += 1
-    val expectedInstanceCount = 1
+    val expectedInstanceCount = 9
    
+    "A Vector" - {
+      var vec = Vector.empty[Int]
+      "A subject" - {
+        "when created" - {
+          "should first test" in {
+            vec = Vector(1, 2, 3)
+          }
+        }
+        "should second test" in {
+          vec ++= Vector(1, 2, 3)
+        }
+      }
+      "should be empty when created" in {
+        vec should be ('empty)
+        vec :+= 99 // Mutate to make sure no other test sees this
+      }
+      "when 1 is appended" - {
+        vec :+= 1
+        "should contain 1" in {
+          vec should equal (Seq(1))
+          vec :+= 99 // Mutate to make sure no other test sees this
+        }
+        "when 2 is appended" - {
+          vec :+= 2
+          "should contain 1 and 2" in {
+            vec should equal (Seq(1, 2))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+          "when 2 is removed" - {
+            vec = vec.init
+            "should contain only 1 again" in {
+              vec should equal (Seq(1))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+          "when 3 is appended" - { // This describe should not see the removal of 2 done in earlier sibling describe
+            vec :+= 3
+            "should contain 1, 2, and 3" in {
+              vec should equal (Seq(1, 2, 3))
+              vec :+= 99 // Mutate to make sure no other test sees this
+            }
+          }
+        }
+        "when 88 is appended" - {
+          vec :+= 88
+          "should contain 1 and 88" in {
+            vec should equal (Seq(1, 88))
+            vec :+= 99 // Mutate to make sure no other test sees this
+          }
+        }
+      }
+      // At end of previous describe, buf equaled List(1). Now doing it again to make
+      // sure that it is empty
+      "should again be empty" in {
+        vec should be ('empty)
+      }
+    }
+
     override def newInstance = new AsymetricalDeeplyNestedPathFreeSpecExample(counts)
   }
 
