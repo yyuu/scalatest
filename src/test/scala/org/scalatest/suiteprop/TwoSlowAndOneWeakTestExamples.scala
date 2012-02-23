@@ -164,6 +164,70 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
     }
   }
 
+  class NestedWordSpecWithMustExample extends WordSpec with NestedTestNamesWithMust {
+    "A subject" must {
+      "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+      "second test" taggedAs (mytags.SlowAsMolasses) in {}
+    }
+  }
+
+  class DeeplyNestedWordSpecWithMustExample extends WordSpec with DeeplyNestedTestNamesWithMust {
+    "A subject" when {
+      "created" must {
+        "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+        "second test" taggedAs (mytags.SlowAsMolasses) in {}
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with NestedTestNamesWithMust {
+    "A subject" must {
+      "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+      "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with DeeplyNestedTestNamesWithMust {
+    "A subject" when {
+      "created" must {
+        "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+        "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+      }
+    }
+  }
+
+  class NestedWordSpecWithCanExample extends WordSpec with NestedTestNamesWithCan {
+    "A subject" can {
+      "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+      "second test" taggedAs (mytags.SlowAsMolasses) in {}
+    }
+  }
+
+  class DeeplyNestedWordSpecWithCanExample extends WordSpec with DeeplyNestedTestNamesWithCan {
+    "A subject" when {
+      "created" can {
+        "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
+        "second test" taggedAs (mytags.SlowAsMolasses) in {}
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with NestedTestNamesWithCan {
+    "A subject" can {
+      "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+      "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with DeeplyNestedTestNamesWithCan {
+    "A subject" when {
+      "created" can {
+        "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in { s => }
+        "second test" taggedAs (mytags.SlowAsMolasses) in { s => }
+      }
+    }
+  }
+
   class FlatSpecExample extends FlatSpec with Services {
     it should "first test" taggedAs (mytags.SlowAsMolasses, mytags.WeakAsAKitten) in {}
     it should "second test" taggedAs (mytags.SlowAsMolasses) in {}
@@ -383,12 +447,24 @@ class TwoSlowAndOneWeakTestExamples extends SuiteExamples {
   lazy val pathFunSpec = new PathFunSpecExample
   lazy val nestedPathFunSpec = new NestedPathFunSpecExample
   lazy val deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
+
   lazy val wordSpec = new WordSpecExample
   lazy val nestedWordSpec = new NestedWordSpecExample
   lazy val deeplyNestedWordSpec = new DeeplyNestedWordSpecExample
   lazy val fixtureWordSpec = new FixtureWordSpecExample
   lazy val nestedFixtureWordSpec = new NestedFixtureWordSpecExample
   lazy val deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
+
+  lazy val nestedWordSpecWithMust = new NestedWordSpecWithMustExample
+  lazy val deeplyNestedWordSpecWithMust = new DeeplyNestedWordSpecWithMustExample
+  lazy val nestedFixtureWordSpecWithMust = new NestedFixtureWordSpecWithMustExample
+  lazy val deeplyNestedFixtureWordSpecWithMust = new DeeplyNestedFixtureWordSpecWithMustExample
+  
+  lazy val nestedWordSpecWithCan = new NestedWordSpecWithCanExample
+  lazy val deeplyNestedWordSpecWithCan = new DeeplyNestedWordSpecWithCanExample
+  lazy val nestedFixtureWordSpecWithCan = new NestedFixtureWordSpecWithCanExample
+  lazy val deeplyNestedFixtureWordSpecWithCan = new DeeplyNestedFixtureWordSpecWithCanExample
+
   lazy val flatSpec = new FlatSpecExample
   lazy val subjectFlatSpec = new SubjectFlatSpecExample
   lazy val shorthandSubjectFlatSpec = new ShorthandSubjectFlatSpecExample

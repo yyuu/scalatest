@@ -46,6 +46,16 @@ trait SuiteExamples extends Tables {
   val nestedFixtureWordSpec: fixture.WordSpec with FixtureServices
   val deeplyNestedFixtureWordSpec: fixture.WordSpec with FixtureServices
 
+  val nestedWordSpecWithMust: WordSpec with FixtureServices
+  val deeplyNestedWordSpecWithMust: WordSpec with FixtureServices
+  val nestedFixtureWordSpecWithMust: fixture.WordSpec with FixtureServices
+  val deeplyNestedFixtureWordSpecWithMust: fixture.WordSpec with FixtureServices
+
+  val nestedWordSpecWithCan: WordSpec with FixtureServices
+  val deeplyNestedWordSpecWithCan: WordSpec with FixtureServices
+  val nestedFixtureWordSpecWithCan: fixture.WordSpec with FixtureServices
+  val deeplyNestedFixtureWordSpecWithCan: fixture.WordSpec with FixtureServices
+
   val flatSpec: FlatSpec with FixtureServices
   val subjectFlatSpec: FlatSpec with FixtureServices
   val shorthandSubjectFlatSpec: FlatSpec with FixtureServices
@@ -112,6 +122,16 @@ trait SuiteExamples extends Tables {
       fixtureWordSpec,
       nestedFixtureWordSpec,
       deeplyNestedFixtureWordSpec,
+
+      nestedWordSpecWithMust,
+      deeplyNestedWordSpecWithMust,
+      nestedFixtureWordSpecWithMust,
+      deeplyNestedFixtureWordSpecWithMust,
+
+      nestedWordSpecWithCan,
+      deeplyNestedWordSpecWithCan,
+      nestedFixtureWordSpecWithCan,
+      deeplyNestedFixtureWordSpecWithCan,
 
       flatSpec,
       subjectFlatSpec,

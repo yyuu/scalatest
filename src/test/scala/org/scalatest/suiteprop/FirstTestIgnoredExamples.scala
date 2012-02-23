@@ -161,6 +161,70 @@ class FirstTestIgnoredExamples extends SuiteExamples {
     }
   }
 
+  class NestedWordSpecWithMustExample extends WordSpec with NestedTestNamesWithMust {
+    "A subject" must {
+      "first test" ignore {}
+      "second test" in {}
+    }
+  }
+
+  class DeeplyNestedWordSpecWithMustExample extends WordSpec with DeeplyNestedTestNamesWithMust {
+    "A subject" when {
+      "created" must {
+        "first test" ignore {}
+        "second test" in {}
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with NestedTestNamesWithMust {
+    "A subject" must {
+      "first test" ignore { s => }
+      "second test" in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with DeeplyNestedTestNamesWithMust {
+    "A subject" when {
+      "created" must {
+        "first test" ignore { s => }
+        "second test" in { s => }
+      }
+    }
+  }
+
+  class NestedWordSpecWithCanExample extends WordSpec with NestedTestNamesWithCan {
+    "A subject" can {
+      "first test" ignore {}
+      "second test" in {}
+    }
+  }
+
+  class DeeplyNestedWordSpecWithCanExample extends WordSpec with DeeplyNestedTestNamesWithCan {
+    "A subject" when {
+      "created" can {
+        "first test" ignore {}
+        "second test" in {}
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with NestedTestNamesWithCan {
+    "A subject" can {
+      "first test" ignore { s => }
+      "second test" in { s => }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with DeeplyNestedTestNamesWithCan {
+    "A subject" when {
+      "created" can {
+        "first test" ignore { s => }
+        "second test" in { s => }
+      }
+    }
+  }
+
   class FlatSpecExample extends FlatSpec with Services {
     it should "first test" ignore {}
     it should "second test" in {}
@@ -383,6 +447,17 @@ class FirstTestIgnoredExamples extends SuiteExamples {
   lazy val fixtureWordSpec = new FixtureWordSpecExample
   lazy val nestedFixtureWordSpec = new NestedFixtureWordSpecExample
   lazy val deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
+
+  lazy val nestedWordSpecWithMust = new NestedWordSpecWithMustExample
+  lazy val deeplyNestedWordSpecWithMust = new DeeplyNestedWordSpecWithMustExample
+  lazy val nestedFixtureWordSpecWithMust = new NestedFixtureWordSpecWithMustExample
+  lazy val deeplyNestedFixtureWordSpecWithMust = new DeeplyNestedFixtureWordSpecWithMustExample
+  
+  lazy val nestedWordSpecWithCan = new NestedWordSpecWithCanExample
+  lazy val deeplyNestedWordSpecWithCan = new DeeplyNestedWordSpecWithCanExample
+  lazy val nestedFixtureWordSpecWithCan = new NestedFixtureWordSpecWithCanExample
+  lazy val deeplyNestedFixtureWordSpecWithCan = new DeeplyNestedFixtureWordSpecWithCanExample
+
   lazy val flatSpec = new FlatSpecExample
   lazy val subjectFlatSpec = new SubjectFlatSpecExample
   lazy val shorthandSubjectFlatSpec = new ShorthandSubjectFlatSpecExample

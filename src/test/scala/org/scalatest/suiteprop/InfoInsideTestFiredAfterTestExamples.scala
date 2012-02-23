@@ -197,6 +197,78 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
     }
   }
 
+  class NestedWordSpecWithMustExample extends WordSpec with NestedTestNameWithMust {
+    "A subject" must {
+      "test name" in {
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedWordSpecWithMustExample extends WordSpec with DeeplyNestedTestNameWithMust {
+    "A subject" when {
+      "created" must {
+        "test name" in {
+          info(msg)
+        }
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with NestedTestNameWithMust {
+    "A subject" must {
+      "test name" in { s =>
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithMustExample extends StringFixtureWordSpec with DeeplyNestedTestNameWithMust {
+    "A subject" when {
+      "created" must {
+        "test name" in { s =>
+          info(msg)
+        }
+      }
+    }
+  }
+
+  class NestedWordSpecWithCanExample extends WordSpec with NestedTestNameWithCan {
+    "A subject" can {
+      "test name" in {
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedWordSpecWithCanExample extends WordSpec with DeeplyNestedTestNameWithCan {
+    "A subject" when {
+      "created" can {
+        "test name" in {
+          info(msg)
+        }
+      }
+    }
+  }
+
+  class NestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with NestedTestNameWithCan {
+    "A subject" can {
+      "test name" in { s =>
+        info(msg)
+      }
+    }
+  }
+
+  class DeeplyNestedFixtureWordSpecWithCanExample extends StringFixtureWordSpec with DeeplyNestedTestNameWithCan {
+    "A subject" when {
+      "created" can {
+        "test name" in { s =>
+          info(msg)
+        }
+      }
+    }
+  }
+
   class FlatSpecExample extends FlatSpec with Services {
     it should "test name" in {
       info(msg)
@@ -443,12 +515,24 @@ class InfoInsideTestFiredAfterTestExamples extends SuiteExamples {
   lazy val pathFunSpec = new PathFunSpecExample
   lazy val nestedPathFunSpec = new NestedPathFunSpecExample
   lazy val deeplyNestedPathFunSpec = new DeeplyNestedPathFunSpecExample
+
   lazy val wordSpec = new WordSpecExample
   lazy val nestedWordSpec = new NestedWordSpecExample
   lazy val deeplyNestedWordSpec = new DeeplyNestedWordSpecExample
   lazy val fixtureWordSpec = new FixtureWordSpecExample
   lazy val nestedFixtureWordSpec = new NestedFixtureWordSpecExample
   lazy val deeplyNestedFixtureWordSpec = new DeeplyNestedFixtureWordSpecExample
+
+  lazy val nestedWordSpecWithMust = new NestedWordSpecWithMustExample
+  lazy val deeplyNestedWordSpecWithMust = new DeeplyNestedWordSpecWithMustExample
+  lazy val nestedFixtureWordSpecWithMust = new NestedFixtureWordSpecWithMustExample
+  lazy val deeplyNestedFixtureWordSpecWithMust = new DeeplyNestedFixtureWordSpecWithMustExample
+  
+  lazy val nestedWordSpecWithCan = new NestedWordSpecWithCanExample
+  lazy val deeplyNestedWordSpecWithCan = new DeeplyNestedWordSpecWithCanExample
+  lazy val nestedFixtureWordSpecWithCan = new NestedFixtureWordSpecWithCanExample
+  lazy val deeplyNestedFixtureWordSpecWithCan = new DeeplyNestedFixtureWordSpecWithCanExample
+
   lazy val flatSpec = new FlatSpecExample
   lazy val subjectFlatSpec = new SubjectFlatSpecExample
   lazy val shorthandSubjectFlatSpec = new ShorthandSubjectFlatSpecExample
