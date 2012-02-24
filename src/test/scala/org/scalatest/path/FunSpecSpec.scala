@@ -463,11 +463,13 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       }
       val e = new EFunSpec
 
-      val repE = new TestIgnoredTrackingReporter
+      val repE = new EventRecordingReporter
       e.run(Some("test this"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(repE.testIgnoredReceived)
+      assert(repE.testIgnoredEventsReceived.size === 1)
       assert(!e.counts.theTestThisCalled)
-      assert(!e.counts.theTestThatCalled)
+      assert(e.counts.theTestThatCalled)  // In a path trait, tests other than the Some(testName) get executed, but not reported
+      val tste = repE.testStartingEventsReceived
+      assert(tste.size === 0)
     }
 
     "should run only those tests selected by the tags to include and exclude sets" in {

@@ -14,7 +14,7 @@ import org.scalatest.verb.BehaveWord
 import scala.collection.immutable.ListSet
 import org.scalatest.PathEngine.isInTargetPath
 /*
- * Have to execute all tests, and then if run is called, it will only report one of them.
+ * Have to execute all tests, and then if run is called with a defined testName, it will only report one of them.
  * Same for tags. If tags would exclude a test, it will actually be executed but not reported by a path trait.
  */
 trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
