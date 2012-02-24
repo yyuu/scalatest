@@ -756,6 +756,13 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     if (!swapAndCompareSucceeded)  // Do outside finally to workaround Scala compiler bug
       throw new ConcurrentModificationException(Resources("concurrentInformerMod", theSuite.getClass.getName))
    }
+   
+   override def registerIgnoredTest(testText: String, f: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
+    if (insideAPathTest)
+      throw new TestRegistrationClosedException(Resources("describeCannotAppearInsideAnIt"), getStackDepthFun(sourceFileName, methodName))
+
+     super.registerIgnoredTest(testText, f, "ignoreCannotAppearInsideAnIt", "FunSpec.scala", "ignore", testTags: _*)
+   }
 
   /*
   def replayTest(
