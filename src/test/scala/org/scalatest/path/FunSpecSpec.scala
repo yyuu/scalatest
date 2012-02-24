@@ -356,53 +356,52 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
         }
       }
     }
-    class TestWasCalledSuite extends PathFunSpec {
-      var theTestThisCalled = false
-      var theTestThatCalled = false
-      it("should run this") { theTestThisCalled = true }
-      it("should run that, maybe") { theTestThatCalled = true }
-      override def newInstance = new TestWasCalledSuite
+    case class TestWasCalledCounts(var theTestThisCalled: Boolean, var theTestThatCalled: Boolean)
+    
+    class TestWasCalledSuite(val counts: TestWasCalledCounts) extends PathFunSpec {
+      def this() { this(TestWasCalledCounts(false, false)) }
+      it("should run this") { counts.theTestThisCalled = true }
+      it("should run that, maybe") { counts.theTestThatCalled = true }
+      override def newInstance = new TestWasCalledSuite(counts)
     }
 
     "should execute all tests when run is called with testName None" in {
 
       val b = new TestWasCalledSuite
       b.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(b.theTestThisCalled)
-      assert(b.theTestThatCalled)
+      assert(b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
     }
 
     "should execute one test when run is called with a defined testName" in {
 
       val a = new TestWasCalledSuite
       a.run(Some("should run this"), SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(a.theTestThisCalled)
-      assert(!a.theTestThatCalled)
+      assert(a.counts.theTestThisCalled)
+      assert(!a.counts.theTestThatCalled)// TODO rewrite this to look for teststarting events
     }
 
     "should report as ignored, and not run, tests marked ignored" in {
 
-      class AFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        it("test this") { theTestThisCalled = true }
-        it("test that") { theTestThatCalled = true }
-        override def newInstance = new AFunSpec
+      class AFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        def this() { this(TestWasCalledCounts(false, false)) }
+        it("test this") { counts.theTestThisCalled = true }
+        it("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new AFunSpec(counts)
       }
       val a = new AFunSpec
 
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(!repA.testIgnoredReceived)
-      assert(a.theTestThisCalled)
-      assert(a.theTestThatCalled)
+      assert(a.counts.theTestThisCalled)
+      assert(a.counts.theTestThatCalled)
 
-      class BFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        ignore("test this") { theTestThisCalled = true }
-        it("test that") { theTestThatCalled = true }
-        override def newInstance = new BFunSpec
+      class BFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        def this() { this(TestWasCalledCounts(false, false)) }
+        ignore("test this") { counts.theTestThisCalled = true }
+        it("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new BFunSpec(counts)
       }
       val b = new BFunSpec
 
@@ -411,15 +410,14 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(repB.testIgnoredReceived)
       assert(repB.lastEvent.isDefined)
       assert(repB.lastEvent.get.testName endsWith "test this")
-      assert(!b.theTestThisCalled)
-      assert(b.theTestThatCalled)
+      assert(!b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
 
-      class CFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        it("test this") { theTestThisCalled = true }
-        ignore("test that") { theTestThatCalled = true }
-        override def newInstance = new CFunSpec
+      class CFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        def this() { this(TestWasCalledCounts(false, false)) }
+        it("test this") { counts.theTestThisCalled = true }
+        ignore("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new CFunSpec(counts)
       }
       val c = new CFunSpec
 
@@ -428,17 +426,16 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(repC.testIgnoredReceived)
       assert(repC.lastEvent.isDefined)
       assert(repC.lastEvent.get.testName endsWith "test that", repC.lastEvent.get.testName)
-      assert(c.theTestThisCalled)
-      assert(!c.theTestThatCalled)
+      assert(c.counts.theTestThisCalled)
+      assert(!c.counts.theTestThatCalled)
 
       // The order I want is order of appearance in the file.
       // Will try and implement that tomorrow. Subtypes will be able to change the order.
-      class DFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        ignore("test this") { theTestThisCalled = true }
-        ignore("test that") { theTestThatCalled = true }
-        override def newInstance = new DFunSpec
+      class DFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        def this() { this(TestWasCalledCounts(false, false)) }
+        ignore("test this") { counts.theTestThisCalled = true }
+        ignore("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new DFunSpec(counts)
       }
       val d = new DFunSpec
 
@@ -447,27 +444,26 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(repD.testIgnoredReceived)
       assert(repD.lastEvent.isDefined)
       assert(repD.lastEvent.get.testName endsWith "test that") // last because should be in order of appearance
-      assert(!d.theTestThisCalled)
-      assert(!d.theTestThatCalled)
+      assert(!d.counts.theTestThisCalled)
+      assert(!d.counts.theTestThatCalled)
     }
 
     "should ignore a test marked as ignored if run is invoked with that testName" in {
       // If I provide a specific testName to run, then it should ignore an Ignore on that test
       // method and actually invoke it.
-      class EFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        ignore("test this") { theTestThisCalled = true }
-        it("test that") { theTestThatCalled = true }
-        override def newInstance = new EFunSpec
+      class EFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        def this() { this(TestWasCalledCounts(false, false)) }
+        ignore("test this") { counts.theTestThisCalled = true }
+        it("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new EFunSpec(counts)
       }
       val e = new EFunSpec
 
       val repE = new TestIgnoredTrackingReporter
       e.run(Some("test this"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(repE.testIgnoredReceived)
-      assert(!e.theTestThisCalled)
-      assert(!e.theTestThatCalled)
+      assert(!e.counts.theTestThisCalled)
+      assert(!e.counts.theTestThatCalled)
     }
 
     "should run only those tests selected by the tags to include and exclude sets" in {
