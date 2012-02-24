@@ -569,7 +569,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
           usedPathSet = Set.empty[String]
           targetLeafHasBeenReached = false
           nextTargetPath = None
-          // testResultsRegistered = false
+          // testResultsRegistered = false 
           currentInstance = callingInstance.newInstance  
         }
       }

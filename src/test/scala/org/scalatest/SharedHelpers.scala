@@ -69,6 +69,15 @@ trait SharedHelpers extends Assertions {
         case _ => throw new RuntimeException("should never happen")
       }
     }
+    def testStartingEventsReceived: List[TestStarting] = {
+      eventsReceived filter {
+        case event: TestStarting => true
+        case _ => false
+      } map {
+        case event: TestStarting => event
+        case _ => throw new RuntimeException("should never happen")
+      }
+    }
     // Why doesn't this work:
     // for (event: TestSucceeded <- eventsReceived) yield event
     def infoProvidedEventsReceived: List[InfoProvided] = {

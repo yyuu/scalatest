@@ -372,9 +372,17 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
     "should execute one test when run is called with a defined testName" in {
 
       val a = new TestWasCalledSuite
-      a.run(Some("should run this"), SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker)
+      val rep = new EventRecordingReporter
+      a.run(Some("should run this"), rep, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(a.counts.theTestThisCalled)
-      assert(!a.counts.theTestThatCalled)// TODO rewrite this to look for teststarting events
+      assert(a.counts.theTestThatCalled) // In a path trait, this gets executed, but not reported
+      val tse = rep.testSucceededEventsReceived
+      assert(tse.size == 1)
+      assert(tse(0).testName === "should run this") 
+      val tfe = rep.testFailedEventsReceived
+      assert(tfe.size === 0)
+      val tste = rep.testStartingEventsReceived
+      assert(tste.size === 1)
     }
 
     "should report as ignored, and not run, tests marked ignored" in {
