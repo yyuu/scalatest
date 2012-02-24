@@ -178,7 +178,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       val duration = System.currentTimeMillis - testStartTime
       reportTestSucceeded(theSuite, report, tracker, testName, duration, formatter, rerunnable)
     }
-    catch { 
+    catch { // XXX
       case _: TestPendingException =>
         reportTestPending(theSuite, report, tracker, testName, formatter)
         testWasPending = true // Set so info's printed out in the finally clause show up yellow
@@ -525,8 +525,9 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   private final var registeredPathSet = mutable.Set.empty[List[Int]] // TODO How can this be a final var?
   private final var targetPath: Option[List[Int]] = None
 
+  // A describe clause registered no tests
   private var describeRegisteredNoTests: Boolean = false
-  
+  private var insideAPathTest: Boolean = false
   private var currentPath = List.empty[Int]
   private var usedPathSet = Set.empty[String]
   // Used in each instance to track the paths of things encountered, so can figure out
@@ -580,56 +581,75 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
  * 
  */
   def handleTest(handlingSuite: Suite, testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
-    describeRegisteredNoTests = false
-    val nextPath = getNextPath()
-    if (isInTargetPath(nextPath, targetPath)) {
-      // Default value of None indicates successful test
-      var resultOfRunningTest: Option[Throwable] = None
-        //theTest.indentationLevel + 1
-    val informerForThisTest =
-      PathMessageRecordingInformer(
-        (message, wasConstructingThread, testWasPending, theSuite, report, tracker, testName, indentation, includeIcon, thread) =>
-            reportInfoProvided(theSuite, report, tracker, Some(testName), message, indentation, wasConstructingThread, includeIcon, Some(testWasPending))
-      )
 
-    val oldInformer = atomicInformer.getAndSet(informerForThisTest)
+    if (insideAPathTest) 
+      throw new TestRegistrationClosedException(Resources("itCannotAppearInsideAnotherIt"), getStackDepthFun(sourceFileName, methodName))
     
-    try { // TODO: add a test that ensures withFixture is called
-        // I think I need to replace the Informer with one that records the message and whether the
-        // thread was this thread, and then...
-        testFun()
-        // If no exception, leave at None to indicate success
-      }
-      catch {
-        case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
-          resultOfRunningTest = Some(e)
-      }
-      finally {
-        val shouldBeInformerForThisTest = atomicInformer.getAndSet(oldInformer)
-        val swapAndCompareSucceeded = shouldBeInformerForThisTest eq informerForThisTest
-        if (!swapAndCompareSucceeded)
-          throw new ConcurrentModificationException(Resources("concurrentInformerMod", handlingSuite.getClass.getName))
-      }
+    insideAPathTest = true
+    
+    try {
+      describeRegisteredNoTests = false
+      val nextPath = getNextPath()
+      if (isInTargetPath(nextPath, targetPath)) {
+        // Default value of None indicates successful test
+        var resultOfRunningTest: Option[Throwable] = None
+          //theTest.indentationLevel + 1
+      val informerForThisTest =
+        PathMessageRecordingInformer(
+          (message, wasConstructingThread, testWasPending, theSuite, report, tracker, testName, indentation, includeIcon, thread) =>
+              reportInfoProvided(theSuite, report, tracker, Some(testName), message, indentation, wasConstructingThread, includeIcon, Some(testWasPending))
+        )
 
-      val newTestFun = { () =>
-        // Here in the test function, replay those info calls. But I can't do this from different threads is the issue. Unless
-        // I downcast to MessageRecordingInformer, and have another apply method on it that takes the true/false. Or override
-        // runTestImpl and do something different. How about registering a different kind of test. EagerTest. Then it has
-        // yes, that's how.
-        if (resultOfRunningTest.isDefined)
-          throw resultOfRunningTest.get
-      }
-      // register with         informerForThisTest.fireRecordedMessages(testWasPending)
+      val oldInformer = atomicInformer.getAndSet(informerForThisTest)
+    
+      try { // TODO: Correctly record the time a test takes and report that
+          // I think I need to replace the Informer with one that records the message and whether the
+          // thread was this thread, and then...
+          testFun()
+          // If no exception, leave at None to indicate success
+        }
+        catch {
+          case e: Throwable if !Suite.anErrorThatShouldCauseAnAbort(e) =>
+            resultOfRunningTest = Some(e)
+        }
+        finally {
+          val shouldBeInformerForThisTest = atomicInformer.getAndSet(oldInformer)
+          val swapAndCompareSucceeded = shouldBeInformerForThisTest eq informerForThisTest
+          if (!swapAndCompareSucceeded)
+            throw new ConcurrentModificationException(Resources("concurrentInformerMod", handlingSuite.getClass.getName))
+        }
 
-      registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", Some(informerForThisTest), testTags: _*)
-      targetLeafHasBeenReached = true
+        val newTestFun = { () =>
+          // Here in the test function, replay those info calls. But I can't do this from different threads is the issue. Unless
+          // I downcast to MessageRecordingInformer, and have another apply method on it that takes the true/false. Or override
+          // runTestImpl and do something different. How about registering a different kind of test. EagerTest. Then it has
+          // yes, that's how.
+          if (resultOfRunningTest.isDefined)
+            throw resultOfRunningTest.get
+        }
+        // register with         informerForThisTest.fireRecordedMessages(testWasPending)
+
+        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", Some(informerForThisTest), testTags: _*)
+        targetLeafHasBeenReached = true
+      }
+      else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
+        nextTargetPath = Some(nextPath)
+      }
     }
-    else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
-      nextTargetPath = Some(nextPath)
+    finally {
+      insideAPathTest = false
     }
   }
 
   def handleNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
+
+    // To catch early a describe nested inside an it. Will close registration while executing the it, open it after.
+    val oldBundle = atomic.get
+    val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
+
+    if (registrationClosed)
+      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+
     val nextPath = getNextPath()
     // val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
     // val nextPathOne = if (nextPath.length > 1) nextPath(1) else -1
@@ -695,6 +715,52 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       updateAtomic(oldBundle, Bundle(oldBranch, testNamesList, testsMap, tagsMap, registrationClosed))
     }
   }
+ 
+   def runPathTestsImpl(
+    theSuite: Suite,
+    testName: Option[String],
+    reporter: Reporter,
+    stopper: Stopper,
+    filter: Filter,
+    configMap: Map[String, Any],
+    distributor: Option[Distributor],
+    tracker: Tracker,
+    info: String => Unit,
+    includeIcon: Boolean,
+    runTest: (String, Reporter, Stopper, Map[String, Any], Tracker) => Unit
+  ) {
+     // All but one line of code copied from runImpl. Factor out duplication later...
+    val stopRequested = stopper
+
+    // Set the flag that indicates registration is closed (because run has now been invoked),
+    // which will disallow any further invocations of "test" or "ignore" with
+    // an RegistrationClosedException.    
+    val oldBundle = atomic.get
+    val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
+    if (!registrationClosed)
+      updateAtomic(oldBundle, Bundle(currentBranch, testNamesList, testsMap, tagsMap, true))
+
+    val report = theSuite.wrapReporterIfNecessary(reporter)
+
+    val informerForThisSuite =
+      ConcurrentInformer2(
+        (message, isConstructingThread) => reportInfoProvided(theSuite, report, tracker, None, message, 1, isConstructingThread)
+      )
+
+    atomicInformer.set(informerForThisSuite)
+
+    var swapAndCompareSucceeded = false
+    try {
+     runTestsImpl(theSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
+    }
+    finally {
+      val shouldBeInformerForThisSuite = atomicInformer.getAndSet(zombieInformer)
+      swapAndCompareSucceeded = shouldBeInformerForThisSuite eq informerForThisSuite
+    }
+    if (!swapAndCompareSucceeded)  // Do outside finally to workaround Scala compiler bug
+      throw new ConcurrentModificationException(Resources("concurrentInformerMod", theSuite.getClass.getName))
+   }
+
   /*
   def replayTest(
     theSuite: Suite,

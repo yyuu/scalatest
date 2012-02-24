@@ -89,7 +89,7 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
           it("should test this") {}
           override def newInstance = new AFunSpec
         }
-        new AFunSpec
+        (new AFunSpec).tags // Must call a method to get it to attempt to register the second test
       }
       intercept[DuplicateTestNameException] {
         class AFunSpec extends PathFunSpec {
@@ -97,7 +97,7 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
           ignore("should test this") {}
           override def newInstance = new AFunSpec
         }
-        new AFunSpec
+        (new AFunSpec).tags
       }
       intercept[DuplicateTestNameException] {
         class AFunSpec extends PathFunSpec {
@@ -105,7 +105,7 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
           ignore("should test this") {}
           override def newInstance = new AFunSpec
         }
-        new AFunSpec
+        (new AFunSpec).tags
       }
       intercept[DuplicateTestNameException] {
         class AFunSpec extends PathFunSpec {
@@ -113,7 +113,7 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
           it("should test this") {}
           override def newInstance = new AFunSpec
         }
-        new AFunSpec
+        (new AFunSpec).tags
       }
     }
 
@@ -225,9 +225,13 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
 
         class MySpec extends PathFunSpec {
           it("should blow up") {
+            println("BEGIN: should blow up")
             it("should never run") {
+              println("BEGIN: should never run")
               assert(1 === 1)
+              println("END: should never run")
             }
+            println("END: should blow up")
           }
           override def newInstance = new MySpec
         }
@@ -294,6 +298,7 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
         ensureTestFailedEventReceived(spec, "should blow up")
       }
     }
+
     "should run tests registered via the 'it should behave like' syntax" in {
       trait SharedSpecTests { this: PathFunSpec =>
         def nonEmptyStack(s: String)(i: Int) {
