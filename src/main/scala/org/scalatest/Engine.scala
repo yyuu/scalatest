@@ -643,12 +643,8 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
 
   def handleNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
-    // To catch early a describe nested inside an it. Will close registration while executing the it, open it after.
-    val oldBundle = atomic.get
-    val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
-
-    if (registrationClosed)
-      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+    if (insideAPathTest)
+      throw new TestRegistrationClosedException(Resources("describeCannotAppearInsideAnIt"), getStackDepthFun(sourceFile, methodName))
 
     val nextPath = getNextPath()
     // val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
