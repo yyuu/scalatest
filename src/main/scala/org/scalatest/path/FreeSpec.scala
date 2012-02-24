@@ -83,7 +83,7 @@ trait FreeSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =
   private def registerTestToIgnore(specText: String, testTags: List[Tag], testFun: () => Unit) {
 
     // TODO: This is how these were, but it needs attention. Mentions "it".
-    registerIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FreeSpec.scala", "ignore", testTags: _*)
+    handleIgnoredTest(specText, testFun, "ignoreCannotAppearInsideAnIt", "FreeSpec.scala", "ignore", testTags: _*)
   }
 
   /**
