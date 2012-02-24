@@ -180,32 +180,42 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
         e.testNames.iterator.toList
       }
     }
+    // TODO: put a better message in the instantation exception or probably wrap it in something that 
+    // has a better message, explaining the probable solutoin is to add an "override def newInstance"
 
     it("should throw DuplicateTestNameException if a duplicate test name registration is attempted") {
       
       intercept[DuplicateTestNameException] {
-        new PathFreeSpec {
+        class AFreeSpec extends  PathFreeSpec {
           "should test this" in {}
           "should test this" in {}
+          override def newInstance = new AFreeSpec
         }
+        (new AFreeSpec).tags // Must call a method to get it to attempt to register the second test
       }
       intercept[DuplicateTestNameException] {
-        new PathFreeSpec {
+        class AFreeSpec extends   PathFreeSpec {
           "should test this" in {}
           "should test this" ignore {}
+          override def newInstance = new AFreeSpec
         }
+        (new AFreeSpec).tags
       }
       intercept[DuplicateTestNameException] {
-        new PathFreeSpec {
+        class AFreeSpec extends   PathFreeSpec {
           "should test this" ignore {}
           "should test this" ignore {}
+          override def newInstance = new AFreeSpec
         }
+        (new AFreeSpec).tags
       }
       intercept[DuplicateTestNameException] {
-        new PathFreeSpec {
+        class AFreeSpec extends   PathFreeSpec {
           "should test this" ignore {}
           "should test this" in {}
+          override def newInstance = new AFreeSpec
         }
+        (new AFreeSpec).tags
       }
     }
 
