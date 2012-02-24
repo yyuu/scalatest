@@ -753,9 +753,10 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
         it("throws AssertionError") { throw new OutOfMemoryError }
         override def newInstance = new AFunSpec
       }
-      val a = new AFunSpec
+      // val a = new AFunSpec
       intercept[OutOfMemoryError] {
-        a.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
+        new AFunSpec
+        // a.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
       }
     }
 
