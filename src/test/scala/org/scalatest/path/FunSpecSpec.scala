@@ -475,193 +475,181 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
     "should run only those tests selected by the tags to include and exclude sets" in {
 
       // Nothing is excluded
-      class AFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        it("test this", mytags.SlowAsMolasses) { theTestThisCalled = true }
-        it("test that") { theTestThatCalled = true }
-        override def newInstance = new AFunSpec
+      class AFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses) { counts.theTestThisCalled = true }
+        it("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new AFunSpec(counts)
       }
-      val a = new AFunSpec
+      val a = new AFunSpec(TestWasCalledCounts(false, false))
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(!repA.testIgnoredReceived)
-      assert(a.theTestThisCalled)
-      assert(a.theTestThatCalled)
+      assert(a.counts.theTestThisCalled)
+      assert(a.counts.theTestThatCalled)
 
       // SlowAsMolasses is included, one test should be excluded
-      class BFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        it("test this", mytags.SlowAsMolasses) { theTestThisCalled = true }
-        it("test that") { theTestThatCalled = true }
-        override def newInstance = new BFunSpec
+      class BFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses) { counts.theTestThisCalled = true }
+        it("test that") { counts.theTestThatCalled = true }
+        override def newInstance = new BFunSpec(counts)
       }
-      val b = new BFunSpec
-      val repB = new TestIgnoredTrackingReporter
+      val b = new BFunSpec(TestWasCalledCounts(false, false))
+      val repB = new EventRecordingReporter
       b.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
-      assert(!repB.testIgnoredReceived)
-      assert(b.theTestThisCalled)
-      assert(!b.theTestThatCalled)
+      assert(repB.testIgnoredEventsReceived.isEmpty)
+      assert(b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
+      assert(repB.testStartingEventsReceived.size === 1)
+      assert(repB.testStartingEventsReceived(0).testName == "test this")
 
       // SlowAsMolasses is included, and both tests should be included
-      class CFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        it("test this", mytags.SlowAsMolasses) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        override def newInstance = new CFunSpec
+      class CFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        override def newInstance = new CFunSpec(counts)
       }
-      val c = new CFunSpec
-      val repC = new TestIgnoredTrackingReporter
-      c.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
-      assert(!repC.testIgnoredReceived)
-      assert(c.theTestThisCalled)
-      assert(c.theTestThatCalled)
+      val c = new CFunSpec(TestWasCalledCounts(false, false))
+      val repC = new EventRecordingReporter
+      c.run(None, repC, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
+      assert(repC.testIgnoredEventsReceived.isEmpty)
+      assert(c.counts.theTestThisCalled)
+      assert(c.counts.theTestThatCalled)
+      assert(repC.testStartingEventsReceived.size === 2)
 
       // SlowAsMolasses is included. both tests should be included but one ignored
-      class DFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        ignore("test this", mytags.SlowAsMolasses) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        override def newInstance = new DFunSpec
+      class DFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
+        ignore("test this", mytags.SlowAsMolasses) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        override def newInstance = new DFunSpec(counts)
       }
-      val d = new DFunSpec
-      val repD = new TestIgnoredTrackingReporter
+      val d = new DFunSpec(TestWasCalledCounts(false, false))
+      val repD = new EventRecordingReporter
       d.run(None, repD, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.Ignore")), Map(), None, new Tracker)
-      assert(repD.testIgnoredReceived)
-      assert(!d.theTestThisCalled)
-      assert(d.theTestThatCalled)
+      assert(repD.testIgnoredEventsReceived.size === 1)
+      assert(!d.counts.theTestThisCalled)
+      assert(d.counts.theTestThatCalled)
+      assert(repD.testStartingEventsReceived.size === 1)
+      assert(repD.testStartingEventsReceived(0).testName === "test that")
 
+      case class ThreeCounts(var theTestThisCalled: Boolean, var theTestThatCalled: Boolean, var theTestTheOtherCalled: Boolean)
       // SlowAsMolasses included, FastAsLight excluded
-      class EFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        it("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new EFunSpec
+      class EFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        it("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new EFunSpec(counts)
       }
-      val e = new EFunSpec
-      val repE = new TestIgnoredTrackingReporter
+      val e = new EFunSpec(ThreeCounts(false, false, false))
+      val repE = new EventRecordingReporter
       e.run(None, repE, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repE.testIgnoredReceived)
-      assert(!e.theTestThisCalled)
-      assert(e.theTestThatCalled)
-      assert(!e.theTestTheOtherCalled)
+      assert(repE.testIgnoredEventsReceived.isEmpty)
+      assert(e.counts.theTestThisCalled)
+      assert(e.counts.theTestThatCalled)
+      assert(e.counts.theTestTheOtherCalled)
+      assert(repE.testStartingEventsReceived.size === 1)
+      assert(repE.testStartingEventsReceived(0).testName === "test that")
 
       // An Ignored test that was both included and excluded should not generate a TestIgnored event
-      class FFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        it("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new FFunSpec
+      class FFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        it("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new FFunSpec(counts)
       }
-      val f = new FFunSpec
-      val repF = new TestIgnoredTrackingReporter
+      val f = new FFunSpec(ThreeCounts(false, false, false))
+      val repF = new EventRecordingReporter
       f.run(None, repF, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repF.testIgnoredReceived)
-      assert(!f.theTestThisCalled)
-      assert(f.theTestThatCalled)
-      assert(!f.theTestTheOtherCalled)
+      assert(repF.testIgnoredEventsReceived.isEmpty)
+      assert(!f.counts.theTestThisCalled)
+      assert(f.counts.theTestThatCalled)
+      assert(f.counts.theTestTheOtherCalled)
+      assert(repE.testStartingEventsReceived.size === 1)
+      assert(repE.testStartingEventsReceived(0).testName === "test that")
 
       // An Ignored test that was not included should not generate a TestIgnored event
-      class GFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        ignore("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new GFunSpec
+      class GFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        ignore("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new GFunSpec(counts)
       }
-      val g = new GFunSpec
-      val repG = new TestIgnoredTrackingReporter
+      val g = new GFunSpec(ThreeCounts(false, false, false))
+      val repG = new EventRecordingReporter
       g.run(None, repG, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repG.testIgnoredReceived)
-      assert(!g.theTestThisCalled)
-      assert(g.theTestThatCalled)
-      assert(!g.theTestTheOtherCalled)
+      assert(repG.testIgnoredEventsReceived.isEmpty)
+      assert(g.counts.theTestThisCalled)
+      assert(g.counts.theTestThatCalled)
+      assert(!g.counts.theTestTheOtherCalled)
+      assert(repG.testStartingEventsReceived.size === 1)
+      assert(repG.testStartingEventsReceived(0).testName === "test that")
 
       // No tagsToInclude set, FastAsLight excluded
-      class HFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        it("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new HFunSpec
+      class HFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        it("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new HFunSpec(counts)
       }
-      val h = new HFunSpec
-      val repH = new TestIgnoredTrackingReporter
+      val h = new HFunSpec(ThreeCounts(false, false, false))
+      val repH = new EventRecordingReporter
       h.run(None, repH, new Stopper {}, Filter(None, Set("org.scalatest.FastAsLight")), Map(), None, new Tracker)
-      assert(!repH.testIgnoredReceived)
-      assert(!h.theTestThisCalled)
-      assert(h.theTestThatCalled)
-      assert(h.theTestTheOtherCalled)
+      assert(repH.testIgnoredEventsReceived.isEmpty)
+      assert(h.counts.theTestThisCalled)
+      assert(h.counts.theTestThatCalled)
+      assert(h.counts.theTestTheOtherCalled)
+      assert(repH.testStartingEventsReceived.size === 2)
+      assert(repH.testStartingEventsReceived.exists(_.testName == "test that"))
+      assert(repH.testStartingEventsReceived.exists(_.testName == "test the other"))
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded
-      class IFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        it("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        it("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new IFunSpec
+      class IFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        it("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        it("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        it("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new IFunSpec(counts)
       }
-      val i = new IFunSpec
-      val repI = new TestIgnoredTrackingReporter
+      val i = new IFunSpec(ThreeCounts(false, false, false))
+      val repI = new EventRecordingReporter
       i.run(None, repI, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
-      assert(!repI.testIgnoredReceived)
-      assert(!i.theTestThisCalled)
-      assert(!i.theTestThatCalled)
-      assert(i.theTestTheOtherCalled)
+      assert(repI.testIgnoredEventsReceived.isEmpty)
+      assert(i.counts.theTestThisCalled)
+      assert(i.counts.theTestThatCalled)
+      assert(i.counts.theTestTheOtherCalled)
+      assert(repI.testStartingEventsReceived.size === 1)
+      assert(repI.testStartingEventsReceived(0).testName === "test the other")
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded, TestIgnored should not be received on excluded ones
-      class JFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        ignore("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        it("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new JFunSpec
+      class JFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        ignore("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        it("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new JFunSpec(counts)
       }
-      val j = new JFunSpec
+      val j = new JFunSpec(ThreeCounts(false, false, false))
       val repJ = new TestIgnoredTrackingReporter
       j.run(None, repJ, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
-      assert(!repI.testIgnoredReceived)
-      assert(!j.theTestThisCalled)
-      assert(!j.theTestThatCalled)
-      assert(j.theTestTheOtherCalled)
+      assert(!repJ.testIgnoredReceived)
+      assert(!j.counts.theTestThisCalled)
+      assert(!j.counts.theTestThatCalled)
+      assert(j.counts.theTestTheOtherCalled)
 
       // Same as previous, except Ignore specifically mentioned in excludes set
-      class KFunSpec extends PathFunSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { theTestThisCalled = true }
-        ignore("test that", mytags.SlowAsMolasses) { theTestThatCalled = true }
-        ignore("test the other") { theTestTheOtherCalled = true }
-        override def newInstance = new KFunSpec
+      class KFunSpec(val counts: ThreeCounts) extends PathFunSpec {
+        ignore("test this", mytags.SlowAsMolasses, mytags.FastAsLight) { counts.theTestThisCalled = true }
+        ignore("test that", mytags.SlowAsMolasses) { counts.theTestThatCalled = true }
+        ignore("test the other") { counts.theTestTheOtherCalled = true }
+        override def newInstance = new KFunSpec(counts)
       }
-      val k = new KFunSpec
+      val k = new KFunSpec(ThreeCounts(false, false, false))
       val repK = new TestIgnoredTrackingReporter
       k.run(None, repK, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses", "org.scalatest.Ignore")), Map(), None, new Tracker)
       assert(repK.testIgnoredReceived)
-      assert(!k.theTestThisCalled)
-      assert(!k.theTestThatCalled)
-      assert(!k.theTestTheOtherCalled)
+      assert(!k.counts.theTestThisCalled)
+      assert(!k.counts.theTestThatCalled)
+      assert(!k.counts.theTestTheOtherCalled)
     }
 
     "should return the correct test count from its expectedTestCount method" in {
