@@ -125,47 +125,56 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
 
     it("should return the test names in registration order from testNames") {
 
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "it should test this" in {}
         "it should test that" in {}
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
 
       expect(List("it should test this", "it should test that")) {
         a.testNames.iterator.toList
       }
 
-      val b = new PathFreeSpec {}
+      class BFreeSpec extends PathFreeSpec
+      val b = new BFreeSpec
 
       expect(List[String]()) {
         b.testNames.iterator.toList
       }
 
-      val c = new PathFreeSpec {
+      class CFreeSpec extends PathFreeSpec {
         "it should test that" in {}
         "it should test this" in {}
+        override def newInstance = new CFreeSpec
       }
+      val c = new CFreeSpec
 
       expect(List("it should test that", "it should test this")) {
         c.testNames.iterator.toList
       }
 
-      val d = new PathFreeSpec {
+      class DFreeSpec extends PathFreeSpec {
         "A Tester" - {
           "should test that" in {}
           "should test this" in {}
         }
+        override def newInstance = new DFreeSpec
       }
+      val d = new DFreeSpec
 
       expect(List("A Tester should test that", "A Tester should test this")) {
         d.testNames.iterator.toList
       }
 
-      val e = new PathFreeSpec {
+      class EFreeSpec extends PathFreeSpec {
         "A Tester" - {
           "should test this" in {}
           "should test that" in {}
         }
+        override def newInstance = new EFreeSpec
       }
+      val e = new EFreeSpec
 
       expect(List("A Tester should test this", "A Tester should test that")) {
         e.testNames.iterator.toList
@@ -308,58 +317,72 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     }
     it("should return a correct tags map from the tags method using is (pending)") {
 
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "test this" ignore {}
         "test that" is (pending)
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       expect(Map("test this" -> Set("org.scalatest.Ignore"))) {
         a.tags
       }
 
-      val b = new PathFreeSpec {
+      class BFreeSpec extends PathFreeSpec {
         "test this" is (pending)
         "test that" ignore {}
+        override def newInstance = new BFreeSpec
       }
+      val b = new BFreeSpec
       expect(Map("test that" -> Set("org.scalatest.Ignore"))) {
         b.tags
       }
 
-      val c = new PathFreeSpec {
+      class CFreeSpec extends PathFreeSpec {
         "test this" ignore {}
         "test that" ignore {}
+        override def newInstance = new CFreeSpec
       }
+      val c = new CFreeSpec
       expect(Map("test this" -> Set("org.scalatest.Ignore"), "test that" -> Set("org.scalatest.Ignore"))) {
         c.tags
       }
 
-      val d = new PathFreeSpec {
+      class DFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.SlowAsMolasses) is (pending)
         "test that" taggedAs(mytags.SlowAsMolasses) ignore {}
+        override def newInstance = new DFreeSpec
       }
+      val d = new DFreeSpec
       expect(Map("test this" -> Set("org.scalatest.SlowAsMolasses"), "test that" -> Set("org.scalatest.Ignore", "org.scalatest.SlowAsMolasses"))) {
         d.tags
       }
 
-      val e = new PathFreeSpec {
+      class EFreeSpec extends PathFreeSpec {
         "test this" is (pending)
         "test that" is (pending)
+        override def newInstance = new EFreeSpec
       }
+      val e = new EFreeSpec
       expect(Map()) {
         e.tags
       }
 
-      val f = new PathFreeSpec {
+      class FFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.WeakAsAKitten) is (pending)
         "test that" taggedAs(mytags.SlowAsMolasses) in  {}
+        override def newInstance = new FFreeSpec
       }
+      val f = new FFreeSpec
       expect(Map("test this" -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"), "test that" -> Set("org.scalatest.SlowAsMolasses"))) {
         f.tags
       }
 
-      val g = new PathFreeSpec {
+      class GFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.WeakAsAKitten) is (pending)
         "test that" taggedAs(mytags.SlowAsMolasses) in  {}
+        override def newInstance = new GFreeSpec
       }
+      val g = new GFreeSpec
       expect(Map("test this" -> Set("org.scalatest.SlowAsMolasses", "org.scalatest.WeakAsAKitten"), "test that" -> Set("org.scalatest.SlowAsMolasses"))) {
         g.tags
       }
@@ -390,12 +413,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
 
     it("should report as ignored, and not run, tests marked ignored") {
 
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" in { theTestThisCalled = true }
         "test that" in { theTestThatCalled = true }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
 
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -403,12 +428,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(a.theTestThisCalled)
       assert(a.theTestThatCalled)
 
-      val b = new PathFreeSpec {
+      class BFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" ignore { theTestThisCalled = true }
         "test that" in { theTestThatCalled = true }
+        override def newInstance = new BFreeSpec
       }
+      val b = new BFreeSpec
 
       val repB = new TestIgnoredTrackingReporter
       b.run(None, repB, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -418,12 +445,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!b.theTestThisCalled)
       assert(b.theTestThatCalled)
 
-      val c = new PathFreeSpec {
+      class CFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" in { theTestThisCalled = true }
         "test that" ignore { theTestThatCalled = true }
+        override def newInstance = new CFreeSpec
       }
+      val c = new CFreeSpec
 
       val repC = new TestIgnoredTrackingReporter
       c.run(None, repC, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -435,12 +464,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
 
       // The order I want is order of appearance in the file.
       // Will try and implement that tomorrow. Subtypes will be able to change the order.
-      val d = new PathFreeSpec {
+      class DFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" ignore { theTestThisCalled = true }
         "test that" ignore { theTestThatCalled = true }
+        override def newInstance = new DFreeSpec
       }
+      val d = new DFreeSpec
 
       val repD = new TestIgnoredTrackingReporter
       d.run(None, repD, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -454,12 +485,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     it("should ignore a test marked as ignored if run is invoked with that testName") {
       // If I provide a specific testName to run, then it should ignore an Ignore on that test
       // method and actually invoke it.
-      val e = new PathFreeSpec {
+      class EFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" ignore { theTestThisCalled = true }
         "test that" in { theTestThatCalled = true }
+        override def newInstance = new EFreeSpec
       }
+      val e = new EFreeSpec
 
       val repE = new TestIgnoredTrackingReporter
       e.run(Some("test this"), repE, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -471,12 +504,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     it("should run only those tests selected by the tags to include and exclude sets") {
 
       // Nothing is excluded
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
         "test that" in { theTestThatCalled = true }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(!repA.testIgnoredReceived)
@@ -484,12 +519,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(a.theTestThatCalled)
 
       // SlowAsMolasses is included, one test should be excluded
-      val b = new PathFreeSpec {
+      class BFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
         "test that" in { theTestThatCalled = true }
+        override def newInstance = new BFreeSpec
       }
+      val b = new BFreeSpec
       val repB = new TestIgnoredTrackingReporter
       b.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
       assert(!repB.testIgnoredReceived)
@@ -497,12 +534,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!b.theTestThatCalled)
 
       // SlowAsMolasses is included, and both tests should be included
-      val c = new PathFreeSpec {
+      class CFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
+        override def newInstance = new CFreeSpec
       }
+      val c = new CFreeSpec
       val repC = new TestIgnoredTrackingReporter
       c.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
       assert(!repC.testIgnoredReceived)
@@ -510,12 +549,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(c.theTestThatCalled)
 
       // SlowAsMolasses is included. both tests should be included but one ignored
-      val d = new PathFreeSpec {
+      class DFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses) ignore { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
+        override def newInstance = new DFreeSpec
       }
+      val d = new DFreeSpec
       val repD = new TestIgnoredTrackingReporter
       d.run(None, repD, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.Ignore")), Map(), None, new Tracker)
       assert(repD.testIgnoredReceived)
@@ -523,14 +564,16 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(d.theTestThatCalled)
 
       // SlowAsMolasses included, FastAsLight excluded
-      val e = new PathFreeSpec {
+      class EFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         var theTestTheOtherCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
         "test the other" in { theTestTheOtherCalled = true }
+        override def newInstance = new EFreeSpec
       }
+      val e = new EFreeSpec
       val repE = new TestIgnoredTrackingReporter
       e.run(None, repE, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
@@ -540,14 +583,16 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!e.theTestTheOtherCalled)
 
       // An Ignored test that was both included and excluded should not generate a TestIgnored event
-      val f = new PathFreeSpec {
+      class FFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         var theTestTheOtherCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
         "test the other" in { theTestTheOtherCalled = true }
+        override def newInstance = new FFreeSpec
       }
+      val f = new FFreeSpec
       val repF = new TestIgnoredTrackingReporter
       f.run(None, repF, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
@@ -557,14 +602,16 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!f.theTestTheOtherCalled)
 
       // An Ignored test that was not included should not generate a TestIgnored event
-      val g = new PathFreeSpec {
+      class GFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         var theTestTheOtherCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
         "test the other" ignore { theTestTheOtherCalled = true }
+        override def newInstance = new GFreeSpec
       }
+      val g = new GFreeSpec
       val repG = new TestIgnoredTrackingReporter
       g.run(None, repG, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
@@ -574,14 +621,16 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!g.theTestTheOtherCalled)
 
       // No tagsToInclude set, FastAsLight excluded
-      val h = new PathFreeSpec {
+      class HFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         var theTestTheOtherCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
         "test the other" in { theTestTheOtherCalled = true }
+        override def newInstance = new HFreeSpec
       }
+      val h = new HFreeSpec
       val repH = new TestIgnoredTrackingReporter
       h.run(None, repH, new Stopper {}, Filter(None, Set("org.scalatest.FastAsLight")), Map(), None, new Tracker)
       assert(!repH.testIgnoredReceived)
@@ -590,14 +639,16 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(h.theTestTheOtherCalled)
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded
-      val i = new PathFreeSpec {
+      class IFreeSpec extends PathFreeSpec {
         var theTestThisCalled = false
         var theTestThatCalled = false
         var theTestTheOtherCalled = false
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
         "test the other" in { theTestTheOtherCalled = true }
+        override def newInstance = new IFreeSpec
       }
+      val i = new IFreeSpec
       val repI = new TestIgnoredTrackingReporter
       i.run(None, repI, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
       assert(!repI.testIgnoredReceived)
@@ -640,40 +691,50 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
 
     it("should return the correct test count from its expectedTestCount method") {
 
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "test this" in {}
         "test that" in {}
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       assert(a.expectedTestCount(Filter()) === 2)
 
-      val b = new PathFreeSpec {
+      class BFreeSpec extends PathFreeSpec {
         "test this" ignore {}
         "test that" in {}
+        override def newInstance = new BFreeSpec
       }
+      val b = new BFreeSpec
       assert(b.expectedTestCount(Filter()) === 1)
 
-      val c = new PathFreeSpec {
+      class CFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.FastAsLight) in {}
         "test that" in {}
+        override def newInstance = new CFreeSpec
       }
+      val c = new CFreeSpec
       assert(c.expectedTestCount(Filter(Some(Set("org.scalatest.FastAsLight")), Set())) === 1)
       assert(c.expectedTestCount(Filter(None, Set("org.scalatest.FastAsLight"))) === 1)
 
-      val d = new PathFreeSpec {
+      class DFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.FastAsLight, mytags.SlowAsMolasses) in {}
         "test that" taggedAs(mytags.SlowAsMolasses) in {}
         "test the other thing" in {}
+        override def newInstance = new DFreeSpec
       }
+      val d = new DFreeSpec
       assert(d.expectedTestCount(Filter(Some(Set("org.scalatest.FastAsLight")), Set())) === 1)
       assert(d.expectedTestCount(Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight"))) === 1)
       assert(d.expectedTestCount(Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 1)
       assert(d.expectedTestCount(Filter()) === 3)
 
-      val e = new PathFreeSpec {
+      class EFreeSpec extends PathFreeSpec {
         "test this" taggedAs(mytags.FastAsLight, mytags.SlowAsMolasses) in {}
         "test that" taggedAs(mytags.SlowAsMolasses) in {}
         "test the other thing" ignore {}
+        override def newInstance = new EFreeSpec
       }
+      val e = new EFreeSpec
       assert(e.expectedTestCount(Filter(Some(Set("org.scalatest.FastAsLight")), Set())) === 1)
       assert(e.expectedTestCount(Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight"))) === 1)
       assert(e.expectedTestCount(Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 0)
@@ -683,7 +744,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(f.expectedTestCount(Filter()) === 10)
     }
     it("should generate a TestPending message when the test body is (pending)") {
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
 
         "should do this" is (pending)
 
@@ -694,7 +755,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
           assert(2 + 2 === 4)
           pending
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val tp = rep.testPendingEventsReceived
@@ -702,13 +765,15 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     }
     it("should generate a test failure if a Throwable, or an Error other than direct Error subtypes " +
             "known in JDK 1.5, excluding AssertionError") {
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "This FreeSpec" - {
           "should throw AssertionError" in { throw new AssertionError }
           "should throw plain old Error" in { throw new Error }
           "should throw Throwable" in { throw new Throwable }
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val tf = rep.testFailedEventsReceived
@@ -716,18 +781,21 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     }
     it("should propagate out Errors that are direct subtypes of Error in JDK 1.5, other than " +
             "AssertionError, causing Suites and Runs to abort.") {
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "This FreeSpec" - {
           "should throw AssertionError" in { throw new OutOfMemoryError }
         }
+        override def newInstance = new AFreeSpec
       }
+      // val a = new AFreeSpec
       intercept[OutOfMemoryError] {
-        a.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
+        new AFreeSpec
+        // a.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker())
       }
     }
     it("should send InfoProvided events with aboutAPendingTest set to true for info " +
             "calls made from a test that is pending") {
-      val a = new PathFreeSpec with GivenWhenThen {
+      class AFreeSpec extends PathFreeSpec with GivenWhenThen {
         "A FreeSpec" - {
           "should do something" in {
             given("two integers")
@@ -736,7 +804,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
             pending
           }
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ip = rep.infoProvidedEventsReceived
@@ -747,7 +817,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     }
     it("should send InfoProvided events with aboutAPendingTest set to false for info " +
             "calls made from a test that is not pending") {
-      val a = new PathFreeSpec with GivenWhenThen {
+      class AFreeSpec extends PathFreeSpec with GivenWhenThen {
         "A FreeSpec" - {
           "should do something" in {
             given("two integers")
@@ -756,7 +826,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
             assert(1 + 1 === 2)
           }
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ip = rep.infoProvidedEventsReceived
@@ -766,7 +838,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       }
     }
     it("should not put parentheses around should clauses that follow when") {
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "A Stack" - {
           "when empty" - {
             "should chill out" in {
@@ -774,7 +846,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
             }
           }
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ts = rep.testSucceededEventsReceived
@@ -782,13 +856,15 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(ts.head.testName === "A Stack when empty should chill out")
     }
     it("should not put parentheses around should clauses that don't follow when") {
-      val a = new PathFreeSpec {
+      class AFreeSpec extends PathFreeSpec {
         "A Stack" - {
           "should chill out" in {
             assert(1 + 1 === 2)
           }
         }
+        override def newInstance = new AFreeSpec
       }
+      val a = new AFreeSpec
       val rep = new EventRecordingReporter
       a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
       val ts = rep.testSucceededEventsReceived
