@@ -270,6 +270,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
           "howdy also" in {
             callInfo() // This should work fine
           }
+          override def newInstance = new MySpec
         }
         val spec = new MySpec
         val myRep = new EventRecordingReporter

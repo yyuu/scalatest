@@ -493,7 +493,7 @@ trait FreeSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =
       configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
 
     ensureTestResultsRegistered(thisSuite)
-    runTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
+    runPathTestsImpl(thisSuite, testName, reporter, stopper, filter, configMap, distributor, tracker, info, true, runTest)
   }
 
   // This guy must check the path. If null, that's the first instance, so go zero zero zero until hit first test, then execute it (if testName is
