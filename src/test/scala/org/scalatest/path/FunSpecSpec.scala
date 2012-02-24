@@ -225,13 +225,9 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
 
         class MySpec extends PathFunSpec {
           it("should blow up") {
-            println("BEGIN: should blow up")
             it("should never run") {
-              println("BEGIN: should never run")
               assert(1 === 1)
-              println("END: should never run")
             }
-            println("END: should blow up")
           }
           override def newInstance = new MySpec
         }
@@ -697,10 +693,12 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(d.expectedTestCount(Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 1)
       assert(d.expectedTestCount(Filter()) === 3)
 
+      println("got here")
       class EFunSpec extends PathFunSpec {
         it("test this", mytags.FastAsLight, mytags.SlowAsMolasses) {}
         it("test that", mytags.SlowAsMolasses) {}
         ignore("test the other thing") {}
+       // ignore("test the other thing") {}
         override def newInstance = new EFunSpec
       }
       val e = new EFunSpec

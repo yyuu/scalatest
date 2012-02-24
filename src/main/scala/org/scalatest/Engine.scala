@@ -569,7 +569,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
           usedPathSet = Set.empty[String]
           targetLeafHasBeenReached = false
           nextTargetPath = None
-          testResultsRegistered = false
+          // testResultsRegistered = false
           currentInstance = callingInstance.newInstance  
         }
       }
@@ -755,14 +755,24 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     }
     if (!swapAndCompareSucceeded)  // Do outside finally to workaround Scala compiler bug
       throw new ConcurrentModificationException(Resources("concurrentInformerMod", theSuite.getClass.getName))
-   }
+  }
    
-   override def registerIgnoredTest(testText: String, f: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
-    if (insideAPathTest)
-      throw new TestRegistrationClosedException(Resources("describeCannotAppearInsideAnIt"), getStackDepthFun(sourceFileName, methodName))
+  def handleIgnoredTest(testText: String, f: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
 
-     super.registerIgnoredTest(testText, f, "ignoreCannotAppearInsideAnIt", "FunSpec.scala", "ignore", testTags: _*)
-   }
+    if (insideAPathTest) 
+      throw new TestRegistrationClosedException(Resources("ignoreCannotAppearInsideAnIt"), getStackDepthFun(sourceFileName, methodName))
+    
+    describeRegisteredNoTests = false
+    val nextPath = getNextPath()
+    if (isInTargetPath(nextPath, targetPath)) {
+
+      super.registerIgnoredTest(testText, f, "ignoreCannotAppearInsideAnIt", "FunSpec.scala", "ignore", testTags: _*)
+      targetLeafHasBeenReached = true
+    }
+    else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
+      nextTargetPath = Some(nextPath)
+    }
+  }
 
   /*
   def replayTest(

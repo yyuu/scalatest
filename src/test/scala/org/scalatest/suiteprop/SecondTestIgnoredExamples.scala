@@ -101,6 +101,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
   class PathFunSpecExample extends path.FunSpec with Services {
     it("first test") {}
     ignore("second test") {}
+    override def newInstance = new PathFunSpecExample
   }
 
   class NestedPathFunSpecExample extends path.FunSpec with NestedTestNames {
@@ -108,6 +109,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
       it("should first test") {}
       ignore("should second test") {}
     }
+    override def newInstance = new NestedPathFunSpecExample
   }
 
   class DeeplyNestedPathFunSpecExample extends path.FunSpec with DeeplyNestedTestNames {
@@ -117,6 +119,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
         ignore("should second test") {}
       }
     }
+    override def newInstance = new DeeplyNestedPathFunSpecExample
   }
 
   class WordSpecExample extends WordSpec with Services {
@@ -372,6 +375,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
   class PathFreeSpecExample extends path.FreeSpec with Services {
     "first test" in {}
     "second test" ignore {}
+    override def newInstance = new PathFreeSpecExample
   }
 
   class NestedPathFreeSpecExample extends path.FreeSpec with NestedTestNames {
@@ -379,6 +383,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
       "should first test" in {}
       "should second test" ignore {}
     }
+    override def newInstance = new NestedPathFreeSpecExample
   }
 
   class DeeplyNestedPathFreeSpecExample extends path.FreeSpec with DeeplyNestedTestNames {
@@ -388,6 +393,7 @@ class SecondTestIgnoredExamples extends SuiteExamples {
         "should second test" ignore {}
       }
     }
+    override def newInstance = new DeeplyNestedPathFreeSpecExample
   }
 
   class FeatureSpecExample extends FeatureSpec with Services {
