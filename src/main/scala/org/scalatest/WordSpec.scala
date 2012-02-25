@@ -1643,7 +1643,7 @@ trait WordSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    */
   private def registerTestToRun(specText: String, testTags: List[Tag], testFun: () => Unit) {
     // TODO: This is what was being used before but it is wrong
-    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "WordSpec.scala", "it", None, testTags: _*)
+    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "WordSpec.scala", "it", None, None, testTags: _*)
   }
 
   /**

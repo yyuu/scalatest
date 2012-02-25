@@ -84,16 +84,16 @@ class EngineSpec extends FlatSpec with SharedHelpers with ShouldMatchers {
         engine.registerTest("then the list has only 1 in it", () => {
           list should be (ListBuffer(1)) 
           list.clear()
-        }, "Anything", "Anything", "Anything", None)
+        }, "Anything", "Anything", "Anything", None, None)
         engine.registerTest("then the list length = 1", () => {
           list.length should be (1) 
-        }, "Anything", "Anything", "Anything", None)
+        }, "Anything", "Anything", "Anything", None, None)
       }, "Anything", "Anything", "Anything")
       engine.registerNestedBranch("when 2 is inserted", None, {
         list += 2
         engine.registerTest("then the list has only 2 in it", () => {
           list should be (ListBuffer(2)) 
-        }, "Anything", "Anything", "Anything", None)
+        }, "Anything", "Anything", "Anything", None, None)
       }, "Anything", "Anything", "Anything")
     }, "Anything", "Anything", "Anything")
     engine

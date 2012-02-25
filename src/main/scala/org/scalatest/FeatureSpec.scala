@@ -1571,7 +1571,7 @@ trait FeatureSpec extends Suite { thisSuite =>
    */
   protected def scenario(specText: String, testTags: Tag*)(testFun: => Unit) {
 
-    registerTest(Resources("scenario", specText), testFun _, "scenarioCannotAppearInsideAnotherScenario", "FeatureSpec.scala", "scenario", None, testTags: _*)
+    registerTest(Resources("scenario", specText), testFun _, "scenarioCannotAppearInsideAnotherScenario", "FeatureSpec.scala", "scenario", None, None, testTags: _*)
   }
 
   /**

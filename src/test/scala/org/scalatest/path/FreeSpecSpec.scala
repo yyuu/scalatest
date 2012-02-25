@@ -40,7 +40,6 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
         ensureTestFailedEventReceived(spec, "should blow up")
       }
       it("should, if they call a describe with a nested it from within an it clause, result in a TestFailedException when running the test") {
-
         class MySpec extends PathFreeSpec {
           "should blow up" in {
             "in the wrong place, at the wrong time" - {
@@ -54,6 +53,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
         val spec = new MySpec
         ensureTestFailedEventReceived(spec, "should blow up")
       }
+
       it("should, if they call a nested it from within an it clause, result in a TestFailedException when running the test") {
 
         class MySpec extends PathFreeSpec {
@@ -878,6 +878,25 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       val ts = rep.testSucceededEventsReceived
       assert(ts.size === 1)
       assert(ts.head.testName === "A Stack should chill out")
+    }
+    
+    it ("should report the duration of the actuall running of the test, not the replaying of the test") {
+      class AFreeSpec extends PathFreeSpec {
+        "A Stack" - {
+          "should chill out" in {
+            Thread.sleep(100)
+          }
+        }
+        override def newInstance = new AFreeSpec        
+      }
+      val a = new AFreeSpec
+      val rep = new EventRecordingReporter
+      a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
+      val ts = rep.testSucceededEventsReceived
+      assert(ts.size === 1)
+      import OptionValues._
+      val dura = ts.head.duration.value
+      assert(dura > 80, "duration was: " + dura)
     }
   }
 }

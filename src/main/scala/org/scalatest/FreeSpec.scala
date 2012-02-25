@@ -1513,7 +1513,7 @@ trait FreeSpec extends Suite { thisSuite =>
    */
   private def registerTestToRun(specText: String, testTags: List[Tag], testFun: () => Unit) {
     // TODO: This is what was being used before but it is wrong
-    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FreeSpec.scala", "it", None, testTags: _*)
+    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FreeSpec.scala", "it", None, None, testTags: _*)
   }
 
   /**

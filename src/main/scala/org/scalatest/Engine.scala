@@ -55,6 +55,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     testName: String, // The full test name
     testText: String, // The last portion of the test name that showed up on an inner most nested level
     testFun: T,
+    recordedDuration: Option[Long] = None,
     recordedMessages: Option[PathMessageRecordingInformer] = None
   ) extends Node(Some(parent))
 
@@ -176,7 +177,8 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       invokeWithFixture(theTest)
 
       val duration = System.currentTimeMillis - testStartTime
-      reportTestSucceeded(theSuite, report, tracker, testName, duration, formatter, rerunnable)
+      val durationToReport = theTest.recordedDuration.getOrElse(duration)
+      reportTestSucceeded(theSuite, report, tracker, testName, durationToReport, formatter, rerunnable)
     }
     catch { // XXX
       case _: TestPendingException =>
@@ -184,7 +186,8 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
         testWasPending = true // Set so info's printed out in the finally clause show up yellow
       case e if !anErrorThatShouldCauseAnAbort(e) =>
         val duration = System.currentTimeMillis - testStartTime
-        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon)
+        val durationToReport = theTest.recordedDuration.getOrElse(duration)
+        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, durationToReport, theTest.indentationLevel, includeIcon)
       case e => throw e
     }
     finally {
@@ -225,7 +228,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     branch.subNodes.reverse.foreach { node =>
       if (!stopRequested()) {
         node match {
-          case testLeaf @ TestLeaf(_, testName, testText, _, _) =>
+          case testLeaf @ TestLeaf(_, testName, testText, _, _, _) =>
             val (filterTest, ignoreTest) = filter(testName, theSuite.tags)
             if (!filterTest)
               if (ignoreTest) {
@@ -416,7 +419,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
   }
 
   // Path traits need to register the message recording informer, so it can fire any info events later
-  def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, informer: Option[PathMessageRecordingInformer], testTags: Tag*): String = { // returns testName
+  def registerTest(testText: String, testFun: T, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, duration: Option[Long], informer: Option[PathMessageRecordingInformer], testTags: Tag*): String = { // returns testName
 
     checkRegisterTestParamsForNull(testText, testTags: _*)
 
@@ -432,7 +435,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     if (atomic.get.testsMap.keySet.contains(testName))
       throw new DuplicateTestNameException(testName, getStackDepthFun(sourceFileName, methodName))
 
-    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, informer)
+    val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, duration, informer)
     testsMap += (testName -> testLeaf)
     testNamesList ::= testName
     currentBranch.subNodes ::= testLeaf
@@ -454,7 +457,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
 //    if (atomic.get.registrationClosed)
 //      throw new TestRegistrationClosedException(Resources("ignoreCannotAppearInsideATest"), getStackDepth(sourceFileName, "ignore"))
 
-    val testName = registerTest(testText, f, testRegistrationClosedResourceName, sourceFileName, methodName, None) // Call test without passing the tags
+    val testName = registerTest(testText, f, testRegistrationClosedResourceName, sourceFileName, methodName, None, None) // Call test without passing the tags
 
     val oldBundle = atomic.get
     var (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
@@ -594,15 +597,17 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
         // Default value of None indicates successful test
         var resultOfRunningTest: Option[Throwable] = None
           //theTest.indentationLevel + 1
-      val informerForThisTest =
-        PathMessageRecordingInformer(
-          (message, wasConstructingThread, testWasPending, theSuite, report, tracker, testName, indentation, includeIcon, thread) =>
+        val informerForThisTest =
+          PathMessageRecordingInformer(
+            (message, wasConstructingThread, testWasPending, theSuite, report, tracker, testName, indentation, includeIcon, thread) =>
               reportInfoProvided(theSuite, report, tracker, Some(testName), message, indentation, wasConstructingThread, includeIcon, Some(testWasPending))
-        )
+          )
 
-      val oldInformer = atomicInformer.getAndSet(informerForThisTest)
-    
-      try { // TODO: Correctly record the time a test takes and report that
+        val oldInformer = atomicInformer.getAndSet(informerForThisTest)
+
+        var durationOfRunningTest: Long = -1
+        var startTime: Long = System.currentTimeMillis
+        try { // TODO: Correctly record the time a test takes and report that
           // I think I need to replace the Informer with one that records the message and whether the
           // thread was this thread, and then...
           testFun()
@@ -613,6 +618,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
             resultOfRunningTest = Some(e)
         }
         finally {
+          durationOfRunningTest = System.currentTimeMillis - startTime
           val shouldBeInformerForThisTest = atomicInformer.getAndSet(oldInformer)
           val swapAndCompareSucceeded = shouldBeInformerForThisTest eq informerForThisTest
           if (!swapAndCompareSucceeded)
@@ -629,7 +635,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
         }
         // register with         informerForThisTest.fireRecordedMessages(testWasPending)
 
-        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", Some(informerForThisTest), testTags: _*)
+        registerTest(testText, newTestFun, "itCannotAppearInsideAnotherIt", "FunSpec.scala", "apply", Some(durationOfRunningTest), Some(informerForThisTest), testTags: _*)
         targetLeafHasBeenReached = true
       }
       else if (targetLeafHasBeenReached && nextTargetPath.isEmpty) {
@@ -773,65 +779,6 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
       nextTargetPath = Some(nextPath)
     }
   }
-
-  /*
-  def replayTest(
-    theSuite: Suite,
-    testName: String,
-    reporter: Reporter,
-    stopper: Stopper,
-    configMap: Map[String, Any],
-    tracker: Tracker,
-    includeIcon: Boolean
-  ) {
-
-    checkRunTestParamsForNull(testName, reporter, stopper, configMap, tracker)
-
-    val (stopRequested, report, hasPublicNoArgConstructor, rerunnable, testStartTime) =
-      theSuite.getRunTestGoodies(stopper, reporter, testName)
-
-    reportTestStarting(theSuite, report, tracker, testName, rerunnable)
-
-    if (!atomic.get.testsMap.contains(testName))
-      throw new IllegalArgumentException("No test in this suite has name: \"" + testName + "\"")
-
-    val theTest = atomic.get.testsMap(testName)
-
-    val testTextWithOptionalPrefix = prependChildPrefix(theTest.parent, theTest.testText)
-    val formatter = getIndentedText(testTextWithOptionalPrefix, theTest.indentationLevel, includeIcon)
-
-    val informerForThisTest =
-      MessageRecordingInformer2(
-        (message, isConstructingThread, testWasPending) => reportInfoProvided(theSuite, report, tracker, Some(testName), message, theTest.indentationLevel + 1, isConstructingThread, includeIcon, Some(testWasPending))
-      )
-
-    val oldInformer = atomicInformer.getAndSet(informerForThisTest)
-    var testWasPending = false
-
-    try {
-
-      theTest.testFun()// invokeWithFixture(theTest)
-
-      val duration = System.currentTimeMillis - testStartTime
-      reportTestSucceeded(theSuite, report, tracker, testName, duration, formatter, rerunnable)
-    }
-    catch { 
-      case _: TestPendingException =>
-        reportTestPending(theSuite, report, tracker, testName, formatter)
-        testWasPending = true // Set so info's printed out in the finally clause show up yellow
-      case e if !anErrorThatShouldCauseAnAbort(e) =>
-        val duration = System.currentTimeMillis - testStartTime
-        reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, duration, theTest.indentationLevel, includeIcon)
-      case e => throw e
-    }
-    finally {
-      informerForThisTest.fireRecordedMessages(testWasPending)
-      val shouldBeInformerForThisTest = atomicInformer.getAndSet(oldInformer)
-      val swapAndCompareSucceeded = shouldBeInformerForThisTest eq informerForThisTest
-      if (!swapAndCompareSucceeded)
-        throw new ConcurrentModificationException(Resources("concurrentInformerMod", theSuite.getClass.getName))
-    }
-  }*/
 }
 
 private[scalatest] object PathEngine {
@@ -860,7 +807,7 @@ private[scalatest] object PathEngine {
       allZeros(currentPath)
     else {
       if (currentPath.length < targetPath.get.length)
-        targetPath.get.take(currentPath.length) == currentPath // TODO: deal with sibling describes
+        targetPath.get.take(currentPath.length) == currentPath
       else if (currentPath.length > targetPath.get.length)
         (currentPath.take(targetPath.get.length) == targetPath.get) && (!currentPath.drop(targetPath.get.length).exists(_ != 0)) // TODO: deal with sibling describes
       else

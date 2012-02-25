@@ -1326,7 +1326,7 @@ trait FunSpec extends Suite { thisSuite =>
      * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
      */
     def apply(specText: String, testTags: Tag*)(testFun: => Unit) {
-      registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", sourceFileName, "apply", None, testTags: _*)
+      registerTest(specText, testFun _, "itCannotAppearInsideAnotherIt", sourceFileName, "apply", None, None, testTags: _*)
     }
 
     /**
