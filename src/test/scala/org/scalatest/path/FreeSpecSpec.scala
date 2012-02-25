@@ -630,7 +630,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(!g.counts.theTestTheOtherCalled)
       assert(repG.testStartingEventsReceived.size === 1)
       assert(repG.testStartingEventsReceived(0).testName === "test that")
-/*
+
       // No tagsToInclude set, FastAsLight excluded
       class HFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { counts.theTestThisCalled = true }
@@ -664,13 +664,14 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       assert(i.counts.theTestThatCalled)
       assert(i.counts.theTestTheOtherCalled)
       assert(repI.testStartingEventsReceived.size === 1)
-      assert(repI.testStartingEventsReceived(0).testName === "test the other")*/
+      assert(repI.testStartingEventsReceived(0).testName === "test the other")
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded, TestIgnored should not be received on excluded ones
       class JFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { counts.theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) ignore { counts.theTestThatCalled = true }
         "test the other" in { counts.theTestTheOtherCalled = true }
+        override def newInstance = new JFreeSpec(counts)
       }
       val j = new JFreeSpec(ThreeCounts(false, false, false))
       val repJ = new TestIgnoredTrackingReporter
@@ -685,6 +686,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
         "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { counts.theTestThisCalled = true }
         "test that" taggedAs(mytags.SlowAsMolasses) ignore { counts.theTestThatCalled = true }
         "test the other" ignore { counts.theTestTheOtherCalled = true }
+        override def newInstance = new KFreeSpec(counts)
       }
       val k = new KFreeSpec(ThreeCounts(false, false, false))
       val repK = new TestIgnoredTrackingReporter
