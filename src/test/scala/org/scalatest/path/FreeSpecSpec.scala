@@ -399,98 +399,103 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       }
     }
 
-    class TestWasCalledSuite extends PathFreeSpec {
-      var theTestThisCalled = false
-      var theTestThatCalled = false
-      "run this" in { theTestThisCalled = true }
-      "run that, maybe" in { theTestThatCalled = true }
+    case class TestWasCalledCounts(var theTestThisCalled: Boolean, var theTestThatCalled: Boolean)
+
+    class TestWasCalledSuite(val counts: TestWasCalledCounts) extends PathFreeSpec {
+      "run this" in { counts.theTestThisCalled = true }
+      "run that, maybe" in { counts.theTestThatCalled = true }
+      override def newInstance = new TestWasCalledSuite(counts)
     }
 
     it("should execute all tests when run is called with testName None") {
 
-      val b = new TestWasCalledSuite
+      val b = new TestWasCalledSuite(TestWasCalledCounts(false, false))
       b.run(None, SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(b.theTestThisCalled)
-      assert(b.theTestThatCalled)
+      assert(b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
     }
 
     it("should execute one test when run is called with a defined testName") {
 
-      val a = new TestWasCalledSuite
-      a.run(Some("run this"), SilentReporter, new Stopper {}, Filter(), Map(), None, new Tracker)
-      assert(a.theTestThisCalled)
-      assert(!a.theTestThatCalled)
+      val a = new TestWasCalledSuite(TestWasCalledCounts(false, false))
+      val rep = new EventRecordingReporter
+      a.run(Some("run this"), rep, new Stopper {}, Filter(), Map(), None, new Tracker)
+      assert(a.counts.theTestThisCalled)
+      assert(a.counts.theTestThatCalled)
+      rep.testSucceededEventsReceived
+      // val tse = rep.testSucceededEventsReceived
+      // assert(tse.size === 1)
+      // 99
+      val tse = rep.testSucceededEventsReceived
+      assert(tse.size === 1)
+      assert(tse(0).testName === "run this") 
+      val tfe = rep.testFailedEventsReceived
+      assert(tfe.size === 0)
+      val tste = rep.testStartingEventsReceived
+      assert(tste.size === 1)
     }
 
     it("should report as ignored, and not run, tests marked ignored") {
 
-      class AFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" in { theTestThisCalled = true }
-        "test that" in { theTestThatCalled = true }
-        override def newInstance = new AFreeSpec
+      class AFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" in { counts.theTestThisCalled = true }
+        "test that" in { counts.theTestThatCalled = true }
+        override def newInstance = new AFreeSpec(counts)
       }
-      val a = new AFreeSpec
+      val a = new AFreeSpec(TestWasCalledCounts(false, false))
 
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(!repA.testIgnoredReceived)
-      assert(a.theTestThisCalled)
-      assert(a.theTestThatCalled)
+      assert(a.counts.theTestThisCalled)
+      assert(a.counts.theTestThatCalled)
 
-      class BFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" ignore { theTestThisCalled = true }
-        "test that" in { theTestThatCalled = true }
-        override def newInstance = new BFreeSpec
+      class BFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" ignore { counts.theTestThisCalled = true }
+        "test that" in { counts.theTestThatCalled = true }
+        override def newInstance = new BFreeSpec(counts)
       }
-      val b = new BFreeSpec
+      val b = new BFreeSpec(TestWasCalledCounts(false, false))
 
       val repB = new TestIgnoredTrackingReporter
       b.run(None, repB, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(repB.testIgnoredReceived)
       assert(repB.lastEvent.isDefined)
       assert(repB.lastEvent.get.testName endsWith "test this")
-      assert(!b.theTestThisCalled)
-      assert(b.theTestThatCalled)
+      assert(!b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
 
-      class CFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" in { theTestThisCalled = true }
-        "test that" ignore { theTestThatCalled = true }
-        override def newInstance = new CFreeSpec
+      class CFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" in { counts.theTestThisCalled = true }
+        "test that" ignore { counts.theTestThatCalled = true }
+        override def newInstance = new CFreeSpec(counts)
       }
-      val c = new CFreeSpec
+      val c = new CFreeSpec(TestWasCalledCounts(false, false))
 
       val repC = new TestIgnoredTrackingReporter
       c.run(None, repC, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(repC.testIgnoredReceived)
       assert(repC.lastEvent.isDefined)
       assert(repC.lastEvent.get.testName endsWith "test that", repC.lastEvent.get.testName)
-      assert(c.theTestThisCalled)
-      assert(!c.theTestThatCalled)
+      assert(c.counts.theTestThisCalled)
+      assert(!c.counts.theTestThatCalled)
 
       // The order I want is order of appearance in the file.
       // Will try and implement that tomorrow. Subtypes will be able to change the order.
-      class DFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" ignore { theTestThisCalled = true }
-        "test that" ignore { theTestThatCalled = true }
-        override def newInstance = new DFreeSpec
+      class DFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" ignore { counts.theTestThisCalled = true }
+        "test that" ignore { counts.theTestThatCalled = true }
+        override def newInstance = new DFreeSpec(counts)
       }
-      val d = new DFreeSpec
+      val d = new DFreeSpec(TestWasCalledCounts(false, false))
 
       val repD = new TestIgnoredTrackingReporter
       d.run(None, repD, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(repD.testIgnoredReceived)
       assert(repD.lastEvent.isDefined)
       assert(repD.lastEvent.get.testName endsWith "test that") // last because should be in order of appearance
-      assert(!d.theTestThisCalled)
-      assert(!d.theTestThatCalled)
+      assert(!d.counts.theTestThisCalled)
+      assert(!d.counts.theTestThatCalled)
     }
 
     it("should ignore a test marked as ignored if run is invoked with that testName") {
@@ -515,189 +520,179 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
     it("should run only those tests selected by the tags to include and exclude sets") {
 
       // Nothing is excluded
-      class AFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
-        "test that" in { theTestThatCalled = true }
-        override def newInstance = new AFreeSpec
+      class AFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThisCalled = true }
+        "test that" in { counts.theTestThatCalled = true }
+        override def newInstance = new AFreeSpec(counts)
       }
-      val a = new AFreeSpec
+      val a = new AFreeSpec(TestWasCalledCounts(false, false))
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
       assert(!repA.testIgnoredReceived)
-      assert(a.theTestThisCalled)
-      assert(a.theTestThatCalled)
+      assert(a.counts.theTestThisCalled)
+      assert(a.counts.theTestThatCalled)
 
       // SlowAsMolasses is included, one test should be excluded
-      class BFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
-        "test that" in { theTestThatCalled = true }
-        override def newInstance = new BFreeSpec
+      class BFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThisCalled = true }
+        "test that" in { counts.theTestThatCalled = true }
+        override def newInstance = new BFreeSpec(counts)
       }
-      val b = new BFreeSpec
-      val repB = new TestIgnoredTrackingReporter
+      val b = new BFreeSpec(TestWasCalledCounts(false, false))
+      val repB = new EventRecordingReporter
       b.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
-      assert(!repB.testIgnoredReceived)
-      assert(b.theTestThisCalled)
-      assert(!b.theTestThatCalled)
+      assert(repB.testIgnoredEventsReceived.isEmpty)
+      assert(b.counts.theTestThisCalled)
+      assert(b.counts.theTestThatCalled)
+      assert(repB.testStartingEventsReceived.size === 1)
+      assert(repB.testStartingEventsReceived(0).testName == "test this")
 
       // SlowAsMolasses is included, and both tests should be included
-      class CFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses) in { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        override def newInstance = new CFreeSpec
+      class CFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        override def newInstance = new CFreeSpec(counts)
       }
-      val c = new CFreeSpec
-      val repC = new TestIgnoredTrackingReporter
-      c.run(None, repB, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
-      assert(!repC.testIgnoredReceived)
-      assert(c.theTestThisCalled)
-      assert(c.theTestThatCalled)
+      val c = new CFreeSpec(TestWasCalledCounts(false, false))
+      val repC = new EventRecordingReporter
+      c.run(None, repC, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set()), Map(), None, new Tracker)
+      assert(repC.testIgnoredEventsReceived.isEmpty)
+      assert(c.counts.theTestThisCalled)
+      assert(c.counts.theTestThatCalled)
+      assert(repC.testStartingEventsReceived.size === 2)
 
       // SlowAsMolasses is included. both tests should be included but one ignored
-      class DFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses) ignore { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        override def newInstance = new DFreeSpec
+      class DFreeSpec(val counts: TestWasCalledCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses) ignore { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        override def newInstance = new DFreeSpec(counts)
       }
-      val d = new DFreeSpec
-      val repD = new TestIgnoredTrackingReporter
+      val d = new DFreeSpec(TestWasCalledCounts(false, false))
+      val repD = new EventRecordingReporter
       d.run(None, repD, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.Ignore")), Map(), None, new Tracker)
-      assert(repD.testIgnoredReceived)
-      assert(!d.theTestThisCalled)
-      assert(d.theTestThatCalled)
+      assert(repD.testIgnoredEventsReceived.size === 1)
+      assert(!d.counts.theTestThisCalled)
+      assert(d.counts.theTestThatCalled)
+      assert(repD.testStartingEventsReceived.size === 1)
+      assert(repD.testStartingEventsReceived(0).testName === "test that")
 
+      case class ThreeCounts(var theTestThisCalled: Boolean, var theTestThatCalled: Boolean, var theTestTheOtherCalled: Boolean)
       // SlowAsMolasses included, FastAsLight excluded
-      class EFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        "test the other" in { theTestTheOtherCalled = true }
-        override def newInstance = new EFreeSpec
+      class EFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        "test the other" in { counts.theTestTheOtherCalled = true }
+        override def newInstance = new EFreeSpec(counts)
       }
-      val e = new EFreeSpec
-      val repE = new TestIgnoredTrackingReporter
+      val e = new EFreeSpec(ThreeCounts(false, false, false))
+      val repE = new EventRecordingReporter
       e.run(None, repE, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repE.testIgnoredReceived)
-      assert(!e.theTestThisCalled)
-      assert(e.theTestThatCalled)
-      assert(!e.theTestTheOtherCalled)
+      assert(repE.testIgnoredEventsReceived.isEmpty)
+      assert(e.counts.theTestThisCalled)
+      assert(e.counts.theTestThatCalled)
+      assert(e.counts.theTestTheOtherCalled)
+      assert(repE.testStartingEventsReceived.size === 1)
+      assert(repE.testStartingEventsReceived(0).testName === "test that")
 
       // An Ignored test that was both included and excluded should not generate a TestIgnored event
-      class FFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        "test the other" in { theTestTheOtherCalled = true }
-        override def newInstance = new FFreeSpec
+      class FFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        "test the other" in { counts.theTestTheOtherCalled = true }
+        override def newInstance = new FFreeSpec(counts)
       }
-      val f = new FFreeSpec
-      val repF = new TestIgnoredTrackingReporter
+      val f = new FFreeSpec(ThreeCounts(false, false, false))
+      val repF = new EventRecordingReporter
       f.run(None, repF, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repF.testIgnoredReceived)
-      assert(!f.theTestThisCalled)
-      assert(f.theTestThatCalled)
-      assert(!f.theTestTheOtherCalled)
+      assert(repE.testIgnoredEventsReceived.isEmpty)
+      assert(!f.counts.theTestThisCalled)
+      assert(f.counts.theTestThatCalled)
+      assert(f.counts.theTestTheOtherCalled)
+      assert(repE.testStartingEventsReceived.size === 1)
+      assert(repE.testStartingEventsReceived(0).testName === "test that")
 
       // An Ignored test that was not included should not generate a TestIgnored event
-      class GFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        "test the other" ignore { theTestTheOtherCalled = true }
-        override def newInstance = new GFreeSpec
+      class GFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        "test the other" ignore { counts.theTestTheOtherCalled = true }
+        override def newInstance = new GFreeSpec(counts)
       }
-      val g = new GFreeSpec
-      val repG = new TestIgnoredTrackingReporter
+      val g = new GFreeSpec(ThreeCounts(false, false, false))
+      val repG = new EventRecordingReporter
       g.run(None, repG, new Stopper {}, Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set("org.scalatest.FastAsLight")),
                 Map(), None, new Tracker)
-      assert(!repG.testIgnoredReceived)
-      assert(!g.theTestThisCalled)
-      assert(g.theTestThatCalled)
-      assert(!g.theTestTheOtherCalled)
-
+      assert(repG.testIgnoredEventsReceived.isEmpty)
+      assert(g.counts.theTestThisCalled)
+      assert(g.counts.theTestThatCalled)
+      assert(!g.counts.theTestTheOtherCalled)
+      assert(repG.testStartingEventsReceived.size === 1)
+      assert(repG.testStartingEventsReceived(0).testName === "test that")
+/*
       // No tagsToInclude set, FastAsLight excluded
-      class HFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        "test the other" in { theTestTheOtherCalled = true }
-        override def newInstance = new HFreeSpec
+      class HFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        "test the other" in { counts.theTestTheOtherCalled = true }
+        override def newInstance = new HFreeSpec(counts)
       }
-      val h = new HFreeSpec
-      val repH = new TestIgnoredTrackingReporter
+      val h = new HFreeSpec(ThreeCounts(false, false, false))
+      val repH = new EventRecordingReporter
       h.run(None, repH, new Stopper {}, Filter(None, Set("org.scalatest.FastAsLight")), Map(), None, new Tracker)
-      assert(!repH.testIgnoredReceived)
-      assert(!h.theTestThisCalled)
-      assert(h.theTestThatCalled)
-      assert(h.theTestTheOtherCalled)
+      assert(repH.testIgnoredEventsReceived.isEmpty)
+      assert(h.counts.theTestThisCalled)
+      assert(h.counts.theTestThatCalled)
+      assert(h.counts.theTestTheOtherCalled)
+      assert(repH.testStartingEventsReceived.size === 2)
+      assert(repH.testStartingEventsReceived.exists(_.testName == "test that"))
+      assert(repH.testStartingEventsReceived.exists(_.testName == "test the other"))
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded
-      class IFreeSpec extends PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) in { theTestThatCalled = true }
-        "test the other" in { theTestTheOtherCalled = true }
-        override def newInstance = new IFreeSpec
+      class IFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) in { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) in { counts.theTestThatCalled = true }
+        "test the other" in { counts.theTestTheOtherCalled = true }
+        override def newInstance = new IFreeSpec(counts)
       }
-      val i = new IFreeSpec
-      val repI = new TestIgnoredTrackingReporter
+      val i = new IFreeSpec(ThreeCounts(false, false, false))
+      val repI = new EventRecordingReporter
       i.run(None, repI, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
-      assert(!repI.testIgnoredReceived)
-      assert(!i.theTestThisCalled)
-      assert(!i.theTestThatCalled)
-      assert(i.theTestTheOtherCalled)
+      assert(repI.testIgnoredEventsReceived.isEmpty)
+      assert(i.counts.theTestThisCalled)
+      assert(i.counts.theTestThatCalled)
+      assert(i.counts.theTestTheOtherCalled)
+      assert(repI.testStartingEventsReceived.size === 1)
+      assert(repI.testStartingEventsReceived(0).testName === "test the other")*/
 
       // No tagsToInclude set, mytags.SlowAsMolasses excluded, TestIgnored should not be received on excluded ones
-      val j = new PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) ignore { theTestThatCalled = true }
-        "test the other" in { theTestTheOtherCalled = true }
+      class JFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) ignore { counts.theTestThatCalled = true }
+        "test the other" in { counts.theTestTheOtherCalled = true }
       }
+      val j = new JFreeSpec(ThreeCounts(false, false, false))
       val repJ = new TestIgnoredTrackingReporter
       j.run(None, repJ, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
       assert(!repI.testIgnoredReceived)
-      assert(!j.theTestThisCalled)
-      assert(!j.theTestThatCalled)
-      assert(j.theTestTheOtherCalled)
+      assert(!j.counts.theTestThisCalled)
+      assert(!j.counts.theTestThatCalled)
+      assert(j.counts.theTestTheOtherCalled)
 
       // Same as previous, except Ignore specifically mentioned in excludes set
-      val k = new PathFreeSpec {
-        var theTestThisCalled = false
-        var theTestThatCalled = false
-        var theTestTheOtherCalled = false
-        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { theTestThisCalled = true }
-        "test that" taggedAs(mytags.SlowAsMolasses) ignore { theTestThatCalled = true }
-        "test the other" ignore { theTestTheOtherCalled = true }
+      class KFreeSpec(val counts: ThreeCounts) extends PathFreeSpec {
+        "test this" taggedAs(mytags.SlowAsMolasses, mytags.FastAsLight) ignore { counts.theTestThisCalled = true }
+        "test that" taggedAs(mytags.SlowAsMolasses) ignore { counts.theTestThatCalled = true }
+        "test the other" ignore { counts.theTestTheOtherCalled = true }
       }
+      val k = new KFreeSpec(ThreeCounts(false, false, false))
       val repK = new TestIgnoredTrackingReporter
       k.run(None, repK, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses", "org.scalatest.Ignore")), Map(), None, new Tracker)
       assert(repK.testIgnoredReceived)
-      assert(!k.theTestThisCalled)
-      assert(!k.theTestThatCalled)
-      assert(!k.theTestTheOtherCalled)
+      assert(!k.counts.theTestThisCalled)
+      assert(!k.counts.theTestThatCalled)
+      assert(!k.counts.theTestTheOtherCalled)
     }
 
     it("should return the correct test count from its expectedTestCount method") {

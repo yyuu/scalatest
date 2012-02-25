@@ -388,12 +388,11 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
     "should report as ignored, and not run, tests marked ignored" in {
 
       class AFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
-        def this() { this(TestWasCalledCounts(false, false)) }
         it("test this") { counts.theTestThisCalled = true }
         it("test that") { counts.theTestThatCalled = true }
         override def newInstance = new AFunSpec(counts)
       }
-      val a = new AFunSpec
+      val a = new AFunSpec(TestWasCalledCounts(false, false))
 
       val repA = new TestIgnoredTrackingReporter
       a.run(None, repA, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -402,12 +401,11 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(a.counts.theTestThatCalled)
 
       class BFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
-        def this() { this(TestWasCalledCounts(false, false)) }
         ignore("test this") { counts.theTestThisCalled = true }
         it("test that") { counts.theTestThatCalled = true }
         override def newInstance = new BFunSpec(counts)
       }
-      val b = new BFunSpec
+      val b = new BFunSpec(TestWasCalledCounts(false, false))
 
       val repB = new TestIgnoredTrackingReporter
       b.run(None, repB, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -418,12 +416,11 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(b.counts.theTestThatCalled)
 
       class CFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
-        def this() { this(TestWasCalledCounts(false, false)) }
         it("test this") { counts.theTestThisCalled = true }
         ignore("test that") { counts.theTestThatCalled = true }
         override def newInstance = new CFunSpec(counts)
       }
-      val c = new CFunSpec
+      val c = new CFunSpec(TestWasCalledCounts(false, false))
 
       val repC = new TestIgnoredTrackingReporter
       c.run(None, repC, new Stopper {}, Filter(), Map(), None, new Tracker)
@@ -436,12 +433,11 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       // The order I want is order of appearance in the file.
       // Will try and implement that tomorrow. Subtypes will be able to change the order.
       class DFunSpec(val counts: TestWasCalledCounts) extends PathFunSpec {
-        def this() { this(TestWasCalledCounts(false, false)) }
         ignore("test this") { counts.theTestThisCalled = true }
         ignore("test that") { counts.theTestThatCalled = true }
         override def newInstance = new DFunSpec(counts)
       }
-      val d = new DFunSpec
+      val d = new DFunSpec(TestWasCalledCounts(false, false))
 
       val repD = new TestIgnoredTrackingReporter
       d.run(None, repD, new Stopper {}, Filter(), Map(), None, new Tracker)
