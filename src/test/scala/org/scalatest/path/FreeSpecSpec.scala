@@ -675,7 +675,7 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       val j = new JFreeSpec(ThreeCounts(false, false, false))
       val repJ = new TestIgnoredTrackingReporter
       j.run(None, repJ, new Stopper {}, Filter(None, Set("org.scalatest.SlowAsMolasses")), Map(), None, new Tracker)
-      assert(!repI.testIgnoredReceived)
+      assert(!repJ.testIgnoredReceived)
       assert(!j.counts.theTestThisCalled)
       assert(!j.counts.theTestThatCalled)
       assert(j.counts.theTestTheOtherCalled)
