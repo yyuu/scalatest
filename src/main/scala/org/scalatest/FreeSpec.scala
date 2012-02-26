@@ -222,6 +222,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * the word <em>test</em> will be used, for clarity and to be consistent with the rest of ScalaTest.
  * </p>
  *
+ * <a name="ignoredTests" />
  * <h2>Ignored tests</h2>
  *
  * To support the common use case of &#8220;temporarily&#8221; disabling a test, with the
@@ -276,6 +277,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  * <span class="stGreen">- should throw NoSuchElementException if an empty stack is popped</span>
  * </pre>
  *
+ * <a name="informers" />
  * <h2>Informers</h2>
  *
  * <p>
@@ -388,6 +390,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   + Then the result is the difference of the two numbers</span> 
  * </pre>
  *
+ * <a name="pendingTests" />
  * <h2>Pending tests</h2>
  *
  * <p>
@@ -497,6 +500,7 @@ import Suite.anErrorThatShouldCauseAnAbort
  *   + Then the result is the sum of the two numbers</span> 
  * </pre>
  *
+ * <a name="taggingTests" />
  * <h2>Tagging tests</h2>
  *
  * A <code>FreeSpec</code>'s tests may be classified into groups by <em>tagging</em> them with string names.
