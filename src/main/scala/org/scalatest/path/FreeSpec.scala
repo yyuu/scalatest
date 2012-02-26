@@ -697,11 +697,10 @@ trait FreeSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =
 
   /**
    * Returns an <code>Informer</code> that during test execution will forward strings (and other objects) passed to its
-   * <code>apply</code> method to the current reporter. If invoked in a constructor, it
-   * will register the passed string for forwarding later during test execution. If invoked while this
-   * <code>FunSpec</code> is being executed, such as from inside a test function, it will forward the information to
-   * the current reporter immediately. If invoked at any other time, it will
-   * throw an exception. This method can be called safely by any thread.
+   * <code>apply</code> method to the current reporter. If invoked in a constructor (including within a test, since
+   * those are invoked during construction in a <code>path.FreeSpec</code>, it
+   * will register the passed string for forwarding later when <code>run</code> is invoked. If invoked at any other
+   * time, it will throw an exception. This method can be called safely by any thread.
    */
   implicit protected def info: Informer = atomicInformer.get
 
@@ -853,7 +852,7 @@ trait FreeSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =
     /**
      * Register some text that may surround one or more tests. The passed
      * passed function value may contain surrounding text registrations (defined with dash (<code>-</code>)) and/or tests
-     * (defined with <code>in</code>). This trait's implementation of this method will decide whether to
+     * (defined with <code>in</code>). This class's implementation of this method will decide whether to
      * register the text (passed to the constructor of <code>FreeSpecStringWrapper</code>) and invoke the passed function
      * based on whether or not this is part of the current "test path." For the details on this process, see
      * the <a href="#howItExecutes">How it executes</a> section of the main documentation for trait
@@ -1087,7 +1086,7 @@ trait FreeSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =
   }
 
   /**
-   * Run a test.
+   * Runs a test.
    *
    * <p>
    * This trait's implementation of this method will first ensure that the results of all tests, each run its its
