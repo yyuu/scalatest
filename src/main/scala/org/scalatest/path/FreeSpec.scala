@@ -15,15 +15,15 @@ import scala.collection.immutable.ListSet
 import org.scalatest.PendingNothing
 
 /**
- * A sister trait to <code>org.scalatest.FreeSpec</code> that isolates each test by running each test in its own
+ * A sister trait to <code>org.scalatest.FreeSpec</code> that isolates tests by running each test in its own
  * instance of the test class, and for each test, only executing the <em>path</em> leading to that test.
  *
  * <p>
  * Trait <code>path.FreeSpec</code> behaves similarly to trait <code>org.scalatest.FreeSpec</code>, except that tests
  * are isolated based on their path. The purpose of <code>path.FreeSpec</code> is to facilitate writing
  * specification-style tests for mutable objects in a clear, boilerpate-free way. To test mutable objects, you need to
- * mutate them. Using a path trait, you can make a statement in text, then make that statement in code (including
- * mutating state), and nest and combine these test/code statement pairs in any way you wish. Each test will only see
+ * mutate them. Using a path trait, you can make a statement in text, then implement that statement in code (including
+ * mutating state), and nest and combine these test/code pairs in any way you wish. Each test will only see
  * the side effects of code that is in blocks that enclose the test. Here's an example:
  * </p>
  *
@@ -36,7 +36,7 @@ import org.scalatest.PendingNothing
  *
  *   "A ListBuffer" - {
  *
- *     val buf = ListBuffer.empty[Int]
+ *     val buf = ListBuffer.empty[Int] // This implements "A ListBuffer"
  *
  *     "should be empty when created" in {
  *
@@ -49,7 +49,7 @@ import org.scalatest.PendingNothing
  *
  *     "when 1 is appended" - {
  *
- *       buf += 1
+ *       buf += 1 // This implements "when 1 is appended", etc...
  *
  *       "should contain 1" in {
  *
@@ -151,8 +151,8 @@ import org.scalatest.PendingNothing
  *
  * <p>
  * Note that the above class is organized by writing a bit of specification text that opens a new block followed
- * by, at the top of the new block, some code that performs what is described in the text. This is repeated as
- * the mutable object (a <code>ListBuffer</code>, is prepared for the enclosed tests. For example:
+ * by, at the top of the new block, some code that "implements" or "performs" what is described in the text. This is repeated as
+ * the mutable object (here, a <code>ListBuffer</code>), is prepared for the enclosed tests. For example:
  * <p>
  *
  * <pre class="stHighlight">
@@ -224,7 +224,7 @@ import org.scalatest.PendingNothing
  * </pre>
  *
  * <p>
- * Running the above <code>ExampleSpec</code> in the Scala interpeter would give you:
+ * Running the full <code>ExampleSpec</code>, shown above, in the Scala interpeter would give you:
  * </p>
  *
  * <pre class="stREPL">
@@ -273,7 +273,7 @@ import org.scalatest.PendingNothing
  * The reason lexical placement is the one and only one way to share fixtures in a <code>path.FreeSpec</code> is because
  * all of its lifecycle methods are overridden and declared <code>final</code>. Thus you can't override
  * <code>withFixture</code>, because it is <code>final</code>, or mix in <code>BeforeAndAfter</code> or
- * </code>BeforeAndAfterEach</code>, because both override <code>runTest</code>, which is <code>final</code> in
+ * <code>BeforeAndAfterEach</code>, because both override <code>runTest</code>, which is <code>final</code> in
  * a <code>path.FreeSpec</code>. In short:
  * </p>
  *
@@ -552,7 +552,7 @@ import org.scalatest.PendingNothing
  * if that is first) will be executed when a class that mixes in <code>path.FreeSpec</code> is
  * instantiated. Only the first test will be executed during this initial instance, and of course, only
  * the path to that test. Then, the first time that instance is used (by invoking one of <code>run</code>,
- * <code>expectedTestsCount</code>, <code>tags</code>, or <code>testNames</code>), it will,
+ * <code>expectedTestsCount</code>, <code>tags</code>, or <code>testNames</code> on the instance), it will,
  * before doing anything else, ensure that any remaining tests are executed, each in its own instance.
  * </p>
  *
@@ -566,7 +566,7 @@ import org.scalatest.PendingNothing
  * first test (or empty scope, if that's the first leaf node). It then discovers, but does not execute the next
  * leaf node, or discovers there are no other leaf nodes remaining to execute. It communicates the path to the next
  * leaf node, if any, and the result of running the test it did execute, if any, back to the initial instance. The
- * initial instance repeats this process until all leaf nodes have been executed.
+ * initial instance repeats this process until all leaf nodes have been executed and all test results registered.
  * </p>
  *
  * <a name="ignoredTests" />
@@ -575,7 +575,11 @@ import org.scalatest.PendingNothing
  * <p>
  * You mark a test as ignored in an <code>org.scalatest.path.FreeSpec</code> in the same manner as in
  * an <code>org.scalatest.FreeSpec</code>. Please see the <a href="../FreeSpec.html#ignoredTests">Ignored tests</a> section
- * in its documentation for more information. Note that a separate instance will be created for an ignored test,
+ * in its documentation for more information.
+ * </p>
+ *
+ * <p>
+ * Note that a separate instance will be created for an ignored test,
  * and the path to the ignored test will be executed in that instance, but the test function itself will not
  * be executed. Instead, a <code>TestIgnored</code> event will be fired.
  * </p>
@@ -595,8 +599,13 @@ import org.scalatest.PendingNothing
  * <p>
  * You mark a test as pending in an <code>org.scalatest.path.FreeSpec</code> in the same manner as in
  * an <code>org.scalatest.FreeSpec</code>. Please see the <a href="../FreeSpec.html#pendingTests">Pending tests</a>
- * section in its documentation for more information. Note that a separate instance will be created for a pending test,
- * and the path to the ignored test will be executed in that instance, as well as the test function.
+ * section in its documentation for more information.
+ * </p>
+ * 
+ * <p>
+ * Note that a separate instance will be created for a pending test,
+ * and the path to the ignored test will be executed in that instance, as well as the test function (up until it
+ * completes abruptly with a <code>TestPendingException</code>).
  * </p>
  *
  * <a name="taggingTests" />
@@ -611,16 +620,23 @@ import org.scalatest.PendingNothing
  * <p>
  * Note that one difference between this trait and its sister trait
  * <code>org.scalatest.FreeSpec</code> is that because tests are executed at construction time, rather than each
- * time run is called, an <code>org.scalatest.path.FreeSpec</code> will always execute all non-ignored tests. When
- * <code>run</code> is called on a <code>path.FreeSpec</code>, if some tests are excluded based on tags, the registered
+ * time run is invoked, an <code>org.scalatest.path.FreeSpec</code> will always execute all non-ignored tests. When
+ * <code>run</code> is invoked on a <code>path.FreeSpec</code>, if some tests are excluded based on tags, the registered
  * results of running those tests will not be reported. (But those tests will have already run and the results
  * registered.) By contrast, because an <code>org.scalatest.FreeSpec</code> only executes tests after <code>run</code>
  * has been called, and at that time the tags to include and exclude are known, only tests selected by the tags
- * will be executed. In short, in an <code>org.scalatest.FreeSpec</code>, tests not selected by the tags to include
+ * will be executed.
+ * </p>
+ * 
+ * <p>
+ * In short, in an <code>org.scalatest.FreeSpec</code>, tests not selected by the tags to include
  * and exclude specified for the run (via the <code>Filter</code> passed to <code>run</code>) will not be executed.
- * In an <code>org.scalatest.path.FreeSpec</code>, by contrast, all tests will be executed, each
+ * In an <code>org.scalatest.path.FreeSpec</code>, by contrast, all non-ignored tests will be executed, each
  * during the construction of its own instance, and tests not selected by the tags to include and exclude specified
- * for a run will not be reported.
+ * for a run will not be reported. (One upshot of this is that if you have tests that you want to tag as being slow so
+ * you can sometimes exclude them during a run, you probably don't want to put them in a <code>path.FreeSpec</code>. Because
+ * in a <code>path.Freespec</code> the slow tests will be run regardless, with only their registered results not being <em>reported</em>
+ * if you exclude slow tests during a run.)
  * </p>
  *
  * <a name="SharedTests"></a><h2>Shared tests</h2>
@@ -630,6 +646,10 @@ import org.scalatest.PendingNothing
  * section in its documentation for more information.
  * </p>
  *
+ * <a name="SharedTests"></a><h2>Shared tests</h2>
+ * <p>
+ * </p>
+ * 
  * @author Bill Venners
  * @author Chua Chee Seng
  */
