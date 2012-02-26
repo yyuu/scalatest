@@ -156,7 +156,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * for <code>testNames</code> for an example.) The resulting test name must not have been registered previously on
    * this <code>FunSpec</code> instance.
    *
-   * @param specText the specification text, which will be combined with the descText of any surrounding describers
+   * @param testText the specification text, which will be combined with the descText of any surrounding describers
    * to form the test name
    * @param testTags the optional list of tags for this test
    * @param testFun the test function
@@ -180,7 +180,7 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   }
   
   /**
-   * Supports shared test registration in <code>FunSpec</code>s.
+   * Supports shared test registration in <code>path.FunSpec</code>s.
    *
    * <p>
    * This field supports syntax such as the following:
@@ -192,8 +192,9 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
    * </pre>
    *
    * <p>
-   * For more information and examples of the use of <cod>behave</code>, see the <a href="#SharedTests">Shared tests section</a>
-   * in the main documentation for this trait.
+   * For more information and examples of the use of <cod>behave</code>, see the
+   * <a href="../FunSpec.html#SharedTests">Shared tests</a> section in the main documentation for sister
+   * trait <code>org.scalatest.FunSpec</code>.
    * </p>
    */
   protected val behave = new BehaveWord

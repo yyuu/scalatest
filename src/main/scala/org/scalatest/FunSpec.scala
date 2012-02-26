@@ -1401,7 +1401,7 @@ trait FunSpec extends Suite { thisSuite =>
    * for <code>testNames</code> for an example.) The resulting test name must not have been registered previously on
    * this <code>FunSpec</code> instance.
    *
-   * @param specText the specification text, which will be combined with the descText of any surrounding describers
+   * @param testText the specification text, which will be combined with the descText of any surrounding describers
    * to form the test name
    * @param testTags the optional list of tags for this test
    * @param testFun the test function

@@ -1740,7 +1740,7 @@ trait FreeSpec extends Suite { thisSuite =>
   /**
    * Run a test. This trait's implementation runs the test registered with the name specified by
    * <code>testName</code>. Each test's name is a concatenation of the text of all describers surrounding a test,
-   * from outside in, and the test's  spec text, with one space placed between each item. (See the documenation
+   * from outside in, and the test's  spec text, with one space placed between each item. (See the documentation
    * for <code>testNames</code> for an example.)
    *
    * @param testName the name of one test to execute.
@@ -1845,13 +1845,13 @@ trait FreeSpec extends Suite { thisSuite =>
    * <pre class="stHighlight">
    * import org.scalatest.FreeSpec
    *
-   * class StackSpec {
-   *   "A Stack" when {
-   *     "not empty" must {
-   *       "allow me to pop" in {}
+   * class StackSpec extends FreeSpec {
+   *   "A Stack" - {
+   *     "when not empty" - {
+   *       "must allow me to pop" in {}
    *     }
-   *     "not full" must {
-   *       "allow me to push" in {}
+   *     "when not full" - {
+   *       "must allow me to push" in {}
    *     }
    *   }
    * }
@@ -1863,8 +1863,8 @@ trait FreeSpec extends Suite { thisSuite =>
    * </p>
    *
    * <pre>
-   * "A Stack (when not empty) must allow me to pop"
-   * "A Stack (when not full) must allow me to push"
+   * "A Stack when not empty must allow me to pop"
+   * "A Stack when not full must allow me to push"
    * </pre>
    */
   override def testNames: Set[String] = {
