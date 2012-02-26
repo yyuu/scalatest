@@ -646,10 +646,45 @@ import org.scalatest.PendingNothing
  * section in its documentation for more information.
  * </p>
  *
- * <a name="SharedTests"></a><h2>Shared tests</h2>
+ * <a name="nestedSuites"></a><h2>Nested suites</h2>
+ *
  * <p>
+ * Nested suites are not allowed in a <code>path.FreeSpec</code>. Because
+ * a <code>path.FreeSpec</code> executes tests eagerly at construction time, registering the results of those test runs
+ * and reporting them later when <code>run</code> is invoked, the order of nested suites versus test runs would be
+ * different in a <code>org.scalatest.path.FreeSpec</code> than in an <code>org.scalatest.FreeSpec</code>. In
+ * <code>org.scalatest.FreeSpec</code>'s implementation of <code>run</code>, nested suites are executed then tests
+ * are executed. A <code>org.scalatest.path.FreeSpec</code> with nested suites would execute these in the opposite
+ * order: first tests then nested suites. To help make <code>path.FreeSpec</code> code easier to
+ * reason about by giving readers of one less difference to think about, nested suites are not allowed. If you want
+ * to add nested suites to a <code>path.FreeSpec</code>, you can instead wrap them all in a
+ * <a href="../Suites.html"><code>Suites</code></a> or <a href="../Specs.html"><code>Specs</code></a> object. They will
+ * be executed in the order of appearance (unless a <a href="../Distributor">Distributor</a> is passed, in which case
+ * they will execute in parallel).
  * </p>
- * 
+
+ * </p>
+ *
+ * <a name="durations"></a><h2>Durations</h2>
+ * <p>
+ * Many ScalaTest events include a duration that indicates how long the event being reported took to execute. For
+ * example, a <code>TestSucceeded</code> event provides a duration indicating how long it took for that test
+ * to execute. A <code>SuiteCompleted</code> event provides a duration indicating how long it took for that entire
+ * suite of tests to execute.
+ * </p>
+ *
+ * <p>
+ * In the test completion events fired by a <code>path.FreeSpec</code> (<code>TestSucceeded</code>,
+ * <code>TestFailed</code>, or <code>TestPending</code>), the durations reported refer
+ * to the time it took for the tests to run. This time is registered with the test results and reported along
+ * with the test results each time <code>run</code> is invoked.
+ * By contrast, the suite completion events fired for a <code>path.FreeSpec</code> represent the amount of time
+ * it took to report the registered results. (These events are not fired by <code>path.FreeSpec</code>, but instead
+ * by the entity that invokes <code>run</code> on the <code>path.FreeSpec</code>.) As a result, the total time
+ * for running the tests of a <code>path.FreeSpec</code>, calculated by summing the durations of all the individual
+ * test completion events, may be greater than the duration reported for executing the entire suite.
+ * </p>
+ *
  * @author Bill Venners
  * @author Chua Chee Seng
  */
