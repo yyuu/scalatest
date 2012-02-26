@@ -1,9 +1,3 @@
-/*package org.scalatest.path
-
-trait FreeSpec {
-
-}*/
-
 package org.scalatest.path
 
 import org.scalatest.Suite
