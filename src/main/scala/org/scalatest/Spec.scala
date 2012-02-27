@@ -1259,6 +1259,7 @@ import Suite.reportTestIgnored
  *
  * @author Bill Venners
  */
+@Style("org.scalatest.finders.FunSpecFinder")
 trait Spec extends Suite { thisSuite =>
 
   private final val engine = new Engine("concurrentSpecMod", "Spec")
