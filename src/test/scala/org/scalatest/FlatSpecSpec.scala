@@ -18,7 +18,7 @@ package org.scalatest
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.events._
 
-class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
+class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen with ShouldMatchers {
 
   describe("A FlatSpec") {
 
@@ -954,6 +954,38 @@ class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen {
       for (event <- ip) {
         assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
       }
+    }
+    it("should generate TestRegistrationClosedException with correct stack depth info when has an it nested inside a test") {
+        class ApplicationSpec extends FlatSpec {
+          var registrationClosedThrown = false
+          "Application" should "send 404 on a bad request" in {
+            it should "render an empty form on index" in {
+            }
+
+            it should "render a feature JSON on feature request" in {
+            }
+          }
+          override def withFixture(test: NoArgTest) {
+            try {
+              test.apply()
+            }
+            catch {
+              case e: TestRegistrationClosedException => 
+                registrationClosedThrown = true
+                throw e
+            }
+          }
+        }
+        val a = new ApplicationSpec
+        val rep = new EventRecordingReporter
+        a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
+        assert(a.registrationClosedThrown == true)
+        val testFailedEvents = rep.testFailedEventsReceived
+        expect(1)(testFailedEvents.size)
+        expect(classOf[TestRegistrationClosedException])(testFailedEvents(0).throwable.get.getClass())
+        val trce = testFailedEvents(0).throwable.get.asInstanceOf[TestRegistrationClosedException]
+        expect("FlatSpecSpec.scala")(trce.failedCodeFileName.get)
+        expect(thisLineNumber - 26)(trce.failedCodeLineNumber.get)
     }
   }
 }

@@ -375,7 +375,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
 
     if (registrationClosed)
-      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName, 1))
 
     val oldBranch = currentBranch
     val newBranch = DescriptionBranch(currentBranch, description, childPrefix)
@@ -400,7 +400,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     val (_, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
 
     if (registrationClosed)
-      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName, 1))
 
     // Need to use Trunk here. I think it will be visible to all threads because
     // of the atomic, even though it wasn't inside it.
@@ -424,7 +424,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     checkRegisterTestParamsForNull(testText, testTags: _*)
 
     if (atomic.get.registrationClosed)
-      throw new TestRegistrationClosedException(Resources(testRegistrationClosedResourceName), getStackDepthFun(sourceFileName, methodName))
+      throw new TestRegistrationClosedException(Resources(testRegistrationClosedResourceName), getStackDepthFun(sourceFileName, methodName, 1))
 //    throw new TestRegistrationClosedException(Resources("testCannotAppearInsideAnotherTest"), getStackDepth(sourceFileName, "test"))
 
     val oldBundle = atomic.get
@@ -433,7 +433,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
     val testName = getTestName(testText, currentBranch)
 
     if (atomic.get.testsMap.keySet.contains(testName))
-      throw new DuplicateTestNameException(testName, getStackDepthFun(sourceFileName, methodName))
+      throw new DuplicateTestNameException(testName, getStackDepthFun(sourceFileName, methodName, 1))
 
     val testLeaf = TestLeaf(currentBranch, testName, testText, testFun, duration, informer)
     testsMap += (testName -> testLeaf)
@@ -586,7 +586,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   def handleTest(handlingSuite: Suite, testText: String, testFun: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
 
     if (insideAPathTest) 
-      throw new TestRegistrationClosedException(Resources("itCannotAppearInsideAnotherIt"), getStackDepthFun(sourceFileName, methodName))
+      throw new TestRegistrationClosedException(Resources("itCannotAppearInsideAnotherIt"), getStackDepthFun(sourceFileName, methodName, 1))
     
     insideAPathTest = true
     
@@ -650,7 +650,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   def handleNestedBranch(description: String, childPrefix: Option[String], fun: => Unit, registrationClosedResource: String, sourceFile: String, methodName: String) {
 
     if (insideAPathTest)
-      throw new TestRegistrationClosedException(Resources("describeCannotAppearInsideAnIt"), getStackDepthFun(sourceFile, methodName))
+      throw new TestRegistrationClosedException(Resources("describeCannotAppearInsideAnIt"), getStackDepthFun(sourceFile, methodName, 1))
 
     val nextPath = getNextPath()
     // val nextPathZero = if (nextPath.length > 0) nextPath(0) else -1
@@ -690,7 +690,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     val (currentBranch, testNamesList, testsMap, tagsMap, registrationClosed) = oldBundle.unpack
 
     if (registrationClosed)
-      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName))
+      throw new TestRegistrationClosedException(Resources(registrationClosedResource), getStackDepthFun(sourceFile, methodName, 1))
 
     // First look in current branch's subnodes for another branch
     def getBranch(b: Branch, path: List[Int]): Branch = {
@@ -766,7 +766,7 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
   def handleIgnoredTest(testText: String, f: () => Unit, testRegistrationClosedResourceName: String, sourceFileName: String, methodName: String, testTags: Tag*) {
 
     if (insideAPathTest) 
-      throw new TestRegistrationClosedException(Resources("ignoreCannotAppearInsideAnIt"), getStackDepthFun(sourceFileName, methodName))
+      throw new TestRegistrationClosedException(Resources("ignoreCannotAppearInsideAnIt"), getStackDepthFun(sourceFileName, methodName, 1))
     
     describeRegisteredNoTests = false
     val nextPath = getNextPath()

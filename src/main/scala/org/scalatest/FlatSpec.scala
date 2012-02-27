@@ -1452,15 +1452,16 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
    * @param specText the specification text, which will be combined with the descText of any surrounding describers
    * to form the test name
    * @param testTags the optional list of tags for this test
+   * @param methodName method name of the caller
    * @param testFun the test function
    * @throws DuplicateTestNameException if a test with the same name has been registered previously
    * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
    * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
    */
-  private def registerTestToRun(specText: String, testTags: List[Tag], testFun: () => Unit) {
+  private def registerTestToRun(specText: String, testTags: List[Tag], methodName: String, testFun: () => Unit) {
 
     // TODO: This is what was being used before but it is wrong
-    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FlatSpec.scala", "it", None, None, testTags: _*)
+    registerTest(specText, testFun, "itCannotAppearInsideAnotherIt", "FlatSpec.scala", methodName, None, None, testTags: _*)
   }
 
   /**
@@ -1585,7 +1586,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def in(testFun: => Unit) {
-      registerTestToRun(verb + " " + name, tags, testFun _)
+      registerTestToRun(verb + " " + name, tags, "in", testFun _)
     }
 
     /**
@@ -1607,7 +1608,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def is(testFun: => PendingNothing) {
-      registerTestToRun(verb + " " + name, tags, testFun _)
+      registerTestToRun(verb + " " + name, tags, "is", testFun _)
     }
 
     /**
@@ -1697,7 +1698,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def in(testFun: => Unit) {
-      registerTestToRun(verb + " " + name, List(), testFun _)
+      registerTestToRun(verb + " " + name, List(), "in", testFun _)
     }
 
     /**
@@ -1718,7 +1719,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def is(testFun: => PendingNothing) {
-      registerTestToRun(verb + " " + name, List(), testFun _)
+      registerTestToRun(verb + " " + name, List(), "is", testFun _)
     }
 
     /**
@@ -2304,7 +2305,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def in(testFun: => Unit) {
-      registerTestToRun(verb + " " + rest, List(), testFun _)
+      registerTestToRun(verb + " " + rest, List(), "in", testFun _)
     }
     
     /**
@@ -2400,7 +2401,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
      * </p>
      */
     def in(testFun: => Unit) {
-      registerTestToRun(verb + " " + rest, tagsList, testFun _)
+      registerTestToRun(verb + " " + rest, tagsList, "in", testFun _)
     }
 
     /**
@@ -2463,7 +2464,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
       new ResultOfStringPassedToVerb(verb, rest) {
 
         def is(testFun: => PendingNothing) {
-          registerTestToRun(verb + " " + rest, List(), testFun _)
+          registerTestToRun(verb + " " + rest, List(), "is", testFun _)
         }
         // Note, won't have an is method that takes fixture => PendingNothing one, because don't want
         // to say is (fixture => pending), rather just say is (pending)
@@ -2473,7 +2474,7 @@ trait FlatSpec extends Suite with ShouldVerb with MustVerb with CanVerb { thisSu
             // "A Stack" should "bla bla" taggedAs(SlowTest) is (pending)
             //                                               ^
             def is(testFun: => PendingNothing) {
-              registerTestToRun(verb + " " + rest, tags, testFun _)
+              registerTestToRun(verb + " " + rest, tags, "is", testFun _)
             }
           }
         }
