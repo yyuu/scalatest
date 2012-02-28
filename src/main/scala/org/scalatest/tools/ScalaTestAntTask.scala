@@ -177,11 +177,15 @@ import org.apache.tools.ant.taskdefs.Java
  * </pre>
  *
  * <p>
- * Use attribute <code>dollarfiles="true"</code> to specify that class
- * files containing dollar signs in their names should be included in
- * discovery searches for Suites to test.  By default, those files are
- * omitted to speed up search times.
+ * Use attribute <code>suffixes="[pipe-delimited list of suffixes]"</code>
+ * to specify that only classes whose names end in one of the specified suffixes
+ * should be included in discovery searches for Suites to test.  This can
+ * be used to improve discovery time or to limit the scope of a test. E.g.:
  * </p>
+ *
+ * <pre class="stExamples">
+ *   &lt;scalatest suffixes="Spec|Suite"&gt;
+ * </pre>
  *
  * <p>
  * Use attribute <code>parallel="true"</code> to specify parallel execution of suites.
@@ -228,11 +232,11 @@ class ScalaTestAntTask extends Task {
   private var includes:  String = null
   private var excludes:  String = null
   private var maxMemory: String = null
+  private var suffixes:  String = null
 
   private var parallel      = false
   private var haltonfailure = false
   private var fork          = false
-  private var dollarfiles   = false
 
   private var numthreads = 0
 
@@ -260,7 +264,7 @@ class ScalaTestAntTask extends Task {
     addRunpathArgs(args)
     addTestNGSuiteArgs(args)
     addParallelArg(args)
-    addDollarfilesArg(args)
+    addSuffixesArg(args)
 
     val argsArray = args.toArray
 
@@ -324,12 +328,13 @@ class ScalaTestAntTask extends Task {
   }
 
   //
-  // Adds '-S' arg to args list if 'dollarfiles' attribute was
-  // specified true for task.
+  // Adds '-q' arg to args list if 'suffixes' attribute was
+  // specified for task.
   //
-  private def addDollarfilesArg(args: ListBuffer[String]) {
-    if (dollarfiles) {
-      args += "-S"
+  private def addSuffixesArg(args: ListBuffer[String]) {
+    if (suffixes != null) {
+      args += "-q"
+      args += suffixes
     }
   }
 
@@ -532,10 +537,10 @@ class ScalaTestAntTask extends Task {
   }
   
   /**
-   * Sets value of the <code>fork</code> attribute.
+   * Sets value of the <code>suffixes</code> attribute.
    */
-  def setDollarfiles(dollarfiles: Boolean) {
-    this.dollarfiles = dollarfiles
+  def setSuffixes(suffixes: String) {
+    this.suffixes = suffixes
   }
   
   /**
