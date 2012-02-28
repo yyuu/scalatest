@@ -40,8 +40,8 @@ private[scalatest] object SuiteDiscoveryHelper {
   def discoverSuiteNames(runpath: List[String], loader: ClassLoader,
                          suffixes: Option[Pattern]): Set[String] =
   {
-    val fileSeparatorString = System.getProperty("file.separator")
-    val fileSeparator = if (!fileSeparatorString.isEmpty) fileSeparatorString(0) else '/'
+    val fileSeparatorString = System.getProperty("path.separator")
+    val fileSeparator = if (!fileSeparatorString.isEmpty) fileSeparatorString(0) else ':'
 
     def getJarFileFromURL(url: URL): Option[JarFile] = {
       val o = url.openConnection().getContent()
@@ -132,16 +132,16 @@ private[scalatest] object SuiteDiscoveryHelper {
   private val emptyClassArray = new Array[java.lang.Class[T] forSome { type T }](0)
 
   private[scalatest] def isAccessibleSuite(clazz: java.lang.Class[_]): Boolean = {
-    try {
-      classOf[Suite].isAssignableFrom(clazz) && 
-        Modifier.isPublic(clazz.getModifiers) &&
-        !Modifier.isAbstract(clazz.getModifiers) &&
-        Modifier.isPublic(clazz.getConstructor(emptyClassArray: _*).getModifiers)
-    }
-    catch {
-      case nsme: NoSuchMethodException => false
-      case se: SecurityException => false
-    }
+      try {
+        classOf[Suite].isAssignableFrom(clazz) && 
+          Modifier.isPublic(clazz.getModifiers) &&
+          !Modifier.isAbstract(clazz.getModifiers) &&
+          Modifier.isPublic(clazz.getConstructor(emptyClassArray: _*).getModifiers)
+      }
+      catch {
+        case nsme: NoSuchMethodException => false
+        case se: SecurityException => false
+      }
   }
 
   private[scalatest] def isAccessibleSuite(className: String, loader: ClassLoader): Boolean = {

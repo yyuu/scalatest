@@ -375,13 +375,6 @@ path&gt; [...]]
  * </p>
  *
  * <p>
- * By default, to speed up searching for Suite files to run, class
- * files with a '$' in their name are ignored.  To have all class
- * files included in the discovery search, specify option
- * <code>-S</code>.
- * </p>
- *
- * <p>
  * For example, if you specify <code>-m com.example.webapp</code>
  * on the command line, and you've placed <code>com.example.webapp.RedSuite</code> and <code>com.example.webapp.BlueSuite</code>
  * on the runpath, then <code>Runner</code> will instantiate and execute both of those <code>Suite</code>s. The difference
@@ -677,9 +670,8 @@ object Runner {
   }
 
   //
-  // Generates a Pattern based on pipe-delimited string of suffixes
-  // passed in by user.  Pattern matches class names that end with
-  // one of the specified suffixes.
+  // Generates a Pattern based on suffixes passed in by user.  Pattern
+  // matches class names that end with one of the specified suffixes.
   //
   private def genSuffixesPattern(suffixesList: List[String]): Option[Pattern] = {
     if (suffixesList.isEmpty)
