@@ -42,13 +42,13 @@ class FunSpecFinderSuite extends FinderSuite {
     val wheneverItIsEmpty = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), aStackNode, Array.empty, "describe", StringLiteral(suiteClass.getName, null, "whenever it is empty")) 
     val nestedDash = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), wheneverItIsEmpty, Array.empty, "println", StringLiteral(suiteClass.getName, null, "nested in"))
     val certainlyOughtTo = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), wheneverItIsEmpty, Array.empty, "describe", StringLiteral(suiteClass.getName, null, "certainly ought to"))
-    val beEmpty = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), certainlyOughtTo, Array.empty, "it", StringLiteral(suiteClass.getName, null, "be empty"))
-    val complainOnPeek = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), certainlyOughtTo, Array.empty, "it", StringLiteral(suiteClass.getName, null, "complain on peek")) 
+    val beEmpty = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", StringLiteral(suiteClass.getName, null, "be empty"))
+    val complainOnPeek = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", StringLiteral(suiteClass.getName, null, "complain on peek")) 
     val inNested = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), complainOnPeek, Array.empty, "println", StringLiteral(suiteClass.getName, null, "in nested"))
-    val complainOnPop = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), certainlyOughtTo, Array.empty, "it", StringLiteral(suiteClass.getName, null, "complain on pop"))
+    val complainOnPop = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", StringLiteral(suiteClass.getName, null, "complain on pop"))
     val butWhenFullByContrastMust = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), aStackNode, Array.empty, "describe", StringLiteral(suiteClass.getName, null, "but when full, by contrast, must"))
-    val beFull = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), butWhenFullByContrastMust, Array.empty, "it", StringLiteral(suiteClass.getName, null, "be full"))
-    val complainOnPush = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), butWhenFullByContrastMust, Array(), "it", StringLiteral(suiteClass.getName, null, "complain on push"))
+    val beFull = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), butWhenFullByContrastMust, Array.empty, "apply", StringLiteral(suiteClass.getName, null, "be full"))
+    val complainOnPush = MethodInvocation(suiteClass.getName, ToStringTarget(suiteClass.getName, null, Array.empty, "it"), butWhenFullByContrastMust, Array(), "apply", StringLiteral(suiteClass.getName, null, "complain on push"))
     
     List[AstNode](aStackNode, wheneverItIsEmpty, certainlyOughtTo, beEmpty, complainOnPeek, complainOnPop, butWhenFullByContrastMust, 
         beFull, complainOnPush).foreach(_.parent)

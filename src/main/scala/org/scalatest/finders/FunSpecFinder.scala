@@ -18,41 +18,27 @@ class FunSpecFinder extends Finder {
       case node :: rs => 
         node match {
           case invocation: MethodInvocation => 
-            if (isDescribeOrIt("it", invocation)) {
+            if (invocation.name == "apply" && invocation.target.isInstanceOf[ToStringTarget] && invocation.target.toString == "it") {
               val testName = getTestNameBottomUp(invocation)
               getTestNamesTopDownAcc(rs, testName :: acc)
             }
-            else if(isDescribeOrIt("describe", invocation)) {
+            else {
               getTestNamesTopDownAcc(invocation.children.toList ::: rs, acc)
             }
-            else
-              getTestNamesTopDownAcc(rs, acc)
           case _ => getTestNamesTopDownAcc(rs, acc)
         }
     }
     getTestNamesTopDownAcc(List(invocation), List.empty).reverse
   }
   
-  private def isDescribeOrIt(name: String, astNode: AstNode): Boolean = {
-    if (name == astNode.name) {
-      astNode match {
-        case MethodInvocation(_, _, _, _, _, args) => 
-          args.length > 0 && args(0).isInstanceOf[StringLiteral]
-        case _ => false
-      }
-    }
-    else
-      false
-  }
-  
   def find(node: AstNode): Option[Selection] = {
     node match {
       case invocation @ MethodInvocation(className, target, parent, children, name, args) =>
         name match {
-          case "it" if isDescribeOrIt("describe", parent) =>
+          case "apply" if parent.name == "describe" && invocation.target.isInstanceOf[ToStringTarget] && invocation.target.toString() == "it" =>
             val testName = getTestNameBottomUp(invocation)
             Some(new Selection(className, testName, Array(testName)))
-          case "describe" if isDescribeOrIt("describe", node) =>
+          case "describe" =>
             val displayName = getTestNameBottomUp(invocation)
             val testNames = getTestNamesTopDown(invocation)
             Some(new Selection(className, displayName, testNames.toArray))
