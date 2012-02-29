@@ -551,8 +551,8 @@ import org.scalatest.PathEngine.isInTargetPath
  * The tests will be executed sequentially, in the order of appearance. The first test (or empty scope,
  * if that is first) will be executed when a class that mixes in <code>path.FunSpec</code> is
  * instantiated. Only the first test will be executed during this initial instance, and of course, only
- * the path to that test. Then, the first time that instance is used (by invoking one of <code>run</code>,
- * <code>expectedTestsCount</code>, <code>tags</code>, or <code>testNames</code> on the instance), it will,
+ * the path to that test. Then, the first time the client uses the initial instance (by invoking one of <code>run</code>,
+ * <code>expectedTestsCount</code>, <code>tags</code>, or <code>testNames</code> on the instance), the initial instance will,
  * before doing anything else, ensure that any remaining tests are executed, each in its own instance.
  * </p>
  *
