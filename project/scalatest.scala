@@ -14,7 +14,7 @@ object ScalatestBuild extends Build {
        case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9"
      },
      sourceGenerators in Compile <+= 
-         (sourceManaged in Compile) map genGenMain,
+         (baseDirectory, sourceManaged in Compile) map genGenMain,
      sourceGenerators in Test <+= 
          (sourceManaged in Test) map genGenTest,
      sourceGenerators in Compile <+= 
@@ -37,13 +37,18 @@ object ScalatestBuild extends Build {
   )
 
   // TODO - Make sure this directory is really used in the future.
-  def genGenMain(dir: File): Seq[File] = {
-    GenGen.main(Array.empty)
+  def genGenMain(basedir: File, dir: File): Seq[File] = {
+    val gengenSource = basedir / "project" / "GenGen.scala"
     // dir = mainsrc
     val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
     (mainsrc ** "*.scala").get
-  }
+    
+    def results = (mainsrc ** "*.scala").get
+    if(results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified))
+      GenGen.main(Array.empty)
 
+    results
+  }
   def genGenTest(dir: File): Seq[File] = {
     // TODO - Use GenGen to make test files
     val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
