@@ -419,6 +419,20 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     assert(tagSuite.suiteTags.size == 1)
     assert(tagSuite.suiteTags.toList(0) == classOf[SlowAsMolasses].getName)
   }
+  
+  def testTestTags() {
+    class TagSuite extends Suite {  
+      def testNoTagMethod() {}
+      @SlowAsMolasses
+      def testTagMethod() {}
+    }
+    val testTags = new TagSuite().testTags
+    assert(testTags.size == 1)
+    val tagSet = testTags.getOrElse("testTagMethod", null)
+    assert(tagSet != null)
+    assert(tagSet.size == 1)
+    assert(tagSet.toList(0) == classOf[SlowAsMolasses].getName)
+  }
 }
 
 class `My Test` extends Suite {}
