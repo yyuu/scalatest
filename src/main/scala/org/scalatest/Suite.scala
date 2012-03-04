@@ -2244,7 +2244,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     testName match {
 
       case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, testTags)
+        val (filterTest, ignoreTest) = filter(tn, testTags, suiteId)
         if (!filterTest) {
           if (ignoreTest)
             reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2253,7 +2253,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         }
 
       case None =>
-        for ((tn, ignoreTest) <- filter(testNames, testTags)) {
+        for ((tn, ignoreTest) <- filter(testNames, testTags, suiteId)) {
           if (!stopRequested()) {
             if (ignoreTest)
               reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2638,7 +2638,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
             countNestedSuiteTests(nestedSuites, filter)
     }
 
-    filter.runnableTestCount(testNames, testTags) + countNestedSuiteTests(nestedSuites, filter)
+    filter.runnableTestCount(testNames, testTags, suiteId) + countNestedSuiteTests(nestedSuites, filter)
   }
 
   // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,

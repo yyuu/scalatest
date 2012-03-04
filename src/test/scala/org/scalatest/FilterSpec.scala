@@ -35,7 +35,7 @@ class FilterSpec extends FunSpec {
     it("should throw IAE if passed an empty set for testName in the includedTestCount method") {
       val caught = intercept[IllegalArgumentException] {
         val filter = new Filter(None, Set())
-        filter.runnableTestCount(Set("hi", "ho"), Map("hi" -> Set()))
+        filter.runnableTestCount(Set("hi", "ho"), Map("hi" -> Set()), "suiteId")
       }
       assert(caught.getMessage === "hi was associated with an empty set in the map passsed as tags")
     }
@@ -180,7 +180,7 @@ class FilterSpec extends FunSpec {
             if !ignore
           } yield testName
 
-        assert(filter.runnableTestCount(Set() ++ testNames, tags) === runnableTests.size, "runnableTests = " + runnableTests + ", testNames = " + testNames + ", tags = " + tags + ", tagsToExclude = " + tagsToExclude)
+        assert(filter.runnableTestCount(Set() ++ testNames, tags, "suiteId") === runnableTests.size, "runnableTests = " + runnableTests + ", testNames = " + testNames + ", tags = " + tags + ", tagsToExclude = " + tagsToExclude)
       }
     }
 
@@ -321,7 +321,7 @@ class FilterSpec extends FunSpec {
     
     it("should have default value of empty Set for suiteTags and empty Map for testTags") {
       val filter = new Filter(Some(Set("SlowAsMolasses")), Set[String]())
-      assert(filter.dynaTags.suiteTags == Set.empty)
+      assert(filter.dynaTags.suiteTags == Map.empty)
       assert(filter.dynaTags.testTags == Map.empty)
     }
     
