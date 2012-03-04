@@ -325,5 +325,20 @@ class FilterSpec extends FunSpec {
       assert(filter.dynaTags.testTags == Map.empty)
     }
     
+    it("should merge in test dynamic tags in Filter.apply and Filter.runnableTestCount with suiteId") {
+      val filter = new Filter(Some(Set("FastAsLight")), Set("org.scalatest.Ignore"), true, DynaTags(Map.empty, Map("mySuiteId" -> Map("myTestName" -> Set("FastAsLight")))))
+      
+      assert(filter("myTestName", Map[String, Set[String]](), "mySuiteId") === (false, false))
+      assert(filter("myTestName", Map("myTestName" -> Set("FastAsLight")), "mySuiteId") === (false, false))
+      assert(filter("myTestName", Map("myTestName" -> Set("FastAsLight", "org.scalatest.Ignore")), "mySuiteId") === (false, true))
+      
+      assert(filter(Set("myTestName"), Map[String, Set[String]](), "mySuiteId") === List(("myTestName", false)))
+      assert(filter(Set("myTestName"), Map("myTestName" -> Set("FastAsLight")), "mySuiteId") === List(("myTestName", false)))
+      assert(filter(Set("myTestName"), Map("myTestName" -> Set("FastAsLight", "org.scalatest.Ignore")), "mySuiteId") === List(("myTestName", true)))
+      
+      assert(filter.runnableTestCount(Set("myTestName"), Map[String, Set[String]](), "mySuiteId") === 1)
+      assert(filter.runnableTestCount(Set("myTestName"), Map("myTestName" -> Set("FastAsLight")), "mySuiteId") === 1)
+      assert(filter.runnableTestCount(Set("myTestName"), Map("myTestName" -> Set("FastAsLight", "org.scalatest.Ignore")), "mySuiteId") === 0)
+    }
   }
 }
