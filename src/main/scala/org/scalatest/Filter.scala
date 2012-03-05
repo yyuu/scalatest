@@ -33,6 +33,12 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     throw new NullPointerException("tagsToInclude was null")
   if (tagsToExclude == null)
     throw new NullPointerException("tagsToExclude was null")
+  if (dynaTags == null)
+    throw new NullPointerException("dynaTags was null")
+  if (dynaTags.suiteTags == null)
+    throw new NullPointerException("dynaTags.suiteTags was null")
+  if (dynaTags.testTags == null)
+    throw new NullPointerException("dynaTags.testTags was null")
 
   tagsToInclude match {
     case Some(tagsToInclude) =>
@@ -78,6 +84,15 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     }
     else
       testTags
+  }
+  
+  private def mergeSuiteDynamicTags(suiteTags: Set[String], suiteId: String): Set[String] = {
+    if (dynaTags.suiteTags.isDefinedAt(suiteId)) {
+      val dynaSuiteTags = dynaTags.suiteTags(suiteId)
+      suiteTags ++ dynaSuiteTags
+    }
+    else
+      suiteTags
   }
 
   /**
@@ -250,7 +265,11 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
    * </pre>
    */
   def apply(suite: Suite): (Boolean, Boolean) = {
-    (false, false)
+    val list = apply(List(suite))
+    if (list.isEmpty)
+      (true, false)
+    else
+      (false, list.head._2)
   }
 
   // The boolean is ignoreSuite
@@ -266,7 +285,21 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
    * </pre>
    */
   def apply(suites: List[Suite]): List[(Suite, Boolean)] = {
-    List.empty
+    val filtered = for {
+      suite <- suites
+      tags = mergeSuiteDynamicTags(suite.suiteTags, suite.suiteId)
+      includeSuite = tagsToInclude match {
+        case None => 
+          suite
+        case Some(tagsToInclude) => 
+          if ((tagsToInclude intersect tags).size > 0) suite else null
+      }
+      if includeSuite != null && 
+         ((tags.contains(IgnoreTag) && (tags intersect (tagsToExclude + "org.scalatest.Ignore")).size == 1) ||
+         (tags intersect tagsToExclude).size == 0)
+    } yield (suite, tags.contains(IgnoreTag))
+    
+    filtered
   }
 }
 
