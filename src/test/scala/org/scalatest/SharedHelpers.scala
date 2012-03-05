@@ -161,6 +161,15 @@ trait SharedHelpers extends Assertions {
         case _ => throw new RuntimeException("should never happen")
       }
     }
+    def suiteIgnoredEventsReceived: List[SuiteIgnored] = {
+      eventsReceived filter {
+        case event: SuiteIgnored => true
+        case _ => false
+      } map {
+        case event: SuiteIgnored => event
+        case _ => throw new RuntimeException("should never happen")
+      }
+    }
     def apply(event: Event) {
       eventList ::= event
     }

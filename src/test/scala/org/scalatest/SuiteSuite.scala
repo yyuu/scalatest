@@ -433,6 +433,67 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     assert(tagSet.size == 1)
     assert(tagSet.toList(0) == classOf[SlowAsMolasses].getName)
   }
+  
+  def testRunNestedSuite() {
+    
+    class NoTagSuite extends Suite
+    @Ignore
+    class IgnoreSuite extends Suite
+    @SlowAsMolasses
+    class SlowAsMolassesSuite extends Suite
+    @FastAsLight
+    class FastAsLightSuite extends Suite
+    
+    class MasterSuite extends Suite {
+      override def nestedSuites = List(new NoTagSuite(), new IgnoreSuite(), new SlowAsMolassesSuite(), new FastAsLightSuite())
+      override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
+                                configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+        super.runNestedSuites(reporter, stopper, filter, configMap, distributor, tracker)
+      }
+    }
+    
+    class CounterDistributor extends Distributor {
+      var count = 0
+      override def apply(suite: Suite, tracker: Tracker) {
+        count += 1
+      }
+    }
+    
+    val masterSuite = new MasterSuite()
+    
+    val defaultFilter = new Filter(None, Set.empty)
+    val defaultReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(defaultReporter, new Stopper {}, defaultFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(defaultReporter.suiteStartingEventsReceived.size === 3)
+    assert(defaultReporter.suiteIgnoredEventsReceived.size === 1)
+    val defaultReporterDist = new EventRecordingReporter
+    val defaultDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(defaultReporterDist, new Stopper {}, defaultFilter, Map.empty, Some(defaultDistributor), new Tracker(new Ordinal(99)))
+    assert(defaultDistributor.count === 3)
+    assert(defaultReporterDist.suiteIgnoredEventsReceived.size === 1)
+    
+    val includeFilter = new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)
+    val includeReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(includeReporter, new Stopper {}, includeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(includeReporter.suiteStartingEventsReceived.size === 1)
+    assert(includeReporter.suiteIgnoredEventsReceived.size === 0)
+    val includeReporterDist = new EventRecordingReporter
+    val includeDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(includeReporterDist, new Stopper {}, includeFilter, Map.empty, Some(includeDistributor), new Tracker(new Ordinal(99)))
+    assert(includeDistributor.count === 1)
+    assert(includeReporterDist.suiteIgnoredEventsReceived.size === 0)
+    
+    val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
+    val excludeReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(excludeReporter, new Stopper {}, excludeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(excludeReporter.suiteStartingEventsReceived.size === 2)
+    assert(excludeReporter.suiteIgnoredEventsReceived.size === 1)
+    val excludeReporterDist = new EventRecordingReporter
+    val excludeDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
+    assert(excludeDistributor.count === 2)
+    assert(excludeReporterDist.suiteIgnoredEventsReceived.size === 1)
+  }
 }
 
 class `My Test` extends Suite {}

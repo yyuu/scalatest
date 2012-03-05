@@ -700,6 +700,80 @@ final case class SuiteStarting (
 }
 
 /**
+ * Event that indicates a suite of tests is ignored.
+ *
+ * <p>
+ * For example, trait <code>Suite</code> and object <code>Runner</code> use <code>SuiteIgnored</code> to report
+ * that the <code>Suite is ignored.
+ * </p>
+ *
+ * <p>
+ * To create instances of this class you may
+ * use the factory method provided in its <a href="SuiteIgnored$.html">companion object</a>. For example, given a
+ * report function named <code>report</code>, you could fire a <code>SuiteIgnored</code> event like this:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * report(SuiteIgnored(ordinal, userFriendlyName, suiteName, Some(thisSuite.getClass.getName)))
+ * </pre>
+ *
+ * <p>
+ * The suite class name parameter is optional, because suites in ScalaTest are an abstraction that
+ * need not necessarily correspond to one class. Nevertheless, it most cases each suite will correspond
+ * to a class, and when it does, the fully qualified name of that class should be reported by passing a
+ * <code>Some</code> for <code>suiteClassName</code>. One use for this bit of information is JUnit integration,
+ * because the "name" provided to a JUnit <code>org.junit.runner.Description</code> appears to usually include
+ * a fully qualified class name by convention.
+ * </p>
+ *
+ * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
+ *        other events reported during the same run
+ * @param suiteName a localized name identifying the suite that is starting, suitable for presenting to the user
+ * @param suiteID a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
+ * @param suiteClassName an optional fully qualifed <code>Suite</code> class name of the suite that is starting
+ * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
+ * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
+ *        how to present this event to the user
+ * @param location An optional location that provides information indicating where in the source code an event originated.
+ * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
+ * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
+ * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
+ *        number of milliseconds since the standard base time known as "the epoch":  January 1, 1970, 00:00:00 GMT
+ *
+ * @author Bill Venners
+ */
+final case class SuiteIgnored (
+  ordinal: Ordinal,
+  suiteName: String,
+  suiteID: String,
+  suiteClassName: Option[String],
+  decodedSuiteName: Option[String],
+  formatter: Option[Formatter] = None,
+  location: Option[Location] = None,
+  payload: Option[Any] = None,
+  threadName: String = Thread.currentThread.getName,
+  timeStamp: Long = (new Date).getTime
+) extends Event {
+
+  if (ordinal == null)
+    throw new NullPointerException("ordinal was null")
+  if (suiteName == null)
+    throw new NullPointerException("suiteName was null")
+  if (suiteID == null)
+    throw new NullPointerException("suiteID was null")
+  if (suiteClassName == null)
+    throw new NullPointerException("suiteClassName was null")
+  if (formatter == null)
+    throw new NullPointerException("formatter was null")
+  if (location == null)
+    throw new NullPointerException("location was null")
+  if (payload == null)
+    throw new NullPointerException("payload was null")
+  if (threadName == null)
+    throw new NullPointerException("threadName was null")
+}
+
+/**
  * Event that indicates a suite of tests has completed executing.
  *
  * <p>
