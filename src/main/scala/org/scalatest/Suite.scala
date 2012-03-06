@@ -2245,7 +2245,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     testName match {
 
       case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, testTags, suiteId)
+        val (filterTest, ignoreTest) = filter(tn, testTags, this)
         if (!filterTest) {
           if (ignoreTest)
             reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2254,7 +2254,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         }
 
       case None =>
-        for ((tn, ignoreTest) <- filter(testNames, testTags, suiteId)) {
+        for ((tn, ignoreTest) <- filter(testNames, testTags, this)) {
           if (!stopRequested()) {
             if (ignoreTest)
               reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2647,11 +2647,15 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     def countNestedSuiteTests(nestedSuites: List[Suite], filter: Filter): Int =
       nestedSuites match {
         case List() => 0
-        case nestedSuite :: nestedSuites => nestedSuite.expectedTestCount(filter) +
+        case nestedSuite :: nestedSuites => 
+          val (filtered, ignore) = filter(nestedSuite)
+          if (!filtered && !ignore)
+            nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
+          else
             countNestedSuiteTests(nestedSuites, filter)
     }
 
-    filter.runnableTestCount(testNames, testTags, suiteId) + countNestedSuiteTests(nestedSuites, filter)
+    filter.runnableTestCount(testNames, testTags, this) + countNestedSuiteTests(nestedSuites, filter)
   }
 
   // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,

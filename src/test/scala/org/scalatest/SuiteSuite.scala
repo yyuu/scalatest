@@ -427,11 +427,11 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
       def testTagMethod() {}
     }
     val testTags = new TagSuite().testTags
-    assert(testTags.size == 1)
+    assert(testTags.size === 1)
     val tagSet = testTags.getOrElse("testTagMethod", null)
     assert(tagSet != null)
-    assert(tagSet.size == 1)
-    assert(tagSet.toList(0) == classOf[SlowAsMolasses].getName)
+    assert(tagSet.size === 1)
+    assert(tagSet.toList(0) === classOf[SlowAsMolasses].getName)
   }
   
   def testRunNestedSuite() {
@@ -475,13 +475,13 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     val includeFilter = new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)
     val includeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(includeReporter, new Stopper {}, includeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(includeReporter.suiteStartingEventsReceived.size === 1)
-    assert(includeReporter.suiteIgnoredEventsReceived.size === 0)
+    assert(includeReporter.suiteStartingEventsReceived.size === 3) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeReporter.suiteIgnoredEventsReceived.size === 1) // Filter.apply(Suite) does not look at tagsToInclude
     val includeReporterDist = new EventRecordingReporter
     val includeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(includeReporterDist, new Stopper {}, includeFilter, Map.empty, Some(includeDistributor), new Tracker(new Ordinal(99)))
-    assert(includeDistributor.count === 1)
-    assert(includeReporterDist.suiteIgnoredEventsReceived.size === 0)
+    assert(includeDistributor.count === 3) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeReporterDist.suiteIgnoredEventsReceived.size === 1) // Filter.apply(Suite) does not look at tagsToInclude
     
     val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
     val excludeReporter = new EventRecordingReporter
@@ -493,6 +493,47 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
     assert(excludeDistributor.count === 2)
     assert(excludeReporterDist.suiteIgnoredEventsReceived.size === 1)
+  }
+  
+  def testExpectedTestCount() {
+    class NoTagSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @Ignore
+    class IgnoreSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @SlowAsMolasses
+    class SlowAsMolassesSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @FastAsLight
+    class FastAsLightSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    
+    class MasterSuite extends Suite {
+      override def nestedSuites = List(new NoTagSuite(), new IgnoreSuite(), new SlowAsMolassesSuite(), new FastAsLightSuite())
+      override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
+                                configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+        super.runNestedSuites(reporter, stopper, filter, configMap, distributor, tracker)
+      }
+    }
+    
+    val masterSuite = new MasterSuite()
+    assert(masterSuite.expectedTestCount(new Filter(None, Set.empty)) === 9)
+    assert(masterSuite.expectedTestCount(new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)) === 3)
+    assert(masterSuite.expectedTestCount(new Filter(None, Set("org.scalatest.FastAsLight"))) === 6)
+    assert(masterSuite.expectedTestCount(new Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set.empty)) === 3)
+    assert(masterSuite.expectedTestCount(new Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 6)
   }
 }
 
