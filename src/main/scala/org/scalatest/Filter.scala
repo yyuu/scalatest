@@ -333,12 +333,14 @@ object Filter {
  *
  * @param tagsToInclude an optional <code>Set</code> of <code>String</code> tag names to include (<em>i.e.</em>, not filter out) when filtering tests
  * @param tagsToExclude a <code>Set</code> of <code>String</code> tag names to exclude (<em>i.e.</em>, filter out) when filtering tests
+ * @param includeNestedSuites a flag to indicate whether to include nested suites.
+ * @param dynaTags dynamic tags for the filter. 
  *
  * @throws NullPointerException if either <code>tagsToInclude</code> or <code>tagsToExclude</code> are null
  * @throws IllegalArgumentException if <code>tagsToInclude</code> is defined, but contains an empty set
  */
-  def apply(tagsToInclude: Option[Set[String]], tagsToExclude: Set[String]) =
-    new Filter(tagsToInclude, tagsToExclude)
+  def apply(tagsToInclude: Option[Set[String]], tagsToExclude: Set[String], includeNestedSuites: Boolean = true, dynaTags: DynaTags = DynaTags(Map.empty, Map.empty)) =
+    new Filter(tagsToInclude, tagsToExclude, includeNestedSuites, dynaTags)
 
 /**
  * Factory method for a <code>Filter</code> initialized with <code>None</code> for <code>tagsToInclude</code>

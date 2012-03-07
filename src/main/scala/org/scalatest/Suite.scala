@@ -2488,7 +2488,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
               report(SuiteIgnored(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName))))
             }
             else
-              distribute(nestedSuite, tracker.nextTracker())
+              distribute(nestedSuite, tracker.nextTracker(), filter)
           }
       }
     }

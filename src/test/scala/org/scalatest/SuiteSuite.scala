@@ -454,7 +454,7 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     
     class CounterDistributor extends Distributor {
       var count = 0
-      override def apply(suite: Suite, tracker: Tracker) {
+      override def apply(suite: Suite, tracker: Tracker, filter: Filter) {
         count += 1
       }
     }

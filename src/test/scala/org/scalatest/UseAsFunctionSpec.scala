@@ -48,9 +48,9 @@ class UseAsFunctionSpec extends FreeSpec {
     }
 
     "a Distributor" in {
-      def takesFun(fun: (Suite, Tracker) => Unit) {}
+      def takesFun(fun: (Suite, Tracker, Filter) => Unit) {}
       class MyDistributor extends Distributor { 
-        def apply(suite: Suite, tracker: Tracker) {}
+        def apply(suite: Suite, tracker: Tracker, filter: Filter) {}
       }
       takesFun(new MyDistributor) // If it compiles, the test passes
     }

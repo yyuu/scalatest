@@ -43,10 +43,11 @@ trait Distributor /* extends ((Suite, Tracker) => Unit) */ {
    *
    * @param suite the <code>Suite</code> to put into the <code>Distributor</code>.
    * @param tracker a <code>Tracker</code> to pass to the <code>Suite</code>'s <code>run</code> method.
-   *
+   * @param filter a <code>Filter</code> to pass to the <code>Suite</code>'s <code>run</code> method.
+   * 
    * @throws NullPointerException if either <code>suite</code> or <code>tracker</code> is <code>null</code>.
    */
-  def apply(suite: Suite, tracker: Tracker)
+  def apply(suite: Suite, tracker: Tracker, filter: Filter)
 }
 
 /**
@@ -63,7 +64,7 @@ object Distributor {
    * This inheritance relationship was severed in 1.5 to make it possible to implement <code>Distributor</code>s in Java, a request by an IDE
    * vendor to isolate their ScalaTest integration from binary incompatibility between different Scala/ScalaTest releases.
    * To make a trait easily implementable in Java, it needs to have no concrete methods. <code>Distributor</code> itself does not declare
-   * any concrete methods, but <code>(Suite, Tracker) => Unit</code> does.
+   * any concrete methods, but <code>(Suite, Tracker, Filter) => Unit</code> does.
    * </p>
    *
    * <p>
@@ -74,6 +75,6 @@ object Distributor {
    * </p>
    */
   @deprecated("See the documentation for Distributor.convertDistributorToFunction for information")
-  implicit def convertDistributorToFunction(distributor: Distributor): (Suite, Tracker) => Unit =
-    (suite: Suite, tracker: Tracker) => distributor(suite, tracker)
+  implicit def convertDistributorToFunction(distributor: Distributor): (Suite, Tracker, Filter) => Unit =
+    (suite: Suite, tracker: Tracker, filter: Filter) => distributor(suite, tracker, filter)
 }
