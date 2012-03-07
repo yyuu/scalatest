@@ -15,17 +15,19 @@
  */
 package org.scalatest.concurrent
 
-import org.scalatest.FunSpec
+import org.scalatest.{SeveredStackTraces, FunSpec}
 
-class DurationConceptSpec extends FunSpec {
+
+class DurationConceptSpec extends FunSpec with SeveredStackTraces {
+  val MaxNanos = 999999
   describe("A DurationConcept") {
     it("should construct fine if non-negative, in-range values are passed for millis and nanos") {
       new DurationConcept(0) {}  // These should not throw an exception
       new DurationConcept(0, 0) {}
       new DurationConcept(1, 1) {}
       new DurationConcept(1, 999999) {}
-      new DurationConcept(Integer.MAX_VALUE) {}
-      new DurationConcept(Integer.MAX_VALUE, 999999) {}
+      new DurationConcept(Int.MaxValue) {}
+      new DurationConcept(Int.MaxValue, MaxNanos) {}
     }
     it("should throw IAE if a negative value is passed for millis") {
       intercept[IllegalArgumentException] {
@@ -43,6 +45,24 @@ class DurationConceptSpec extends FunSpec {
     it("should throw IAE if an out-of-range positive value is passed for nanos") {
       intercept[IllegalArgumentException] {
         new DurationConcept(1, 1000000) {}
+      }
+    }
+    describe("when constructed with Long.MaxValue millis") {
+      it("should throw IAE when a non-zero nanos is passed") {
+        // These should not throw an exception:
+        new DurationConcept(Long.MaxValue) {}
+        new DurationConcept(Long.MaxValue, 0) {}
+
+        // But these should throw IAE
+        intercept[IllegalArgumentException] {
+          new DurationConcept(Long.MaxValue, -1) {}
+        }
+        intercept[IllegalArgumentException] {
+          new DurationConcept(Long.MaxValue, 1) {}
+        }
+        intercept[IllegalArgumentException] {
+          new DurationConcept(Long.MaxValue, MaxNanos) {}
+        }
       }
     }
   }

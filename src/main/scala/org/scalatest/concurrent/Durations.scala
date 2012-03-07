@@ -15,8 +15,6 @@
  */
 package org.scalatest.concurrent
 
-import org.scalatest.concurrent.Durations.Duration
-
 trait Durations {
 
   sealed abstract class TimeUnits
@@ -38,17 +36,24 @@ trait Durations {
   case object Days extends TimeUnits
 
   case class Duration private (m: Long, n: Int = 0) extends DurationConcept(m, n)
-  
+
+  // Simulates infinity
+  def maxDuration = Duration(Long.MaxValue, Millis)
+
   object Duration {
     private final val NanosDivisor = 1000000
     private final val MicrosDivisor = 1000
-    def apply(length: Long,  units: TimeUnits): Duration = {
+
+    // Can't pass anything but zero for nanos if Long.MaxInt is passed for millis.
+    def apply(length: Long, units: TimeUnits): Duration = {
       require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
       units match {
         case Nanosecond | Nanoseconds =>
           new Duration(length / NanosDivisor, (length % NanosDivisor).toInt)
         case Microsecond | Microseconds =>
           new Duration(length / MicrosDivisor, (length % MicrosDivisor).toInt * 1000)
+        case Millisecond | Milliseconds | Millis =>
+          new Duration(length, 0)
         case _ => new Duration(0)
       }
     }

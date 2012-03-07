@@ -40,9 +40,10 @@ class DurationsSpec extends FunSpec with ShouldMatchers with SeveredStackTraces 
     }
   val MaxNanos = 999999
 
+  import Durations._
+
   describe("A Duration") {
 
-    import Durations._
     it("should construct with valid nanoseconds passed") {
       Duration(0, Nanosecond) should have (millis(0), nanos(0))
       Duration(0, Nanoseconds) should have (millis(0), nanos(0))
@@ -97,6 +98,12 @@ class DurationsSpec extends FunSpec with ShouldMatchers with SeveredStackTraces 
         Duration(Long.MinValue, Microseconds)
       }
     }
+  }
 
+  describe("maxDuration") {
+    it("should represent the largest possible duration value") {
+      maxDuration should have (millis(Long.MaxValue), nanos(0))
+    }
   }
 }
+

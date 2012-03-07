@@ -18,4 +18,5 @@ package org.scalatest.concurrent
 abstract class DurationConcept(val millis: Long, val nanos: Int = 0) {
   require(millis >= 0, "millis must be greater than or equal to zero, but was: " + millis)
   require(nanos >= 0 && nanos <= 999999, "nanos must be greater than or equal to zero and less than or equal to 999999, but was: " + nanos)
+  require(millis != Long.MaxValue || nanos == 0, "millis was Long.MaxValue, so nanos must be 0, but was: " + nanos)
 }
