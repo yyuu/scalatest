@@ -40,11 +40,18 @@ trait Durations {
   case class Duration private (m: Long, n: Int = 0) extends DurationConcept(m, n)
   
   object Duration {
-    def apply(length: Long,  units: TimeUnits): Duration =
+    private final val NanosDivisor = 1000000
+    private final val MicrosDivisor = 1000
+    def apply(length: Long,  units: TimeUnits): Duration = {
+      require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
       units match {
-        case Nanosecond | Nanoseconds => new Duration(0, length.toInt)
+        case Nanosecond | Nanoseconds =>
+          new Duration(length / NanosDivisor, (length % NanosDivisor).toInt)
+        case Microsecond | Microseconds =>
+          new Duration(length / MicrosDivisor, (length % MicrosDivisor).toInt * 1000)
         case _ => new Duration(0)
-      } 
+      }
+    }
   }
 }
 
