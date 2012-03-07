@@ -327,10 +327,10 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Runner invokePrivate parseConfigSet(null)
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-fJ")
+      Runner invokePrivate parseConfigSet("-fK")
     }
     intercept[IllegalArgumentException] {
-      Runner invokePrivate parseConfigSet("-uJ")
+      Runner invokePrivate parseConfigSet("-uK")
     }
     intercept[IllegalArgumentException] {
       Runner invokePrivate parseConfigSet("-oYZTFUPBISARG-")

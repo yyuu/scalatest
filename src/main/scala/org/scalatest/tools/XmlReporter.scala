@@ -17,17 +17,16 @@ package org.scalatest.tools
 
 import org.scalatest._
 import org.scalatest.events._
-
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Enumeration
 import java.util.Properties
 import java.net.UnknownHostException
 import java.net.InetAddress
-
 import scala.collection.mutable.Set
 import scala.collection.mutable.ListBuffer
 import scala.xml
+import java.io.File
 
 /**
  * A <code>Reporter</code> that writes test status information in XML format.
@@ -49,16 +48,38 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
   // of SuiteCompleted or SuiteAborted events.
   //
   def apply(event: Event) {
-    events += event
 
     event match {
       case e: SuiteCompleted =>
+        events += event
         writeSuiteFile(e)
 
       case e: SuiteAborted =>
+        events += event
         writeSuiteFile(e)
 
+      case e: SuiteIgnored =>
+        writeIgnoredSuiteFile(e)
+        
       case _ =>
+        events += event
+    }
+  }
+  
+  //
+  // Writes the xml file for a ignored test suite.
+  //
+  private def writeIgnoredSuiteFile(event: SuiteIgnored) {
+    if (events.size > 0) {
+      val xmlStr = xmlify(event)
+      val ignoreDir = new File(directory + "/ignored-suites")
+      if (!ignoreDir.exists)
+        ignoreDir.mkdir()
+      val filespec = directory  + "/ignored-suites/" + getSuiteIgnoredName(event) + ".xml"
+      
+      val out = new PrintWriter(filespec, "UTF-8")
+      out.print(xmlStr)
+      out.close()
     }
   }
 
@@ -296,7 +317,29 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
     testcase.ignored = true
     testcase
   }
+  
+  private def getSuiteIgnoredName(event: SuiteIgnored) = {
+    event.suiteClassName match {
+      case Some(suiteClassName) => suiteClassName
+      case None => event.suiteName
+    }
+  }
 
+  //
+  // Creates an xml string describing list of ignored suites
+  //
+  def xmlify(event: SuiteIgnored): String = {
+    val xmlVal = 
+      <testsuite
+        hostname  = { "" + findHostname                     }
+        name      = { "" + getSuiteIgnoredName(event)       }
+        timestamp = { "" + formatTimeStamp(event.timeStamp) } />
+        
+    val prettified = (new xml.PrettyPrinter(76, 2)).format(xmlVal)
+    
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + prettified
+  }
+  
   //
   // Creates an xml string describing a run of a test suite.
   //

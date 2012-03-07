@@ -40,6 +40,7 @@ private[tools] class FilterReporter(reporter: Reporter, configSet: Set[ReporterC
       case event: TestFailed =>report(event)
       case event: SuiteCompleted => if (!configSet.contains(FilterSuiteCompleted)) report(event)
       case event: SuiteStarting => if (!configSet.contains(FilterSuiteStarting)) report(event)
+      case event: SuiteIgnored => if (!configSet.contains(FilterSuiteIgnored)) report(event)
       case event: TestStarting => if (!configSet.contains(FilterTestStarting)) report(event)
       case event: TestSucceeded => if (!configSet.contains(FilterTestSucceeded)) report(event)
       case event: TestIgnored => if (!configSet.contains(FilterTestIgnored)) report(event)

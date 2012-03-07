@@ -103,7 +103,7 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that is starting, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that is starting
@@ -124,7 +124,7 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
 final case class TestStarting (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -142,8 +142,8 @@ final case class TestStarting (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -193,7 +193,7 @@ final case class TestStarting (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that has succeeded, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that has succeeded
@@ -215,7 +215,7 @@ final case class TestStarting (
 final case class TestSucceeded (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String], 
   testName: String,
@@ -234,8 +234,8 @@ final case class TestSucceeded (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -287,7 +287,7 @@ final case class TestSucceeded (
  *        other events reported during the same run
  * @param message a localized message suitable for presenting to the user
  * @param suiteName a localized name identifying the suite containing the test that has failed, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that has failed
@@ -312,7 +312,7 @@ final case class TestFailed (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -334,8 +334,8 @@ final case class TestFailed (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -389,7 +389,7 @@ final case class TestFailed (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that was ignored, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that was ignored
@@ -408,7 +408,7 @@ final case class TestFailed (
 final case class TestIgnored (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -425,8 +425,8 @@ final case class TestIgnored (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -468,7 +468,7 @@ final case class TestIgnored (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that is pending, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that is pending
@@ -488,7 +488,7 @@ final case class TestIgnored (
 final case class TestPending (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -506,8 +506,8 @@ final case class TestPending (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -551,7 +551,7 @@ final case class TestPending (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that was canceled, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was canceled
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that was canceled
@@ -575,7 +575,7 @@ final case class TestCanceled (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -596,8 +596,8 @@ final case class TestCanceled (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -650,7 +650,7 @@ final case class TestCanceled (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite that is starting, suitable for presenting to the user
- * @param suiteID a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
+ * @param suiteId a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name of the suite that is starting
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -668,7 +668,7 @@ final case class TestCanceled (
 final case class SuiteStarting (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   formatter: Option[Formatter] = None,
@@ -683,8 +683,8 @@ final case class SuiteStarting (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (formatter == null)
@@ -729,7 +729,7 @@ final case class SuiteStarting (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite that is starting, suitable for presenting to the user
- * @param suiteID a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
+ * @param suiteId a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name of the suite that is starting
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
@@ -745,7 +745,7 @@ final case class SuiteStarting (
 final case class SuiteIgnored (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   formatter: Option[Formatter] = None,
@@ -759,8 +759,8 @@ final case class SuiteIgnored (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (formatter == null)
@@ -804,7 +804,7 @@ final case class SuiteIgnored (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite that has completed, suitable for presenting to the user
- * @param suiteID a string ID for the suite that has completed, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite that has completed, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
@@ -823,7 +823,7 @@ final case class SuiteIgnored (
 final case class SuiteCompleted (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   duration: Option[Long] = None,
@@ -839,8 +839,8 @@ final case class SuiteCompleted (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (duration == null)
@@ -892,7 +892,7 @@ final case class SuiteCompleted (
  *        suite name, suitable for presenting to the user
  * @param message a localized message suitable for presenting to the user
  * @param suiteName a localized name identifying the suite that has aborted, suitable for presenting to the user
- * @param suiteID a string ID for the suite that has aborted, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite that has aborted, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -914,7 +914,7 @@ final case class SuiteAborted (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String], 
   throwable: Option[Throwable] = None,
@@ -933,8 +933,8 @@ final case class SuiteAborted (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (throwable == null)

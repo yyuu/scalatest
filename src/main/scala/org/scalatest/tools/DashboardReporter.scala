@@ -585,6 +585,7 @@ private[scalatest] class DashboardReporter(directory: String,
 
         case e: SuiteCompleted => endSuite(e)
         case e: SuiteAborted   => endSuite(e)
+        case e: SuiteIgnored   => 
 
         case e: RunStarting    => unexpectedEvent(e)
         case e: RunCompleted   => unexpectedEvent(e)
@@ -691,7 +692,7 @@ private[scalatest] class DashboardReporter(directory: String,
         val duration = endEvent.timeStamp - startEvent.timeStamp
         "\n" +
         "<suite index=\"" + nextIndex()                   + "\" " +
-        "id=\""           + startEvent.suiteID            + "\" " +
+        "id=\""           + startEvent.suiteId            + "\" " +
         "result=\""       + result                        + "\" " +
         "name=\""         + escape(startEvent.suiteName)  + "\" " +
         "duration=\""     + duration                      + "\" " +

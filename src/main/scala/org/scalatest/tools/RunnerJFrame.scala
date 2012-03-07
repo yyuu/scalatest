@@ -358,6 +358,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
                 case event: SuiteStarting => Some(event.suiteName)
                 case event: SuiteCompleted => Some(event.suiteName)
                 case event: SuiteAborted => Some(event.suiteName)
+                case event: SuiteIgnored => Some(event.suiteName)
                 case event: TestStarting => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
                 case event: TestPending => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
                 case event: TestCanceled => Some(suiteAndTestName(event.suiteName, event.decodedSuiteName, event.testName, event.decodedTestName))
@@ -379,6 +380,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
                 case event: SuiteStarting => None
                 case event: SuiteCompleted => event.duration
                 case event: SuiteAborted => event.duration
+                case event: SuiteIgnored => None
                 case event: TestStarting => None
                 case event: TestPending => None
                 case event: TestCanceled => event.duration
@@ -660,6 +662,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     viewMenu.add(optionsMap(PresentSuiteStarting))
     viewMenu.add(optionsMap(PresentSuiteCompleted))
     viewMenu.add(optionsMap(PresentSuiteAborted))
+    viewMenu.add(optionsMap(PresentSuiteIgnored))
     viewMenu.add(optionsMap(PresentInfoProvided))
     viewMenu.add(optionsMap(PresentRunStopped))
     viewMenu.add(optionsMap(PresentRunCompleted))
@@ -916,6 +919,12 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
             // you must wait a long time for that thing to be selected. Nice if it gets selected
             // right away.
             selectFirstFailureIfExistsAndNothingElseAlreadySelected()
+          }
+          
+        case SuiteIgnored(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, payload, threadName, timeStamp) =>
+          
+          usingEventDispatchThread {
+            registerEvent(event)
           }
 
         case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunner, payload, threadName, timeStamp) =>
@@ -1323,6 +1332,12 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
               anErrorHasOccurredAlready = true
             }
           }
+          
+        case SuiteIgnored(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, payload, threadName, timeStamp) => 
+          
+          usingEventDispatchThread {
+            registerRerunEvent(event)
+          }
  
         case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunner, payload, threadName, timeStamp) =>
 
@@ -1472,6 +1487,7 @@ private[tools] object RunnerJFrame {
       case PresentSuiteStarting => "SUITE_STARTING"
       case PresentSuiteAborted => "SUITE_ABORTED"
       case PresentSuiteCompleted => "SUITE_COMPLETED"
+      case PresentSuiteIgnored => "SUITE_IGNORED"
       case PresentInfoProvided => "INFO_PROVIDED"
       case PresentScopeOpened => "SCOPE_OPENED"
       case PresentScopeClosed => "SCOPE_CLOSED"

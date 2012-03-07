@@ -68,9 +68,9 @@ trait TestLocationServices {
   
   def checkFun(event: Event) {
     event match {
-      case suiteStarting: SuiteStarting => checkTopOfClass(expectedSuiteStartingList, suiteStarting.suiteID, event)
-      case suiteCompleted: SuiteCompleted => checkTopOfClass(expectedSuiteCompletedList, suiteCompleted.suiteID, event)
-      case suiteAborted: SuiteAborted => checkSeeStackDepthExceptionPair(expectedSuiteAbortedList, suiteAborted.suiteID, event)
+      case suiteStarting: SuiteStarting => checkTopOfClass(expectedSuiteStartingList, suiteStarting.suiteId, event)
+      case suiteCompleted: SuiteCompleted => checkTopOfClass(expectedSuiteCompletedList, suiteCompleted.suiteId, event)
+      case suiteAborted: SuiteAborted => checkSeeStackDepthExceptionPair(expectedSuiteAbortedList, suiteAborted.suiteId, event)
       case testFailed: TestFailed => checkSeeStackDepthExceptionPair(expectedTestFailedList, testFailed.testName, event)
       case infoProvided: InfoProvided => checkLineInFile(expectedInfoProvidedList, infoProvided.message, event)
       case _ => // Tested in LocationMethodSuiteProp or LocationFunctionSuiteProp
