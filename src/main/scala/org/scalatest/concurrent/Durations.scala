@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2008 Artima, Inc.
+ * Copyright 2001-2012 Artima, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,37 @@
  */
 package org.scalatest.concurrent
 
+import org.scalatest.concurrent.Durations.Duration
+
 trait Durations {
 
-  sealed abstract class TimeUnit
+  sealed abstract class TimeUnits
 
-  case object Day extends TimeUnit
-  case object Days extends TimeUnit
-  case object Hour extends TimeUnit
-  case object Hours extends TimeUnit
-  case object Millis extends TimeUnit
-  case object Millisecond extends TimeUnit
-  case object Milliseconds extends TimeUnit
-  case object Minute extends TimeUnit
-  case object Minutes extends TimeUnit
-  case object Second extends TimeUnit
-  case object Seconds extends TimeUnit
-  case object Nanosecond extends TimeUnit
-  case object Nanoseconds extends TimeUnit
-  case object Microsecond extends TimeUnit
-  case object Microseconds extends TimeUnit
-  
+  case object Nanosecond extends TimeUnits
+  case object Nanoseconds extends TimeUnits
+  case object Microsecond extends TimeUnits
+  case object Microseconds extends TimeUnits
+  case object Millisecond extends TimeUnits
+  case object Milliseconds extends TimeUnits
+  case object Millis extends TimeUnits
+  case object Second extends TimeUnits
+  case object Seconds extends TimeUnits
+  case object Minute extends TimeUnits
+  case object Minutes extends TimeUnits
+  case object Hour extends TimeUnits
+  case object Hours extends TimeUnits
+  case object Day extends TimeUnits
+  case object Days extends TimeUnits
+
   case class Duration private (m: Long, n: Int = 0) extends DurationConcept(m, n)
   
   object Duration {
-    def apply(length: Long,  units: TimeUnit): Duration = new Duration(0)
+    def apply(length: Long,  units: TimeUnits): Duration =
+      units match {
+        case Nanosecond | Nanoseconds => new Duration(0, length.toInt)
+        case _ => new Duration(0)
+      } 
   }
 }
 
+object Durations extends Durations
