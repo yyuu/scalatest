@@ -14,14 +14,6 @@
     <relativePath>../it-parent</relativePath>
   </parent>
 
-  <repositories>
-    <repository>
-      <id>scala-tools.org - snapshots</id>
-      <name>Scala-Tools Maven2 Snapshot Repository</name>
-      <url>http://scala-tools.org/repo-snapshots</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -144,7 +136,7 @@
 	          <testFailureIgnore>true</testFailureIgnore>
 	          <config>tempFileName=TempFileFromConfig.txt</config>
 	          <filereports>NCXEHLOWFD file/constrained.txt,file/full.txt</filereports>
-	          <xmlreports>xml</xmlreports>
+	          <junitxml>xml</junitxml>
 	        </configuration>
           </execution>
         </executions>

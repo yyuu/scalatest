@@ -1,5 +1,6 @@
 package org.scalatest.tools.maven;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -46,14 +47,6 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      * @readonly
      */
     MavenProject project;
-
-    /**
-     * Injected by Maven in order to build up the class path.  Should not be user facing.
-     * @parameter expression="${project.testClasspathElements}"
-     * @required
-     * @readOnly
-     */
-    List<String> testClasspathElements;
 
     /**
      * Injected by Maven so that it can be included in the run path.  Should not be user facing.
@@ -307,7 +300,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     private String buildClassPathEnvironment() {
         StringBuffer buf = new StringBuffer();
         boolean first = true;
-        for (String e : testClasspathElements) {
+        for (String e : testClasspathElements()) {
             if (first) {
                 first = false;
             }
@@ -343,7 +336,7 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     private ClassLoader classLoader() {
         try {
             List<URL> urls = new ArrayList<URL>();
-            for (String element : testClasspathElements) {
+            for (String element : testClasspathElements()) {
                 File file = new File(element);
                 if (file.isFile()) {
                     urls.add(file.toURI().toURL());
@@ -353,6 +346,21 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
             return new URLClassLoader(u);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    // Have to use the programmatic way of getting the classpath elements
+    // instead of the field-level injection since that apparently doesn't work
+    // for ReporterMojos in maven-2.2 (it does work in maven-3)
+    private List<String> testClasspathElements() {
+        try {
+            return (List<String>) project.getTestClasspathElements();
+        }
+        catch (DependencyResolutionRequiredException e) {
+            // There's really no known way this exception can happen since
+            // the @requiresDependencyResolution at the top of the class
+            // defines test-scoped resolution.
+            throw new IllegalStateException("Dependency resolution should be test-scoped.", e);
         }
     }
 
