@@ -599,35 +599,67 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     intercept[IllegalArgumentException] {
       Runner.parseSuiteArgsIntoSuiteParam(List("-t", "test1"), "-s")
     }
+    intercept[IllegalArgumentException] {
+      // -i without -s should not be supported, as for example current command is having -s -i, there's no way to tell the next -i should be a -i without -s.
+      // -i should only be used together with -s to select nested suite.
+      Runner.parseSuiteArgsIntoSuiteParam(List("-i", "suite1"), "-s")
+    }
+    intercept[IllegalArgumentException] {
+      // -sX -t should not be supported, as -s -t should be used to select a specific test.
+      Runner.parseSuiteArgsIntoSuiteParam(List("-sX", "suite1", "-t", "test1"), "-s")
+    }
+    intercept[IllegalArgumentException] {
+      // -iX should not be supported, as a nested suite's nested suites should not be included, if it is included, we have to figure out the way to specify if 
+      // nested suite's nested suite's nested suites (and endless down the tree) should be implemented.
+      Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-iX", "nested1"), "-s")
+    }
     
     val case1 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-s", "suite2"), "-s")
     assert(case1.length === 2)
-    assert(case1(0).identifier === "suite1")
+    assert(case1(0).className === "suite1")
     assert(case1(0).testNames.length === 0)
     assert(case1(0).includeNestedSuites === true)
-    assert(case1(1).identifier === "suite2")
+    assert(case1(1).className === "suite2")
     assert(case1(1).testNames.length === 0)
     assert(case1(1).includeNestedSuites === true)
     
     val case2 = Runner.parseSuiteArgsIntoSuiteParam(List("-sX", "suite1", "-s", "suite2"), "-s")
     assert(case2.length === 2)
-    assert(case2(0).identifier === "suite1")
+    assert(case2(0).className === "suite1")
     assert(case2(0).testNames.length === 0)
     assert(case2(0).includeNestedSuites === false)
-    assert(case2(1).identifier === "suite2")
+    assert(case2(1).className === "suite2")
     assert(case2(1).testNames.length === 0)
     assert(case2(1).includeNestedSuites === true)
     
     val case3 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-t", "test1", "-t", "test2", "-s", "suite2"), "-s")
     assert(case3.length === 2)
-    assert(case3(0).identifier === "suite1")
+    assert(case3(0).className === "suite1")
     assert(case3(0).testNames.length === 2)
     assert(case3(0).testNames(0) === "test1")
     assert(case3(0).testNames(1) === "test2")
-    assert(case3(0).includeNestedSuites === true)
-    assert(case3(1).identifier === "suite2")
+    assert(case3(0).includeNestedSuites === true) // Runner will not look at this flag when -t is used, this is to test the parsing logic in parseSuiteArgsIntoSuiteParam only.
+    assert(case3(1).className === "suite2")
     assert(case3(1).testNames.length === 0)
-    assert(case3(1).includeNestedSuites === true)
+    assert(case3(1).includeNestedSuites === true) // Runner will not look at this flag when -t is used, this is to test the parsing logic in parseSuiteArgsIntoSuiteParam only.
+    
+    val case4 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1"), "-s")
+    assert(case4.length === 1)
+    assert(case4(0).className === "suite1")
+    assert(case4(0).testNames.length === 0)
+    assert(case4(0).nestedSuites.length === 1)
+    assert(case4(0).nestedSuites(0).suiteId === "nested1")
+    assert(case4(0).nestedSuites(0).testNames.length === 0)
+    
+    val case5 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-t", "test1", "-t", "test2"), "-s")
+    assert(case5.length === 1)
+    assert(case5(0).className === "suite1")
+    assert(case5(0).testNames.length === 0)
+    assert(case5(0).nestedSuites.length === 1)
+    assert(case5(0).nestedSuites(0).suiteId === "nested1")
+    assert(case5(0).nestedSuites(0).testNames.length === 2)
+    assert(case5(0).nestedSuites(0).testNames(0) === "test1")
+    assert(case5(0).nestedSuites(0).testNames(1) === "test2")
   }
 
 /*

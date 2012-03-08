@@ -2466,7 +2466,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
       }
     }
     
-    if (filter.includeNestedSuites) {
+    if (!filter.excludeNestedSuites(suiteId)) {
       val filteredNestedSuites = filter(nestedSuites)
       distributor match {
         case None =>

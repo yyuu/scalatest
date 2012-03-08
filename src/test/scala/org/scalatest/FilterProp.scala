@@ -7,10 +7,10 @@ import org.scalatest.testng.TestNGSuite
 
 class FilterProp extends SuiteProp {
   
-  test("All suite types should not run nested suite when Filters's includeNestedSuites is false.") {
+  test("All suite types should not run nested suite when Filters's excludeNestedSuites contains the suiteId.") {
     forAll(examples) { suite =>
       val reporter = new EventRecordingReporter
-      suite.run(None, reporter, new Stopper {}, new Filter(None, Set[String](), false), Map(), None, new Tracker(new Ordinal(99)))
+      suite.run(None, reporter, new Stopper {}, new Filter(None, Set[String](), Set(suite.suiteId)), Map(), None, new Tracker(new Ordinal(99)))
       if (!suite.isInstanceOf[TestNGSuite])
         reporter.suiteStartingEventsReceived should be ('empty)
     }
