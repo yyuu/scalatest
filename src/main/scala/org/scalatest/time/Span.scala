@@ -15,6 +15,8 @@
  */
 package org.scalatest.time
 
+// TODO: Maybe make this not a case class, but make an extractor. COuld have
+// an identical extractor for both Span and SpanConcept.
 case class Span private (m: Long, n: Int = 0) extends SpanConcept(m, n)
 
 object Span {
