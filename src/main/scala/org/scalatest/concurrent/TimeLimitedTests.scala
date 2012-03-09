@@ -20,6 +20,7 @@ import org.scalatest.Suite
 import Timeouts._
 import org.scalatest.ModifiableMessage
 import org.scalatest.Resources
+import org.scalatest.time.Span
 
 /**
  * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout.
@@ -148,7 +149,7 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
    * The time limit, in milliseconds, in which each test in a <code>Suite</code> that mixes in
    * <code>TimeLimitedTests</code> must complete.
    */
-  def timeLimit: Long
+  def timeLimit: Span
   
   /**
    * The default <a href="Interruptor.html"><code>Interruptor</code></a> strategy used to interrupt tests that exceed their time limit.

@@ -15,27 +15,60 @@
  */
 package org.scalatest.time
 
-// TODO: Maybe make this not a case class, but make an extractor. COuld have
+import Span.totalNanosForLongLength
+import Span.totalNanosForDoubleLength
+import org.scalatest.Resources
+
+// TODO: Maybe make this not a case class, but make an extractor. Could have
 // an identical extractor for both Span and SpanConcept.
-case class Span private (m: Long, n: Int = 0) extends SpanConcept(m, n)
+// case class Span private (m: Long, n: Int = 0) extends SpanConcept(m, n)
+final class Span private (val totalNanos: Long, lengthString: String, unitsResource: String, unitsName: String) {
 
-object Span {
-  private final val NanosDivisor = 1000000
-  private final val MicrosDivisor = 1000
-
-  private def singularErrorMsg(unitsString: String) = {
-    "Singular form of " + unitsString +
-      " (i.e., without the trailing s) can only be used with the value 1. Use " +
-      unitsString + "s (i.e., with an s) instead."
+  private def this(length: Long, units: Units) {
+    this(
+      totalNanosForLongLength(length, units),
+      length.toString,
+      if (length == 1) units.singularResourceName else units.pluralResourceName,
+      units.toString
+    )
   }
 
-  // TODO: write test for: Can't pass anything but zero for nanos if Long.MaxInt is passed for millis.
-  def apply(length: Long, units: Units): Span = {
+  private def this(length: Double, units: Units) {
+    this(
+      totalNanosForDoubleLength(length, units),
+      length.toString,
+      if (length == 1.0) units.singularResourceName else units.pluralResourceName,
+      units.toString
+    )
+  }
 
-    val MaxSeconds = Long.MaxValue / 1000
-    val MaxMinutes = Long.MaxValue / 1000 / 60
-    val MaxHours = Long.MaxValue / 1000 / 60 / 60
-    val MaxDays = Long.MaxValue / 1000 / 60 / 60 / 24
+  lazy val prettyString: String = Resources(unitsResource, lengthString)
+
+  override def toString = "Span(" + lengthString + ", " + unitsName + ")"
+  
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: Span => totalNanos == that.totalNanos
+      case _ => false
+    }
+  }
+
+  override def hashCode: Int = totalNanos.hashCode
+}
+
+object Span {
+
+  def apply(length: Long, units: Units): Span = new Span(length, units)
+
+  def apply(length: Double, units: Units): Span = new Span(length, units)
+
+  private def totalNanosForLongLength(length: Long, units: Units): Long = {
+
+    // TODO: Need others here
+    val MaxSeconds = Long.MaxValue / 1000 / 1000 / 1000
+    val MaxMinutes = Long.MaxValue / 1000 / 1000 / 1000 / 60
+    val MaxHours = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60
+    val MaxDays = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24
 
     require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
 
@@ -53,31 +86,31 @@ object Span {
     require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 60 / 60 / 24")
 
     units match {
-      case Nanosecond | Nanoseconds => // Document: Truncates. Doesn't attempt to round up.
-        new Span(length / NanosDivisor, (length % NanosDivisor).toInt)
+      case Nanosecond | Nanoseconds =>
+        length
       case Microsecond | Microseconds =>
-        new Span(length / MicrosDivisor, (length % MicrosDivisor).toInt * 1000)
+        length * 1000
       case Millisecond | Milliseconds | Millis =>
-        new Span(length, 0)
+        length * 1000 * 1000
       case Second | Seconds =>
-        new Span(length * 1000, 0)
+        length * 1000 * 1000 * 1000
       case Minute | Minutes =>
-        new Span(length * 1000 * 60, 0)
+        length * 1000 * 1000 * 1000 * 60
       case Hour | Hours =>
-        new Span(length * 1000 * 60 * 60, 0)
+        length * 1000 * 1000 * 1000 * 60 * 60
       case Day | Days =>
-        new Span(length * 1000 * 60 * 60 * 24, 0)
+        length * 1000 * 1000 * 1000 * 60 * 60 * 24
     }
   }
 
-  def apply(length: Double, units: Units): Span = {
+  private def totalNanosForDoubleLength(length: Double, units: Units): Long = {
 
     val MaxNanoseconds = (Long.MaxValue).toDouble
-
-    val MaxSeconds = (Long.MaxValue / 1000).toDouble
-    val MaxMinutes = (Long.MaxValue / 1000 / 60).toDouble
-    val MaxHours = (Long.MaxValue / 1000 / 60 / 60).toDouble
-    val MaxDays = (Long.MaxValue / 1000 / 60 / 60 / 24).toDouble
+    // TODO: Need others here
+    val MaxSeconds = (Long.MaxValue / 1000 / 1000 / 1000).toDouble
+    val MaxMinutes = (Long.MaxValue / 1000 / 1000 / 1000 / 60).toDouble
+    val MaxHours = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60).toDouble
+    val MaxDays = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24).toDouble
 
     require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
 
@@ -98,21 +131,113 @@ object Span {
 
     units match {
       case Nanosecond | Nanoseconds =>
-        new Span((length / NanosDivisor).toLong, (length % NanosDivisor).toInt)
+        length.toLong
       case Microsecond | Microseconds =>
-        new Span((length / MicrosDivisor).toLong, ((length % MicrosDivisor) * 1000).toInt)
+        (length * 1000).toLong
       case Millisecond | Milliseconds | Millis =>
-        new Span(length.toLong, ((length % 1) * 1000000).toInt)
+        (length * 1000 * 1000).toLong
       case Second | Seconds =>
-        new Span((length * 1000).toLong, (((length * 1000) % 1) * 1000000).toInt)
+        (length * 1000 * 1000 * 1000).toLong
       case Minute | Minutes =>
-        new Span((length * 1000 * 60).toLong, (((length * 1000 * 60) % 1) * 1000000).toInt)
+        (length * 1000 * 1000 * 1000 * 60).toLong
       case Hour | Hours =>
-        new Span((length * 1000 * 60 * 60).toLong, (((length * 1000 * 60 * 60) % 1) * 1000000).toInt)
+        (length * 1000 * 1000 * 1000 * 60 * 60).toLong
       case Day | Days =>
-        new Span((length * 1000 * 60 * 60 * 24).toLong, (((length * 1000 * 60 * 60 * 24) % 1) * 1000000).toInt)
-      case _ => new Span(0)
+        (length * 1000 * 1000 * 1000 * 60 * 60 * 24).toLong
     }
   }
+
+  private def singularErrorMsg(unitsString: String) = {
+    "Singular form of " + unitsString +
+      " (i.e., without the trailing s) can only be used with the value 1. Use " +
+      unitsString + "s (i.e., with an s) instead."
+  }
+
+   /*
+  // TODO: write test for: Can't pass anything but zero for nanos if Long.MaxInt is passed for millis.
+  def apply(length: Long, units: Units): Span = {
+     // TODO: Need others here
+    val MaxSeconds = Long.MaxValue / 1000 / 1000 / 1000
+    val MaxMinutes = Long.MaxValue / 1000 / 1000 / 1000 / 60
+    val MaxHours = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60
+    val MaxDays = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24
+
+    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
+
+    require(units != Nanosecond || length == 1, singularErrorMsg("Nanosecond"))
+    require(units != Microsecond || length == 1, singularErrorMsg("Microsecond"))
+    require(units != Millisecond || length == 1, singularErrorMsg("Millisecond"))
+    require(units != Second || length == 1, singularErrorMsg("Second"))
+    require(units != Minute || length == 1, singularErrorMsg("Minute"))
+    require(units != Hour || length == 1, singularErrorMsg("Hour"))
+    require(units != Day || length == 1, singularErrorMsg("Day"))
+
+    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000")
+    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 60")
+    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 60 / 60")
+    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 60 / 60 / 24")
+
+    units match {
+      case Nanosecond | Nanoseconds =>
+        new Span(length)
+      case Microsecond | Microseconds =>
+        new Span(length * 1000)
+      case Millisecond | Milliseconds | Millis =>
+        new Span(length * 1000 * 1000)
+      case Second | Seconds =>
+        new Span(length * 1000 * 1000 * 1000)
+      case Minute | Minutes =>
+        new Span(length * 1000 * 1000 * 1000 * 60)
+      case Hour | Hours =>
+        new Span(length * 1000 * 1000 * 1000 * 60 * 60)
+      case Day | Days =>
+        new Span(length * 1000 * 1000 * 1000 * 60 * 60 * 24)
+    }
+  }
+
+  def apply(length: Double, units: Units): Span = {
+
+    val MaxNanoseconds = (Long.MaxValue).toDouble
+    // TODO: Need others here
+    val MaxSeconds = (Long.MaxValue / 1000 / 1000 / 1000).toDouble
+    val MaxMinutes = (Long.MaxValue / 1000 / 1000 / 1000 / 60).toDouble
+    val MaxHours = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60).toDouble
+    val MaxDays = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24).toDouble
+
+    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
+
+    require(units != Nanosecond || length == 1.0, singularErrorMsg("Nanosecond"))
+    require(units != Microsecond || length == 1.0, singularErrorMsg("Microsecond"))
+    require(units != Millisecond || length == 1.0, singularErrorMsg("Millisecond"))
+    require(units != Second || length == 1.0, singularErrorMsg("Second"))
+    require(units != Minute || length == 1.0, singularErrorMsg("Minute"))
+    require(units != Hour || length == 1.0, singularErrorMsg("Hour"))
+    require(units != Day || length == 1.0, singularErrorMsg("Day"))
+
+    require(units != Nanoseconds || length <= MaxNanoseconds, "Passed length, " + length + ", is larger than the largest expressible number of nanoseconds: Long.MaxValue")
+    // TODO: Am I missing some here? Think so.
+    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000")
+    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 60")
+    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 60 / 60")
+    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 60 / 60 / 24")
+
+    units match {
+      case Nanosecond | Nanoseconds =>
+        new Span(length.toLong)
+      case Microsecond | Microseconds =>
+        new Span((length * 1000).toLong)
+      case Millisecond | Milliseconds | Millis =>
+        new Span((length * 1000 * 1000).toLong)
+      case Second | Seconds =>
+        new Span((length * 1000 * 1000 * 1000).toLong)
+      case Minute | Minutes =>
+        new Span((length * 1000 * 1000 * 1000 * 60).toLong)
+      case Hour | Hours =>
+        new Span((length * 1000 * 1000 * 1000 * 60 * 60).toLong)
+      case Day | Days =>
+        new Span((length * 1000 * 1000 * 1000 * 60 * 60 * 24).toLong)
+      case _ => new Span(0)
+    }
+  } */
 }        // TODO: elim duplica
 

@@ -23,6 +23,7 @@ import org.scalatest.Filter
 import org.scalatest.Tracker
 import org.scalatest.SharedHelpers
 import org.scalatest.Resources
+import org.scalatest.time.{Span, Millis}
 
 class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelpers {
   describe("A time-limited test") {
@@ -31,7 +32,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
         it("should succeed") {
           val a =
             new FunSuite with TimeLimitedTests {
-              val timeLimit = 100L
+              val timeLimit = Span(100L, Millis)
               test("plain old success") { assert(1 + 1 === 2) }
             }
           val rep = new EventRecordingReporter
@@ -44,7 +45,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
         it("should fail") {
           val a =
             new FunSuite with TimeLimitedTests {
-              val timeLimit = 100L
+              val timeLimit = Span(100L, Millis)
               test("plain old failure") { assert(1 + 1 === 3) }
             }
           val rep = new EventRecordingReporter
@@ -58,7 +59,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
       it("should fail with a timeout exception with the proper error message") {
         val a =
           new FunSuite with TimeLimitedTests {
-            val timeLimit = 100L
+            val timeLimit = Span(100L, Millis)
             test("time out failure") { Thread.sleep(500) }
           }
         val rep = new EventRecordingReporter
@@ -71,7 +72,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
       it("should fail with a timeout exception with the proper cause, if the test timed out after it completed abruptly") {
         val a =
           new FunSuite with TimeLimitedTests {
-            val timeLimit = 10L
+            val timeLimit = Span(10L, Millis)
             override val defaultTestInterruptor = DoNotInterrupt
             test("time out failure") {
               Thread.sleep(50)

@@ -15,11 +15,8 @@
  */
 package org.scalatest.concurrent
 
-import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.OptionValues._
-import org.scalatest.TestFailedException
-import org.scalatest.Resources
 import Timeouts._
 import org.scalatest.SharedHelpers.thisLineNumber
 import java.io.ByteArrayInputStream
@@ -31,31 +28,33 @@ import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.net.InetSocketAddress
 import java.nio.channels.SocketChannel
+import org.scalatest.time._
+import org.scalatest.{SeveredStackTraces, FunSpec, TestFailedException, Resources}
 
-class TimeoutsSpec extends FunSpec with ShouldMatchers {
+class TimeoutsSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
   describe("The failAfter construct") {
 
     it("should blow up with TestFailedException when it times out") {
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           Thread.sleep(200)
         }
       } should produce [TestFailedException]
-      caught.message.value should be (Resources("timeoutFailedAfter", "100"))
+      caught.message.value should be (Resources("timeoutFailedAfter", "100 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
       caught.failedCodeFileName.value should be ("TimeoutsSpec.scala")
     }
  
     it("should pass normally when the timeout is not reached") {
-      failAfter(200) {
+      failAfter(Span(200, Millis)) {
         Thread.sleep(100)
       }
     }
 
     it("should blow up with TestFailedException when the task does not response interrupt request and pass after the timeout") {
       val caught = evaluating {
-        failAfter(timeout = 100) {
+        failAfter(timeout = Span(100, Millis)) {
           for (i <- 1 to 10) {
             try {
               Thread.sleep(50)
@@ -71,7 +70,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
 
     it("should not catch exception thrown from the test") {
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           throw new InterruptedException
         }
       } should produce [InterruptedException]
@@ -79,7 +78,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
 
     it("should set the exception thrown from the test after timeout as cause of TestFailedException") {
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           for (i <- 1 to 10) {
             try {
               Thread.sleep(50)
@@ -118,7 +117,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           inputStream.read()
         } (SocketInterruptor(clientSocket))
       } should produce [TestFailedException]
@@ -149,7 +148,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       val inputStream = clientSocket.getInputStream()
       
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           inputStream.read()
         } (Interruptor { t => clientSocket.close() })
       } should produce [TestFailedException]
@@ -160,7 +159,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
     it("should wait for the test to finish when DoNotInterrupt is used.") {
       var x = 0
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           Thread.sleep(200)
           x = 1
         } (DoNotInterrupt)
@@ -206,7 +205,7 @@ class TimeoutsSpec extends FunSpec with ShouldMatchers {
       sChannel.register(selector, sChannel.validOps());
     
       val caught = evaluating {
-        failAfter(100) {
+        failAfter(Span(100, Millis)) {
           clientSelector.select()
         } (SelectorInterruptor(clientSelector))
       } should produce [TestFailedException]

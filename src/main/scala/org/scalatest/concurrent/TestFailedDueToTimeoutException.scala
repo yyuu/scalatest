@@ -17,6 +17,7 @@ package org.scalatest.concurrent
 
 import org.scalatest.TestFailedException
 import org.scalatest.StackDepthException
+import org.scalatest.time.Span
 
 /**
  * Subclass of <a href="../TestFailedException.html"><code>TestFailedException</code></a> thrown by the <code>failAfter</code>
@@ -35,7 +36,7 @@ class TestFailedDueToTimeoutException(
   messageFun: StackDepthException => Option[String],
   cause: Option[Throwable],
   failedCodeStackDepthFun: StackDepthException => Int,
-  val timeout: Long
+  val timeout: Span
 ) extends TestFailedException(messageFun, cause, failedCodeStackDepthFun) with TimeoutException {
 
   /**
