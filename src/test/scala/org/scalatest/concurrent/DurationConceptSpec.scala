@@ -19,7 +19,9 @@ import org.scalatest.{SeveredStackTraces, FunSpec}
 
 
 class DurationConceptSpec extends FunSpec with SeveredStackTraces {
+
   val MaxNanos = 999999
+
   describe("A DurationConcept") {
     it("should construct fine if non-negative, in-range values are passed for millis and nanos") {
       new DurationConcept(0) {}  // These should not throw an exception
