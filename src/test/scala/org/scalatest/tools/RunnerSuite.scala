@@ -584,9 +584,6 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     intercept[NullPointerException] {
       Runner.parseSuiteArgsIntoSuiteParam(List("-s", null, "-s", "suite2"), "-s")
     }
-    intercept[NullPointerException] {
-      Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-s", "suite2"), "-o")
-    }
     intercept[IllegalArgumentException] {
       Runner.parseSuiteArgsIntoSuiteParam(List("-s", "-s"), "-s")
     }
@@ -618,48 +615,35 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     assert(case1.length === 2)
     assert(case1(0).className === "suite1")
     assert(case1(0).testNames.length === 0)
-    assert(case1(0).includeNestedSuites === true)
     assert(case1(1).className === "suite2")
     assert(case1(1).testNames.length === 0)
-    assert(case1(1).includeNestedSuites === true)
     
-    val case2 = Runner.parseSuiteArgsIntoSuiteParam(List("-sX", "suite1", "-s", "suite2"), "-s")
+    val case2 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-t", "test1", "-t", "test2", "-s", "suite2"), "-s")
     assert(case2.length === 2)
     assert(case2(0).className === "suite1")
-    assert(case2(0).testNames.length === 0)
-    assert(case2(0).includeNestedSuites === false)
+    assert(case2(0).testNames.length === 2)
+    assert(case2(0).testNames(0) === "test1")
+    assert(case2(0).testNames(1) === "test2")
     assert(case2(1).className === "suite2")
     assert(case2(1).testNames.length === 0)
-    assert(case2(1).includeNestedSuites === true)
     
-    val case3 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-t", "test1", "-t", "test2", "-s", "suite2"), "-s")
-    assert(case3.length === 2)
+    val case3 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1"), "-s")
+    assert(case3.length === 1)
     assert(case3(0).className === "suite1")
-    assert(case3(0).testNames.length === 2)
-    assert(case3(0).testNames(0) === "test1")
-    assert(case3(0).testNames(1) === "test2")
-    assert(case3(0).includeNestedSuites === true) // Runner will not look at this flag when -t is used, this is to test the parsing logic in parseSuiteArgsIntoSuiteParam only.
-    assert(case3(1).className === "suite2")
-    assert(case3(1).testNames.length === 0)
-    assert(case3(1).includeNestedSuites === true) // Runner will not look at this flag when -t is used, this is to test the parsing logic in parseSuiteArgsIntoSuiteParam only.
+    assert(case3(0).testNames.length === 0)
+    assert(case3(0).nestedSuites.length === 1)
+    assert(case3(0).nestedSuites(0).suiteId === "nested1")
+    assert(case3(0).nestedSuites(0).testNames.length === 0)
     
-    val case4 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1"), "-s")
+    val case4 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-t", "test1", "-t", "test2"), "-s")
     assert(case4.length === 1)
     assert(case4(0).className === "suite1")
     assert(case4(0).testNames.length === 0)
     assert(case4(0).nestedSuites.length === 1)
     assert(case4(0).nestedSuites(0).suiteId === "nested1")
-    assert(case4(0).nestedSuites(0).testNames.length === 0)
-    
-    val case5 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-t", "test1", "-t", "test2"), "-s")
-    assert(case5.length === 1)
-    assert(case5(0).className === "suite1")
-    assert(case5(0).testNames.length === 0)
-    assert(case5(0).nestedSuites.length === 1)
-    assert(case5(0).nestedSuites(0).suiteId === "nested1")
-    assert(case5(0).nestedSuites(0).testNames.length === 2)
-    assert(case5(0).nestedSuites(0).testNames(0) === "test1")
-    assert(case5(0).nestedSuites(0).testNames(1) === "test2")
+    assert(case4(0).nestedSuites(0).testNames.length === 2)
+    assert(case4(0).nestedSuites(0).testNames(0) === "test1")
+    assert(case4(0).nestedSuites(0).testNames(1) === "test2")
   }
 
 /*

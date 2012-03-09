@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutorService
 import scala.collection.mutable.ArrayBuffer
 import SuiteDiscoveryHelper._
 
-private[tools] case class SuiteParam(className: String, testNames: Array[String], includeNestedSuites: Boolean, nestedSuites: Array[NestedSuiteParam])
+private[tools] case class SuiteParam(className: String, testNames: Array[String], nestedSuites: Array[NestedSuiteParam])
 private[tools] case class NestedSuiteParam(suiteId: String, testNames: Array[String])
 
 /**
@@ -1224,36 +1224,6 @@ object Runner {
   }
   
   private[scalatest] def parseSuiteArgsIntoSuiteParam(args: List[String], dashArg: String) = {
-    
-    def includeNestedSuites(dashArg: String) = {
-      //val it = dashArg.iterator
-      if (dashArg == null)
-        throw new NullPointerException("dashArg was null")
-
-      if (dashArg.length < 2)
-        throw new IllegalArgumentException("dashArg < 2")
-
-      // The reporterArg passed includes the initial -, as in "-oFI",
-      // so the first config param will be at index 2
-      val configString = dashArg.substring(2)
-      val it = configString.iterator
-      var includeNested = true
-      while (it.hasNext) { 
-        it.next match {
-          case 'X' => 
-            includeNested = false
-          case c: Char => { 
-            // this should be moved to the checker, and just throw an exception here with a debug message. Or allow a MatchError.
-            val msg1 = Resources("invalidConfigOption", String.valueOf(c)) + '\n'
-            val msg2 =  Resources("probarg", dashArg) + '\n'
-
-            throw new IllegalArgumentException(msg1 + msg2)
-          }
-        }
-      }
-      includeNested
-    }
-    
     if (args == null)
       throw new NullPointerException("args was null")
 
@@ -1261,36 +1231,28 @@ object Runner {
       throw new NullPointerException("an arg String was null")
     
     if (dashArg != "-s")
-      throw new NullPointerException("dashArg invalid: " + dashArg)
+      throw new IllegalArgumentException("dashArg invalid: " + dashArg)
     
     val lb = new ListBuffer[SuiteParam]
     val it = args.iterator.buffered
     while (it.hasNext) {
       val dashS = it.next
-      if (!dashS.startsWith(dashArg))
+      if (dashS != dashArg)
         throw new IllegalArgumentException("Starting element must be " + dashArg)
       if (it.hasNext) {
         val className = it.next
         if (!className.startsWith("-")) {
           
-          if (it.hasNext && it.head == "-t") {
-            val dashSIncludeNestedSuites = includeNestedSuites(dashS)
-            if (!dashSIncludeNestedSuites)
-              throw new IllegalArgumentException("-sX is not valid for use with -t, just use -s <suite class> -t <test name> to select test in suite to run, nested suites will not be included.")
-            
+          if (it.hasNext && it.head == "-t") {            
             val testNamesBuffer = new ListBuffer[String]()
             while (it.hasNext && it.head == "-t") {
               it.next() // Skip the -t
               testNamesBuffer += it.next
             }
-            lb += SuiteParam(className, testNamesBuffer.toArray, dashSIncludeNestedSuites, Array.empty)
+            lb += SuiteParam(className, testNamesBuffer.toArray, Array.empty)
           }
           else if (it.hasNext && it.head == "-i") {
             val nestedLb = new ListBuffer[NestedSuiteParam]()
-          
-            val dashSIncludeNestedSuites = includeNestedSuites(dashS)
-            if (!dashSIncludeNestedSuites && it.hasNext && it.head == "-i")
-              throw new IllegalArgumentException("Suite class name " + className + " has excluded nested suite, should not have -i.")
             
             while (it.hasNext && it.head == "-i") {
               val dashI = it.next()
@@ -1303,10 +1265,10 @@ object Runner {
               }
               nestedLb += new NestedSuiteParam(suiteId, suiteIdTestNamesBuffer.toArray)
             }
-            lb += SuiteParam(className, Array.empty, dashSIncludeNestedSuites, nestedLb.toArray)
+            lb += SuiteParam(className, Array.empty, nestedLb.toArray)
           }
           else 
-            lb += SuiteParam(className, Array.empty, includeNestedSuites(dashS), Array.empty)
+            lb += SuiteParam(className, Array.empty, Array.empty)
         }
         else
           throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + className)
@@ -1560,10 +1522,7 @@ object Runner {
                     types.length == 1 && types(0) == classOf[java.lang.Class[_]]
                   }
                   constructor.get.newInstance(clazz).asInstanceOf[Suite]
-                } 
-                
-                if (!suiteParam.includeNestedSuites)
-                  excludeNestedSuitesBuffer += suiteInstance.suiteId
+                }
                 
                 if (suiteParam.nestedSuites.length == 0) {
                   if (suiteParam.testNames.length == 0) // -s(X) suiteClass, no dynamic tagging required.
