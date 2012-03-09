@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import org.scalatest._
 import time.{Milliseconds, Millisecond, Millis, Span}
 
-class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with WhenReady {
+class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with WhenReady with SeveredStackTraces {
 
   describe("The whenReady construct") {
 
@@ -118,7 +118,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           s should equal ("hi")
         }
       } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureWasCanceled", "1", "10"))
+      caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
       caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
@@ -135,7 +135,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           s should equal (99)
         }
       } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureExpired", "1", "10"))
+      caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
       caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }
@@ -156,7 +156,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("wasNeverReady", count.toString, "10"))
+      caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
       caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
     }

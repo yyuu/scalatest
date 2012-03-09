@@ -302,13 +302,13 @@ trait WhenReady extends RetryConfiguration {
       val interval = config.interval
       if (future.isCanceled)
         throw new TestFailedException(
-          sde => Some(Resources("futureWasCanceled", attempt.toString, interval.toString)),
+          sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
           None,
           getStackDepthFun("WhenReady.scala", "whenReady")
         )
       if (future.isExpired)
         throw new TestFailedException(
-          sde => Some(Resources("futureExpired", attempt.toString, interval.toString)),
+          sde => Some(Resources("futureExpired", attempt.toString, interval.prettyString)),
           None,
           getStackDepthFun("WhenReady.scala", "whenReady")
         )
@@ -334,7 +334,7 @@ trait WhenReady extends RetryConfiguration {
             Thread.sleep(interval.millisPart, interval.nanosPart)
           else {
             throw new TestFailedException(
-              sde => Some(Resources("wasNeverReady", attempt.toString, interval.toString)),
+              sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
               None,
               getStackDepthFun("WhenReady.scala", "whenReady")
             )
