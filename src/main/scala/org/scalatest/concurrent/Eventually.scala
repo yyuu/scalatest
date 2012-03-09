@@ -307,7 +307,7 @@ trait Eventually extends RetryConfiguration {
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
   def eventually[T](fun: => T)(implicit config: RetryConfig): T = {
-    val startMillis = System.currentTimeMillis
+    val startNanos = System.nanoTime
     def makeAValiantAttempt(): Either[Throwable, T] = {
       try {
         Right(fun)
@@ -325,15 +325,15 @@ trait Eventually extends RetryConfiguration {
       makeAValiantAttempt() match {
         case Right(result) => result
         case Left(e) => 
-          val duration = System.currentTimeMillis - startMillis
-          if (duration < timeout)
-            Thread.sleep(interval)
+          val duration = System.nanoTime - startNanos
+          if (duration < timeout.totalNanos)
+            Thread.sleep(interval.millisPart, interval.nanosPart)
           else {
             def msg =
               if (e.getMessage == null)
-                Resources("didNotEventuallySucceed", attempt.toString, interval.toString)
+                Resources("didNotEventuallySucceed", attempt.toString, interval.prettyString)
               else
-                Resources("didNotEventuallySucceedBecause", attempt.toString, interval.toString, e.getMessage)
+                Resources("didNotEventuallySucceedBecause", attempt.toString, interval.prettyString, e.getMessage)
             throw new TestFailedException(
               sde => Some(msg),
               Some(e),

@@ -19,8 +19,9 @@ import org.scalatest._
 import Eventually._
 import matchers.ShouldMatchers
 import SharedHelpers.thisLineNumber
+import time.{Millisecond, Span, Millis}
 
-class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
+class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with SeveredStackTraces {
 
   describe("The eventually construct") {
 
@@ -73,7 +74,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "10"))
+      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
@@ -88,7 +89,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "10", "2 did not equal 3"))
+      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "10 milliseconds", "2 did not equal 3"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 7)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
@@ -96,25 +97,25 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
     it("should provides correct stack depth when eventually is called from the overload method") {
       
       val caught1 = evaluating {
-        eventually(timeout(100), interval(1)) { 1 + 1 should equal (3) }
+        eventually(timeout(Span(100, Millis)), interval(Span(1, Millisecond))) { 1 + 1 should equal (3) }
       } should produce [TestFailedException]
       caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught1.failedCodeFileName.value should be ("EventuallySpec.scala")
       
       val caught2 = evaluating {
-        eventually(interval(1), timeout(100)) { 1 + 1 should equal (3) }
+        eventually(interval(Span(1, Millisecond)), timeout(Span(100, Millis))) { 1 + 1 should equal (3) }
       } should produce [TestFailedException]
       caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught2.failedCodeFileName.value should be ("EventuallySpec.scala")
       
       val caught3 = evaluating {
-        eventually(timeout(100)) { 1 + 1 should equal (3) }
+        eventually(timeout(Span(100, Millis))) { 1 + 1 should equal (3) }
       } should produce [TestFailedException]
       caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught3.failedCodeFileName.value should be ("EventuallySpec.scala")
       
       val caught4 = evaluating {
-        eventually(interval(1)) { 1 + 1 should equal (3) }
+        eventually(interval(Span(1, Millisecond))) { 1 + 1 should equal (3) }
       } should produce [TestFailedException]
       caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught4.failedCodeFileName.value should be ("EventuallySpec.scala")
@@ -134,7 +135,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
     it("should, if an alternate implicit Timeout is provided, invoke an always-failing by-name by at least the specified timeout") {
 
-      implicit val retryConfig = RetryConfig(timeout = 1500)
+      implicit val retryConfig = RetryConfig(timeout = Span(1500, Millis))
 
       var startTime: Option[Long] = None
       evaluating {
@@ -151,7 +152,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
       var startTime: Option[Long] = None
       evaluating {
-        eventually (timeout(1250)) {
+        eventually (timeout(Span(1250, Millis))) {
           if (startTime.isEmpty)
             startTime = Some(System.currentTimeMillis)
           1 + 1 should equal (3)
@@ -162,11 +163,11 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
 
     it("should, if an alternate explicit timeout is provided along with an explicit interval, invoke an always-failing by-name by at least the specified timeout, even if a different implicit is provided") {
 
-      implicit val retryConfig = RetryConfig(timeout = 500, interval = 2)
+      implicit val retryConfig = RetryConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
       
       var startTime: Option[Long] = None
       evaluating {
-        eventually (timeout(1388), interval(1)) {
+        eventually (timeout(Span(1388, Millis)), interval(Span(1, Millisecond))) {
           if (startTime.isEmpty)
             startTime = Some(System.currentTimeMillis)
           1 + 1 should equal (3)
@@ -177,11 +178,11 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues {
     
     it("should, if an alternate explicit timeout is provided along with an explicit interval, invoke an always-failing by-name by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
 
-      implicit val retryConfig = RetryConfig(interval = 2, timeout = 500)
+      implicit val retryConfig = RetryConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
       
       var startTime: Option[Long] = None
       evaluating {
-        eventually (interval(1), timeout(1388)) {
+        eventually (interval(Span(1, Millisecond)), timeout(Span(1388, Millis))) {
           if (startTime.isEmpty)
             startTime = Some(System.currentTimeMillis)
           1 + 1 should equal (3)

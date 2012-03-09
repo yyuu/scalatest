@@ -42,6 +42,10 @@ final class Span private (val totalNanos: Long, lengthString: String, unitsResou
     )
   }
 
+  lazy val millisPart: Int = 0
+
+  lazy val nanosPart: Int = 0
+
   lazy val prettyString: String = Resources(unitsResource, lengthString)
 
   override def toString = "Span(" + lengthString + ", " + unitsName + ")"

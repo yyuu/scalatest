@@ -30,6 +30,26 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       )
     }
 
+  def millisPart(expectedValue: Long) =
+    HavePropertyMatcher { (span: Span) =>
+      HavePropertyMatchResult(
+        span.millisPart == expectedValue,
+        "nanos",
+        expectedValue,
+        span.millisPart
+      )
+    }
+
+  def nanosPart(expectedValue: Long) =
+    HavePropertyMatcher { (span: Span) =>
+      HavePropertyMatchResult(
+        span.nanosPart == expectedValue,
+        "nanos",
+        expectedValue,
+        span.nanosPart
+      )
+    }
+
   describe("A Span") {
 
     it("should produce IAE if a negative length is passed") {
@@ -73,7 +93,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
     it("should construct with valid nanoseconds passed") {
 
-      Span(0, Nanoseconds) should have (totalNanos(0))
+      Span(0, Nanoseconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(1, Nanosecond) should have (totalNanos(1))
       Span(1, Nanoseconds) should have (totalNanos(1))
       Span(2, Nanoseconds) should have (totalNanos(2))

@@ -22,6 +22,7 @@ import org.scalatest.FunSpec
 import java.util.concurrent.{Future => FutureOfJava}
 import java.util.concurrent.TimeUnit
 import org.scalatest._
+import time.{Milliseconds, Millisecond, Millis, Span}
 
 class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with WhenReady {
 
@@ -167,25 +168,25 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
 
     it("should provides correct stack depth") {
       val caught1 = evaluating {
-        whenReady(neverReadyFuture, timeout(100), interval(1)) { s => s should equal ("hi") }
+        whenReady(neverReadyFuture, timeout(Span(100, Millis)), interval(Span(1, Millisecond))) { s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught1.failedCodeFileName.value should be ("WhenReadySpec.scala")
      
       val caught2 = evaluating {
-        whenReady(neverReadyFuture, interval(1), timeout(100)) { s => s should equal ("hi")  }
+        whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(100, Millis))) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught2.failedCodeFileName.value should be ("WhenReadySpec.scala")
       
       val caught3 = evaluating {
-       whenReady(neverReadyFuture, timeout(100)) {  s => s should equal ("hi") }
+       whenReady(neverReadyFuture, timeout(Span(100, Millis))) {  s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught3.failedCodeFileName.value should be ("WhenReadySpec.scala")
      
       val caught4 = evaluating {
-        whenReady(neverReadyFuture, interval(1)) { s => s should equal ("hi")  }
+        whenReady(neverReadyFuture, interval(Span(1, Millisecond))) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
       caught4.failedCodeFileName.value should be ("WhenReadySpec.scala")
@@ -202,7 +203,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     }
 
     it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-      implicit val retryConfig = RetryConfig(timeout = 1500)
+      implicit val retryConfig = RetryConfig(timeout = Span(1500, Millis))
 
       var startTime = System.currentTimeMillis
       evaluating {
@@ -216,7 +217,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
       var startTime = System.currentTimeMillis
       evaluating {
-        whenReady(neverReadyFuture, timeout(1250)) { s =>
+        whenReady(neverReadyFuture, timeout(Span(1250, Milliseconds))) { s =>
           s should equal ("hi")
         }
       } should produce [TestFailedException]
@@ -224,11 +225,11 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     }
 
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-      implicit val retryConfig = RetryConfig(timeout = 500, interval = 2)
+      implicit val retryConfig = RetryConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
       
       var startTime = System.currentTimeMillis
       evaluating {
-        whenReady(neverReadyFuture, timeout(1388), interval(1)) { s =>
+        whenReady(neverReadyFuture, timeout(Span(1388, Millis)), interval(Span(1, Millisecond))) { s =>
           s should equal ("hi")
         }
       } should produce [TestFailedException]
@@ -236,11 +237,11 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
     }
     
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-      implicit val retryConfig = RetryConfig(interval = 2, timeout = 500)
+      implicit val retryConfig = RetryConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
       
       var startTime = System.currentTimeMillis
       evaluating {
-        whenReady(neverReadyFuture, interval(1), timeout(1388)) { s =>
+        whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(1388, Millis))) { s =>
           s should equal ("hi")
         }
       } should produce [TestFailedException]

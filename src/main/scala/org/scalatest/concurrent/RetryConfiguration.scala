@@ -24,6 +24,7 @@ import java.lang.annotation.AnnotationFormatError
 import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
 import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
 import scala.annotation.tailrec
+import time.{Millis, Second, Span}
 
 /**
  * Trait providing methods and classes used to configure retries performed by the
@@ -69,10 +70,10 @@ trait RetryConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class RetryConfig(timeout: Int = 1000, interval: Int = 10) {
+  final case class RetryConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis)) /*{
     require(timeout > 0, "timeout had value " + timeout + ", but must be greater than zero")
     require(interval >= 0, "interval had value " + interval + ", but must be greater than or equal to zero")
-  }
+  }*/
 
   /**
    * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>WhenReady</code>.
@@ -98,9 +99,10 @@ trait RetryConfiguration {
    *
    * @author Bill Venners
    */
-  case class Timeout(value: Int) extends RetryConfigParam {
+  case class Timeout(value: Span) extends RetryConfigParam  // TODO: Fix docs
+  /* {
     require(value > 0, "The passed value, " + value + ", was not greater than zero")
-  }
+  } */
 
   /**
    * A <code>RetryConfigParam</code> that specifies the number of milliseconds to sleep after
@@ -112,9 +114,9 @@ trait RetryConfiguration {
    *
    * @author Bill Venners
    */
-  case class Interval(value: Int) extends RetryConfigParam {
+  case class Interval(value: Span) extends RetryConfigParam /*{
     require(value >= 0, "The passed value, " + value + ", was not greater than or equal to zero")
-  }
+  }  */
 
   /**
    * Implicit <code>RetryConfig</code> value providing default configuration values.
@@ -134,7 +136,7 @@ trait RetryConfiguration {
    *
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */
-  def timeout(value: Int) = Timeout(value)
+  def timeout(value: Span) = Timeout(value)
 
   /**
    * Returns an <code>Interval</code> configuration parameter containing the passed value, which
@@ -144,5 +146,5 @@ trait RetryConfiguration {
    *
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */
-  def interval(value: Int) = Interval(value)
+  def interval(value: Span) = Interval(value)
 }

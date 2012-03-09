@@ -294,7 +294,7 @@ trait WhenReady extends RetryConfiguration {
    */
   def whenReady[T, U](future: FutureConcept[T])(fun: T => U)(implicit config: RetryConfig): U = {
 
-    val startMillis = System.currentTimeMillis
+    val startNanos = System.nanoTime
 
     @tailrec
     def tryTryAgain(attempt: Int): U = {
@@ -329,9 +329,9 @@ trait WhenReady extends RetryConfiguration {
             getStackDepthFun("WhenReady.scala", "whenReady")
           )
         case None => 
-          val duration = System.currentTimeMillis - startMillis
-          if (duration < timeout)
-            Thread.sleep(interval)
+          val duration = System.nanoTime - startNanos
+          if (duration < timeout.totalNanos)
+            Thread.sleep(interval.millisPart, interval.nanosPart)
           else {
             throw new TestFailedException(
               sde => Some(Resources("wasNeverReady", attempt.toString, interval.toString)),
