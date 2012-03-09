@@ -141,7 +141,7 @@ trait TimeLimitedTests extends AbstractSuite { this: Suite =>
     }
     catch {
       case e: ModifiableMessage[_] with TimeoutException =>
-        throw e.modifyMessage(opts => Some(Resources("testTimeLimitExceeded", e.timeout.toString)))
+        throw e.modifyMessage(opts => Some(Resources("testTimeLimitExceeded", e.timeout.prettyString)))
     }
   }
 

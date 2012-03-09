@@ -15,17 +15,11 @@
  */
 package org.scalatest.concurrent
 
-import org.scalatest.FunSpec
-import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.Stopper
-import org.scalatest.Filter
-import org.scalatest.Tracker
-import org.scalatest.SharedHelpers
-import org.scalatest.Resources
 import org.scalatest.time.{Span, Millis}
+import org.scalatest._
 
-class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelpers {
+class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelpers with SeveredStackTraces {
   describe("A time-limited test") {
     describe("when it does not timeout") {
       describe("when it succeeds") {
@@ -67,7 +61,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
         val tf = rep.testFailedEventsReceived
         tf.size should be (1)
         val tfe = tf(0)
-        tfe.message should be (Resources("testTimeLimitExceeded", "100"))
+        tfe.message should be (Resources("testTimeLimitExceeded", "100 milliseconds"))
       }
       it("should fail with a timeout exception with the proper cause, if the test timed out after it completed abruptly") {
         val a =
@@ -84,7 +78,7 @@ class TimeLimitedTestsSpec extends FunSpec with ShouldMatchers with SharedHelper
         val tf = rep.testFailedEventsReceived
         tf.size should be (1)
         val tfe = tf(0)
-        tfe.message should be (Resources("testTimeLimitExceeded", "10"))
+        tfe.message should be (Resources("testTimeLimitExceeded", "10 milliseconds"))
         import org.scalatest.OptionValues._
         tfe.throwable.value match {
           case tfe: TestFailedDueToTimeoutException =>
