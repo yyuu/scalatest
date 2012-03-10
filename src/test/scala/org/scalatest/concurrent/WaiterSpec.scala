@@ -18,6 +18,7 @@ package org.scalatest.concurrent
 import org.scalatest._
 import matchers.ShouldMatchers
 import SharedHelpers.thisLineNumber
+import time.{Span, Millis}
 
 class WaiterSpec extends fixture.FunSpec with ShouldMatchers with SharedHelpers with ConductorFixture with OptionValues {
 /*
@@ -150,7 +151,7 @@ class WaiterSpec extends fixture.FunSpec with ShouldMatchers with SharedHelpers 
       val w = new Waiter
       val caught =
         intercept[TestFailedException] {
-          w.await(timeout = 10)
+          w.await(timeout = Span(10, Millis))
         }
       caught.message.value should be (Resources("awaitTimedOut"))
       if (caught.failedCodeLineNumber.value != thisLineNumber - 3)

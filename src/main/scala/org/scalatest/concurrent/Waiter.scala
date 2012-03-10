@@ -17,6 +17,7 @@ package org.scalatest.concurrent
 
 import org.scalatest._
 import Assertions.fail
+import time.{Second, Span}
 
 /**
  * Class that facilitates performing assertions outside the main test thread, such as assertions in callback threads
@@ -194,12 +195,12 @@ class Waiter {
    * @param timeout the number of milliseconds timeout, or -1 to indicate no timeout (default is -1)
    * @param dismissals the number of dismissals to wait for (default is 1)
    */
-  def await(timeout: Long = -1, dismissals: Int = 1) {
+  def await(timeout: Span = Span(1, Second), dismissals: Int = 1) {
     if (Thread.currentThread != creatingThread)
       throw new NotAllowedException(Resources("awaitMustBeCalledOnCreatingThread"), 1)
     
-    val startTime = System.currentTimeMillis
-    def timedOut = timeout >= 0 && startTime + timeout < System.currentTimeMillis
+    val startTime = System.nanoTime
+    def timedOut = startTime + timeout.totalNanos < System.nanoTime
     while (dismissedCount < dismissals && !timedOut && thrown.isEmpty)
       Thread.sleep(10)
 
