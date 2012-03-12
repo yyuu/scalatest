@@ -19,7 +19,7 @@ import java.io.BufferedWriter
 import java.util.Calendar
 import scala.collection.JavaConversions._
 
-object GenGen extends Application {
+object GenGen {
 
 val scaladocForTableFor1VerbatimString = """
 /**
@@ -2526,14 +2526,10 @@ $okayExpressions$
 // they are next to ST commands. So I say  "   <pre>" sometimes instead of " * <pre>".
 
   val thisYear = Calendar.getInstance.get(Calendar.YEAR)
-  val mainDir = new File("target/generated/src/main/scala/org/scalatest/prop")
-  val testDir = new File("target/generated/src/test/scala/org/scalatest/prop")
-  mainDir.mkdirs()
-  testDir.mkdirs()
 
-  def genPropertyChecks() {
-
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/main/scala/org/scalatest/prop/GeneratorDrivenPropertyChecks.scala"))
+  def genPropertyChecks(targetDir: File) {
+    targetDir.mkdirs()
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, "GeneratorDrivenPropertyChecks.scala")))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -2595,8 +2591,10 @@ $okayExpressions$
   }
 
   // Invitation style indicates how GeneratorDrivenPropertyChecks is imported
-  def genGeneratorDrivenSuite(mixinInvitationStyle: Boolean, withTables: Boolean, doItForCheckers: Boolean) {
+  def genGeneratorDrivenSuite(targetDir: File, mixinInvitationStyle: Boolean, withTables: Boolean, doItForCheckers: Boolean) {
 
+    targetDir.mkdirs()
+    
     val traitOrObjectName =
       if (doItForCheckers)
         "Checkers"
@@ -2606,7 +2604,7 @@ $okayExpressions$
     val suiteClassName = traitOrObjectName + (if (mixinInvitationStyle) "Mixin" else "Import") + "Suite" 
     val fileName = suiteClassName + ".scala" 
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/test/scala/org/scalatest/prop/" + fileName))
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, fileName)))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -2684,13 +2682,28 @@ $okayExpressions$
       bw.close()
     }
   }
-
-  genPropertyChecks()
-  genGeneratorDrivenSuite(true, false, false)
-  genGeneratorDrivenSuite(false, false, false)
-  genGeneratorDrivenSuite(true, true, false)
-  genGeneratorDrivenSuite(false, true, false)
-  genGeneratorDrivenSuite(true, true, true)
-  genGeneratorDrivenSuite(false, true, true)
+  
+  def main(args: Array[String]) {
+    val mainDir = new File("target/generated/src/main/scala/org/scalatest/prop")
+    mainDir.mkdirs()
+    genMain(mainDir)
+    
+    val testDir = new File("target/generated/src/test/scala/org/scalatest/prop")
+    testDir.mkdirs()
+    genTest(testDir)
+  }
+  
+  def genMain(dir: File) {
+    genPropertyChecks(dir)
+  }
+  
+  def genTest(dir: File) {
+    genGeneratorDrivenSuite(dir, true, false, false)
+    genGeneratorDrivenSuite(dir, false, false, false)
+    genGeneratorDrivenSuite(dir, true, true, false)
+    genGeneratorDrivenSuite(dir, false, true, false)
+    genGeneratorDrivenSuite(dir, true, true, true)
+    genGeneratorDrivenSuite(dir, false, true, true)
+  }
 }
 

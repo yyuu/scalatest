@@ -38,11 +38,11 @@ object ScalatestBuild extends Build {
      sourceGenerators in Compile <+= 
          (baseDirectory, sourceManaged in Compile) map genGenMain,
      sourceGenerators in Test <+= 
-         (sourceManaged in Test) map genGenTest,
+         (baseDirectory, sourceManaged in Test) map genGenTest,
      sourceGenerators in Compile <+= 
-         (sourceManaged in Compile) map genTableMain,
+         (baseDirectory, sourceManaged in Compile) map genTableMain,
      sourceGenerators in Test <+= 
-         (sourceManaged in Test) map genTableTest, 
+         (baseDirectory, sourceManaged in Test) map genTableTest, 
      testOptions in Test := Seq(Tests.Filter(className => isIncludedTest(className)))
    )
 
@@ -75,33 +75,60 @@ object ScalatestBuild extends Build {
   def genGenMain(basedir: File, dir: File): Seq[File] = {
     val gengenSource = basedir / "project" / "GenGen.scala"
     // dir = mainsrc
-    val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
-    (mainsrc ** "*.scala").get
+    //val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
+    //(mainsrc ** "*.scala").get
     
-    def results = (mainsrc ** "*.scala").get
-    if(results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified))
-      GenGen.main(Array.empty)
+    def results = (dir ** "*.scala").get
+    if(results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified)) {
+      dir.mkdirs()
+      GenGen.genMain(dir)
+    }
 
     results
   }
-  def genGenTest(dir: File): Seq[File] = {
-    // TODO - Use GenGen to make test files
-    val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
-    (testsrc ** "*.scala").get
+  def genGenTest(basedir: File, dir: File): Seq[File] = {
+    val gengenSource = basedir / "project" / "GenGen.scala"
+    //val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
+    //(testsrc ** "*.scala").get
+    
+    def results = (dir ** "*.scala").get
+    if (results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified)) {
+      dir.mkdirs()
+      GenGen.genTest(dir)
+    }
+      
+    results
   }
 
   // TODO - Make sure this directory is really used in the future.
-  def genTableMain(dir: File): Seq[File] = {
-    GenTable.main(Array.empty)
+  def genTableMain(basedir: File, dir: File): Seq[File] = {
+    //GenTable.main(Array.empty)
     // dir = mainsrc
-    val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
-    (mainsrc ** "Table*.scala").get
+    val genTableSource = basedir / "project" / "GenTable.scala"
+    //val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
+    //(mainsrc ** "Table*.scala").get
+    
+    def results = (dir ** "*.scala").get
+    if (results.isEmpty || results.exists(_.lastModified < genTableSource.lastModified)) {
+      dir.mkdirs()
+      GenTable.genMain(dir)
+    }
+      
+    results
   }
 
-  def genTableTest(dir: File): Seq[File] = {
+  def genTableTest(basedir: File, dir: File): Seq[File] = {
     // TODO - Use GenGen to make test files
-    val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
-    (testsrc ** "Table*.scala").get
+    val genTableSource = basedir / "project" / "GenTable.scala"
+    //val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
+    
+    def results = (dir ** "Table*.scala").get
+    if (results.isEmpty || results.exists(_.lastModified < genTableSource.lastModified)) {
+      dir.mkdirs()
+      GenTable.genTest(dir)
+    }
+      
+    results
   }
 
 }

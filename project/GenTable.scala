@@ -19,7 +19,7 @@ import java.io.BufferedWriter
 import java.util.Calendar
 import scala.collection.JavaConversions._
 
-object GenTable extends Application {
+object GenTable {
 
 val scaladocForTableFor1VerbatimString = """
 /**
@@ -993,14 +993,10 @@ $columnsOfIndexes$
 // they are next to ST commands. So I say  "   <pre>" sometimes instead of " * <pre>".
 
   val thisYear = Calendar.getInstance.get(Calendar.YEAR)
-  val mainDir = new File("target/generated/src/main/scala/org/scalatest/prop")
-  val testDir = new File("target/generated/src/test/scala/org/scalatest/prop")
-  mainDir.mkdirs()
-  testDir.mkdirs()
 
-  def genTableForNs() {
+  def genTableForNs(targetDir: File) {
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/main/scala/org/scalatest/prop/TableFor1.scala"))
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, "TableFor1.scala")))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -1046,9 +1042,9 @@ $columnsOfIndexes$
     }
   }
 
-  def genPropertyChecks() {
+  def genPropertyChecks(targetDir: File) {
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/main/scala/org/scalatest/prop/TableDrivenPropertyChecks.scala"))
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, "TableDrivenPropertyChecks.scala")))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -1076,9 +1072,9 @@ $columnsOfIndexes$
     }
   }
 
-  def genTables() {
+  def genTables(targetDir: File) {
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/main/scala/org/scalatest/prop/Tables.scala"))
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, "Tables.scala")))
 
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -1107,9 +1103,9 @@ $columnsOfIndexes$
     }
   }
  
-  def genTableSuite() {
+  def genTableSuite(targetDir: File) {
 
-    val bw = new BufferedWriter(new FileWriter("target/generated/src/test/scala/org/scalatest/prop/TableSuite.scala"))
+    val bw = new BufferedWriter(new FileWriter(new File(targetDir, "TableSuite.scala")))
  
     try {
       val st = new org.antlr.stringtemplate.StringTemplate(copyrightTemplate)
@@ -1154,10 +1150,25 @@ $columnsOfIndexes$
     }
   }
 
-  genTableForNs()
-  genPropertyChecks()
-  genTables()
-  genTableSuite()
+  def main(args: Array[String]) {
+    val mainDir = new File("target/generated/src/main/scala/org/scalatest/prop")
+    mainDir.mkdirs()
+    genMain(mainDir)
+    
+    val testDir = new File("target/generated/src/test/scala/org/scalatest/prop")
+    testDir.mkdirs()
+    genTest(testDir)
+  }
+  
+  def genMain(dir: File) {
+    genTableForNs(dir)
+    genPropertyChecks(dir)
+    genTables(dir)
+  }
+  
+  def genTest(dir: File) {
+    genTableSuite(dir)
+  }
 }
 
 /*
