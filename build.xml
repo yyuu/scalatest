@@ -24,7 +24,7 @@
     <property name="jar.contents" value="${build}/jar_contents" />
     <!-- classes go in jar.contents. redundant, but makes the rest of build.xml easier to read -->
     <property name="classes" value="${jar.contents}" />
-    <property name="generators" value="src/generators/scala" />
+    <property name="generators" value="project" />
     <property name="build.generated.src" value="${build}/generated/src/main/scala" />
     <property name="build.generated.tests" value="${build}/generated/src/test/scala" />
     <property name="build.tests" value="${build}/tests" />
@@ -133,14 +133,14 @@
         </path>
 
         <uptodate property="gentables.uptodate"
-                  srcfile="src/generators/scala/GenTable.scala">
+                  srcfile="${generators}/GenTable.scala">
           <mapper type="merge" to=
             "target/generated/src/main/scala/org/scalatest/prop/TableFor1.scala">
           </mapper>
         </uptodate>
 
         <uptodate property="gengen.uptodate"
-                  srcfile="src/generators/scala/GenGen.scala">
+                  srcfile="${generators}/GenGen.scala">
           <mapper type="merge" to=
             "target/generated/src/main/scala/org/scalatest/prop/GeneratorDrivenPropertyChecks.scala">
           </mapper>
@@ -159,7 +159,10 @@
     </target>
 
     <target name="compile-codegenerators" depends="init">
-        <scalac srcdir="${generators}" destdir="${build.generators}" target="jvm-1.5" deprecation="yes" classpathref="build.generators.class.path" />
+        <scalac srcdir="${generators}" destdir="${build.generators}" target="jvm-1.5" deprecation="yes" classpathref="build.generators.class.path">
+          <include name="*.scala"   />
+          <exclude name="scalatest.scala" />
+        </scalac>
     </target>
 
     <target name="gentables" depends="init, compile-codegenerators"
