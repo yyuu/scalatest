@@ -3,6 +3,28 @@ import Keys._
 
 object ScalatestBuild extends Build {
 
+   val includeTestPackageSet = Set("org.scalatest", 
+                                   "org.scalatest.fixture", 
+                                   "org.scalatest.concurrent", 
+                                   "org.scalatest.testng", 
+                                   "org.scalatest.junit", 
+                                   "org.scalatest.events", 
+                                   "org.scalatest.prop", 
+                                   "org.scalatest.tools", 
+                                   "org.scalatest.matchers", 
+                                   "org.scalatest.suiteprop", 
+                                   "org.scalatest.mock", 
+                                   "org.scalatest.path")
+
+   val excludedSuiteSet = Set("org.scalatest.BigSuite", 
+                              "org.scalatest.events.TestLocationJUnit3Suite", 
+                              "org.scalatest.events.TestLocationJUnitSuite", 
+                              "org.scalatest.events.TestLocationMethodJUnit3Suite", 
+                              "org.scalatest.events.TestLocationMethodJUnitSuite", 
+                              "org.scalatest.events.TestLocationMethodTestNGSuite", 
+                              "org.scalatest.events.TestLocationTestNGSuite", 
+                              "org.scalatest.tools.SomeApiClassRunner")
+
    lazy val root = Project("scalatest", file(".")) settings(
      organization := "org.scalatest",
      version := "2.0-SNAPSHOT",
@@ -20,8 +42,21 @@ object ScalatestBuild extends Build {
      sourceGenerators in Compile <+= 
          (sourceManaged in Compile) map genTableMain,
      sourceGenerators in Test <+= 
-         (sourceManaged in Test) map genTableTest
+         (sourceManaged in Test) map genTableTest, 
+     testOptions in Test := Seq(Tests.Filter(className => isIncludedTest(className)))
    )
+
+   def isIncludedTest(className: String) = {
+     try {
+       val packageName = className.substring(0, className.lastIndexOf("."))
+       includeTestPackageSet.contains(packageName) && !excludedSuiteSet.contains(className)
+     }
+     catch {
+       case e: Exception => 
+         e.printStackTrace()
+         false
+     }
+   }
 
    def simpledependencies = Seq(
      "org.scala-tools.testing" % "test-interface" % "0.5",  // TODO optional
