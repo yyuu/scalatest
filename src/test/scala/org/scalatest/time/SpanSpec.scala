@@ -723,6 +723,15 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
       Span(1.1, Days).toString should be ("Span(1.1, Days)")
       Span(2.0, Days).toString should be ("Span(2.0, Days)")
     }
-    // TODO: write tests for equals and hashcode
+
+    it("should have working equals and hashCode") {
+      // Lame. Need a better way to test equals and hashCode
+      assert(Span(1, Second) == Span(1, Seconds))
+      assert(Span(1, Second) != Span(2, Seconds))
+      assert(Span(1, Second).hashCode == Span(1, Seconds).hashCode)
+      assert(Span(10, Milliseconds) == Span(10, Millis))
+      assert(Span(10, Milliseconds) != Span(11, Millis))
+      assert(Span(10, Milliseconds).hashCode == Span(10, Millis).hashCode)
+    }
   }
 }

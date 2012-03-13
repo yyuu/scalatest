@@ -35,8 +35,8 @@ import org.scalatest.time.Span
  * passed as an implicit third parameter.  Here's a simple example of its use:
  * </p>
  *
- * <pre>
- * failAfter(100) {
+ * <pre class="stHighlight">
+ * failAfter(Span(100, Millis)) {
  *   Thread.sleep(200)
  * }
  * </pre>
@@ -55,15 +55,15 @@ import org.scalatest.time.Span
  * Here are some examples:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * import org.scalatest.time.SpanSugar._
  *
  * failAfter(100 millis) {
- *   Thread.sleep(200 millis)
+ *   Thread.sleep(200)
  * }
  *
  * failAfter(1 second) {
- *   Thread.sleep(2 seconds)
+ *   Thread.sleep(2000)
  * }
  * </pre>
  *
@@ -72,9 +72,9 @@ import org.scalatest.time.Span
  * <code>failAfter</code>, so that no synchronization is necessary to access variables declared outside the by-name.
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * var result = -1 // No need to make this volatile
- * failAfter(100) {
+ * failAfter(100 millis) {
  *   result = accessNetService()
  * }
  * result should be (99)
@@ -99,9 +99,9 @@ import org.scalatest.time.Span
  * interrupt the main thread in any way:
  * </p>
  *
- * <pre>
+ * <pre class="stHighlight">
  * override val defaultInterruptor = DoNotInterrupt
- * failAfter(100) {
+ * failAfter(100 millis) {
  *   Thread.sleep(500)
  * }
  * </pre>

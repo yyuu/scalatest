@@ -806,6 +806,5 @@ class SpanSugarSpec extends FunSpec with SpanMatchers with ShouldMatchers with S
       (1.1 days).toString should be ("Span(1.1, Days)")
       (2.0 days).toString should be ("Span(2.0, Days)")
     }
-    // TODO: write tests for equals and hashcode
   }
 }
