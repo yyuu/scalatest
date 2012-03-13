@@ -16,7 +16,6 @@
 package org.scalatest.testng {
 
   import org.scalatest._
-  import org.scalatest.TestRerunner
   import org.scalatest.jmock._
   import testng.testpackage._
   import org.jmock.Mockery
@@ -132,16 +131,17 @@ package org.scalatest.testng {
       }
     }
 
-    test("Report for passing tests should include rerunner") { () =>
+    test("Report for passing tests should include suiteRerunner") { () =>
       
       val testReporter = new TestReporter
 
       // when - run the passing suite
       new SuccessTestNGSuite().runTestNG(testReporter, new Tracker)
 
-      // then get rerunnable from report 
-      val rerunner = testReporter.lastEvent.get.asInstanceOf[TestSucceeded].rerunner.get.asInstanceOf[TestRerunner];
-      // TODO we need a better assertion here
+      // then get suiteRerunner from report 
+      val suiteRerunner = testReporter.lastEvent.get.asInstanceOf[TestSucceeded].suiteRerunner
+      assert(suiteRerunner != None)
+      assert(suiteRerunner.get === classOf[SuccessTestNGSuite].getName)
     }
     
     

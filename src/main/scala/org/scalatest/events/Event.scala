@@ -112,7 +112,7 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that is starting (if <code>None</code>
+ * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that is starting (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -132,7 +132,7 @@ final case class TestStarting (
   decodedTestName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -154,8 +154,8 @@ final case class TestStarting (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -203,7 +203,7 @@ final case class TestStarting (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has succeeded (if <code>None</code>
+ * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that has succeeded (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -224,7 +224,7 @@ final case class TestSucceeded (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -248,8 +248,8 @@ final case class TestSucceeded (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -299,7 +299,7 @@ final case class TestSucceeded (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has failed (if <code>None</code>
+ * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that has failed (if <code>None</code>
  *        is passed, the test cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -322,7 +322,7 @@ final case class TestFailed (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -350,8 +350,8 @@ final case class TestFailed (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -656,7 +656,7 @@ final case class TestCanceled (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that is starting (if <code>None</code>
+ * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the suite that is starting (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -673,7 +673,7 @@ final case class SuiteStarting (
   decodedSuiteName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -691,8 +691,8 @@ final case class SuiteStarting (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -811,7 +811,7 @@ final case class SuiteIgnored (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has completed (if <code>None</code>
+ * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the suite that has completed (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteCompleted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -829,7 +829,7 @@ final case class SuiteCompleted (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -849,8 +849,8 @@ final case class SuiteCompleted (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -901,7 +901,7 @@ final case class SuiteCompleted (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has aborted (if <code>None</code>
+ * @param suiteRerunner an optional <code>Rerunner</code> that represents suite class name which can be used to rerun the suite that has aborted (if <code>None</code>
  *        is passed, the suite cannot be rerun)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteAborted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
@@ -921,7 +921,7 @@ final case class SuiteAborted (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  suiteRerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -945,8 +945,8 @@ final case class SuiteAborted (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (rerunner == null)
-    throw new NullPointerException("rerunner was null")
+  if (suiteRerunner == null)
+    throw new NullPointerException("suiteRerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -1723,7 +1723,7 @@ object DeprecatedTestStarting {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestStarting = {
-    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1752,7 +1752,7 @@ object DeprecatedTestStarting {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestStarting = {
-    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1854,7 +1854,7 @@ object DeprecatedTestSucceeded {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestSucceeded = {
-    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1885,7 +1885,7 @@ object DeprecatedTestSucceeded {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestSucceeded = {
-    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2020,7 +2020,7 @@ object DeprecatedTestFailed {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestFailed = {
-    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2056,7 +2056,7 @@ object DeprecatedTestFailed {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestFailed = {
-    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2390,7 +2390,7 @@ object DeprecatedSuiteStarting {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteStarting = {
-    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2418,7 +2418,7 @@ object DeprecatedSuiteStarting {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteStarting = {
-    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2516,7 +2516,7 @@ object DeprecatedSuiteCompleted {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteCompleted = {
-    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2545,7 +2545,7 @@ object DeprecatedSuiteCompleted {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteCompleted = {
-    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2676,7 +2676,7 @@ object DeprecatedSuiteAborted {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteAborted = {
-    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2710,7 +2710,7 @@ object DeprecatedSuiteAborted {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteAborted = {
-    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
