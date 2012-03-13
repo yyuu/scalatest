@@ -71,63 +71,42 @@ object ScalatestBuild extends Build {
      "commons-io" % "commons-io" % "1.3.2" % "test"
   )
 
-  // TODO - Make sure this directory is really used in the future.
   def genGenMain(basedir: File, dir: File): Seq[File] = {
     val gengenSource = basedir / "project" / "GenGen.scala"
-    // dir = mainsrc
-    //val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
-    //(mainsrc ** "*.scala").get
-    
     def results = (dir ** "*.scala").get
     if(results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified)) {
       dir.mkdirs()
       GenGen.genMain(dir)
     }
-
     results
   }
   def genGenTest(basedir: File, dir: File): Seq[File] = {
     val gengenSource = basedir / "project" / "GenGen.scala"
-    //val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
-    //(testsrc ** "*.scala").get
-    
     def results = (dir ** "*.scala").get
     if (results.isEmpty || results.exists(_.lastModified < gengenSource.lastModified)) {
       dir.mkdirs()
       GenGen.genTest(dir)
     }
-      
     results
   }
 
-  // TODO - Make sure this directory is really used in the future.
   def genTableMain(basedir: File, dir: File): Seq[File] = {
-    //GenTable.main(Array.empty)
-    // dir = mainsrc
     val genTableSource = basedir / "project" / "GenTable.scala"
-    //val mainsrc = file("target/generated/src/main/scala/org/scalatest/prop")
-    //(mainsrc ** "Table*.scala").get
-    
     def results = (dir ** "*.scala").get
     if (results.isEmpty || results.exists(_.lastModified < genTableSource.lastModified)) {
       dir.mkdirs()
       GenTable.genMain(dir)
     }
-      
     results
   }
 
   def genTableTest(basedir: File, dir: File): Seq[File] = {
-    // TODO - Use GenGen to make test files
-    val genTableSource = basedir / "project" / "GenTable.scala"
-    //val testsrc= file("target/generated/src/test/scala/org/scalatest/prop")
-    
+    val genTableSource = basedir / "project" / "GenTable.scala"    
     def results = (dir ** "Table*.scala").get
     if (results.isEmpty || results.exists(_.lastModified < genTableSource.lastModified)) {
       dir.mkdirs()
       GenTable.genTest(dir)
     }
-      
     results
   }
 
