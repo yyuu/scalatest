@@ -59,7 +59,7 @@ import scala.annotation.tailrec
  * </pre>
  *
  * <p>
- * Assuming the default configuration parameters, <code>timeout</code> 1000 milliseconds and <code>interval</code> 10 milliseconds,
+ * Assuming the default configuration parameters, a <code>timeout</code> of 1 second and an <code>interval</code> of 10 milliseconds,
  * were passed implicitly to <code>eventually</code>, the detail message of the thrown
  * <code>TestFailedException</code> would look like:
  * </p>
@@ -93,10 +93,10 @@ import scala.annotation.tailrec
  * timeout
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 1000
+ * 1 second
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
- * the maximum amount of time in milliseconds to allow unsuccessful attempts before giving up and throwing <code>TestFailedException</code>
+ * the maximum amount of time to allow unsuccessful attempts before giving up and throwing <code>TestFailedException</code>
  * </td>
  * </tr>
  * <tr>
@@ -104,15 +104,15 @@ import scala.annotation.tailrec
  * interval
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 10
+ * 10 milliseconds
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
- * the number of milliseconds to sleep between each attempt
+ * the amount of time to sleep between each attempt
  * </td>
  * </tr>
  * </table>
  *
-* <p>
+ * <p>
  * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>RetryConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
  * <code>Eventually</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
@@ -126,7 +126,7 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit override val retryConfig =
- *   RetryConfig(timeout = 2000, interval = 5)
+ *   RetryConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -135,7 +135,7 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit val retryConfig =
- *   RetryConfig(timeout = 2000, interval = 5)
+ *   RetryConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -147,17 +147,26 @@ import scala.annotation.tailrec
  * </p>
  *
  * <pre class="stHighlight">
- * eventually (timeout(5000)) { Thread.sleep(10); it.next should be (110) }
+ * eventually (timeout(Span(5, Seconds))) { Thread.sleep(10); it.next should be (110) }
  * </pre>
  *
  * <p>
- * This invocation of <code>eventually</code> will use 5000 for <code>timeout</code> and whatever value is specified by the 
+ * This invocation of <code>eventually</code> will use 5 seconds for the <code>timeout</code> and whatever value is specified by the
  * implicitly passed <code>RetryConfig</code> object for the <code>interval</code> configuration parameter.
  * If you want to set both configuration parameters in this way, just list them separated by commas:
  * </p>
  * 
  * <pre class="stHighlight">
- * eventually (timeout(5000), interval(5)) { it.next should be (110) }
+ * eventually (timeout(Span(5, Seconds)), interval(Span(5, Millis)) { it.next should be (110) }
+ * </pre>
+ *
+ * <p>
+ * You can also import or mix in the members of <a href="../time/SpanSugar.html"><code>SpanSugar</code></a> if
+ * you want a more concise DSL for expressing time spans:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * eventually (timeout(5 seconds), interval(5 millis) { it.next should be (110) }
  * </pre>
  *
  * @author Bill Venners

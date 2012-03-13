@@ -30,7 +30,7 @@ import org.scalatest.time.Span
  * operation passed as a by-name parameter, as well as a way to interrupt it if the operation exceeds its time limit.
  *
  * <p>
- * The time limit is passed as the first parameter, as a <a href="../time/SpanConcept.html"><code>SpanConcept</code></a>. The operation is
+ * The time limit is passed as the first parameter, as a <a href="../time/Span.html"><code>Span</code></a>. The operation is
  * passed as the second parameter. And an <a href="Interruptor.html"><code>Interruptor</code></a>, a strategy for interrupting the operation, is
  * passed as an implicit third parameter.  Here's a simple example of its use:
  * </p>

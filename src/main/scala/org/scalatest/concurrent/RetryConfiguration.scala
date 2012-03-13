@@ -48,7 +48,7 @@ trait RetryConfiguration {
    * timeout
    * </td>
    * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
-   * 1000
+   * 1 second
    * </td>
    * </tr>
    * <tr>
@@ -56,24 +56,19 @@ trait RetryConfiguration {
    * interval
    * </td>
    * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
-   * 10
+   * 10 milliseconds
    * </td>
    * </tr>
    * </table>
    *
-   * @param timeout the maximum amount of time in milliseconds to retry before giving up and throwing
+   * @param timeout the maximum amount of time to retry before giving up and throwing
    *   <code>TestFailedException</code>.
-   * @param interval the number of milliseconds to sleep between each attempt
-   * @throws IllegalArgumentException if the specified <code>timeout</code> value is less than or equal to zero,
-   *   the specified <code>interval</code> value is less than zero.
+   * @param interval the amount of time to sleep between each attempt
    *
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class RetryConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis)) /*{
-    require(timeout > 0, "timeout had value " + timeout + ", but must be greater than zero")
-    require(interval >= 0, "interval had value " + interval + ", but must be greater than or equal to zero")
-  }*/
+  final case class RetryConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis))
 
   /**
    * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>WhenReady</code>.
@@ -89,34 +84,29 @@ trait RetryConfiguration {
   sealed abstract class RetryConfigParam
 
   /**
-   * A <code>RetryConfigParam</code> that specifies the maximum amount of time in milliseconds to allow retries: either invocations of the
-   * by-name parameter passed to <code>eventually</code> that give an unsucessful result, or futures passed to <code>whenReady</code> that
-   * are not ready, canceled, or expired.
+   * A <code>RetryConfigParam</code> that specifies the maximum amount of time to allow retries: either invocations of the
+   * by-name parameter passed to <code>eventually</code> that give an unsuccessful result, or futures passed to <code>whenReady</code> that
+   * are canceled, or expired, or not ready.
    *
-   * @param value the maximum amount of time in milliseconds to retry before giving up and throwing
+   * @param value the maximum amount of time to retry before giving up and throwing
    *   <code>TestFailedException</code>.
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    *
    * @author Bill Venners
    */
-  case class Timeout(value: Span) extends RetryConfigParam  // TODO: Fix docs
-  /* {
-    require(value > 0, "The passed value, " + value + ", was not greater than zero")
-  } */
+  case class Timeout(value: Span) extends RetryConfigParam
 
   /**
-   * A <code>RetryConfigParam</code> that specifies the number of milliseconds to sleep after
+   * A <code>RetryConfigParam</code> that specifies the amount of time to sleep after
    * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code> or
    * each query of a future passed to <code>whenReady</code>.
    *
-   * @param value the number of milliseconds to sleep between each attempt
+   * @param value the amount of time to sleep between each attempt
    * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    *
    * @author Bill Venners
    */
-  case class Interval(value: Span) extends RetryConfigParam /*{
-    require(value >= 0, "The passed value, " + value + ", was not greater than or equal to zero")
-  }  */
+  case class Interval(value: Span) extends RetryConfigParam
 
   /**
    * Implicit <code>RetryConfig</code> value providing default configuration values.
@@ -130,21 +120,17 @@ trait RetryConfiguration {
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which
-   * specifies the maximum amount of time in milliseconds to retry: to allow invocations of the
-   * by-name parameter passed to <code>eventually</code> to give an unsucessful result, or to
-   * allow a future passed to <code>whenReady</code> to not be ready, canceled, or expired.
-   *
-   * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
+   * specifies the maximum amount of time to retry: to allow invocations of the
+   * by-name parameter passed to <code>eventually</code> to give an unsuccessful result, or to
+   * allow a future passed to <code>whenReady</code> to be canceled, or expired, or not ready.
    */
   def timeout(value: Span) = Timeout(value)
 
   /**
    * Returns an <code>Interval</code> configuration parameter containing the passed value, which
-   * specifies the number of milliseconds to sleep after
+   * specifies the amount of time to sleep after
    * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code>
    * or each query of a non-ready, canceled, or expired future passed to <code>whenReady</code>.
-   *
-   * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    */
-  def interval(value: Span) = Interval(value)
+  def interval(value: Span) = Interval(value)    // TODO: Throw NPE
 }

@@ -525,14 +525,24 @@ import scala.collection.mutable
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) { thisEngine =>
  
-  private final var registeredPathSet = mutable.Set.empty[List[Int]] // TODO How can this be a final var?
-  private final var targetPath: Option[List[Int]] = None
+  /*
+  Anything that the initial instance sets will need to be made volatile or atomic.
+  But stuff used only by ensure probably does not, because ..., well ensure gets called
+  manh times. So things used by ensure to determine whether or not ensure already did its
+  job must be visible to all threads. But anything else that's used only during that ensure
+  call could be moved inside the method.
+   */
+  // registeredPathSet can be changed after construction, so must be volatile.
+  @volatile private var registeredPathSet = Set.empty[List[Int]]
+
+  // Target path can be read and changed by the ensure thread
+  @volatile private var targetPath: Option[List[Int]] = None
 
   // A describe clause registered no tests
-  private var describeRegisteredNoTests: Boolean = false
-  private var insideAPathTest: Boolean = false
-  private var currentPath = List.empty[Int]
-  private var usedPathSet = Set.empty[String]
+  @volatile private var describeRegisteredNoTests: Boolean = false
+  @volatile private var insideAPathTest: Boolean = false
+  @volatile private var currentPath = List.empty[Int]
+  @volatile private var usedPathSet = Set.empty[String]
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
   def getNextPath() = {
@@ -549,7 +559,11 @@ private[scalatest] class PathEngine(concurrentBundleModResourceName: String, sim
     }
     next
   }
-  
+
+  /*
+  ensureTestRes method could be called by a different thread than the one that
+  initially constructed the initial instance.
+   */
   // Once the target leaf has been reached for an instance, targetLeafHasBeenReached
   // will be set to true. And because of that, the path of the next describe or it encountered will
   // be placed into nextTargetPath. If no other describe or it clause comes along, then nextTargetPath

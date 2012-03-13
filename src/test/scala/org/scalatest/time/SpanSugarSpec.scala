@@ -25,6 +25,10 @@ class SpanSugarSpec extends FunSpec with SeveredStackTraces {
   describe("The SpanSugar trait") {
     
     it("should provide implicit conversions for Int time spans") {
+      assert((1 nanosecond) === Span(1, Nanosecond))
+      assert((2 nanoseconds) === Span(2, Nanoseconds))
+      assert((1 microsecond) === Span(1, Microsecond))
+      assert((2 microseconds) === Span(2, Microseconds))
       assert((1 millisecond) === Span(1, Millisecond))
       assert((2 milliseconds) === Span(2, Milliseconds))
       assert((2 millis) === Span(2, Millis))
@@ -40,6 +44,10 @@ class SpanSugarSpec extends FunSpec with SeveredStackTraces {
     }
     
     it("should provide implicit conversions for Long time spans") {
+      assert((1L nanosecond) === Span(1, Nanosecond))
+      assert((2L nanoseconds) === Span(2, Nanoseconds))
+      assert((1L microsecond) === Span(1, Microsecond))
+      assert((2L microseconds) === Span(2, Microseconds))
       assert((1L millisecond) === Span(1, Millisecond))
       assert((2L milliseconds) === Span(2, Milliseconds))
       assert((2L millis) === Span(2, Millis))
@@ -53,9 +61,13 @@ class SpanSugarSpec extends FunSpec with SeveredStackTraces {
       assert((1L day) === Span(1, Day))
       assert((2L days) === Span(2, Days))
     }
-                                      // TODO: Need to add micros and nanos
+
     it("should provide an implicit conversion from GrainOfTime to Long") {
       def getALong(aSpan: Span) = aSpan.totalNanos
+      assert(getALong(1 nanosecond) === 1L)
+      assert(getALong(2 nanoseconds) === 2L)
+      assert(getALong(1 microsecond) === 1L * 1000)
+      assert(getALong(2 microseconds) === 2L * 1000)
       assert(getALong(1 millisecond) === 1L * 1000 * 1000)
       assert(getALong(2 milliseconds) === 2L * 1000 * 1000)
       assert(getALong(2 millis) === 2L * 1000 * 1000)

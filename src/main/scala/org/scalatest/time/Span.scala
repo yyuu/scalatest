@@ -19,9 +19,7 @@ import Span.totalNanosForLongLength
 import Span.totalNanosForDoubleLength
 import org.scalatest.Resources
 
-// TODO: Maybe make this not a case class, but make an extractor. Could have
-// an identical extractor for both Span and SpanConcept.
-// case class Span private (m: Long, n: Int = 0) extends SpanConcept(m, n)
+// TODO: Maybe make this not a case class, but make an extractor.
 final class Span private (val totalNanos: Long, lengthString: String, unitsResource: String, unitsName: String) {
 
   private def this(length: Long, units: Units) {
@@ -42,9 +40,9 @@ final class Span private (val totalNanos: Long, lengthString: String, unitsResou
     )
   }
 
-  lazy val millisPart: Int = 0
+  lazy val millisPart: Long = totalNanos / 1000000
 
-  lazy val nanosPart: Int = 0
+  lazy val nanosPart: Int = (totalNanos % 1000000).toInt
 
   lazy val prettyString: String = Resources(unitsResource, lengthString)
 

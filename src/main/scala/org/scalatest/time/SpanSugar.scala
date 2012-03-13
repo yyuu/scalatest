@@ -16,46 +16,267 @@
 package org.scalatest.time
 
 /**
- * Trait providing two implicit conversions that allow you to specify <code>Long</code> spans of time
- * with units such as <code>millis</code>, <code>seconds</code>, and <code>minutes</code>.
+ * Trait providing four implicit conversions that allow you to specify spans of time
+ * by invoking "units" methods such as <code>millis</code>, <code>seconds</code>, and <code>minutes</code>
+ * on <code>Int</code>, <code>Long</code>, <code>Float</code>, and <code>Double</code>.
  * 
  * <p>
- * This trait enables you to specify units of time when you need a <code>Long</code> number of milliseconds. This
- * can be used, for example, with the <code>failAfter</code> method of trait <code>Timeouts</code> or the
- * <code>timeLimit</code> field of trait <code>TimeLimitedTests</code>. Here are examples of each unit enabled
- * by this trait: 
+ * This trait enables you to specify a span of time in a clear, boilerplate-free way when you
+ * need to provide an instance of <a href="Span.html"><code>Span</code></a>. This
+ * can be used, for example, with the <code>failAfter</code> method of trait
+ * <a href="../concurrent/Timeouts.html"><code>Timeouts</code></a> or the <code>timeLimit</code> field of trait
+ * <a href="../concurrent/TimeLimitedTests.html"><code>TimeLimitedTests</code></a>. It can also be used to specify
+ * timeouts when using traits <a href="../concurrent/Eventually.html"><code>Eventually</code></a>,
+ * <a href="../concurrent/WhenReady.html"><code>WhenReady</code></a>,
+ * <a href="../concurrent/Waiter.html"><code>Waiter</code></a>. Here are examples of each unit enabled by this trait:
  * </p>
- * 
- * <pre>
- * Thread.sleep(1 millisecond) // TODO: Need new examples
- * Thread.sleep(2 milliseconds)
- * Thread.sleep(2 millis)
- * Thread.sleep(1 second)
- * Thread.sleep(2 seconds)
- * Thread.sleep(1 minute)
- * Thread.sleep(2 minutes)
- * Thread.sleep(1 hour)
- * Thread.sleep(2 hours)
- * Thread.sleep(1 day)
- * Thread.sleep(2 days) // A nice nap indeed
- * </pre>
- * 
- * <p>
- * Because the result of these expressions is simply a <code>Long</code> number of milliseconds, you can also 
- * make arithmetic expressions out of them (so long as you use needed parentheses). For example:
- * </p>
- * 
- * <pre>
- * scala&gt; import org.scalatest.SpanSugar._
- * import org.scalatest.SpanSugar._
  *
- * scala&gt; (1 second) + 88 milliseconds
- * res0: Long = 1088
+ * <table style="border-collapse: collapse; border: 1px solid black">
+ * <tr>
+ * <th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black">
+ * <strong><code>Int</code></strong>
+ * </th>
+ * <th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black">
+ * <strong><code>Long</code></strong>
+ * </th>
+ * <th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black">
+ * <strong><code>Float</code></strong>
+ * </th>
+ * <th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black">
+ * <strong><code>Double</code></strong>
+ * </th>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 nanosecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L nanosecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F nanosecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 nanosecond
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 nanoseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L nanoseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F nanoseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 nanoseconds
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 microsecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L microsecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F microsecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 microsecond
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 microseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L microseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F microseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 microseconds
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 millisecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L millisecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F millisecond
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 millisecond
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 milliseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L milliseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F milliseconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 milliseconds
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 millis
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L millis
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F millis
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 millis
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 second
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L second
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F second
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 second
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 seconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L seconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F seconds
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 seconds
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 minute
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L minute
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F minute
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 minute
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 minutes
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L minutes
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F minutes
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 minutes
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 hour
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L hour
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F hour
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 hour
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 hours
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L hours
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F hours
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 hours
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1 day
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1L day
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0F day
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 1.0 day
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100 days
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 100L days
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8F days
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: right">
+ * 99.8 days
+ * </td>
+ * </tr>
+ * </table>
+ *
+ * <p>
+ * This trait is not the default way to specify <code>Span</code>s for two reasons. First, it adds
+ * four implicits, which would give the compiler more work to do and may conflict with other implicits the
+ * user has in scope. Instead, <code>Span</code> provides a clear, concise default way to specify time
+ * spans that requires no implicits. Here's an example:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * Span(1, Second)
  * </pre>
+ *
+ * <p>
+ * If you already have implicit conversions in scope that provide a similar syntax sugar for expression
+ * time spans, you can use that by providing an implicit conversion from the result of those expressions
+ * to <code>Span</code>. For example, here's how you might use the <code>Duration</code> class from Akka:
+ * </p>  // TODO: Write up the example
  */
 trait SpanSugar {
 
-  // Not calling this Duration because everyone else does, so avoids name clash
   /**
    * Class containing methods that return a <code>Span</code> time value calculated from the
    * value passed to the <code>GrainOfTime</code> constructor.
@@ -63,81 +284,109 @@ trait SpanSugar {
    * @param value the value to be converted
    */
   class GrainOfTime(value: Long) {
-    
+
+    /**
+     * A units method for one nanosecond.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in nanoseconds
+     */
+    def nanosecond: Span = Span(value, Nanosecond) // TODO: Also enforce that 1 thing here probably
+
+    /**
+     * A units method for nanoseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in nanoseconds
+     */
+    def nanoseconds: Span = Span(value, Nanoseconds)
+
+    /**
+     * A units method for one microsecond.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in microseconds
+     */
+    def microsecond: Span = Span(value, Microsecond)
+
+    /**
+     * A units method for microseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in microseconds
+     */
+    def microseconds: Span = Span(value, Microseconds)
+
     /**
      * A units method for one millisecond. 
      * 
-     * @return the value passed to the constructor
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
      */
-    def millisecond: Span = Span(value, Millisecond) // TODO: Also enforce that 1 thing here probably
+    def millisecond: Span = Span(value, Millisecond)
     
     /**
      * A units method for milliseconds. 
      * 
-     * @return the value passed to the constructor
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
      */
     def milliseconds: Span = Span(value, Milliseconds)
 
     /**
      * A shorter units method for milliseconds. 
      * 
-     * @return the value passed to the constructor
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
      */
     def millis: Span = Span(value, Millis)
 
     /**
      * A units method for one second. 
      * 
-     * @return the value passed to the constructor multiplied by 1000
+     * @return A <code>Span</code> representing the value passed to the constructor in seconds
      */
     def second: Span = Span(value, Second) 
     
     /**
      * A units method for seconds. 
      * 
-     * @return the value passed to the constructor multiplied by 1000
+     * @return A <code>Span</code> representing the value passed to the constructor in seconds
      */
     def seconds: Span = Span(value, Seconds)
 
     /**
      * A units method for one minute. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60
+     * @return A <code>Span</code> representing the value passed to the constructor in minutes
      */
     def minute: Span = Span(value, Minute)
 
     /**
      * A units method for minutes. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60
+     * @return A <code>Span</code> representing the value passed to the constructor in minutes
      */
     def minutes: Span = Span(value, Minutes)
     
     /**
      * A units method for one hour. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60 * 60
+     * @return A <code>Span</code> representing the value passed to the constructor in hours
      */
     def hour: Span = Span(value, Hour)
 
     /**
      * A units method for hours. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60 * 60
+     * @return A <code>Span</code> representing the value passed to the constructor in hours
      */
     def hours: Span = Span(value, Hours)
     
     /**
      * A units method for one day. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60 * 60 * 24
+     * @return A <code>Span</code> representing the value passed to the constructor in days
      */
     def day: Span = Span(value, Day)
 
     /**
      * A units method for days. 
      * 
-     * @return the value passed to the constructor multiplied by 1000 * 60 * 60 * 24
+     * @return A <code>Span</code> representing the value passed to the constructor multiplied in days
      */
     def days: Span = Span(value, Days)
   }
@@ -171,8 +420,14 @@ trait SpanSugar {
  * Type in expressions to have them evaluated.
  * Type :help for more information.
  *
- * scala&gt; import org.scalatest.SpanSugar._
- * import org.scalatest.SpanSugar._
+ * scala&gt; import org.scalatest._
+ * import org.scalatest._
+ *
+ * scala&gt; import concurrent.Timeouts._
+ * import org.scalatest.concurrent.Timeouts._
+ *
+ * scala&gt; import time.SpanSugar._
+ * import org.scalatest.time.SpanSugar._
  *
  * scala&gt; Thread.sleep(2 seconds) // TODO: Need a new example
  * </pre>

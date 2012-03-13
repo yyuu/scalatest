@@ -66,7 +66,8 @@ import scala.annotation.tailrec
  * </pre>
  *
  * <p>
- * Assuming the default configuration parameters, <code>timeout</code> 1000 milliseconds and <code>interval</code> 10 milliseconds,
+ * Assuming the default configuration parameters, a <code>timeout</code> of 1 second and an
+ * <code>interval</code> of 10 milliseconds,
  * were passed implicitly to <code>whenReady</code>, the detail message of the thrown
  * <code>TestFailedException</code> would look like:
  * </p>
@@ -100,10 +101,10 @@ import scala.annotation.tailrec
  * timeout
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 1000
+ * 1 second
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
- * the maximum amount of time in milliseconds to allow unsuccessful queries before giving up and throwing <code>TestFailedException</code>
+ * the maximum amount of time to allow unsuccessful queries before giving up and throwing <code>TestFailedException</code>
  * </td>
  * </tr>
  * <tr>
@@ -111,10 +112,10 @@ import scala.annotation.tailrec
  * interval
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 10
+ * 10 milliseconds
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
- * the number of milliseconds to sleep between each query
+ * the amount of time to sleep between each query
  * </td>
  * </tr>
  * </table>
@@ -133,7 +134,7 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit override val retryConfig =
- *   RetryConfig(timeout = 2000, interval = 5)
+ *   RetryConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -142,7 +143,7 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit val retryConfig =
- *   RetryConfig(timeout = 2000, interval = 5)
+ *   RetryConfig(timeout =  Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -154,7 +155,7 @@ import scala.annotation.tailrec
  * </p>
  *
  * <pre class="stHighlight">
- * whenReady (exec.submit(task), timeout(6000)) { s =&gt;
+ * whenReady (exec.submit(task), timeout(Span(6, Seconds))) { s =&gt;
  *   s should be ("hi")
  * }
  * </pre>
@@ -166,7 +167,18 @@ import scala.annotation.tailrec
  * </p>
  * 
  * <pre class="stHighlight">
- * whenReady (exec.submit(task), timeout(6000), interval(500)) { s =&gt;
+ * whenReady (exec.submit(task), timeout(Span(6, Seconds)), interval(Span(500, Millis))) { s =&gt;
+ *   s should be ("hi")
+ * }
+ * </pre>
+ *
+ * <p>
+ * You can also import or mix in the members of <a href="../time/SpanSugar.html"><code>SpanSugar</code></a> if
+ * you want a more concise DSL for expressing time spans:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * whenReady (exec.submit(task), timeout(6 seconds), interval(500 millis)) { s =&gt;
  *   s should be ("hi")
  * }
  * </pre>
@@ -186,7 +198,7 @@ trait WhenReady extends RetryConfiguration {
    * to the passed function.
    *
    * <p>
-   * The maximum amount of time in milliseconds to tolerate unsuccessful queries before giving up and throwing
+   * The maximum amount of time to tolerate unsuccessful queries before giving up and throwing
    * <code>TestFailedException</code> is configured by the value contained in the passed
    * <code>timeout</code> parameter.
    * The interval to sleep between attempts is configured by the value contained in the passed
@@ -210,7 +222,7 @@ trait WhenReady extends RetryConfiguration {
    * to the passed function.
    *
    * <p>
-   * The maximum amount of time in milliseconds to tolerate unsuccessful queries before giving up and throwing
+   * The maximum amount of time to tolerate unsuccessful queries before giving up and throwing
    * <code>TestFailedException</code> is configured by the value contained in the passed
    * <code>timeout</code> parameter.
    * The interval to sleep between attempts is configured by the value contained in the passed

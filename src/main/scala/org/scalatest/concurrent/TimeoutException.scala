@@ -19,7 +19,7 @@ import org.scalatest.time.Span
 
 /**
  * Trait mixed into exceptions thrown by <code>failAfter</code> due to a timeout, which offers
- * a <code>timeout</code> method that returns a <a href="../time/SpanConcept.html"><code>SpanConcept</code></a> representing the timeout that expired.
+ * a <code>timeout</code> method that returns a <a href="../time/Span.html"><code>Span</code></a> representing the timeout that expired.
  *
  * <p>
  * This trait is used by trait <a href="TimeLimitedTests.html"><code>TimeLimitedTests</code></a> to detect exceptions thrown because of timeouts, and
