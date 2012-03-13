@@ -100,7 +100,7 @@ class SpanSugarSpec extends FunSpec with SpanMatchers with ShouldMatchers with S
       for (f <- Seq((i: Long) => i nanosecond, (i: Long) => i nanoseconds, (i: Long) => i microsecond, (i: Long) => i microseconds,
         (i: Long) => i millisecond, (i: Long) => i milliseconds, (i: Long) => i millis, (i: Long) => i second, (i: Long) => i seconds,
         (i: Long) => i minute, (i: Long) => i minutes, (i: Long) => i hour, (i: Long) => i hours, (i: Long) => i day, (i: Long) => i days)) {
-        for (i <- Seq(-1, -2, -3, Long.MinValue)) {
+        for (i <- Seq(-1L, -2L, -3L, Long.MinValue)) {
           withClue("i was: " + i) {
             intercept[IllegalArgumentException] {
               f(i)
@@ -111,7 +111,7 @@ class SpanSugarSpec extends FunSpec with SpanMatchers with ShouldMatchers with S
       for (f <- Seq((d: Double) => d nanosecond, (d: Double) => d nanoseconds, (d: Double) => d microsecond, (d: Double) => d microseconds,
         (d: Double) => d millisecond, (d: Double) => d milliseconds, (d: Double) => d millis, (d: Double) => d second, (d: Double) => d seconds,
         (d: Double) => d minute, (d: Double) => d minutes, (d: Double) => d hour, (d: Double) => d hours, (d: Double) => d day, (d: Double) => d days)) {
-        for (d <- Seq(-1, -2, -3, -1.5, -9.98, Double.MinValue)) {
+        for (d <- Seq(-1.0, -2.0, -3.0, -1.5, -9.98, Double.MinValue)) {
           withClue("d was: " + d) {
             intercept[IllegalArgumentException] {
               f(d)
@@ -122,18 +122,22 @@ class SpanSugarSpec extends FunSpec with SpanMatchers with ShouldMatchers with S
     }
 
     it("should produce IAE if anything other than 1 is passed for singular units forms") {
-      for (u <- Seq(Nanosecond, Microsecond, Millisecond, Second, Minute, Hour, Day)) {
-        for (i <- Seq(0, 2, 3, Long.MaxValue)) {
-          withClue("u was: " + u + "; i was: " + i) {
+      for (f <- Seq((i: Long) => i nanosecond, (i: Long) => i microsecond, (i: Long) => i millisecond, (i: Long) => i second,
+        (i: Long) => i minute, (i: Long) => i hour, (i: Long) => i day)) {
+        for (i <- Seq(0L, 2L, 3L, Long.MaxValue)) {
+          withClue("i was: " + i) {
             intercept[IllegalArgumentException] {
-              Span(i, u)
+              f(i)
             }
           }
         }
+      }
+      for (f <- Seq((d: Double) => d nanosecond, (d: Double) => d microsecond, (d: Double) => d millisecond,
+        (d: Double) => d second, (d: Double) => d minute,(d: Double) => d hour,(d: Double) => d day)) {
         for (d <- Seq(0.0, 0.1, 1.1, 2.0, 9.98, Double.MaxValue)) {
-          withClue("u was: " + u + "; d was: " + d) {
+          withClue("d was: " + d) {
             intercept[IllegalArgumentException] {
-              Span(d, u)
+              f(d)
             }
           }
         }
