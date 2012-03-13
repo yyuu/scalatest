@@ -23,7 +23,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
   describe("A Span") {
 
     it("should produce IAE if a negative length is passed") {
-      for (u <- Seq(Nanosecond, Nanoseconds, Microsecond, Microseconds, Millisecond, Milliseconds, Second, Seconds,
+      for (u <- Seq(Nanosecond, Nanoseconds, Microsecond, Microseconds, Millisecond, Milliseconds, Millis, Second, Seconds,
           Minute, Minutes, Hour, Hours, Day, Days)) {
         for (i <- Seq(-1, -2, -3, Long.MinValue)) {
           withClue("u was: " + u + "; i was: " + i) {
@@ -175,11 +175,9 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
     it("should construct with valid milliseconds passed") {
 
       Span(0, Milliseconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
-      Span(0, Millis) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(1, Millisecond) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
       Span(1, Milliseconds) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
       Span(2, Milliseconds) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
-      Span(2, Millis) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
       Span(1000, Milliseconds) should have (totalNanos(1000L * 1000 * 1000), millisPart(1000), nanosPart(0))
       Span(1001, Milliseconds) should have (totalNanos(1001 * 1000 * 1000), millisPart(1001), nanosPart(0))
       Span(1002, Milliseconds) should have (totalNanos(1002L * 1000 * 1000), millisPart(1002), nanosPart(0))
@@ -191,13 +189,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
         millisPart(9223372036854L),
         nanosPart(0)
       )
-      // TODO: Repeat tests for Millis as well as Milliseconds
+
       Span(0.0, Milliseconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
-      Span(0.0, Millis) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(1.0, Millisecond) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
       Span(1.0, Milliseconds) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
       Span(2.0, Milliseconds) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
-      Span(2.0, Millis) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
       Span(1000.0, Milliseconds) should have (totalNanos(1000L * 1000 * 1000), millisPart(1000), nanosPart(0))
       Span(1001.0, Milliseconds) should have (totalNanos(1001 * 1000 * 1000), millisPart(1001), nanosPart(0))
       Span(1002.0, Milliseconds) should have (totalNanos(1002L * 1000 * 1000), millisPart(1002), nanosPart(0))
@@ -244,6 +240,74 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
       }
     }
 
+    it("should construct with valid milliseconds passed when used with the shorthand, Millis") {
+
+      Span(0, Millis) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1, Millis) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
+      Span(1, Millis) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
+      Span(2, Millis) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
+      Span(1000, Millis) should have (totalNanos(1000L * 1000 * 1000), millisPart(1000), nanosPart(0))
+      Span(1001, Millis) should have (totalNanos(1001 * 1000 * 1000), millisPart(1001), nanosPart(0))
+      Span(1002, Millis) should have (totalNanos(1002L * 1000 * 1000), millisPart(1002), nanosPart(0))
+      Span(2000, Millis) should have (totalNanos(2000L * 1000 * 1000), millisPart(2000), nanosPart(0))
+      Span(2001, Millis) should have (totalNanos(2001L * 1000 * 1000), millisPart(2001), nanosPart(0))
+      Span(2002, Millis) should have (totalNanos(2002L * 1000 * 1000), millisPart(2002), nanosPart(0))
+      Span(Long.MaxValue / 1000 / 1000, Millis) should have (
+        totalNanos(1000L * 1000 * 9223372036854L),
+        millisPart(9223372036854L),
+        nanosPart(0)
+      )
+
+    Span(0.0, Millis) should have (totalNanos(0), millisPart(0), nanosPart(0))
+    Span(1.0, Millisecond) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
+    Span(1.0, Millis) should have (totalNanos(1000L * 1000), millisPart(1), nanosPart(0))
+    Span(2.0, Millis) should have (totalNanos(2 * 1000 * 1000), millisPart(2), nanosPart(0))
+    Span(1000.0, Millis) should have (totalNanos(1000L * 1000 * 1000), millisPart(1000), nanosPart(0))
+    Span(1001.0, Millis) should have (totalNanos(1001 * 1000 * 1000), millisPart(1001), nanosPart(0))
+    Span(1002.0, Millis) should have (totalNanos(1002L * 1000 * 1000), millisPart(1002), nanosPart(0))
+    Span(2000.0, Millis) should have (totalNanos(2000L * 1000 * 1000), millisPart(2000), nanosPart(0))
+    Span(2001.0, Millis) should have (totalNanos(2001L * 1000 * 1000), millisPart(2001), nanosPart(0))
+    Span(2002.0, Millis) should have (totalNanos(2002L * 1000 * 1000), millisPart(2002), nanosPart(0))
+    Span(0.1, Millis) should have (totalNanos(100L * 1000), millisPart(0), nanosPart(100000))
+    Span(1.1, Millis) should have (totalNanos(1100L * 1000), millisPart(1), nanosPart(100000))
+    Span(1.2, Millis) should have (totalNanos(1200L * 1000), millisPart(1), nanosPart(200000))
+    Span(1.499, Millis) should have (totalNanos(1499L * 1000), millisPart(1), nanosPart(499000))
+    Span(1.5, Millis) should have (totalNanos(1500L * 1000), millisPart(1), nanosPart(500000))
+    Span(1.9, Millis) should have (totalNanos(1900L * 1000), millisPart(1), nanosPart(900000))
+    Span(2.2, Millis) should have (totalNanos(2200 * 1000), millisPart(2), nanosPart(200000))
+    Span(Long.MaxValue.toDouble / 1000 / 1000, Millis) should have (
+      totalNanos(1000L * 1000 * 9223372036854L + 775807),
+      millisPart(9223372036854L),
+      nanosPart(775807)
+    )
+  }
+
+  it("should throw IAE if a milliseconds value larger than the largest expressible amount is passed when used with the shorthand, Millis.") {
+    val biggest = Long.MaxValue / 1000 / 1000
+    for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
+      withClue("i was: " + i) {
+        val caught =
+          intercept[IllegalArgumentException] {
+            Span(i, Millis)
+          }
+        caught.getMessage should include ("Passed length")
+      }
+    }
+  }
+
+  it("should throw IAE if a Double milliseconds value larger than the largest expressible amount is passed when used with the shorthand, Millis.") {
+    val biggest = Long.MaxValue.toDouble / 1000 / 1000
+    for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
+      withClue("d was: " + d) {
+        val caught =
+          intercept[IllegalArgumentException] {
+            Span(d, Millis)
+          }
+        caught.getMessage should include ("Passed length")
+      }
+    }
+  }
+
     it("should construct with valid seconds passed") {
 
       Span(0, Seconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
@@ -289,7 +353,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
         nanosPart(775807)
       )
     }
-                    // TODO: Make sure have tests for all the just over the maxes
+
     it("should throw IAE if a seconds value larger than the largest expressible amount is passed.") {
       val biggest = Long.MaxValue / 1000 / 1000 / 1000
       for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
@@ -557,6 +621,12 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
       Span(1.1, Milliseconds).prettyString should be ("1.1 milliseconds")
       Span(2.0, Milliseconds).prettyString should be ("2.0 milliseconds")
 
+      Span(1, Millis).prettyString should be ("1 millisecond")
+      Span(2, Millis).prettyString should be ("2 milliseconds")
+      Span(1.0, Millis).prettyString should be ("1.0 millisecond")
+      Span(1.1, Millis).prettyString should be ("1.1 milliseconds")
+      Span(2.0, Millis).prettyString should be ("2.0 milliseconds")
+
       Span(1, Second).prettyString should be ("1 second")
       Span(1, Seconds).prettyString should be ("1 second")
       Span(2, Seconds).prettyString should be ("2 seconds")
@@ -614,6 +684,12 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
       Span(1.0, Milliseconds).toString should be ("Span(1.0, Milliseconds)")
       Span(1.1, Milliseconds).toString should be ("Span(1.1, Milliseconds)")
       Span(2.0, Milliseconds).toString should be ("Span(2.0, Milliseconds)")
+
+      Span(1, Millis).toString should be ("Span(1, Millis)")
+      Span(2, Millis).toString should be ("Span(2, Millis)")
+      Span(1.0, Millis).toString should be ("Span(1.0, Millis)")
+      Span(1.1, Millis).toString should be ("Span(1.1, Millis)")
+      Span(2.0, Millis).toString should be ("Span(2.0, Millis)")
 
       Span(1, Second).toString should be ("Span(1, Second)")
       Span(1, Seconds).toString should be ("Span(1, Seconds)")
