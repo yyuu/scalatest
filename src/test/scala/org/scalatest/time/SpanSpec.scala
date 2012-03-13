@@ -123,7 +123,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
     it("should throw IAE if a Double nanos value larger than the largest expressible amount is passed.") {
       val biggest = Long.MaxValue.toDouble
-      for (d <- Seq(biggest + 1e10, biggest + 2e10, biggest + 3e10, Double.MaxValue)) {
+      for (d <- Seq(biggest + 10000, biggest + 20000, biggest + 30000, Double.MaxValue)) {
         withClue("d was: " + d) {
           val caught =
             intercept[IllegalArgumentException] {
@@ -174,6 +174,32 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
         millisPart(9223372036854L),
         nanosPart(775807)
       )
+    }
+
+    it("should throw IAE if a microseconds value larger than the largest expressible amount is passed.") {
+      val biggest = Long.MaxValue / 1000
+      for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
+        withClue("i was: " + i) {
+          val caught =
+            intercept[IllegalArgumentException] {
+              Span(i, Microseconds)
+            }
+          caught.getMessage should include ("Passed length")
+        }
+      }
+    }
+
+    it("should throw IAE if a Double microseconds value larger than the largest expressible amount is passed.") {
+      val biggest = Long.MaxValue.toDouble / 1000
+      for (d <- Seq(biggest + 10, biggest + 20, biggest + 30, Double.MaxValue)) {
+        withClue("d was: " + d) {
+          val caught =
+            intercept[IllegalArgumentException] {
+              Span(d, Microseconds)
+            }
+          caught.getMessage should include ("Passed length")
+        }
+      }
     }
 
     it("should construct with valid milliseconds passed") {
