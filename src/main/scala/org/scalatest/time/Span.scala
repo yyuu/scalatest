@@ -67,6 +67,7 @@ object Span {
   private def totalNanosForLongLength(length: Long, units: Units): Long = {
 
     // TODO: Need others here
+    val MaxMilliseconds = Long.MaxValue / 1000 / 1000
     val MaxSeconds = Long.MaxValue / 1000 / 1000 / 1000
     val MaxMinutes = Long.MaxValue / 1000 / 1000 / 1000 / 60
     val MaxHours = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60
@@ -82,10 +83,11 @@ object Span {
     require(units != Hour || length == 1, singularErrorMsg("Hour"))
     require(units != Day || length == 1, singularErrorMsg("Day"))
 
-    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000")
-    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 60")
-    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 60 / 60")
-    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 60 / 60 / 24")
+    require(units != Milliseconds && units != Millis || length <= MaxMilliseconds, "Passed length, " + length + ", is larger than the largest expressible number of millieconds: Long.MaxValue / 1000 / 1000")
+    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000 / 1000 / 1000")
+    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 1000 / 1000 / 60")
+    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60")
+    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24")
 
     units match {
       case Nanosecond | Nanoseconds =>
@@ -109,10 +111,11 @@ object Span {
 
     val MaxNanoseconds = (Long.MaxValue).toDouble
     // TODO: Need others here
-    val MaxSeconds = (Long.MaxValue / 1000 / 1000 / 1000).toDouble
-    val MaxMinutes = (Long.MaxValue / 1000 / 1000 / 1000 / 60).toDouble
-    val MaxHours = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60).toDouble
-    val MaxDays = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24).toDouble
+    val MaxMilliseconds = Long.MaxValue.toDouble / 1000 / 1000
+    val MaxSeconds = Long.MaxValue.toDouble / 1000 / 1000 / 1000
+    val MaxMinutes = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60
+    val MaxHours = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60
+    val MaxDays = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60 / 24
 
     require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
 
@@ -126,10 +129,11 @@ object Span {
 
     require(units != Nanoseconds || length <= MaxNanoseconds, "Passed length, " + length + ", is larger than the largest expressible number of nanoseconds: Long.MaxValue")
     // TODO: Am I missing some here? Think so.
-    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000")
-    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 60")
-    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 60 / 60")
-    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 60 / 60 / 24")
+    require(units != Milliseconds && units != Millis || length <= MaxMilliseconds, "Passed length, " + length + ", is larger than the largest expressible number of millieconds: Long.MaxValue / 1000 / 1000")
+    require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000 / 1000 / 1000")
+    require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 1000 / 1000 / 60")
+    require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60")
+    require(units != Days || length <= MaxDays, "Passed length, " + length + ", is larger than the largest expressible number of days: Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24")
 
     units match {
       case Nanosecond | Nanoseconds =>

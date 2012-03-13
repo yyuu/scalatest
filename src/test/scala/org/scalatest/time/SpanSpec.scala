@@ -114,7 +114,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(1.5, Nanoseconds) should have (totalNanos(1), millisPart(0), nanosPart(1))
       Span(1.9, Nanoseconds) should have (totalNanos(1), millisPart(0), nanosPart(1))
       Span(2.2, Nanoseconds) should have (totalNanos(2), millisPart(0), nanosPart(2))
-      // Span(Long.MaxValue.toDouble, Nanoseconds) should have (totalNanos(1000L * 1000 * 9223372036854L + 775808))
+      Span(Long.MaxValue.toDouble, Nanoseconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
 
     it("should throw IAE if a Double nanos value larger than the largest expressible amount is passed.") {
@@ -142,7 +146,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(2000, Microseconds) should have (totalNanos(2000 * 1000), millisPart(2), nanosPart(0))
       Span(2001, Microseconds) should have (totalNanos(2001 * 1000), millisPart(2), nanosPart(1000))
       Span(2002, Microseconds) should have (totalNanos(2002 * 1000), millisPart(2), nanosPart(2000))
-     // Span(Long.MaxValue, Microseconds) should have (totalNanos(1000L * 1000 * 9223372036854775L), totalNanos(807000))
+      Span(Long.MaxValue / 1000, Microseconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775000),
+        millisPart(9223372036854L),
+        nanosPart(775000)
+      )
 
       Span(0.0, Microseconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(1.0, Microsecond) should have (totalNanos(1000), millisPart(0), nanosPart(1000))
@@ -161,7 +169,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(1.5, Microseconds) should have (totalNanos(1500), millisPart(0), nanosPart(1500))
       Span(1.9, Microseconds) should have (totalNanos(1900), millisPart(0), nanosPart(1900))
       Span(2.2, Microseconds) should have (totalNanos(2200), millisPart(0), nanosPart(2200))
-      // Span(Long.MaxValue.toDouble, Microseconds) should have (totalNanos(1000L * 1000 * 9223372036854776L + 808000))
+      Span((Long.MaxValue / 1000).toDouble, Microseconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
 
     it("should construct with valid milliseconds passed") {
@@ -178,7 +190,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(2000, Milliseconds) should have (totalNanos(2000L * 1000 * 1000), millisPart(2000), nanosPart(0))
       Span(2001, Milliseconds) should have (totalNanos(2001L * 1000 * 1000), millisPart(2001), nanosPart(0))
       Span(2002, Milliseconds) should have (totalNanos(2002L * 1000 * 1000), millisPart(2002), nanosPart(0))
-      // Span(Long.MaxValue, Milliseconds) should have (totalNanos(1000L * 1000 * Long.MaxValue))
+      Span(Long.MaxValue / 1000 / 1000, Milliseconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L),
+        millisPart(9223372036854L),
+        nanosPart(0)
+      )
       // TODO: Repeat tests for Millis as well as Milliseconds
       Span(0.0, Milliseconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(0.0, Millis) should have (totalNanos(0), millisPart(0), nanosPart(0))
@@ -199,9 +215,39 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(1.5, Milliseconds) should have (totalNanos(1500L * 1000), millisPart(1), nanosPart(500000))
       Span(1.9, Milliseconds) should have (totalNanos(1900L * 1000), millisPart(1), nanosPart(900000))
       Span(2.2, Milliseconds) should have (totalNanos(2200 * 1000), millisPart(2), nanosPart(200000))
-      // Span(Long.MaxValue.toDouble, Milliseconds) should have (totalNanos(1000L * 1000 * Long.MaxValue))
+      Span(Long.MaxValue.toDouble / 1000 / 1000, Milliseconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
-                // TODO: Write one for the max number of seconds
+
+    it("should throw IAE if a milliseconds value larger than the largest expressible amount is passed.") {
+      val biggest = Long.MaxValue / 1000 / 1000
+      for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
+        withClue("i was: " + i) {
+          val caught =
+            intercept[IllegalArgumentException] {
+              Span(i, Milliseconds)
+            }
+          caught.getMessage should include ("Passed length")
+        }
+      }
+    }
+
+    it("should throw IAE if a Double milliseconds value larger than the largest expressible amount is passed.") {
+      val biggest = Long.MaxValue.toDouble / 1000 / 1000
+      for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
+        withClue("d was: " + d) {
+          val caught =
+            intercept[IllegalArgumentException] {
+              Span(d, Milliseconds)
+            }
+          caught.getMessage should include ("Passed length")
+        }
+      }
+    }
+
     it("should construct with valid seconds passed") {
 
       Span(0, Seconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
@@ -214,6 +260,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(2000, Seconds) should have (totalNanos(1000L * 1000 * 2000000), millisPart(2000 * 1000), nanosPart(0))
       Span(2001, Seconds) should have (totalNanos(1000L * 1000 * 2001000), millisPart(2001 * 1000), nanosPart(0))
       Span(2002, Seconds) should have (totalNanos(1000L * 1000 * 2002000), millisPart(2002 * 1000), nanosPart(0))
+      Span(Long.MaxValue / 1000 / 1000 / 1000, Seconds) should have (
+        totalNanos(1000L * 1000 * 9223372036000L),
+        millisPart(9223372036000L),
+        nanosPart(0)
+      )
 
       Span(0.0, Seconds) should have (totalNanos(0), millisPart(0), nanosPart(0))
       Span(1.0, Second) should have (totalNanos(1000L * 1000 * 1000), millisPart(1000), nanosPart(0))
@@ -236,10 +287,15 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
       Span(88.0001, Seconds) should have (totalNanos(1000L * 1000 * 88000 + 100000), millisPart(88 * 1000), nanosPart(100000))
       Span(88.000001, Seconds) should have (totalNanos(1000L * 1000 * 88000 + 1000), millisPart(88 * 1000), nanosPart(1000))
       Span(88.000000001, Seconds) should have (totalNanos(1000L * 1000 * 88000 + 1), millisPart(88 * 1000), nanosPart(1))
+      Span(Long.MaxValue.toDouble / 1000 / 1000 / 1000, Seconds) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
-
+                    // TODO: Make sure have tests for all the just over the maxes
     it("should throw IAE if a seconds value larger than the largest expressible amount is passed.") {
-      val biggest = Long.MaxValue / 1000
+      val biggest = Long.MaxValue / 1000 / 1000 / 1000
       for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
         withClue("i was: " + i) {
           val caught =
@@ -252,8 +308,8 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
     }
 
     it("should throw IAE if a Double seconds value larger than the largest expressible amount is passed.") {
-      val biggest = (Long.MaxValue / 1000).toDouble
-      for (d <- Seq(biggest + 1e10, biggest + 2e10, biggest + 3e10, Double.MaxValue)) {
+      val biggest = Long.MaxValue.toDouble / 1000 / 1000 / 1000
+      for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
         withClue("d was: " + d) {
           val caught =
             intercept[IllegalArgumentException] {
@@ -266,42 +322,52 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
     it("should construct with valid minutes passed") {
 
-      Span(0, Minutes) should have (totalNanos(0))
-      Span(1, Minute) should have (totalNanos(1000L * 1000 * 1000 * 60))
-      Span(1, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 60))
-      Span(2, Minutes) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60))
-      Span(1000, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 1000 * 60))
-      Span(1001, Minutes) should have (totalNanos(1000L * 1000 * 1001 * 1000 * 60))
-      Span(1002, Minutes) should have (totalNanos(1000L * 1000 * 1002 * 1000 * 60))
-      Span(2000, Minutes) should have (totalNanos(1000L * 1000 * 2000 * 1000 * 60))
-      Span(2001, Minutes) should have (totalNanos(1000L * 1000 * 2001 * 1000 * 60))
-      Span(2002, Minutes) should have (totalNanos(1000L * 1000 * 2002 * 1000 * 60))
+      Span(0, Minutes) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1, Minute) should have (totalNanos(1000L * 1000 * 1000 * 60), millisPart(60 * 1000), nanosPart(0))
+      Span(1, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 60), millisPart(60 * 1000), nanosPart(0))
+      Span(2, Minutes) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60), millisPart(2 * 60 * 1000), nanosPart(0))
+      Span(1000, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 1000 * 60), millisPart(1000 * 60 * 1000), nanosPart(0))
+      Span(1001, Minutes) should have (totalNanos(1000L * 1000 * 1001 * 1000 * 60), millisPart(1001 * 60 * 1000), nanosPart(0))
+      Span(1002, Minutes) should have (totalNanos(1000L * 1000 * 1002 * 1000 * 60), millisPart(1002 * 60 * 1000), nanosPart(0))
+      Span(2000, Minutes) should have (totalNanos(1000L * 1000 * 2000 * 1000 * 60), millisPart(2000 * 60 * 1000), nanosPart(0))
+      Span(2001, Minutes) should have (totalNanos(1000L * 1000 * 2001 * 1000 * 60), millisPart(2001 * 60 * 1000), nanosPart(0))
+      Span(2002, Minutes) should have (totalNanos(1000L * 1000 * 2002 * 1000 * 60), millisPart(2002 * 60 * 1000), nanosPart(0))
+      Span(Long.MaxValue / 1000 / 1000 / 1000 / 60, Minutes) should have (
+        totalNanos(1000L * 1000 * 9223372020000L),
+        millisPart(9223372020000L),
+        nanosPart(0)
+      )
 
-      Span(0.0, Minutes) should have (totalNanos(0))
-      Span(1.0, Minute) should have (totalNanos(1000L * 1000 * 1000 * 60))
-      Span(1.0, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 60))
-      Span(2.0, Minutes) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60))
-      Span(1000.0, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 1000 * 60))
-      Span(1001.0, Minutes) should have (totalNanos(1000L * 1000 * 1001 * 1000 * 60))
-      Span(1002.0, Minutes) should have (totalNanos(1000L * 1000 * 1002 * 1000 * 60))
-      Span(2000.0, Minutes) should have (totalNanos(1000L * 1000 * 2000 * 1000 * 60))
-      Span(2001.0, Minutes) should have (totalNanos(1000L * 1000 * 2001 * 1000 * 60))
-      Span(2002.0, Minutes) should have (totalNanos(1000L * 1000 * 2002 * 1000 * 60))
-      Span(0.1, Minutes) should have (totalNanos(1000L * 1000 * 100 * 60))
-      Span(1.1, Minutes) should have (totalNanos(1000L * 1000 * 1100 * 60))
-      Span(1.2, Minutes) should have (totalNanos(1000L * 1000 * 1200 * 60))
-      Span(1.499, Minutes) should have (totalNanos(1000L * 1000 * 1499 * 60))
-      Span(1.5, Minutes) should have (totalNanos(1000L * 1000 * 1500 * 60))
-      Span(1.9, Minutes) should have (totalNanos(1000L * 1000 * 1900 * 60))
-      Span(2.2, Minutes) should have (totalNanos(1000L * 1000 * 2200 * 60))
-      Span(0.001, Minutes) should have (totalNanos(1000L * 1000 * 60))
-      Span(88.0001, Minutes) should have (totalNanos(1000L * 1000 * 5280006))
-      Span(88.000001, Minutes) should have (totalNanos(1000L * 1000 * 5280000 + 60000))
-      Span(88.000000001, Minutes) should have (totalNanos(1000L * 1000 * 5280000 + 60))
+      Span(0.0, Minutes) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1.0, Minute) should have (totalNanos(1000L * 1000 * 1000 * 60), millisPart(60 * 1000), nanosPart(0))
+      Span(1.0, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 60), millisPart(60 * 1000), nanosPart(0))
+      Span(2.0, Minutes) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60), millisPart(2 * 60 * 1000), nanosPart(0))
+      Span(1000.0, Minutes) should have (totalNanos(1000L * 1000 * 1000 * 1000 * 60), millisPart(1000 * 60 * 1000), nanosPart(0))
+      Span(1001.0, Minutes) should have (totalNanos(1000L * 1000 * 1001 * 1000 * 60), millisPart(1001 * 60 * 1000), nanosPart(0))
+      Span(1002.0, Minutes) should have (totalNanos(1000L * 1000 * 1002 * 1000 * 60), millisPart(1002 * 60 * 1000), nanosPart(0))
+      Span(2000.0, Minutes) should have (totalNanos(1000L * 1000 * 2000 * 1000 * 60), millisPart(2000 * 60 * 1000), nanosPart(0))
+      Span(2001.0, Minutes) should have (totalNanos(1000L * 1000 * 2001 * 1000 * 60), millisPart(2001 * 60 * 1000), nanosPart(0))
+      Span(2002.0, Minutes) should have (totalNanos(1000L * 1000 * 2002 * 1000 * 60), millisPart(2002 * 60 * 1000), nanosPart(0))
+      Span(0.1, Minutes) should have (totalNanos(1000L * 1000 * 100 * 60), millisPart(100 * 60), nanosPart(0))
+      Span(1.1, Minutes) should have (totalNanos(1000L * 1000 * 1100 * 60), millisPart(1100 * 60), nanosPart(0))
+      Span(1.2, Minutes) should have (totalNanos(1000L * 1000 * 1200 * 60), millisPart(1200 * 60), nanosPart(0))
+      Span(1.499, Minutes) should have (totalNanos(1000L * 1000 * 1499 * 60), millisPart(1499 * 60), nanosPart(0))
+      Span(1.5, Minutes) should have (totalNanos(1000L * 1000 * 1500 * 60), millisPart(1500 * 60), nanosPart(0))
+      Span(1.9, Minutes) should have (totalNanos(1000L * 1000 * 1900 * 60), millisPart(1900 * 60), nanosPart(0))
+      Span(2.2, Minutes) should have (totalNanos(1000L * 1000 * 2200 * 60), millisPart(2200 * 60), nanosPart(0))
+      Span(0.001, Minutes) should have (totalNanos(1000L * 1000 * 60), millisPart(60), nanosPart(0))
+      Span(88.0001, Minutes) should have (totalNanos(1000L * 1000 * 5280006), millisPart(88 * 1000 * 60 + 6), nanosPart(0))
+      Span(88.000001, Minutes) should have (totalNanos(1000L * 1000 * 5280000 + 60000), millisPart(88 * 1000 * 60), nanosPart(60000))
+      Span(88.000000001, Minutes) should have (totalNanos(1000L * 1000 * 5280000 + 60), millisPart(88 * 1000 * 60), nanosPart(60))
+      Span(Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60, Minutes) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 773760),
+        millisPart(9223372036854L),
+        nanosPart(773760)
+      )
     }
 
     it("should throw IAE if a minutes value larger than the largest expressible amount is passed.") {
-      val biggest = Long.MaxValue / 1000 / 60
+      val biggest = Long.MaxValue / 1000 / 1000 / 1000 / 60
       for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
         withClue("i was: " + i) {
           val caught =
@@ -314,7 +380,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
     }
 
     it("should throw IAE if a Double minutes value larger than the largest expressible amount is passed.") {
-      val biggest = (Long.MaxValue / 1000 / 60).toDouble
+      val biggest = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60
       for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
         withClue("d was: " + d) {
           val caught =
@@ -328,42 +394,52 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
     it("should construct with valid hours passed") {
 
-      Span(0, Hours) should have (totalNanos(0))
-      Span(1, Hour) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60))
-      Span(1, Hours) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60))
-      Span(2, Hours) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60))
-      Span(1000, Hours) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60))
-      Span(1001, Hours) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60))
-      Span(1002, Hours) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60))
-      Span(2000, Hours) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60))
-      Span(2001, Hours) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60))
-      Span(2002, Hours) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60))
+      Span(0, Hours) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1, Hour) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60), millisPart(60 * 60 * 1000), nanosPart(0))
+      Span(1, Hours) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60), millisPart(60 * 60 * 1000), nanosPart(0))
+      Span(2, Hours) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60), millisPart(2 * 60 * 60 * 1000), nanosPart(0))
+      Span(1000, Hours) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60), millisPart(1000L * 60 * 60 * 1000), nanosPart(0))
+      Span(1001, Hours) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60), millisPart(1001L * 60 * 60 * 1000), nanosPart(0))
+      Span(1002, Hours) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60), millisPart(1002L * 60 * 60 * 1000), nanosPart(0))
+      Span(2000, Hours) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60), millisPart(2000L * 60 * 60 * 1000), nanosPart(0))
+      Span(2001, Hours) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60), millisPart(2001L * 60 * 60 * 1000), nanosPart(0))
+      Span(2002, Hours) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60), millisPart(2002L * 60 * 60 * 1000), nanosPart(0))
+      Span(Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60, Hours) should have (
+        totalNanos(1000L * 1000 * 9223369200000L),
+        millisPart(9223369200000L),
+        nanosPart(0)
+      )
 
-      Span(0.0, Hours) should have (totalNanos(0))
-      Span(1.0, Hour) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60))
-      Span(1.0, Hours) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60))
-      Span(2.0, Hours) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60))
-      Span(1000.0, Hours) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60))
-      Span(1001.0, Hours) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60))
-      Span(1002.0, Hours) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60))
-      Span(2000.0, Hours) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60))
-      Span(2001.0, Hours) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60))
-      Span(2002.0, Hours) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60))
-      Span(0.1, Hours) should have (totalNanos(1000L * 1000 * 100 * 60 * 60))
-      Span(1.1, Hours) should have (totalNanos(1000L * 1000 * 1100 * 60 * 60))
-      Span(1.2, Hours) should have (totalNanos(1000L * 1000 * 1200 * 60 * 60))
-      Span(1.499, Hours) should have (totalNanos(1000L * 1000 * 1499 * 60 * 60))
-      Span(1.5, Hours) should have (totalNanos(1000L * 1000 * 1500 * 60 * 60))
-      Span(1.9, Hours) should have (totalNanos(1000L * 1000 * 1900 * 60 * 60))
-      Span(2.2, Hours) should have (totalNanos(1000L * 1000 * 2200 * 60 * 60))
-      Span(0.001, Hours) should have (totalNanos(1000L * 1000 * 60 * 60))
-      Span(88.0001, Hours) should have (totalNanos(1000L * 1000 * 5280006 * 60))
-      Span(88.000001, Hours) should have (totalNanos(1000L * 1000 * 316800003 + 600000))
-      Span(88.000000001, Hours) should have (totalNanos(1000L * 1000 * 5280000 * 60 + 3600))
+      Span(0.0, Hours) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1.0, Hour) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60), millisPart(60 * 60 * 1000), nanosPart(0))
+      Span(1.0, Hours) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60), millisPart(60 * 60 * 1000), nanosPart(0))
+      Span(2.0, Hours) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60), millisPart(2 * 60 * 60 * 1000), nanosPart(0))
+      Span(1000.0, Hours) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60), millisPart(1000L * 60 * 60 * 1000), nanosPart(0))
+      Span(1001.0, Hours) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60), millisPart(1001L * 60 * 60 * 1000), nanosPart(0))
+      Span(1002.0, Hours) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60), millisPart(1002L * 60 * 60 * 1000), nanosPart(0))
+      Span(2000.0, Hours) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60), millisPart(2000L * 60 * 60 * 1000), nanosPart(0))
+      Span(2001.0, Hours) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60), millisPart(2001L * 60 * 60 * 1000), nanosPart(0))
+      Span(2002.0, Hours) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60), millisPart(2002L * 60 * 60 * 1000), nanosPart(0))
+      Span(0.1, Hours) should have (totalNanos(1000L * 1000 * 100 * 60 * 60), millisPart(100 * 60 * 60), nanosPart(0))
+      Span(1.1, Hours) should have (totalNanos(1000L * 1000 * 1100 * 60 * 60), millisPart(1100 * 60 * 60), nanosPart(0))
+      Span(1.2, Hours) should have (totalNanos(1000L * 1000 * 1200 * 60 * 60), millisPart(1200 * 60 * 60), nanosPart(0))
+      Span(1.499, Hours) should have (totalNanos(1000L * 1000 * 1499 * 60 * 60), millisPart(1499 * 60 * 60), nanosPart(0))
+      Span(1.5, Hours) should have (totalNanos(1000L * 1000 * 1500 * 60 * 60), millisPart(1500 * 60 * 60), nanosPart(0))
+      Span(1.9, Hours) should have (totalNanos(1000L * 1000 * 1900 * 60 * 60), millisPart(1900 * 60 * 60), nanosPart(0))
+      Span(2.2, Hours) should have (totalNanos(1000L * 1000 * 2200 * 60 * 60), millisPart(2200 * 60 * 60), nanosPart(0))
+      Span(0.001, Hours) should have (totalNanos(1000L * 1000 * 60 * 60), millisPart(60 * 60), nanosPart(0))
+      Span(88.0001, Hours) should have (totalNanos(1000L * 1000 * 5280006 * 60), millisPart(88 * 1000 * 60 * 60 + 6 * 60), nanosPart(0))
+      Span(88.000001, Hours) should have (totalNanos(1000L * 1000 * 316800003 + 600000), millisPart(88 * 1000 * 60 * 60 + 3), nanosPart(600000))
+      Span(88.000000001, Hours) should have (totalNanos(1000L * 1000 * 5280000 * 60 + 3600), millisPart(88 * 1000 * 60 * 60), nanosPart(3600))
+      Span(Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60, Hours) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
 
     it("should throw IAE if an hours value larger than the largest expressible amount is passed.") {
-      val biggest = Long.MaxValue / 1000 / 60 / 60
+      val biggest = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60
       for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
         withClue("i was: " + i) {
           val caught =
@@ -376,7 +452,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
     }
 
     it("should throw IAE if a Double hours value larger than the largest expressible amount is passed.") {
-      val biggest = (Long.MaxValue / 1000 / 60 / 60).toDouble
+      val biggest = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60
       for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
         withClue("d was: " + d) {
           val caught =
@@ -390,42 +466,52 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
 
     it("should construct with valid days passed") {
 
-      Span(0, Days) should have (totalNanos(0))
-      Span(1, Day) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24))
-      Span(1, Days) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24))
-      Span(2, Days) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60 * 24))
-      Span(1000, Days) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60 * 24))
-      Span(1001, Days) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60 * 24))
-      Span(1002, Days) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60 * 24))
-      Span(2000, Days) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60 * 24))
-      Span(2001, Days) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60 * 24))
-      Span(2002, Days) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60 * 24))
+      Span(0, Days) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1, Day) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24), millisPart(60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1, Days) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24), millisPart(60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2, Days) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60 * 24), millisPart(2 * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1000, Days) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60 * 24), millisPart(1000L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1001, Days) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60 * 24), millisPart(1001L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1002, Days) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60 * 24), millisPart(1002L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2000, Days) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60 * 24), millisPart(2000L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2001, Days) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60 * 24), millisPart(2001L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2002, Days) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60 * 24), millisPart(2002L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24, Days) should have (
+        totalNanos(1000L * 1000 * 9223286400000L),
+        millisPart(9223286400000L),
+        nanosPart(0)
+      )
 
-      Span(0.0, Days) should have (totalNanos(0))
-      Span(1.0, Day) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24))
-      Span(1.0, Days) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24))
-      Span(2.0, Days) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60 * 24))
-      Span(1000.0, Days) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60 * 24))
-      Span(1001.0, Days) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60 * 24))
-      Span(1002.0, Days) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60 * 24))
-      Span(2000.0, Days) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60 * 24))
-      Span(2001.0, Days) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60 * 24))
-      Span(2002.0, Days) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60 * 24))
-      Span(0.1, Days) should have (totalNanos(1000L * 1000 * 100 * 60 * 60 * 24))
-      Span(1.1, Days) should have (totalNanos(1000L * 1000 * 1100 * 60 * 60 * 24))
-      Span(1.2, Days) should have (totalNanos(1000L * 1000 * 1200 * 60 * 60 * 24))
-      Span(1.499, Days) should have (totalNanos(1000L * 1000 * 1499 * 60 * 60 * 24))
-      Span(1.5, Days) should have (totalNanos(1000L * 1000 * 1500 * 60 * 60 * 24))
-      Span(1.9, Days) should have (totalNanos(1000L * 1000 * 1900 * 60 * 60 * 24))
-      Span(2.2, Days) should have (totalNanos(1000L * 1000 * 2200 * 60 * 60 * 24))
-      Span(0.001, Days) should have (totalNanos(1000L * 1000 * 60 * 60 * 24))
-      Span(88.0001, Days) should have (totalNanos(1000L * 1000 * 5280006L * 60 * 24))
-      Span(88.000001, Days) should have (totalNanos(1000L * 1000 * 7603200086L + 400000))
-      Span(88.000000001, Days) should have (totalNanos(1000L * 1000 * 5280000L * 60 * 24 + 86400))
+      Span(0.0, Days) should have (totalNanos(0), millisPart(0), nanosPart(0))
+      Span(1.0, Day) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24), millisPart(60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1.0, Days) should have (totalNanos(1000L * 1000 * 1000 * 60 * 60 * 24), millisPart(60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2.0, Days) should have (totalNanos(1000L * 1000 * 2 * 1000 * 60 * 60 * 24), millisPart(2 * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1000.0, Days) should have (totalNanos(1000L * 1000 * 1000L * 1000 * 60 * 60 * 24), millisPart(1000L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1001.0, Days) should have (totalNanos(1000L * 1000 * 1001L * 1000 * 60 * 60 * 24), millisPart(1001L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(1002.0, Days) should have (totalNanos(1000L * 1000 * 1002L * 1000 * 60 * 60 * 24), millisPart(1002L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2000.0, Days) should have (totalNanos(1000L * 1000 * 2000L * 1000 * 60 * 60 * 24), millisPart(2000L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2001.0, Days) should have (totalNanos(1000L * 1000 * 2001L * 1000 * 60 * 60 * 24), millisPart(2001L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(2002.0, Days) should have (totalNanos(1000L * 1000 * 2002L * 1000 * 60 * 60 * 24), millisPart(2002L * 60 * 60 * 24 * 1000), nanosPart(0))
+      Span(0.1, Days) should have (totalNanos(1000L * 1000 * 100 * 60 * 60 * 24), millisPart(100 * 60 * 60 * 24), nanosPart(0))
+      Span(1.1, Days) should have (totalNanos(1000L * 1000 * 1100 * 60 * 60 * 24), millisPart(1100 * 60 * 60 * 24), nanosPart(0))
+      Span(1.2, Days) should have (totalNanos(1000L * 1000 * 1200 * 60 * 60 * 24), millisPart(1200 * 60 * 60 * 24), nanosPart(0))
+      Span(1.499, Days) should have (totalNanos(1000L * 1000 * 1499 * 60 * 60 * 24), millisPart(1499 * 60 * 60 * 24), nanosPart(0))
+      Span(1.5, Days) should have (totalNanos(1000L * 1000 * 1500 * 60 * 60 * 24), millisPart(1500 * 60 * 60 * 24), nanosPart(0))
+      Span(1.9, Days) should have (totalNanos(1000L * 1000 * 1900 * 60 * 60 * 24), millisPart(1900 * 60 * 60 * 24), nanosPart(0))
+      Span(2.2, Days) should have (totalNanos(1000L * 1000 * 2200 * 60 * 60 * 24), millisPart(2200 * 60 * 60 * 24), nanosPart(0))
+      Span(0.001, Days) should have (totalNanos(1000L * 1000 * 60 * 60 * 24), millisPart(60 * 60 * 24), nanosPart(0))
+      Span(88.0001, Days) should have (totalNanos(1000L * 1000 * 5280006L * 60 * 24), millisPart(88L * 1000 * 60 * 60 * 24 + 6 * 60 * 24), nanosPart(0))
+      Span(88.000001, Days) should have (totalNanos(1000L * 1000 * 7603200086L + 400000), millisPart(88L * 1000 * 60 * 60 * 24 + 86), nanosPart(400000))
+      Span(88.000000001, Days) should have (totalNanos(1000L * 1000 * 5280000L * 60 * 24 + 86400), millisPart(88L * 1000 * 60 * 60 * 24), nanosPart(86400))
+      Span(Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60 / 24, Days) should have (
+        totalNanos(1000L * 1000 * 9223372036854L + 775807),
+        millisPart(9223372036854L),
+        nanosPart(775807)
+      )
     }
 
     it("should throw IAE if a days value larger than the largest expressible amount is passed.") {
-      val biggest = Long.MaxValue / 1000 / 60 / 60 / 24
+      val biggest = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24
       for (i <- Seq(biggest + 1, biggest + 2, biggest + 3, Long.MaxValue)) {
         withClue("i was: " + i) {
           val caught =
@@ -438,7 +524,7 @@ class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
     }
 
     it("should throw IAE if a Double days value larger than the largest expressible amount is passed.") {
-      val biggest = (Long.MaxValue / 1000 / 60 / 60 / 24).toDouble
+      val biggest = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60 / 24
       for (d <- Seq(biggest + 1, biggest + 2, biggest + 3, Double.MaxValue)) {
         withClue("d was: " + d) {
           val caught =
