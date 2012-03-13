@@ -535,6 +535,16 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     assert(masterSuite.expectedTestCount(new Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set.empty)) === 3)
     assert(masterSuite.expectedTestCount(new Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 6)
   }
+  
+  def testSuiteRunner() {
+    assert(new NormalSuite().suiteRerunner.get === classOf[NormalSuite].getName)
+    assert(new WrappedSuite(Map.empty).suiteRerunner.get === classOf[WrappedSuite].getName)
+    assert(new NotAccessibleSuite("test").suiteRerunner === None)
+  }
 }
 
 class `My Test` extends Suite {}
+class NormalSuite extends Suite
+@WrapWith(classOf[ConfigMapWrapperSuite]) 
+class WrappedSuite(configMap: Map[_, _]) extends Suite
+class NotAccessibleSuite(name: String) extends Suite

@@ -54,6 +54,7 @@ import Suite.reportTestPending
 import Suite.reportTestCanceled
 import Suite.reportInfoProvided
 import scala.reflect.NameTransformer
+import tools.SuiteDiscoveryHelper
 
 /**
  * A suite of tests. A <code>Suite</code> instance encapsulates a conceptual
@@ -2665,6 +2666,21 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     case dr: DispatchReporter => dr
     case cr: CatchReporter => cr
     case _ => new CatchReporter(reporter)
+  }
+  
+  /**
+   * The fully qualified class name of the rerunner to rerun this suite.  This implementation will look at this.getClass and see if it is
+   * either an accessible Suite, or it has a WrapWith annotation. If so, it returns the fully qualified class name wrapped in a Some, 
+   * or else it returns None.
+   */
+  def suiteRerunner: Option[String] = {
+    val suiteClass = getClass
+    val isAccessible = SuiteDiscoveryHelper.isAccessibleSuite(suiteClass)
+    val hasWrapWithAnnotation = suiteClass.getAnnotation(classOf[WrapWith]) != null
+    if (isAccessible || hasWrapWithAnnotation)
+      Some(suiteClass.getName)
+    else
+      None
   }
   
   private[scalatest] def getTopOfClass = TopOfClass(this.getClass.getName)
