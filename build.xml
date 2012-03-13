@@ -183,7 +183,6 @@
 
     <target name="gencode" depends="init, compile-codegenerators">
         <java classname="GenMustMatchers" classpathref="run.generators.class.path" fork="false" />
-        <java classname="GenMustMatchersTests" classpathref="run.generators.class.path" fork="false" />
     </target>
 
     <target name="compile" depends="compile-main, compile-tests, compile-examples"/>

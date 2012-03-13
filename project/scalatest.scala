@@ -24,7 +24,33 @@ object ScalatestBuild extends Build {
                               "org.scalatest.events.TestLocationMethodTestNGSuite", 
                               "org.scalatest.events.TestLocationTestNGSuite", 
                               "org.scalatest.tools.SomeApiClassRunner")
+                              
+   /*val stsettings = Defaults.emptySettings ++ Seq(
+     organization := "org.scalatest",
+     version := "2.0-SNAPSHOT",
+     crossScalaVersions := Seq("2.8.1", "2.8.2","2.9.0","2.9.0-1","2.9.1-1-RC1","2.10.0-M2"),
+     libraryDependencies ++= simpledependencies,
+     libraryDependencies <+= scalaVersion apply {
+       //TODO -1.7
+       case sv @ ("2.8.2"|"2.8.1") => "org.scala-tools.testing" % ("scalacheck_"+sv) % "1.8"
+       //case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9"
+       case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.8"
+     },
+     sourceGenerators in Compile <+= 
+         (baseDirectory, sourceManaged in Compile) map genGenMain,
+     sourceGenerators in Test <+= 
+         (baseDirectory, sourceManaged in Test) map genGenTest,
+     sourceGenerators in Compile <+= 
+         (baseDirectory, sourceManaged in Compile) map genTableMain,
+     sourceGenerators in Test <+= 
+         (baseDirectory, sourceManaged in Test) map genTableTest, 
+     testOptions in Test := Seq(Tests.Filter(className => isIncludedTest(className)))
+   )
 
+   lazy val root = Project("scalatest", 
+                           file("."), 
+                           settings = stsettings ++ Seq(genCodeTask))*/
+                              
    lazy val root = Project("scalatest", file(".")) settings(
      organization := "org.scalatest",
      version := "2.0-SNAPSHOT",
@@ -36,6 +62,7 @@ object ScalatestBuild extends Build {
        //case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9"
        case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.8"
      },
+     genCodeTask, 
      sourceGenerators in Compile <+= 
          (baseDirectory, sourceManaged in Compile) map genGenMain,
      sourceGenerators in Test <+= 
@@ -110,5 +137,10 @@ object ScalatestBuild extends Build {
     }
     results
   }
-
+  
+  val genCode = TaskKey[Unit]("gencode", "Generate Code")
+  val genCodeTask = genCode <<= (sourceManaged in Compile, sourceManaged in Test) map { (mainTargetDir: File, testTargetDir: File) =>
+    GenMustMatchers.genMain(new File("src/main/scala/org/scalatest"), new File(mainTargetDir, "org/scalatest"))
+    GenMustMatchers.genTest(new File("src/test/scala/org/scalatest"), new File(testTargetDir, "org/scalatest"))
+  }
 }
