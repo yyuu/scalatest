@@ -66,14 +66,14 @@ object Span {
 
   private def totalNanosForLongLength(length: Long, units: Units): Long = {
 
+    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
+
     val MaxMicroseconds = Long.MaxValue / 1000
     val MaxMilliseconds = Long.MaxValue / 1000 / 1000
     val MaxSeconds = Long.MaxValue / 1000 / 1000 / 1000
     val MaxMinutes = Long.MaxValue / 1000 / 1000 / 1000 / 60
     val MaxHours = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60
     val MaxDays = Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60 / 24
-
-    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
 
     require(units != Nanosecond || length == 1, singularErrorMsg("Nanosecond"))
     require(units != Microsecond || length == 1, singularErrorMsg("Microsecond"))
@@ -110,6 +110,8 @@ object Span {
 
   private def totalNanosForDoubleLength(length: Double, units: Units): Long = {
 
+    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
+
     val MaxNanoseconds = (Long.MaxValue).toDouble
     val MaxMicroseconds = Long.MaxValue.toDouble / 1000
     val MaxMilliseconds = Long.MaxValue.toDouble / 1000 / 1000
@@ -117,8 +119,6 @@ object Span {
     val MaxMinutes = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60
     val MaxHours = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60
     val MaxDays = Long.MaxValue.toDouble / 1000 / 1000 / 1000 / 60 / 60 / 24
-
-    require(length >= 0, "length must be greater than or equal to zero, but was: " + length)
 
     require(units != Nanosecond || length == 1.0, singularErrorMsg("Nanosecond"))
     require(units != Microsecond || length == 1.0, singularErrorMsg("Microsecond"))

@@ -15,7 +15,7 @@
  */
 package org.scalatest.time
 
-import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, ShouldMatchers}
+import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{SeveredStackTraces, FunSpec}
 
 class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with SeveredStackTraces {

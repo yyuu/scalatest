@@ -279,7 +279,7 @@ trait SpanSugar {
 
   /**
    * Class containing methods that return a <code>Span</code> time value calculated from the
-   * value passed to the <code>GrainOfTime</code> constructor.
+   * <code>Long</code> value passed to the <code>GrainOfTime</code> constructor.
    * 
    * @param value the value to be converted
    */
@@ -290,7 +290,7 @@ trait SpanSugar {
      *
      * @return A <code>Span</code> representing the value passed to the constructor in nanoseconds
      */
-    def nanosecond: Span = Span(value, Nanosecond) // TODO: Also enforce that 1 thing here probably
+    def nanosecond: Span = Span(value, Nanosecond)
 
     /**
      * A units method for nanoseconds.
@@ -390,7 +390,121 @@ trait SpanSugar {
      */
     def days: Span = Span(value, Days)
   }
-  
+
+  /**
+   * Class containing methods that return a <code>Span</code> time value calculated from the
+   * <code>Double</code> value passed to the <code>FloatingGrainOfTime</code> constructor.
+   *
+   * @param value the value to be converted
+   */
+  class FloatingGrainOfTime(value: Double) {
+
+    /**
+     * A units method for one nanosecond.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in nanoseconds
+     */
+    def nanosecond: Span = Span(value, Nanosecond)
+
+    /**
+     * A units method for nanoseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in nanoseconds
+     */
+    def nanoseconds: Span = Span(value, Nanoseconds)
+
+    /**
+     * A units method for one microsecond.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in microseconds
+     */
+    def microsecond: Span = Span(value, Microsecond)
+
+    /**
+     * A units method for microseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in microseconds
+     */
+    def microseconds: Span = Span(value, Microseconds)
+
+    /**
+     * A units method for one millisecond.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
+     */
+    def millisecond: Span = Span(value, Millisecond)
+
+    /**
+     * A units method for milliseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
+     */
+    def milliseconds: Span = Span(value, Milliseconds)
+
+    /**
+     * A shorter units method for milliseconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in milliseconds
+     */
+    def millis: Span = Span(value, Millis)
+
+    /**
+     * A units method for one second.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in seconds
+     */
+    def second: Span = Span(value, Second)
+
+    /**
+     * A units method for seconds.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in seconds
+     */
+    def seconds: Span = Span(value, Seconds)
+
+    /**
+     * A units method for one minute.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in minutes
+     */
+    def minute: Span = Span(value, Minute)
+
+    /**
+     * A units method for minutes.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in minutes
+     */
+    def minutes: Span = Span(value, Minutes)
+
+    /**
+     * A units method for one hour.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in hours
+     */
+    def hour: Span = Span(value, Hour)
+
+    /**
+     * A units method for hours.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in hours
+     */
+    def hours: Span = Span(value, Hours)
+
+    /**
+     * A units method for one day.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor in days
+     */
+    def day: Span = Span(value, Day)
+
+    /**
+     * A units method for days.
+     *
+     * @return A <code>Span</code> representing the value passed to the constructor multiplied in days
+     */
+    def days: Span = Span(value, Days)
+  }
+
   /**
    * Implicit conversion that adds time units methods to <code>Int</code>s.
    * 
@@ -405,8 +519,24 @@ trait SpanSugar {
    * @param i: the <code>Long</code> to which to add time units methods
    * @return a <code>GrainOfTime</code> wrapping the passed <code>Long</code>
    */
-  implicit def convertLongToGrainOfTime(i: Long) = new GrainOfTime(i) // TODO: Will need these for Double as well
-// TODO: And write some tests with Float literals.
+  implicit def convertLongToGrainOfTime(i: Long) = new GrainOfTime(i)
+
+
+  /**
+   * Implicit conversion that adds time units methods to <code>Float</code>s.
+   *
+   * @param f: the <code>Float</code> to which to add time units methods
+   * @return a <code>FloatingGrainOfTime</code> wrapping the passed <code>Float</code>
+   */
+  implicit def convertFloatToGrainOfTime(f: Float) = new FloatingGrainOfTime(f)
+
+  /**
+   * Implicit conversion that adds time units methods to <code>Double</code>s.
+   *
+   * @param d: the <code>Double</code> to which to add time units methods
+   * @return a <code>FloatingGrainOfTime</code> wrapping the passed <code>Double</code>
+   */
+  implicit def convertDoubleToGrainOfTime(d: Double) = new FloatingGrainOfTime(d)
 }
 
 /**
