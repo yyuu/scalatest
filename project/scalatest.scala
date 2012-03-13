@@ -33,7 +33,8 @@ object ScalatestBuild extends Build {
      libraryDependencies <+= scalaVersion apply {
        //TODO -1.7
        case sv @ ("2.8.2"|"2.8.1") => "org.scala-tools.testing" % ("scalacheck_"+sv) % "1.8"
-       case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9"
+       //case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9"
+       case _                      => "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.8"
      },
      sourceGenerators in Compile <+= 
          (baseDirectory, sourceManaged in Compile) map genGenMain,
