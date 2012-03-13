@@ -205,7 +205,6 @@ object Span {
   def apply(length: Double, units: Units): Span = {
 
     val MaxNanoseconds = (Long.MaxValue).toDouble
-    // TODO: Need others here
     val MaxSeconds = (Long.MaxValue / 1000 / 1000 / 1000).toDouble
     val MaxMinutes = (Long.MaxValue / 1000 / 1000 / 1000 / 60).toDouble
     val MaxHours = (Long.MaxValue / 1000 / 1000 / 1000 / 60 / 60).toDouble
@@ -222,7 +221,6 @@ object Span {
     require(units != Day || length == 1.0, singularErrorMsg("Day"))
 
     require(units != Nanoseconds || length <= MaxNanoseconds, "Passed length, " + length + ", is larger than the largest expressible number of nanoseconds: Long.MaxValue")
-    // TODO: Am I missing some here? Think so.
     require(units != Seconds || length <= MaxSeconds, "Passed length, " + length + ", is larger than the largest expressible number of seconds: Long.MaxValue / 1000")
     require(units != Minutes || length <= MaxMinutes, "Passed length, " + length + ", is larger than the largest expressible number of minutes: Long.MaxValue / 1000 / 60")
     require(units != Hours || length <= MaxHours, "Passed length, " + length + ", is larger than the largest expressible number of hours: Long.MaxValue / 1000 / 60 / 60")

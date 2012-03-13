@@ -18,37 +18,7 @@ package org.scalatest.time
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, ShouldMatchers}
 import org.scalatest.{SeveredStackTraces, FunSpec}
 
-class SpanSpec extends FunSpec with ShouldMatchers with SeveredStackTraces {
-
-  def totalNanos(expectedValue: Long) =
-    HavePropertyMatcher { (span: Span) =>
-      HavePropertyMatchResult(
-        span.totalNanos == expectedValue,
-        "totalNanos",
-        expectedValue,
-        span.totalNanos
-      )
-    }
-
-  def millisPart(expectedValue: Long) =
-    HavePropertyMatcher { (span: Span) =>
-      HavePropertyMatchResult(
-        span.millisPart == expectedValue,
-        "millisPart",
-        expectedValue,
-        span.millisPart
-      )
-    }
-
-  def nanosPart(expectedValue: Long) =
-    HavePropertyMatcher { (span: Span) =>
-      HavePropertyMatchResult(
-        span.nanosPart == expectedValue,
-        "nanosPart",
-        expectedValue,
-        span.nanosPart
-      )
-    }
+class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with SeveredStackTraces {
 
   describe("A Span") {
 
