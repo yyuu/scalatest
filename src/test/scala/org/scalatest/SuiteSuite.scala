@@ -538,9 +538,9 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
   }
   
   def testSuiteRunner() {
-    assert(new NormalSuite().suiteRerunner.get === classOf[NormalSuite].getName)
-    assert(new WrappedSuite(Map.empty).suiteRerunner.get === classOf[WrappedSuite].getName)
-    assert(new NotAccessibleSuite("test").suiteRerunner === None)
+    assert(new NormalSuite().rerunner.get === classOf[NormalSuite].getName)
+    assert(new WrappedSuite(Map.empty).rerunner.get === classOf[WrappedSuite].getName)
+    assert(new NotAccessibleSuite("test").rerunner === None)
   }
 }
 

@@ -197,7 +197,7 @@ trait AbstractSuite { this: Suite =>
   def expectedTestCount(filter: Filter): Int
   
   /**
-   * The fully qualified class name of the rerunner to rerun this suite.
+   * The fully qualified name of the class that can be used to rerun this suite.
    */
-  def suiteRerunner: Option[String]
+  def rerunner: Option[String]
 }

@@ -47,7 +47,7 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatch: DispatchReporter, s
       val suiteStartTime = System.currentTimeMillis
 
       if (!suite.isInstanceOf[DistributedTestRunnerSuite])
-        dispatch(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, formatter, Some(TopOfClass(suite.getClass.getName)), suite.suiteRerunner))
+        dispatch(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, formatter, Some(TopOfClass(suite.getClass.getName)), suite.rerunner))
   
       try {
         suite.run(None, dispatch, stopRequested, filter, propertiesMap, distributor, tracker)
@@ -57,7 +57,7 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatch: DispatchReporter, s
 
         val duration = System.currentTimeMillis - suiteStartTime
         if (!suite.isInstanceOf[DistributedTestRunnerSuite])
-          dispatch(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(suite.getClass.getName)), suite.suiteRerunner))
+          dispatch(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(suite.getClass.getName)), suite.rerunner))
       }
       catch {
         case e: RuntimeException => { // Do fire SuiteAborted even if a DistributedTestRunnerSuite 
@@ -66,7 +66,7 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatch: DispatchReporter, s
           val formatter3 = formatterForSuiteAborted(suite, rawString3)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          dispatch(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(e), Some(duration), formatter3, Some(SeeStackDepthException), suite.suiteRerunner))
+          dispatch(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(e), Some(duration), formatter3, Some(SeeStackDepthException), suite.rerunner))
         }
       }
     }

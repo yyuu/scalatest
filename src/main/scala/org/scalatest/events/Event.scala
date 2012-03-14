@@ -112,8 +112,8 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that is starting (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that is starting. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -132,7 +132,7 @@ final case class TestStarting (
   decodedTestName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -154,8 +154,8 @@ final case class TestStarting (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -203,8 +203,8 @@ final case class TestStarting (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that has succeeded (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that has succeeded. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -224,7 +224,7 @@ final case class TestSucceeded (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -248,8 +248,8 @@ final case class TestSucceeded (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -299,8 +299,8 @@ final case class TestSucceeded (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the test that has failed (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that has failed. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -322,7 +322,7 @@ final case class TestFailed (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -350,8 +350,8 @@ final case class TestFailed (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -656,8 +656,8 @@ final case class TestCanceled (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the suite that is starting (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that is starting. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -673,7 +673,7 @@ final case class SuiteStarting (
   decodedSuiteName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -691,8 +691,8 @@ final case class SuiteStarting (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -737,8 +737,8 @@ final case class SuiteStarting (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>String</code> that represents suite class name which can be used to rerun the suite that has completed (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that has completed. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteCompleted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -755,7 +755,7 @@ final case class SuiteCompleted (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -775,8 +775,8 @@ final case class SuiteCompleted (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)
@@ -827,8 +827,8 @@ final case class SuiteCompleted (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param suiteRerunner an optional <code>Rerunner</code> that represents suite class name which can be used to rerun the suite that has aborted (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that has aborted. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteAborted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -847,7 +847,7 @@ final case class SuiteAborted (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  suiteRerunner: Option[String] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -871,8 +871,8 @@ final case class SuiteAborted (
     throw new NullPointerException("formatter was null")
   if (location == null)
     throw new NullPointerException("location was null")
-  if (suiteRerunner == null)
-    throw new NullPointerException("suiteRerunner was null")
+  if (rerunner == null)
+    throw new NullPointerException("rerunner was null")
   if (payload == null)
     throw new NullPointerException("payload was null")
   if (threadName == null)

@@ -788,14 +788,14 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
         case _ => (None, None)
       }
 
-    val suiteRerunner =
+    val rerunner =
       event match {
-        case e: TestStarting => e.suiteRerunner
-        case e: TestSucceeded => e.suiteRerunner
-        case e: TestFailed => e.suiteRerunner
-        case e: SuiteStarting => e.suiteRerunner
-        case e: SuiteCompleted => e.suiteRerunner
-        case e: SuiteAborted => e.suiteRerunner
+        case e: TestStarting => e.rerunner
+        case e: TestSucceeded => e.rerunner
+        case e: TestFailed => e.rerunner
+        case e: SuiteStarting => e.rerunner
+        case e: SuiteCompleted => e.rerunner
+        case e: SuiteAborted => e.rerunner
         case _ => None
       }
 
@@ -807,7 +807,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
         case _ => None
       }
 
-    val eventHolder: EventHolder = new EventHolder(event, message, throwable, suiteRerunner, summary, isRerun)
+    val eventHolder: EventHolder = new EventHolder(event, message, throwable, rerunner, summary, isRerun)
 
     if (eventTypesToCollect.contains(eventToEventToPresent(event))) {
       collectedEvents = eventHolder :: collectedEvents
@@ -1078,7 +1078,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     rerunJButton.setText(rerunText)
     runJButton.setEnabled(true)
     val holder: EventHolder = eventsJList.getSelectedValue.asInstanceOf[EventHolder]
-    rerunJButton.setEnabled(holder != null && holder.suiteRerunner.isDefined)
+    rerunJButton.setEnabled(holder != null && holder.rerunner.isDefined)
   }
 
   // This must be called by the event handler thread
@@ -1239,15 +1239,15 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     if (holder == null)
       None
     else {
-      holder.suiteRerunner match {
-        case Some(suiteRerunner) => 
+      holder.rerunner match {
+        case Some(rerunner) => 
           holder.event match {
-            case e: TestStarting => Some(new TestRerunner(suiteRerunner, e.testName))
-            case e: TestSucceeded => Some(new TestRerunner(suiteRerunner, e.testName))
-            case e: TestFailed => Some(new TestRerunner(suiteRerunner, e.testName))
-            case e: SuiteStarting => Some(new SuiteRerunner(suiteRerunner))
-            case e: SuiteCompleted => Some(new SuiteRerunner(suiteRerunner))
-            case e: SuiteAborted => Some(new SuiteRerunner(suiteRerunner))
+            case e: TestStarting => Some(new TestRerunner(rerunner, e.testName))
+            case e: TestSucceeded => Some(new TestRerunner(rerunner, e.testName))
+            case e: TestFailed => Some(new TestRerunner(rerunner, e.testName))
+            case e: SuiteStarting => Some(new SuiteRerunner(rerunner))
+            case e: SuiteCompleted => Some(new SuiteRerunner(rerunner))
+            case e: SuiteAborted => Some(new SuiteRerunner(rerunner))
             case _ => None
           }
         case None =>

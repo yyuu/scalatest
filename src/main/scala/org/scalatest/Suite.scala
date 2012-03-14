@@ -2365,7 +2365,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testName, 1, true)
-    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteId, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), Some(throwable), Some(duration), Some(formatter), Some(SeeStackDepthException), suiteRerunner))
+    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteId, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), Some(throwable), Some(duration), Some(formatter), Some(SeeStackDepthException), rerunner))
   }
 
   /**
@@ -2435,7 +2435,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
 
         val suiteStartTime = System.currentTimeMillis
 
-        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.suiteRerunner))
+        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.rerunner))
 
         try {
           // Same thread, so OK to send same tracker
@@ -2445,7 +2445,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
           val formatter = formatterForSuiteCompleted(nestedSuite)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.suiteRerunner))
+          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.rerunner))
         }
         catch {       
           case e: RuntimeException => {
@@ -2454,7 +2454,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
             val formatter = formatterForSuiteAborted(nestedSuite, rawString)
 
             val duration = System.currentTimeMillis - suiteStartTime
-            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(e), Some(duration), formatter, Some(SeeStackDepthException), nestedSuite.suiteRerunner))
+            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(e), Some(duration), formatter, Some(SeeStackDepthException), nestedSuite.rerunner))
           }
         }
       }
@@ -2654,7 +2654,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
    * either an accessible Suite, or it has a WrapWith annotation. If so, it returns the fully qualified class name wrapped in a Some, 
    * or else it returns None.
    */
-  def suiteRerunner: Option[String] = {
+  def rerunner: Option[String] = {
     val suiteClass = getClass
     val isAccessible = SuiteDiscoveryHelper.isAccessibleSuite(suiteClass)
     val hasWrapWithAnnotation = suiteClass.getAnnotation(classOf[WrapWith]) != null
@@ -2968,14 +2968,14 @@ used for test events like succeeded/failed, etc.
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testText, level, includeIcon)
-    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName),theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, theSuite.suiteRerunner))
+    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName),theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, theSuite.rerunner))
   }
 
   // TODO: Possibly separate these out from method tests and function tests, because locations are different
   // Update: Doesn't seems to need separation, to be confirmed with Bill.
   def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], rerunnable: Option[Rerunner], location: Option[Location]) {
     report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(MotionToSuppress),
-      location, theSuite.suiteRerunner))
+      location, theSuite.rerunner))
   }
 
   def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], duration: Long, formatter: Formatter, location: Option[Location]) {
@@ -3001,7 +3001,7 @@ used for test events like succeeded/failed, etc.
 
   def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], duration: Long, formatter: Formatter, rerunnable: Option[Rerunner], location: Option[Location]) {
     report(TestSucceeded(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(duration), Some(formatter),
-      location, theSuite.suiteRerunner))
+      location, theSuite.rerunner))
   }
 
   def reportTestIgnored(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], level: Int, location: Option[Location]) {

@@ -131,17 +131,17 @@ package org.scalatest.testng {
       }
     }
 
-    test("Report for passing tests should include suiteRerunner") { () =>
+    test("Report for passing tests should include rerunner") { () =>
       
       val testReporter = new TestReporter
 
       // when - run the passing suite
       new SuccessTestNGSuite().runTestNG(testReporter, new Tracker)
 
-      // then get suiteRerunner from report 
-      val suiteRerunner = testReporter.lastEvent.get.asInstanceOf[TestSucceeded].suiteRerunner
-      assert(suiteRerunner != None)
-      assert(suiteRerunner.get === classOf[SuccessTestNGSuite].getName)
+      // then get rerunner from report 
+      val rerunner = testReporter.lastEvent.get.asInstanceOf[TestSucceeded].rerunner
+      assert(rerunner != None)
+      assert(rerunner.get === classOf[SuccessTestNGSuite].getName)
     }
     
     

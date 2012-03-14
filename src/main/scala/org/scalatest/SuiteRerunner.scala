@@ -64,7 +64,7 @@ private[scalatest] class SuiteRerunner(suiteClassName: String) extends Rerunner 
         val rawString = Resources("suiteExecutionStarting")
         val formatter = formatterForSuiteStarting(suite)
 
-        report(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, formatter, Some(TopOfClass(suite.getClass.getName)), suite.suiteRerunner))
+        report(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, formatter, Some(TopOfClass(suite.getClass.getName)), suite.rerunner))
 
         suite.run(None, report, stopRequested, filter, configMap, distributor, tracker)
 
@@ -72,7 +72,7 @@ private[scalatest] class SuiteRerunner(suiteClassName: String) extends Rerunner 
         val formatter2 = formatterForSuiteCompleted(suite)
         val duration = System.currentTimeMillis - suiteStartTime
 
-        report(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(duration), formatter2, Some(TopOfClass(suite.getClass.getName)), suite.suiteRerunner))
+        report(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(duration), formatter2, Some(TopOfClass(suite.getClass.getName)), suite.rerunner))
       }
       catch {
         case e: RuntimeException => {
@@ -80,7 +80,7 @@ private[scalatest] class SuiteRerunner(suiteClassName: String) extends Rerunner 
           val formatter3 = formatterForSuiteAborted(suite, rawString3)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          report(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(e), Some(duration), formatter3, Some(SeeStackDepthException), suite.suiteRerunner))
+          report(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, suite.suiteId, Some(suite.getClass.getName), suite.decodedSuiteName, Some(e), Some(duration), formatter3, Some(SeeStackDepthException), suite.rerunner))
         }
       }
 
