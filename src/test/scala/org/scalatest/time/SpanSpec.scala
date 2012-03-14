@@ -734,4 +734,11 @@ class SpanSpec extends FunSpec with ShouldMatchers with SpanMatchers with Severe
       assert(Span(10, Milliseconds).hashCode == Span(10, Millis).hashCode)
     }
   }
+
+  describe("The max factory method") {
+    it("should return a Span with the maximum span length") {
+      Span.max should equal (Span(Long.MaxValue, Nanoseconds))
+    }
+  }
+
 }

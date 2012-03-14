@@ -331,7 +331,7 @@ import org.scalatest.Resources
  */
 final class Span private (totNanos: Long, lengthString: String, unitsResource: String, unitsName: String) {
 
-  private def this(length: Long, units: Units) {
+  private[time] def this(length: Long, units: Units) {
     this(
       totalNanosForLongLength(length, units),
       length.toString,
@@ -507,6 +507,20 @@ object Span {
    *     expressible with a <code>Span</code>
    */
   def apply(length: Double, units: Units): Span = new Span(length, units)
+
+  /**
+   * Returns a <code>Span</code> with the maximum expressible value, <code>Span(Long.MaxValue, Nanoseconds)</code>,
+   * which is approximately 292 years.
+   *
+   * <p>
+   * One use case for this factory method is to help convert a duration concept from a different library to
+   * <code>Span</code> when that library's duration concept includes a notion of infinite durations. An infinite
+   * duration can be converted to <code>Span.max</code>.
+   * </p>
+   *
+   * @return a <code>Span</code> with the maximum expressible value, <code>Long.MaxValue</code> nanoseconds.
+   */
+  def max: Span = new Span(Long.MaxValue, Nanoseconds)
 
   private def totalNanosForLongLength(length: Long, units: Units): Long = {
 
