@@ -620,7 +620,6 @@ object Runner {
           (if (configSet.contains(FilterTestPending)) {_ != PresentTestPending} else etp => true) filter
           (if (configSet.contains(FilterSuiteStarting)) {_ != PresentSuiteStarting} else etp => true) filter
           (if (configSet.contains(FilterSuiteCompleted)) {_ != PresentSuiteCompleted} else etp => true) filter
-          (if (configSet.contains(FilterSuiteIgnored)) {_ != PresentSuiteIgnored} else etp => true) filter
           (if (configSet.contains(FilterInfoProvided)) {_ != PresentInfoProvided} else etp => true) 
 
         val abq = new ArrayBlockingQueue[RunnerJFrame](1)
@@ -910,7 +909,6 @@ object Runner {
         case 'E' => set += FilterTestPending
         case 'H' => set += FilterSuiteStarting
         case 'L' => set += FilterSuiteCompleted
-        case 'J' => set += FilterSuiteIgnored
         case 'O' => set += FilterInfoProvided
         case 'W' => set += PresentWithoutColor
         case 'F' => set += PresentFullStackTraces

@@ -258,20 +258,6 @@ private[scalatest] class HtmlReporter(pw: PrintWriter, presentAllDurations: Bool
 
         val lines = stringsToPrintOnError("abortedNote", "suiteAborted", message, throwable, formatter, Some(suiteName), None, duration)
         for (line <- lines) printPossiblyInColor(line, ansiRed)
-
-      case SuiteIgnored(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, formatter, location, payload, threadName, timeStamp) => 
-        
-        val stringToPrint =
-          formatter match {
-            case Some(IndentedText(formattedText, _, _)) => Some(Resources("specTextAndNote", formattedText, Resources("ignoredNote")))
-            case Some(MotionToSuppress) => None
-            case _ => Some(Resources("suiteIgnored", suiteName))
-          }
- 
-        stringToPrint match {
-          case Some(string) => printPossiblyInColor(string, ansiYellow)
-          case None =>
-        }
         
       case TestStarting(ordinal, suiteName, suiteID, suiteClassName, decodedSuiteName, testName, testText, decodedTestName, formatter, location, rerunnable, payload, threadName, timeStamp) =>
 

@@ -106,7 +106,7 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
           Map.empty[String, Set[String]]
       }
     
-    val excludeIntersectSet = suiteTags intersect tagsToExclude
+    val excludeIntersectSet = suiteTags intersect (tagsToExclude + "org.scalatest.Ignore") 
     val excludeTestTags = 
       if (excludeIntersectSet.size > 0)
         Map() ++ suite.testNames.map(tn => (tn, excludeIntersectSet))

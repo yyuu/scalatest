@@ -585,7 +585,6 @@ private[scalatest] class DashboardReporter(directory: String,
 
         case e: SuiteCompleted => endSuite(e)
         case e: SuiteAborted   => endSuite(e)
-        case e: SuiteIgnored   => 
 
         case e: RunStarting    => unexpectedEvent(e)
         case e: RunCompleted   => unexpectedEvent(e)

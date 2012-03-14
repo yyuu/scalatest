@@ -57,29 +57,9 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
       case e: SuiteAborted =>
         events += event
         writeSuiteFile(e)
-
-      case e: SuiteIgnored =>
-        writeIgnoredSuiteFile(e)
         
       case _ =>
         events += event
-    }
-  }
-  
-  //
-  // Writes the xml file for a ignored test suite.
-  //
-  private def writeIgnoredSuiteFile(event: SuiteIgnored) {
-    if (events.size > 0) {
-      val xmlStr = xmlify(event)
-      val ignoreDir = new File(directory + "/ignored-suites")
-      if (!ignoreDir.exists)
-        ignoreDir.mkdir()
-      val filespec = directory  + "/ignored-suites/" + getSuiteIgnoredName(event) + ".xml"
-      
-      val out = new PrintWriter(filespec, "UTF-8")
-      out.print(xmlStr)
-      out.close()
     }
   }
 
@@ -316,28 +296,6 @@ private[scalatest] class XmlReporter(directory: String) extends Reporter {
     testcase.time = 0
     testcase.ignored = true
     testcase
-  }
-  
-  private def getSuiteIgnoredName(event: SuiteIgnored) = {
-    event.suiteClassName match {
-      case Some(suiteClassName) => suiteClassName
-      case None => event.suiteName
-    }
-  }
-
-  //
-  // Creates an xml string describing list of ignored suites
-  //
-  def xmlify(event: SuiteIgnored): String = {
-    val xmlVal = 
-      <testsuite
-        hostname  = { "" + findHostname                     }
-        name      = { "" + getSuiteIgnoredName(event)       }
-        timestamp = { "" + formatTimeStamp(event.timeStamp) } />
-        
-    val prettified = (new xml.PrettyPrinter(76, 2)).format(xmlVal)
-    
-    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + prettified
   }
   
   //

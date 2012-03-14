@@ -86,7 +86,6 @@ private[tools] class IconEmbellishedListCellRenderer extends ListCellRenderer {
     val suiteStartingIcon = cyanImageIcon
     val suiteCompletedIcon = cyanImageIcon
     val suiteAbortedIcon = redImageIcon
-    val suiteIgnoredIcon = yellowImageIcon
     val infoProvidedIcon = blueImageIcon
     val scopeOpenedIcon = blueImageIcon
     val scopeClosedIcon = blueImageIcon
@@ -102,7 +101,6 @@ private[tools] class IconEmbellishedListCellRenderer extends ListCellRenderer {
     val suiteStartingSelIcon = cyanSelImageIcon
     val suiteCompletedSelIcon = cyanSelImageIcon
     val suiteAbortedSelIcon = redSelImageIcon
-    val suiteIgnoredSelIcon = yellowSelImageIcon
     val infoProvidedSelIcon = blueSelImageIcon
     val scopeOpenedSelIcon = blueSelImageIcon
     val scopeClosedSelIcon = blueSelImageIcon
@@ -200,12 +198,6 @@ private[tools] class IconEmbellishedListCellRenderer extends ListCellRenderer {
           renderer.setIcon(Icons.suiteCompletedSelIcon)
         else
           renderer.setIcon(Icons.suiteCompletedIcon)
-      }
-      case _: SuiteIgnored => {
-        if (isSelected)
-          renderer.setIcon(Icons.suiteIgnoredSelIcon)
-        else
-          renderer.setIcon(Icons.suiteIgnoredIcon)
       }
       case _: InfoProvided => {
         if (isSelected)

@@ -438,7 +438,11 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     
     class NoTagSuite extends Suite
     @Ignore
-    class IgnoreSuite extends Suite
+    class IgnoreSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
     @SlowAsMolasses
     class SlowAsMolassesSuite extends Suite
     @FastAsLight
@@ -464,35 +468,32 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     val defaultFilter = new Filter(None, Set.empty)
     val defaultReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(defaultReporter, new Stopper {}, defaultFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(defaultReporter.suiteStartingEventsReceived.size === 3)
-    assert(defaultReporter.suiteIgnoredEventsReceived.size === 1)
+    assert(defaultReporter.suiteStartingEventsReceived.size === 4)
+    assert(defaultReporter.testIgnoredEventsReceived.size === 3)
     val defaultReporterDist = new EventRecordingReporter
     val defaultDistributor = new CounterDistributor
     masterSuite.runNestedSuites(defaultReporterDist, new Stopper {}, defaultFilter, Map.empty, Some(defaultDistributor), new Tracker(new Ordinal(99)))
-    assert(defaultDistributor.count === 3)
-    assert(defaultReporterDist.suiteIgnoredEventsReceived.size === 1)
+    assert(defaultDistributor.count === 4)
     
     val includeFilter = new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)
     val includeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(includeReporter, new Stopper {}, includeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(includeReporter.suiteStartingEventsReceived.size === 3) // Filter.apply(Suite) does not look at tagsToInclude
-    assert(includeReporter.suiteIgnoredEventsReceived.size === 1) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeReporter.suiteStartingEventsReceived.size === 4) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeReporter.testIgnoredEventsReceived.size === 0) // Filter.apply(Test) does look at tagsToInclude
     val includeReporterDist = new EventRecordingReporter
     val includeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(includeReporterDist, new Stopper {}, includeFilter, Map.empty, Some(includeDistributor), new Tracker(new Ordinal(99)))
-    assert(includeDistributor.count === 3) // Filter.apply(Suite) does not look at tagsToInclude
-    assert(includeReporterDist.suiteIgnoredEventsReceived.size === 1) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeDistributor.count === 4) // Filter.apply(Suite) does not look at tagsToInclude
     
     val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
     val excludeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(excludeReporter, new Stopper {}, excludeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(excludeReporter.suiteStartingEventsReceived.size === 2)
-    assert(excludeReporter.suiteIgnoredEventsReceived.size === 1)
+    assert(excludeReporter.suiteStartingEventsReceived.size === 3)
+    assert(excludeReporter.testIgnoredEventsReceived.size === 3)
     val excludeReporterDist = new EventRecordingReporter
     val excludeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
-    assert(excludeDistributor.count === 2)
-    assert(excludeReporterDist.suiteIgnoredEventsReceived.size === 1)
+    assert(excludeDistributor.count === 3)
   }
   
   def testExpectedTestCount() {

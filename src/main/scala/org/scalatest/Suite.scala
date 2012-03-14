@@ -29,7 +29,6 @@ import Suite.simpleNameForTest
 import Suite.parseSimpleName
 import Suite.stripDollars
 import Suite.formatterForSuiteStarting
-import Suite.formatterForSuiteIgnored
 import Suite.formatterForSuiteCompleted
 import Suite.checkForPublicNoArgConstructor
 import Suite.formatterForSuiteAborted
@@ -2467,24 +2466,12 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         case None =>
           val nestedSuitesArray = filteredNestedSuites.toArray
           for ((nestedSuite, ignored) <- nestedSuitesArray) {
-            if (!stopRequested()) {
-              if (ignored) {
-                val formatter = formatterForSuiteIgnored(nestedSuite)
-                report(SuiteIgnored(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName))))
-              }
-              else
-                callExecuteOnSuite(nestedSuite)
-            }
+            if (!stopRequested()) 
+              callExecuteOnSuite(nestedSuite)
           }
         case Some(distribute) =>
-          for ((nestedSuite, ignored) <- filteredNestedSuites) {
-            if (ignored) {
-              val formatter = formatterForSuiteIgnored(nestedSuite)
-              report(SuiteIgnored(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName))))
-            }
-            else
-              distribute(nestedSuite, tracker.nextTracker(), filter)
-          }
+          for ((nestedSuite, ignored) <- filteredNestedSuites) 
+            distribute(nestedSuite, tracker.nextTracker(), filter)
       }
     }
   }
@@ -2793,9 +2780,6 @@ private[scalatest] object Suite {
 
   private[scalatest] def formatterForSuiteAborted(suite: Suite, message: String): Option[Formatter] =
       Some(IndentedText(message, message, 0))
-      
-  private[scalatest] def formatterForSuiteIgnored(suite: Suite): Option[Formatter] =
-      Some(IndentedText(suite.suiteName + ":", suite.suiteName, 0))
 
   private def simpleNameForTest(testName: String) =
     if (testName.endsWith(InformerInParens))
