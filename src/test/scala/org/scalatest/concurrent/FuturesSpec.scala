@@ -26,6 +26,30 @@ import time.{Milliseconds, Millisecond, Millis, Span}
 
 class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with JavaFutures with SeveredStackTraces {
 
+  describe("A Future") {
+
+    class SuperFutureOfJava extends FutureOfJava[String] {
+      def cancel(mayInterruptIfRunning: Boolean): Boolean = false
+      def get: String = "hi"
+      def get(timeout: Long, unit: TimeUnit): String = "hi"
+      def isCancelled: Boolean = false
+      def isDone: Boolean = true
+    }
+   /*
+    it("can be queried to make sure it is ready within a certain time span") {
+      // isReadyWithin(Span): Boolean
+      val future = new SuperFutureOfJava
+      assert(future.isReadyWithin(Span(1, Millisecond)))
+    }
+
+    it("can be asked to wait until ready, but limiting waiting to within a specified time span") {
+      // isReadyWithin(Span): Boolean
+      val future = new SuperFutureOfJava
+      val result = future.awaitAtMost(Span(1, Millisecond))
+      assert(result === "hi")
+    }  */
+  }
+
   describe("The whenReady construct") {
 
     class SuperFutureOfJava extends FutureOfJava[String] {
@@ -204,7 +228,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Jav
     }
 
     it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-      implicit val retryConfig = RetryConfig(timeout = Span(1500, Millis))
+      implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
 
       var startTime = System.currentTimeMillis
       evaluating {
@@ -226,7 +250,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Jav
     }
 
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-      implicit val retryConfig = RetryConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
+      implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
       
       var startTime = System.currentTimeMillis
       evaluating {
@@ -238,7 +262,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Jav
     }
     
     it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-      implicit val retryConfig = RetryConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
+      implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
       
       var startTime = System.currentTimeMillis
       evaluating {

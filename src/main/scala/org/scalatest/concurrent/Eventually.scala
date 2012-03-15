@@ -113,7 +113,7 @@ import scala.annotation.tailrec
  * </table>
  *
  * <p>
- * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>RetryConfig</code>
+ * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>TimeoutConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
  * <code>Eventually</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
  * configuration parameter set to its default value. 
@@ -126,7 +126,7 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit override val retryConfig =
- *   RetryConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ *   TimeoutConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -135,13 +135,13 @@ import scala.annotation.tailrec
  *
  * <pre class="stHighlight">
  * implicit val retryConfig =
- *   RetryConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ *   TimeoutConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
- * In addition to taking a <code>RetryConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
+ * In addition to taking a <code>TimeoutConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
  * <code>Eventually</code> include overloaded forms that take one or two <code>RetryConfigParam</code>
- * objects that you can use to override the values provided by the implicit <code>RetryConfig</code> for a single <code>eventually</code>
+ * objects that you can use to override the values provided by the implicit <code>TimeoutConfig</code> for a single <code>eventually</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>eventually</code> invocation,
  * you can do so like this:
  * </p>
@@ -152,7 +152,7 @@ import scala.annotation.tailrec
  *
  * <p>
  * This invocation of <code>eventually</code> will use 5 seconds for the <code>timeout</code> and whatever value is specified by the
- * implicitly passed <code>RetryConfig</code> object for the <code>interval</code> configuration parameter.
+ * implicitly passed <code>TimeoutConfig</code> object for the <code>interval</code> configuration parameter.
  * If you want to set both configuration parameters in this way, just list them separated by commas:
  * </p>
  * 
@@ -172,7 +172,7 @@ import scala.annotation.tailrec
  * @author Bill Venners
  * @author Chua Chee Seng
  */
-trait Eventually extends RetryConfiguration {
+trait Eventually extends TimeoutConfiguration {
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -197,12 +197,12 @@ trait Eventually extends RetryConfiguration {
    * @param timeout the <code>Timeout</code> configuration parameter
    * @param interval the <code>Interval</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config an <code>RetryConfig</code> object containing <code>timeout</code> and
+   * @param config an <code>TimeoutConfig</code> object containing <code>timeout</code> and
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](timeout: Timeout, interval: Interval)(fun: => T)(implicit config: RetryConfig): T =
-    eventually(fun)(RetryConfig(timeout.value, interval.value))
+  def eventually[T](timeout: Timeout, interval: Interval)(fun: => T)(implicit config: TimeoutConfig): T =
+    eventually(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -227,12 +227,12 @@ trait Eventually extends RetryConfiguration {
    * @param interval the <code>Interval</code> configuration parameter
    * @param timeout the <code>Timeout</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config an <code>RetryConfig</code> object containing <code>timeout</code> and
+   * @param config an <code>TimeoutConfig</code> object containing <code>timeout</code> and
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](interval: Interval, timeout: Timeout)(fun: => T)(implicit config: RetryConfig): T =
-    eventually(fun)(RetryConfig(timeout.value, interval.value))
+  def eventually[T](interval: Interval, timeout: Timeout)(fun: => T)(implicit config: TimeoutConfig): T =
+    eventually(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -251,17 +251,17 @@ trait Eventually extends RetryConfiguration {
    * <code>TestFailedException</code> is configured by the value contained in the passed
    * <code>timeout</code> parameter.
    * The interval to sleep between attempts is configured by the <code>interval</code> field of
-   * the <code>RetryConfig</code> passed implicitly as the last parameter.
+   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
    * </p>
    *
    * @param timeout the <code>Timeout</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>RetryConfig</code> object containing the (unused) <code>timeout</code> and
+   * @param config the <code>TimeoutConfig</code> object containing the (unused) <code>timeout</code> and
    *          (used) <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](timeout: Timeout)(fun: => T)(implicit config: RetryConfig): T =
-    eventually(fun)(RetryConfig(timeout.value, config.interval))
+  def eventually[T](timeout: Timeout)(fun: => T)(implicit config: TimeoutConfig): T =
+    eventually(fun)(TimeoutConfig(timeout.value, config.interval))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -277,19 +277,19 @@ trait Eventually extends RetryConfiguration {
    *
    * <p>
    * The maximum amount of time in milliseconds to tolerate unsuccessful attempts before giving up is configured by the <code>timeout</code> field of
-   * the <code>RetryConfig</code> passed implicitly as the last parameter.
+   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
    * The interval to sleep between attempts is configured by the value contained in the passed
    * <code>interval</code> parameter.
    * </p>
    *
    * @param interval the <code>Interval</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>RetryConfig</code> object containing the (used) <code>timeout</code> and
+   * @param config the <code>TimeoutConfig</code> object containing the (used) <code>timeout</code> and
    *          (unused) <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](interval: Interval)(fun: => T)(implicit config: RetryConfig): T =
-    eventually(fun)(RetryConfig(config.timeout, interval.value))
+  def eventually[T](interval: Interval)(fun: => T)(implicit config: TimeoutConfig): T =
+    eventually(fun)(TimeoutConfig(config.timeout, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -305,17 +305,17 @@ trait Eventually extends RetryConfiguration {
    *
    * <p>
    * The maximum amount of time in milliseconds to tolerate unsuccessful attempts before giving up is configured by the <code>timeout</code> field of
-   * the <code>RetryConfig</code> passed implicitly as the last parameter.
+   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
    * The interval to sleep between attempts is configured by the <code>interval</code> field of
-   * the <code>RetryConfig</code> passed implicitly as the last parameter.
+   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
    * </p>
    *
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>RetryConfig</code> object containing the <code>timeout</code> and
+   * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
    *          <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](fun: => T)(implicit config: RetryConfig): T = {
+  def eventually[T](fun: => T)(implicit config: TimeoutConfig): T = {
     val startNanos = System.nanoTime
     def makeAValiantAttempt(): Either[Throwable, T] = {
       try {

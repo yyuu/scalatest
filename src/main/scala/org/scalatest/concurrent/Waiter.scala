@@ -211,7 +211,7 @@ class Waiter {
       throw new TestFailedException(Resources("awaitTimedOut"), 1)
   } // This has an interval and a timeout, just like Eventually and Futures. Hmm...
   // I think it makes sense. Have overloaded await calls? Or just use nulls? And take
-  // a RetryConfig. Dismissals default can be 1. But that means I need the timeout and interval methods,
+  // a TimeoutConfig. Dismissals default can be 1. But that means I need the timeout and interval methods,
   // just like Eventually and Futures, and I need a dismissals method to make it consistent.
   
   /**

@@ -27,13 +27,20 @@ import scala.annotation.tailrec
 import time.{Millis, Second, Span}
 
 /**
- * Trait providing methods and classes used to configure retries performed by the
- * the <code>eventually</code> methods of trait <a href="Eventually.html"><code>Eventually</code></a>
- * and the <code>whenReady</code> methods of trait <a href="Futures.html"><code>Futures</code></a>.
+ * Trait providing methods and classes used to configure timeouts and, where relevant, the interval
+ * between retries.
+ *
+ * <p>
+ * Timeouts are used by the <code>eventually</code> methods of trait
+ * <a href="Eventually.html"><code>Eventually</code></a>, the <code>whenReady</code> methods of trait
+ * <a href="Futures.html"><code>Futures</code></a>, the <code>awaitResult</code> method of
+ * trait <a href="Futures$FutureConcept.html"><code>Futures.FutureConcept</code></a>, and the <code>await</code> method of trait
+ * <a href="Waiter.html"><code>Waiter</code></a>.
+ * </p>
  *
  * @author Bill Venners
  */
-trait RetryConfiguration {
+trait TimeoutConfiguration {
 
   /**
    * Configuration object for traits <code>Eventually</code> and <code>Futures</code>.
@@ -68,7 +75,7 @@ trait RetryConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class RetryConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis))
+  final case class TimeoutConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis))
 
   /**
    * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>Futures</code>.
@@ -109,14 +116,14 @@ trait RetryConfiguration {
   case class Interval(value: Span) extends RetryConfigParam
 
   /**
-   * Implicit <code>RetryConfig</code> value providing default configuration values.
+   * Implicit <code>TimeoutConfig</code> value providing default configuration values.
    *
    * <p>
    * To change the default configuration, override or hide this <code>val</code> with another implicit
-   * <code>RetryConfig</code> containing your desired default configuration values.
+   * <code>TimeoutConfig</code> containing your desired default configuration values.
    * </p>
    */
-  implicit val retryConfig = RetryConfig()
+  implicit val retryConfig = TimeoutConfig()
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which

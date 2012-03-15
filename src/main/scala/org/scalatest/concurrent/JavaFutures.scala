@@ -4,16 +4,16 @@ import org.scalatest.time.Span
 import java.util.concurrent.{TimeUnit, Future => FutureOfJava}
 
 /**
- * Provides an implicit conversion from <code>java.util.concurrent.Future</code> to
- * <code>org.scalatest.concurrent.FutureConcept</code>.
+ * Provides an implicit conversion from <code>java.util.concurrent.Future[T]</code> to
+ * <code>FutureConcept[T]</code>.
  */
 trait JavaFutures extends Futures {
 
   /**
    * Implicitly converts a <code>java.util.concurrent.Future[T]</code> to
-   * <code>org.scalatest.concurrent.FutureConcept[T]</code>, allowing you to invoke the methods
+   * <code>FutureConcept[T]</code>, allowing you to invoke the methods
    * defined on <code>FutureConcept</code> on a Java <code>Future</code>, as well as to pass a Java future
-   * to the <code>whenReady</code> methods of trait <code>Futures</code>.
+   * to the <code>whenReady</code> methods of supertrait <code>Futures</code>.
    *
    * @param javaFuture a <code>java.util.concurrent.Future[T]</code> to convert
    */
