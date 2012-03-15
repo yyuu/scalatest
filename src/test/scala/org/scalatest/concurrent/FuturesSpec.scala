@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import org.scalatest._
 import time.{Milliseconds, Millisecond, Millis, Span}
 
-class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Futures with JavaFutures with SeveredStackTraces {
+class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with JavaFutures with SeveredStackTraces {
 
   describe("The whenReady construct") {
 
