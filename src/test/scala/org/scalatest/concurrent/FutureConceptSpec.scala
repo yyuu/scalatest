@@ -2,10 +2,10 @@ package org.scalatest.concurrent
 
 import java.util.concurrent.{Future => FutureOfJava}
 import java.util.concurrent.TimeUnit
-import org.scalatest.FunSpec
 import org.scalatest.time.{Span, Millisecond}
+import org.scalatest.{SeveredStackTraces, FunSpec}
 
-class FutureConceptSpec extends FunSpec with JavaFutures {
+class FutureConceptSpec extends FunSpec with JavaFutures with SeveredStackTraces {
 
   describe("A Future") {
 
@@ -17,7 +17,7 @@ class FutureConceptSpec extends FunSpec with JavaFutures {
       def isDone: Boolean = true
     }
 
-    ignore("can be queried to make sure it is ready within a certain time span") {
+    it("can be queried to make sure it is ready within a certain time span") {
       // isReadyWithin(Span): Boolean
       val future = new SuperFutureOfJava
       assert(future.isReadyWithin(Span(1, Millisecond)))

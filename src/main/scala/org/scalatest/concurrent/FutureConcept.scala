@@ -55,7 +55,10 @@ trait FutureConcept[T] {
    */
   def isCanceled: Boolean
 
-  def isReadyWithin(span: Span): Boolean = false
+  def isReadyWithin(span: Span): Boolean = {
+    awaitAtMost(span)
+    true
+  }
 
   def awaitAtMost(span: Span): T
 }
