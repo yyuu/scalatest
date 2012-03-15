@@ -196,7 +196,7 @@ trait Futures extends TimeoutConfiguration {
    *
    * @author Bill Venners
    */
-  trait FutureConcept[T] {
+  trait FutureConcept[T] { thisFuture =>
 
     /**
      * Queries this future for its value.
@@ -232,8 +232,214 @@ trait Futures extends TimeoutConfiguration {
       awaitAtMost(span)
       true
     }
+  */
 
-    def awaitAtMost(span: Span): T      */
+    /**
+     * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
+     * exception returned by the future (<em>i.e.</em>, <code>value</code> returned a <code>Left</code>)
+     * or <code>TestFailedException</code>.
+     *
+     * <p>
+     * The maximum amount of time to wait for the future to become ready before giving up and throwing
+     * <code>TestFailedException</code> is configured by the value contained in the passed
+     * <code>timeout</code> parameter.
+     * The interval to sleep between queries of the future (used only if the future is polled) is configured by the value contained in the passed
+     * <code>interval</code> parameter.
+     * </p>
+     *
+     * <p>
+     * This method invokes the overloaded <code>awaitResult</code> form with only one (implicit) argument
+     * list that contains only one argument, a <code>TimeoutConfig</code>, passing a new
+     * <code>TimeoutConfig</code> with the <code>Timeout</code> specified as <code>timeout</code> and
+     * the <code>Interval</code> specified as <code>interval</code>.
+     * </p>
+     *
+     * @param timeout the <code>Timeout</code> configuration parameter
+     * @param interval the <code>Interval</code> configuration parameter
+     * @return the result of the future once it is ready, if <code>value</code> is defined as a <code>Right</code>
+     * @throws Throwable if once ready, the <code>value</code> of this future is defined as a
+     *       <code>Left</code> (in this case, this method throws that same exception)
+     * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
+     *     the specified timeout has been exceeded
+     */
+    final def awaitResult(timeout: Timeout, interval: Interval): T =
+      awaitResult(TimeoutConfig(timeout.value, interval.value))
+
+    /**
+     * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
+     * exception returned by the future (<em>i.e.</em>, <code>value</code> returned a <code>Left</code>)
+     * or <code>TestFailedException</code>.
+     *
+     * <p>
+     * The maximum amount of time to wait for the future to become ready before giving up and throwing
+     * <code>TestFailedException</code> is configured by the value contained in the passed
+     * <code>timeout</code> parameter.
+     * The interval to sleep between queries of the future (used only if the future is polled) is configured by the value contained in the passed
+     * <code>interval</code> parameter.
+     * </p>
+     *
+     * <p>
+     * This method invokes the overloaded <code>awaitResult</code> form with only one (implicit) argument
+     * list that contains only one argument, a <code>TimeoutConfig</code>, passing a new
+     * <code>TimeoutConfig</code> with the <code>Timeout</code> specified as <code>timeout</code> and
+     * the <code>Interval</code> specified as <code>interval</code>.
+     * </p>
+     *
+     * @param interval the <code>Interval</code> configuration parameter
+     * @param timeout the <code>Timeout</code> configuration parameter
+     * @return the result of the future once it is ready, if <code>value</code> is defined as a <code>Right</code>
+     * @throws Throwable if once ready, the <code>value</code> of this future is defined as a
+     *       <code>Left</code> (in this case, this method throws that same exception)
+     * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
+     *     the specified timeout has been exceeded
+     */
+    final def awaitResult(interval: Interval, timeout: Timeout): T =
+      awaitResult(TimeoutConfig(timeout.value, interval.value))
+
+    /**
+     * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
+     * exception returned by the future (<em>i.e.</em>, <code>value</code> returned a <code>Left</code>)
+     * or <code>TestFailedException</code>.
+     *
+     * <p>
+     * The maximum amount of time to wait for the future to become ready before giving up and throwing
+     * <code>TestFailedException</code> is configured by the value contained in the passed
+     * <code>timeout</code> parameter.
+     * The interval to sleep between queries of the future (used only if the future is polled) is configured by the <code>interval</code> field of
+     * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+     * </p>
+     *
+     * <p>
+     * This method invokes the overloaded <code>awaitResult</code> form with only one (implicit) argument
+     * list that contains only one argument, a <code>TimeoutConfig</code>, passing a new
+     * <code>TimeoutConfig</code> with the <code>Timeout</code> specified as <code>timeout</code> and
+     * the <code>Interval</code> specified as <code>config.interval</code>.
+     * </p>
+     *
+     * @param timeout the <code>Timeout</code> configuration parameter
+     * @param config an <code>TimeoutConfig</code> object containing <code>timeout</code> and
+     *          <code>interval</code> parameters that are unused by this method
+     * @return the result of the future once it is ready, if <code>value</code> is defined as a <code>Right</code>
+     * @throws Throwable if once ready, the <code>value</code> of this future is defined as a
+     *       <code>Left</code> (in this case, this method throws that same exception)
+     * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
+     *     the specified timeout has been exceeded
+     */
+    final def awaitResult(timeout: Timeout)(implicit config: TimeoutConfig): T =
+      awaitResult(TimeoutConfig(timeout.value, config.interval))
+
+    /**
+     * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
+     * exception returned by the future (<em>i.e.</em>, <code>value</code> returned a <code>Left</code>)
+     * or <code>TestFailedException</code>.
+     *
+     * <p>
+     * The maximum amount of time to wait for the future to become ready before giving up and throwing
+     * <code>TestFailedException</code> is configured by the <code>timeout</code> field of
+     * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+     * The interval to sleep between queries of the future (used only if the future is polled) is configured by the value contained in the passed
+     * <code>interval</code> parameter.
+     * </p>
+     *
+     * <p>
+     * This method invokes the overloaded <code>awaitResult</code> form with only one (implicit) argument
+     * list that contains only one argument, a <code>TimeoutConfig</code>, passing a new
+     * <code>TimeoutConfig</code> with the <code>Interval</code> specified as <code>interval</code> and
+     * the <code>Timeout</code> specified as <code>config.timeout</code>.
+     * </p>
+     *
+     * @param interval the <code>Interval</code> configuration parameter
+     * @param config an <code>TimeoutConfig</code> object containing <code>timeout</code> and
+     *          <code>interval</code> parameters that are unused by this method
+     * @return the result of the future once it is ready, if <code>value</code> is defined as a <code>Right</code>
+     * @throws Throwable if once ready, the <code>value</code> of this future is defined as a
+     *       <code>Left</code> (in this case, this method throws that same exception)
+     * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
+     *     the specified timeout has been exceeded
+     */
+    final def awaitResult(interval: Interval)(implicit config: TimeoutConfig): T =
+      awaitResult(TimeoutConfig(config.timeout, interval.value))
+
+    /**
+     * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
+     * exception returned by the future (<em>i.e.</em>, <code>value</code> returned a <code>Left</code>)
+     * or <code>TestFailedException</code>.
+     *
+     * <p>
+     * This trait's implementation of this method queries the future repeatedly until it either is
+     * ready, or a configured maximum amount of time has passed, sleeping a configured interval between
+     * attempts; and when ready, returns the future's value. For greater efficiency, implementations of
+     * this trait may override this method so that it blocks the specified timeout while waiting for
+     * the result, if the underlying future supports this.
+     * </p>
+     *
+     * <p>
+     * The maximum amount of time to wait for the future to become ready before giving up and throwing
+     * <code>TestFailedException</code> is configured by the <code>timeout</code> field of
+     * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+     * The interval to sleep between queries of the future (used only if the future is polled) is configured by the <code>interval</code> field of
+     * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+     * </p>
+     *
+     * @param config an <code>TimeoutConfig</code> object containing <code>timeout</code> and
+     *          <code>interval</code> parameters that are unused by this method
+     * @return the result of the future once it is ready, if <code>value</code> is defined as a <code>Right</code>
+     * @throws Throwable if once ready, the <code>value</code> of this future is defined as a
+     *       <code>Left</code> (in this case, this method throws that same exception)
+     * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
+     *     the specified timeout has been exceeded
+     */
+    def awaitResult(implicit config: TimeoutConfig): T = {
+      val startNanos = System.nanoTime
+
+      @tailrec
+      def tryTryAgain(attempt: Int): T = {
+        val timeout = config.timeout
+        val interval = config.interval
+        if (thisFuture.isCanceled)
+          throw new TestFailedException(
+            sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
+            None,
+            getStackDepthFun("Futures.scala", "whenReady")
+          )
+        if (thisFuture.isExpired)
+          throw new TestFailedException(
+            sde => Some(Resources("futureExpired", attempt.toString, interval.prettyString)),
+            None,
+            getStackDepthFun("Futures.scala", "whenReady")
+          )
+        thisFuture.value match {
+          case Some(Right(v)) => v
+          case Some(Left(tpe: TestPendingException)) => throw tpe // TODO: In 2.0 add TestCanceledException here
+          case Some(Left(e)) if anErrorThatShouldCauseAnAbort(e) => throw e
+          case Some(Left(e)) =>
+            throw new TestFailedException(
+              sde => Some {
+                if (e.getMessage == null)
+                  Resources("futureReturnedAnException", e.getClass.getName)
+                else
+                  Resources("futureReturnedAnExceptionWithMessage", e.getClass.getName, e.getMessage)
+              },
+              Some(e),
+              getStackDepthFun("Futures.scala", "whenReady")
+            )
+          case None =>
+            val duration = System.nanoTime - startNanos
+            if (duration < timeout.totalNanos)
+              Thread.sleep(interval.millisPart, interval.nanosPart)
+            else {
+              throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
+                sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
+                None,
+                getStackDepthFun("Futures.scala", "whenReady")
+              )
+            }
+
+            tryTryAgain(attempt + 1)
+        }
+      }
+      tryTryAgain(1)
+    }
   }
 
   /**
