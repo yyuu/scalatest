@@ -20,8 +20,8 @@ package org.scalatest
  * testTags is a map from String suiteId to a map, whose keys are testnames and values the tags for that test.
  */
 case class DynaTags(suiteTags: Map[String, Set[String]], testTags: Map[String, Map[String, Set[String]]]) {
-  if (dynaTags.suiteTags == null)
+  if (suiteTags == null)
     throw new NullPointerException("suiteTags was null")
-  if (dynaTags.testTags == null)
+  if (testTags == null)
     throw new NullPointerException("testTags was null")
 }

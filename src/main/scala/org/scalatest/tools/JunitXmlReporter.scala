@@ -17,16 +17,17 @@ package org.scalatest.tools
 
 import org.scalatest._
 import org.scalatest.events._
+
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Enumeration
 import java.util.Properties
 import java.net.UnknownHostException
 import java.net.InetAddress
+
 import scala.collection.mutable.Set
 import scala.collection.mutable.ListBuffer
 import scala.xml
-import java.io.File
 
 /**
  * A <code>Reporter</code> that writes test status information in XML format
@@ -50,18 +51,16 @@ private[scalatest] class JunitXmlReporter(directory: String) extends Reporter {
   // of SuiteCompleted or SuiteAborted events.
   //
   def apply(event: Event) {
+    events += event
 
     event match {
       case e: SuiteCompleted =>
-        events += event
         writeSuiteFile(e)
 
       case e: SuiteAborted =>
-        events += event
         writeSuiteFile(e)
 
       case _ =>
-        events += event
     }
   }
 
