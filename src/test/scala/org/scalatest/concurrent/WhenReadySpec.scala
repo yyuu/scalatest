@@ -129,6 +129,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           def value = Some(Right(99))
           def isCanceled = false
           def isExpired = true
+          def awaitAtMost(span: Span) = 99
         }
       val caught = evaluating {
         whenReady(expiredFuture) { s =>
@@ -255,6 +256,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
+          def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
         }
       val caught =
         intercept[TestFailedException] {
@@ -275,6 +277,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
+          def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
         }
       intercept[VirtualMachineError] {
         whenReady(vmeFuture) { s =>
@@ -290,6 +293,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
           def isExpired: Boolean = false
           def isCanceled: Boolean = false
+          def awaitAtMost(span: Span): String = throw new TestPendingException
         }
       intercept[TestPendingException] {
         whenReady(tpeFuture) { s =>

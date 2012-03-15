@@ -15,6 +15,8 @@
  */
 package org.scalatest.concurrent
 
+import org.scalatest.time.Span
+
 /**
  * Concept trait for futures, instances of which are passed to the <code>whenReady</code>
  * methods of trait <code>WhenReady</code>.
@@ -52,4 +54,8 @@ trait FutureConcept[T] {
    * </p>
    */
   def isCanceled: Boolean
+
+  def isReadyWithin(span: Span): Boolean = false
+
+  def awaitAtMost(span: Span): T
 }

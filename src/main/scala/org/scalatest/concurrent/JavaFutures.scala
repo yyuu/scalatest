@@ -1,6 +1,7 @@
 package org.scalatest.concurrent
 
-import java.util.concurrent.{Future => FutureOfJava}
+import org.scalatest.time.Span
+import java.util.concurrent.{TimeUnit, Future => FutureOfJava}
 
 trait JavaFutures {
 
@@ -20,5 +21,7 @@ trait JavaFutures {
           None
       def isExpired: Boolean = false // Java Futures don't support the notion of a timeout
       def isCanceled: Boolean = futureOfJava.isCancelled // Two ll's in Canceled. The verbosity of Java strikes again!
+      // TODO: Catch TimeoutException and wrap that in a TFE with ScalaTest's TimeoutException I think.
+      def awaitAtMost(span: Span): T = futureOfJava.get(span.totalNanos, TimeUnit.NANOSECONDS)
     }
 }
