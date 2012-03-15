@@ -458,8 +458,11 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     
     class CounterDistributor extends Distributor {
       var count = 0
-      override def apply(suite: Suite, tracker: Tracker, filter: Filter) {
+      def apply(suite: Suite, tracker: Tracker, filter: Filter) {
         count += 1
+      }
+      def apply(suite: Suite, tracker: Tracker) {
+        throw new UnsupportedOperationException("ConcurrentDistributor does not support this operation, please use apply(suite: Suite, tracker: Tracker, filter: Filter) instead.")
       }
     }
     

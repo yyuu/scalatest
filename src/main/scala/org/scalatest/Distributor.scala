@@ -36,7 +36,18 @@ package org.scalatest
  *
  * @author Bill Venners
  */
-trait Distributor /* extends ((Suite, Tracker) => Unit) */ {
+trait Distributor /*extends ((Suite, Tracker, Filter) => Unit)*/  {
+  
+  /**
+   * Puts a <code>Suite</code> into the <code>Distributor</code>.
+   *
+   * @param suite the <code>Suite</code> to put into the <code>Distributor</code>.
+   * @param tracker a <code>Tracker</code> to pass to the <code>Suite</code>'s <code>run</code> method.
+   *
+   * @throws NullPointerException if either <code>suite</code> or <code>tracker</code> is <code>null</code>.
+   */
+  @deprecated("Please use the apply method that takes a filter instead, the one with this signature: def apply(suite: Suite, tracker: Tracker, filter: Filter)")
+  def apply(suite: Suite, tracker: Tracker)
 
   /**
    * Puts a <code>Suite</code> into the <code>Distributor</code>.

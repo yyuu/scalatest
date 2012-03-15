@@ -30,6 +30,10 @@ private[scalatest] class ConcurrentDistributor(dispatchReporter: DispatchReporte
     configMap: Map[String, Any], execSvc: ExecutorService) extends Distributor {
 
   private val futureQueue = new LinkedBlockingQueue[Future[T] forSome { type T }]
+  
+  def apply(suite: Suite, tracker: Tracker) {
+    throw new UnsupportedOperationException("ConcurrentDistributor does not support this operation, please use apply(suite: Suite, tracker: Tracker, filter: Filter) instead.")
+  }
 
   def apply(suite: Suite, tracker: Tracker, filter: Filter) {
     val suiteRunner = new SuiteRunner(suite, dispatchReporter, stopper, filter, configMap, Some(this), tracker)
