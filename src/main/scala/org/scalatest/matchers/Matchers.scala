@@ -96,7 +96,7 @@ private[scalatest] object Helper {
     }
   }
 
-  def transformOperatorChars(s: String) = {
+  def transformOperatorChars(s: String): String = {
     val builder = new StringBuilder
     for (i <- 0 until s.length) {
       val ch = s.charAt(i)
@@ -232,7 +232,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def and[U <: T](rightMatcher: Matcher[U]): Matcher[U] =
       new Matcher[U] {
-        def apply(left: U) = {
+        def apply(left: U): MatchResult = {
           val leftMatchResult = leftMatcher(left)
           val rightMatchResult = rightMatcher(left) // Not short circuiting anymore
           if (!leftMatchResult.matches)
@@ -271,7 +271,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def length(expectedLength: Long) = and(have.length(expectedLength))
+      def length(expectedLength: Long): Matcher[T with AnyRef] = and(have.length(expectedLength))
 
       /**
        * This method enables the following syntax:
@@ -281,7 +281,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^ 
        * </pre>
        */
-      def size(expectedSize: Long) = and(have.size(expectedSize))
+      def size(expectedSize: Long): Matcher[T with AnyRef] = and(have.size(expectedSize))
     }
 
     /**
@@ -307,10 +307,10 @@ trait Matchers extends Assertions { matchers =>
        *
        * <pre class="stHighlight">
        * Array(1, 2) should (contain (2) and contain (3 - 1))
-       *                                             
+       *                                     ^
        * </pre>
        */
-      def apply[T](expectedElement: T) = matchersWrapper.and(matchers.contain(expectedElement))
+      def apply[U](expectedElement: U): Matcher[T with Traversable[U]] = matchersWrapper.and(matchers.contain(expectedElement))
       // def element[T](expectedElement: T) = matchersWrapper.and(matchers.contain.apply(expectedElement))
 
       /**
@@ -321,7 +321,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                     ^
        * </pre>
        */
-      def key[T](expectedElement: T) = matchersWrapper.and(matchers.contain.key(expectedElement))
+      def key[U](expectedElement: U): Matcher[T with scala.collection.Map[U, Any]] = matchersWrapper.and(matchers.contain.key(expectedElement))
 
       /**
        * This method enables the following syntax:
@@ -331,7 +331,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                   ^
        * </pre>
        */
-      def value[T](expectedValue: T) = matchersWrapper.and(matchers.contain.value(expectedValue))
+      def value[U](expectedValue: U): Matcher[T with scala.collection.Map[K, U] forSome { type K }] = matchersWrapper.and(matchers.contain.value(expectedValue))
     }
 
     /**
@@ -360,7 +360,7 @@ trait Matchers extends Assertions { matchers =>
        *                                        ^
        * </pre>
        */
-      def a(symbol: Symbol) = and(be.a(symbol))
+      def a(symbol: Symbol): Matcher[T with AnyRef] = and(be.a(symbol))
 
       /**
        * This method enables the following syntax:
@@ -370,7 +370,7 @@ trait Matchers extends Assertions { matchers =>
        *                                        ^
        * </pre>
        */
-      def a[T](bePropertyMatcher: BePropertyMatcher[T]) = and(be.a(bePropertyMatcher))
+      def a[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = and(be.a(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -380,7 +380,7 @@ trait Matchers extends Assertions { matchers =>
        *                                           ^
        * </pre>
        */
-      def an(symbol: Symbol) = and(be.an(symbol))
+      def an(symbol: Symbol): Matcher[T with AnyRef] = and(be.an(symbol))
 
       /**
        * This method enables the following syntax:
@@ -390,7 +390,7 @@ trait Matchers extends Assertions { matchers =>
        *                                           ^
        * </pre>
        */
-      def an[T](bePropertyMatcher: BePropertyMatcher[T]) = and(be.an(bePropertyMatcher))
+      def an[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = and(be.an(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -400,7 +400,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def theSameInstanceAs(anyRef: AnyRef) = and(be.theSameInstanceAs(anyRef))
+      def theSameInstanceAs(anyRef: AnyRef): Matcher[T with AnyRef] = and(be.theSameInstanceAs(anyRef))
     }
 
     /**
@@ -429,7 +429,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                         ^
        * </pre>
        */
-      def regex(regexString: String) = and(fullyMatch.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = and(fullyMatch.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -439,7 +439,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                              ^
        * </pre>
        */
-      def regex(regex: Regex) = and(fullyMatch.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = and(fullyMatch.regex(regex))
     }
 
     /**
@@ -468,7 +468,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                   ^
        * </pre>
        */
-      def regex(regexString: String) = and(include.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = and(include.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -478,7 +478,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                        ^
        * </pre>
        */
-      def regex(regex: Regex) = and(include.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = and(include.regex(regex))
     }
 
     /**
@@ -507,7 +507,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                       ^
        * </pre>
        */
-      def regex(regexString: String) = and(startWith.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = and(startWith.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -517,7 +517,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                            ^
        * </pre>
        */
-      def regex(regex: Regex) = and(startWith.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = and(startWith.regex(regex))
     }
 
     /**
@@ -546,7 +546,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                   ^
        * </pre>
        */
-      def regex(regexString: String) = and(endWith.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = and(endWith.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -556,7 +556,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                        ^
        * </pre>
        */
-      def regex(regex: Regex) = and(endWith.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = and(endWith.regex(regex))
     }
 
     /**
@@ -585,7 +585,7 @@ trait Matchers extends Assertions { matchers =>
        *                                 ^
        * </pre>
        */
-      def equal(any: Any) =
+      def equal(any: Any): Matcher[T] =
         matchersWrapper.and(matchers.not.apply(matchers.equal(any)))
 
       /**
@@ -596,7 +596,7 @@ trait Matchers extends Assertions { matchers =>
        *                              ^
        * </pre>
        */
-      def be(any: Any) =
+      def be(any: Any): Matcher[T] =
         matchersWrapper.and(matchers.not.apply(matchers.be(any)))
 
       /**
@@ -607,7 +607,7 @@ trait Matchers extends Assertions { matchers =>
        *                                               ^
        * </pre>
        */
-      def have(resultOfLengthWordApplication: ResultOfLengthWordApplication) =
+      def have(resultOfLengthWordApplication: ResultOfLengthWordApplication): Matcher[T with AnyRef] =
         matchersWrapper.and(matchers.not.apply(matchers.have.length(resultOfLengthWordApplication.expectedLength)))
 
       /**
@@ -618,7 +618,7 @@ trait Matchers extends Assertions { matchers =>
        *                                               ^
        * </pre>
        */
-      def have(resultOfSizeWordApplication: ResultOfSizeWordApplication) =
+      def have(resultOfSizeWordApplication: ResultOfSizeWordApplication): Matcher[T with AnyRef] =
         matchersWrapper.and(matchers.not.apply(matchers.have.size(resultOfSizeWordApplication.expectedSize)))
 
       /**
@@ -629,7 +629,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                     ^
        * </pre>
        */
-      def have[T](firstPropertyMatcher: HavePropertyMatcher[T, _], propertyMatchers: HavePropertyMatcher[T, _]*) =
+      def have[U](firstPropertyMatcher: HavePropertyMatcher[U, _], propertyMatchers: HavePropertyMatcher[U, _]*): Matcher[T with U] =
         matchersWrapper.and(matchers.not.apply(matchers.have(firstPropertyMatcher, propertyMatchers: _*)))
 
       /**
@@ -640,7 +640,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](resultOfLessThanComparison: ResultOfLessThanComparison[T]) =
+      def be[U](resultOfLessThanComparison: ResultOfLessThanComparison[U]): Matcher[T with U] =
         matchersWrapper.and(matchers.not.be(resultOfLessThanComparison))
 
       /**
@@ -651,7 +651,7 @@ trait Matchers extends Assertions { matchers =>
        *                                     ^
        * </pre>
        */
-      def be[T](o: Null) = matchersWrapper.and(matchers.not.be(o))
+      def be(o: Null): Matcher[T with AnyRef] = matchersWrapper.and(matchers.not.be(o))
 
       /**
        * This method enables the following syntax:
@@ -661,7 +661,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](resultOfGreaterThanComparison: ResultOfGreaterThanComparison[T]) =
+      def be[U](resultOfGreaterThanComparison: ResultOfGreaterThanComparison[U]): Matcher[T with U] =
         matchersWrapper.and(matchers.not.be(resultOfGreaterThanComparison))
 
       /**
@@ -672,7 +672,7 @@ trait Matchers extends Assertions { matchers =>
        *                                 ^
        * </pre>
        */
-      def be[T](resultOfLessThanOrEqualToComparison: ResultOfLessThanOrEqualToComparison[T]) =
+      def be[U](resultOfLessThanOrEqualToComparison: ResultOfLessThanOrEqualToComparison[U]): Matcher[T with U] =
         matchersWrapper.and(matchers.not.be(resultOfLessThanOrEqualToComparison))
 
       /**
@@ -683,7 +683,7 @@ trait Matchers extends Assertions { matchers =>
        *                                 ^
        * </pre>
        */
-      def be[T](resultOfGreaterThanOrEqualToComparison: ResultOfGreaterThanOrEqualToComparison[T]) =
+      def be[U](resultOfGreaterThanOrEqualToComparison: ResultOfGreaterThanOrEqualToComparison[U]): Matcher[T with U] =
         matchersWrapper.and(matchers.not.be(resultOfGreaterThanOrEqualToComparison))
 
       /**
@@ -694,7 +694,7 @@ trait Matchers extends Assertions { matchers =>
        *                                  ^
        * </pre>
        */
-      def be(resultOfTripleEqualsApplication: ResultOfTripleEqualsApplication) =
+      def be(resultOfTripleEqualsApplication: ResultOfTripleEqualsApplication): Matcher[T] =
         matchersWrapper.and(matchers.not.be(resultOfTripleEqualsApplication))
 
       /**
@@ -705,7 +705,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def be(symbol: Symbol) = matchersWrapper.and(matchers.not.be(symbol))
+      def be(symbol: Symbol): Matcher[T with AnyRef] = matchersWrapper.and(matchers.not.be(symbol))
 
       /**
        * This method enables the following syntax:
@@ -715,7 +715,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](beMatcher: BeMatcher[T]) = matchersWrapper.and(matchers.not.be(beMatcher))
+      def be[U](beMatcher: BeMatcher[U]): Matcher[T with U] = matchersWrapper.and(matchers.not.be(beMatcher))
 
       /**
        * This method enables the following syntax:
@@ -725,7 +725,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def be[T](bePropertyMatcher: BePropertyMatcher[T]) = matchersWrapper.and(matchers.not.be(bePropertyMatcher))
+      def be[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = matchersWrapper.and(matchers.not.be(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -735,7 +735,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                ^
        * </pre>
        */
-      def be(resultOfAWordApplication: ResultOfAWordToSymbolApplication) = matchersWrapper.and(matchers.not.be(resultOfAWordApplication))
+      def be(resultOfAWordApplication: ResultOfAWordToSymbolApplication): Matcher[T with AnyRef] = matchersWrapper.and(matchers.not.be(resultOfAWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -745,7 +745,7 @@ trait Matchers extends Assertions { matchers =>
        *                                             ^
        * </pre>
        */
-      def be[T <: AnyRef](resultOfAWordApplication: ResultOfAWordToBePropertyMatcherApplication[T]) = matchersWrapper.and(matchers.not.be(resultOfAWordApplication))
+      def be[U <: AnyRef](resultOfAWordApplication: ResultOfAWordToBePropertyMatcherApplication[U]): Matcher[T with U] = matchersWrapper.and(matchers.not.be(resultOfAWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -755,7 +755,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                   ^
        * </pre>
        */
-      def be[T](resultOfAnWordApplication: ResultOfAnWordToSymbolApplication) = matchersWrapper.and(matchers.not.be(resultOfAnWordApplication))
+      def be(resultOfAnWordApplication: ResultOfAnWordToSymbolApplication): Matcher[T with AnyRef] = matchersWrapper.and(matchers.not.be(resultOfAnWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -775,7 +775,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                            ^
        * </pre>
        */
-      def be[T](resultOfTheSameInstanceAsApplication: ResultOfTheSameInstanceAsApplication) = matchersWrapper.and(matchers.not.be(resultOfTheSameInstanceAsApplication))
+      def be(resultOfTheSameInstanceAsApplication: ResultOfTheSameInstanceAsApplication): Matcher[T with AnyRef] = matchersWrapper.and(matchers.not.be(resultOfTheSameInstanceAsApplication))
 
       /**
        * This method enables the following syntax:
@@ -785,7 +785,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                          ^
        * </pre>
        */
-      def be(doubleTolerance: DoubleTolerance) = matchersWrapper.and(matchers.not.be(doubleTolerance))
+      def be(doubleTolerance: DoubleTolerance): Matcher[T with Double] = matchersWrapper.and(matchers.not.be(doubleTolerance))
 
       /**
        * This method enables the following syntax:
@@ -795,7 +795,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                 ^
        * </pre>
        */
-      def be(floatTolerance: FloatTolerance) = matchersWrapper.and(matchers.not.be(floatTolerance))
+      def be(floatTolerance: FloatTolerance): Matcher[T with Float] = matchersWrapper.and(matchers.not.be(floatTolerance))
 
       /**
        * This method enables the following syntax:
@@ -805,7 +805,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                       ^
        * </pre>
        */
-      def be(longTolerance: LongTolerance) = matchersWrapper.and(matchers.not.be(longTolerance))
+      def be(longTolerance: LongTolerance): Matcher[T with Long] = matchersWrapper.and(matchers.not.be(longTolerance))
 
       /**
        * This method enables the following syntax:
@@ -815,7 +815,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                    ^
        * </pre>
        */
-      def be(intTolerance: IntTolerance) = matchersWrapper.and(matchers.not.be(intTolerance))
+      def be(intTolerance: IntTolerance): Matcher[T with Int] = matchersWrapper.and(matchers.not.be(intTolerance))
 
       /**
        * This method enables the following syntax:
@@ -825,7 +825,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                      ^
        * </pre>
        */
-      def be(shortTolerance: ShortTolerance) = matchersWrapper.and(matchers.not.be(shortTolerance))
+      def be(shortTolerance: ShortTolerance): Matcher[T with Short] = matchersWrapper.and(matchers.not.be(shortTolerance))
 
       /**
        * This method enables the following syntax:
@@ -835,7 +835,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                      ^
        * </pre>
        */
-      def be(byteTolerance: ByteTolerance) = matchersWrapper.and(matchers.not.be(byteTolerance))
+      def be(byteTolerance: ByteTolerance): Matcher[T with Byte] = matchersWrapper.and(matchers.not.be(byteTolerance))
 
       /**
        * This method enables the following syntax:
@@ -845,7 +845,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                     ^
        * </pre>
        */
-      def fullyMatch(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def fullyMatch(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.and(matchers.not.fullyMatch(resultOfRegexWordApplication))
 
       /**
@@ -856,7 +856,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                     ^
        * </pre>
        */
-      def include(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def include(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.and(matchers.not.include(resultOfRegexWordApplication))
 
       /**
@@ -867,7 +867,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def include(expectedSubstring: String) =
+      def include(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.and(matchers.not.include(expectedSubstring))
 
       /**
@@ -878,7 +878,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                    ^
        * </pre>
        */
-      def startWith(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def startWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.and(matchers.not.startWith(resultOfRegexWordApplication))
 
       /**
@@ -889,7 +889,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def startWith(expectedSubstring: String) =
+      def startWith(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.and(matchers.not.startWith(expectedSubstring))
 
       /**
@@ -900,7 +900,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def endWith(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def endWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.and(matchers.not.endWith(resultOfRegexWordApplication))
 
       /**
@@ -911,7 +911,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def endWith(expectedSubstring: String) =
+      def endWith(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.and(matchers.not.endWith(expectedSubstring))
 
       /**
@@ -922,7 +922,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                     ^
        * </pre>
        */
-      def contain[T](expectedElement: T) =
+      def contain[U](expectedElement: U): Matcher[T with Traversable[U]] =
         matchersWrapper.and(matchers.not.contain(expectedElement))
 
       /**
@@ -933,7 +933,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                      ^
        * </pre>
        */
-      def contain[T](resultOfKeyWordApplication: ResultOfKeyWordApplication[T]) =
+      def contain[U](resultOfKeyWordApplication: ResultOfKeyWordApplication[U]): Matcher[T with scala.collection.Map[U, Any]] =
         matchersWrapper.and(matchers.not.contain(resultOfKeyWordApplication))
 
       /**
@@ -944,7 +944,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                   ^
        * </pre>
        */
-      def contain[T](resultOfValueWordApplication: ResultOfValueWordApplication[T]) =
+      def contain[U](resultOfValueWordApplication: ResultOfValueWordApplication[U]): Matcher[T with scala.collection.Map[K, U] forSome { type K }] =
         matchersWrapper.and(matchers.not.contain(resultOfValueWordApplication))
     }
 
@@ -983,7 +983,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def or[U <: T](rightMatcher: Matcher[U]): Matcher[U] =
       new Matcher[U] {
-        def apply(left: U) = {
+        def apply(left: U): MatchResult = {
           val leftMatchResult = leftMatcher(left)
           val rightMatchResult = rightMatcher(left) // Not short circuiting anymore
           if (leftMatchResult.matches)
@@ -1022,7 +1022,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def length(expectedLength: Long) = or(have.length(expectedLength))
+      def length(expectedLength: Long): Matcher[T with AnyRef] = or(have.length(expectedLength))
 
       /**
        * This method enables the following syntax:
@@ -1032,7 +1032,7 @@ trait Matchers extends Assertions { matchers =>
        *                                       ^
        * </pre>
        */
-      def size(expectedSize: Long) = or(have.size(expectedSize))
+      def size(expectedSize: Long): Matcher[T with AnyRef] = or(have.size(expectedSize))
     }
 
     /**
@@ -1061,7 +1061,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def apply[T](expectedElement: T) = matchersWrapper.or(matchers.contain(expectedElement))
+      def apply[U](expectedElement: U): Matcher[T with Traversable[U]] = matchersWrapper.or(matchers.contain(expectedElement))
       // def element[T](expectedElement: T) = matchersWrapper.or(matchers.contain.apply(expectedElement))
 
       /**
@@ -1072,7 +1072,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                    ^
        * </pre>
        */
-      def key[T](expectedKey: T) = matchersWrapper.or(matchers.contain.key(expectedKey))
+      def key[U](expectedKey: U): Matcher[T with scala.collection.Map[U, Any]] = matchersWrapper.or(matchers.contain.key(expectedKey))
 
       /**
        * This method enables the following syntax:
@@ -1082,7 +1082,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                  ^
        * </pre>
        */
-      def value[T](expectedValue: T) = matchersWrapper.or(matchers.contain.value(expectedValue))
+      def value[U](expectedValue: U): Matcher[T with scala.collection.Map[K, U] forSome { type K }] = matchersWrapper.or(matchers.contain.value(expectedValue))
     }
 
     /**
@@ -1111,7 +1111,7 @@ trait Matchers extends Assertions { matchers =>
        *                                       ^
        * </pre>
        */
-      def a(symbol: Symbol) = or(be.a(symbol))
+      def a(symbol: Symbol): Matcher[T with AnyRef] = or(be.a(symbol))
 
       /**
        * This method enables the following syntax:
@@ -1121,7 +1121,7 @@ trait Matchers extends Assertions { matchers =>
        *                                      ^
        * </pre>
        */
-      def a[T](bePropertyMatcher: BePropertyMatcher[T]) = or(be.a(bePropertyMatcher))
+      def a[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = or(be.a(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -1131,7 +1131,7 @@ trait Matchers extends Assertions { matchers =>
        *                                         ^
        * </pre>
        */
-      def an(symbol: Symbol) = or(be.an(symbol))
+      def an(symbol: Symbol): Matcher[T with AnyRef] = or(be.an(symbol))
 
       /**
        * This method enables the following syntax:
@@ -1141,7 +1141,7 @@ trait Matchers extends Assertions { matchers =>
        *                                        ^
        * </pre>
        */
-      def an[T](bePropertyMatcher: BePropertyMatcher[T]) = or(be.an(bePropertyMatcher))
+      def an[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = or(be.an(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -1151,7 +1151,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                 ^
        * </pre>
        */
-      def theSameInstanceAs(anyRef: AnyRef) = or(be.theSameInstanceAs(anyRef))
+      def theSameInstanceAs(anyRef: AnyRef): Matcher[T with AnyRef] = or(be.theSameInstanceAs(anyRef))
     }
 
     /**
@@ -1180,7 +1180,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                        ^
        * </pre>
        */
-      def regex(regexString: String) = or(fullyMatch.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = or(fullyMatch.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -1190,7 +1190,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                        ^
        * </pre>
        */
-      def regex(regex: Regex) = or(fullyMatch.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = or(fullyMatch.regex(regex))
     }
 
     /**
@@ -1219,7 +1219,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def regex(regexString: String) = or(include.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = or(include.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -1229,7 +1229,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def regex(regex: Regex) = or(include.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = or(include.regex(regex))
     }
 
     /**
@@ -1258,7 +1258,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                      ^
        * </pre>
        */
-      def regex(regexString: String) = or(startWith.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = or(startWith.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -1268,7 +1268,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                      ^
        * </pre>
        */
-      def regex(regex: Regex) = or(startWith.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = or(startWith.regex(regex))
     }
 
     /**
@@ -1297,7 +1297,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def regex(regexString: String) = or(endWith.regex(regexString))
+      def regex(regexString: String): Matcher[T with String] = or(endWith.regex(regexString))
 
       /**
        * This method enables the following syntax:
@@ -1307,7 +1307,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def regex(regex: Regex) = or(endWith.regex(regex))
+      def regex(regex: Regex): Matcher[T with String] = or(endWith.regex(regex))
     }
 
     /**
@@ -1336,7 +1336,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def equal(any: Any) =
+      def equal(any: Any): Matcher[T] =
         matchersWrapper.or(matchers.not.apply(matchers.equal(any)))
 
       /**
@@ -1347,7 +1347,7 @@ trait Matchers extends Assertions { matchers =>
        *                             ^
        * </pre>
        */
-      def be(any: Any) =
+      def be(any: Any): Matcher[T] =
         matchersWrapper.or(matchers.not.apply(matchers.be(any)))
 
       /**
@@ -1358,7 +1358,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                ^
        * </pre>
        */
-      def have(resultOfLengthWordApplication: ResultOfLengthWordApplication) =
+      def have(resultOfLengthWordApplication: ResultOfLengthWordApplication): Matcher[T with AnyRef] =
         matchersWrapper.or(matchers.not.apply(matchers.have.length(resultOfLengthWordApplication.expectedLength)))
 
       /**
@@ -1369,7 +1369,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def have(resultOfSizeWordApplication: ResultOfSizeWordApplication) =
+      def have(resultOfSizeWordApplication: ResultOfSizeWordApplication): Matcher[T with AnyRef] =
         matchersWrapper.or(matchers.not.apply(matchers.have.size(resultOfSizeWordApplication.expectedSize)))
 
       /**
@@ -1380,7 +1380,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                    ^
        * </pre>
        */
-      def have[T](firstPropertyMatcher: HavePropertyMatcher[T, _], propertyMatchers: HavePropertyMatcher[T, _]*) =
+      def have[U](firstPropertyMatcher: HavePropertyMatcher[U, _], propertyMatchers: HavePropertyMatcher[U, _]*): Matcher[T with U] =
         matchersWrapper.or(matchers.not.apply(matchers.have(firstPropertyMatcher, propertyMatchers: _*)))
 
       /**
@@ -1391,7 +1391,7 @@ trait Matchers extends Assertions { matchers =>
        *                                    ^
        * </pre>
        */
-      def be[T](o: Null) = matchersWrapper.or(matchers.not.be(o))
+      def be(o: Null): Matcher[T with AnyRef] = matchersWrapper.or(matchers.not.be(o))
 
       /**
        * This method enables the following syntax:
@@ -1401,7 +1401,7 @@ trait Matchers extends Assertions { matchers =>
        *                               ^
        * </pre>
        */
-      def be[T](resultOfLessThanComparison: ResultOfLessThanComparison[T]) =
+      def be[U](resultOfLessThanComparison: ResultOfLessThanComparison[U]): Matcher[T with U] =
         matchersWrapper.or(matchers.not.be(resultOfLessThanComparison))
 
       /**
@@ -1412,7 +1412,7 @@ trait Matchers extends Assertions { matchers =>
        *                               ^
        * </pre>
        */
-      def be[T](resultOfGreaterThanComparison: ResultOfGreaterThanComparison[T]) =
+      def be[U](resultOfGreaterThanComparison: ResultOfGreaterThanComparison[U]): Matcher[T with U] =
         matchersWrapper.or(matchers.not.be(resultOfGreaterThanComparison))
 
       /**
@@ -1423,7 +1423,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](resultOfLessThanOrEqualToComparison: ResultOfLessThanOrEqualToComparison[T]) =
+      def be[U](resultOfLessThanOrEqualToComparison: ResultOfLessThanOrEqualToComparison[U]): Matcher[T with U] =
         matchersWrapper.or(matchers.not.be(resultOfLessThanOrEqualToComparison))
 
       /**
@@ -1434,7 +1434,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](resultOfGreaterThanOrEqualToComparison: ResultOfGreaterThanOrEqualToComparison[T]) =
+      def be[U](resultOfGreaterThanOrEqualToComparison: ResultOfGreaterThanOrEqualToComparison[U]): Matcher[T with U] =
         matchersWrapper.or(matchers.not.be(resultOfGreaterThanOrEqualToComparison))
 
       /**
@@ -1445,7 +1445,7 @@ trait Matchers extends Assertions { matchers =>
        *                                 ^
        * </pre>
        */
-      def be(resultOfTripleEqualsApplication: ResultOfTripleEqualsApplication) =
+      def be(resultOfTripleEqualsApplication: ResultOfTripleEqualsApplication): Matcher[T] =
         matchersWrapper.or(matchers.not.be(resultOfTripleEqualsApplication))
 
       /**
@@ -1456,7 +1456,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def be(symbol: Symbol) = matchersWrapper.or(matchers.not.be(symbol))
+      def be(symbol: Symbol): Matcher[T with AnyRef] = matchersWrapper.or(matchers.not.be(symbol))
 
       /**
        * This method enables the following syntax:
@@ -1466,7 +1466,7 @@ trait Matchers extends Assertions { matchers =>
        *                                ^
        * </pre>
        */
-      def be[T](beMatcher: BeMatcher[T]) = matchersWrapper.or(matchers.not.be(beMatcher))
+      def be[U](beMatcher: BeMatcher[U]): Matcher[T with U] = matchersWrapper.or(matchers.not.be(beMatcher))
 
       /**
        * This method enables the following syntax:
@@ -1476,7 +1476,7 @@ trait Matchers extends Assertions { matchers =>
        *                                          ^
        * </pre>
        */
-      def be[T](bePropertyMatcher: BePropertyMatcher[T]) = matchersWrapper.or(matchers.not.be(bePropertyMatcher))
+      def be[U](bePropertyMatcher: BePropertyMatcher[U]): Matcher[T with AnyRef with U] = matchersWrapper.or(matchers.not.be(bePropertyMatcher))
 
       /**
        * This method enables the following syntax:
@@ -1486,7 +1486,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                    ^
        * </pre>
        */
-      def be[T](resultOfAWordApplication: ResultOfAWordToSymbolApplication) = matchersWrapper.or(matchers.not.be(resultOfAWordApplication))
+      def be(resultOfAWordApplication: ResultOfAWordToSymbolApplication): Matcher[T with AnyRef] = matchersWrapper.or(matchers.not.be(resultOfAWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -1496,7 +1496,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def be[T <: AnyRef](resultOfAWordApplication: ResultOfAWordToBePropertyMatcherApplication[T]) = matchersWrapper.or(matchers.not.be(resultOfAWordApplication))
+      def be[U <: AnyRef](resultOfAWordApplication: ResultOfAWordToBePropertyMatcherApplication[U]): Matcher[T with U] = matchersWrapper.or(matchers.not.be(resultOfAWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -1506,7 +1506,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                ^
        * </pre>
        */
-      def be[T](resultOfAnWordApplication: ResultOfAnWordToSymbolApplication) = matchersWrapper.or(matchers.not.be(resultOfAnWordApplication))
+      def be(resultOfAnWordApplication: ResultOfAnWordToSymbolApplication): Matcher[T with AnyRef] = matchersWrapper.or(matchers.not.be(resultOfAnWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -1516,7 +1516,7 @@ trait Matchers extends Assertions { matchers =>
        *                                             ^
        * </pre>
        */
-      def be[T <: AnyRef](resultOfAnWordApplication: ResultOfAnWordToBePropertyMatcherApplication[T]) = matchersWrapper.or(matchers.not.be(resultOfAnWordApplication))
+      def be[U <: AnyRef](resultOfAnWordApplication: ResultOfAnWordToBePropertyMatcherApplication[U]): Matcher[T with U] = matchersWrapper.or(matchers.not.be(resultOfAnWordApplication))
 
       /**
        * This method enables the following syntax:
@@ -1526,7 +1526,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                           ^
        * </pre>
        */
-      def be[T](resultOfTheSameInstanceAsApplication: ResultOfTheSameInstanceAsApplication) = matchersWrapper.or(matchers.not.be(resultOfTheSameInstanceAsApplication))
+      def be(resultOfTheSameInstanceAsApplication: ResultOfTheSameInstanceAsApplication): Matcher[T with AnyRef] = matchersWrapper.or(matchers.not.be(resultOfTheSameInstanceAsApplication))
 
       /**
        * This method enables the following syntax:
@@ -1536,7 +1536,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                         ^
        * </pre>
        */
-      def be(doubleTolerance: DoubleTolerance) = matchersWrapper.or(matchers.not.be(doubleTolerance))
+      def be(doubleTolerance: DoubleTolerance): Matcher[T with Double] = matchersWrapper.or(matchers.not.be(doubleTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1546,7 +1546,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                ^
        * </pre>
        */
-      def be(floatTolerance: FloatTolerance) = matchersWrapper.or(matchers.not.be(floatTolerance))
+      def be(floatTolerance: FloatTolerance): Matcher[T with Float] = matchersWrapper.or(matchers.not.be(floatTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1556,7 +1556,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                      ^
        * </pre>
        */
-      def be(longTolerance: LongTolerance) = matchersWrapper.or(matchers.not.be(longTolerance))
+      def be(longTolerance: LongTolerance): Matcher[T with Long] = matchersWrapper.or(matchers.not.be(longTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1566,7 +1566,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                   ^
        * </pre>
        */
-      def be(intTolerance: IntTolerance) = matchersWrapper.or(matchers.not.be(intTolerance))
+      def be(intTolerance: IntTolerance): Matcher[T with Int] = matchersWrapper.or(matchers.not.be(intTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1576,7 +1576,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                     ^
        * </pre>
        */
-      def be(shortTolerance: ShortTolerance) = matchersWrapper.or(matchers.not.be(shortTolerance))
+      def be(shortTolerance: ShortTolerance): Matcher[T with Short] = matchersWrapper.or(matchers.not.be(shortTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1586,7 +1586,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                     ^
        * </pre>
        */
-      def be(byteTolerance: ByteTolerance) = matchersWrapper.or(matchers.not.be(byteTolerance))
+      def be(byteTolerance: ByteTolerance): Matcher[T with Byte] = matchersWrapper.or(matchers.not.be(byteTolerance))
 
       /**
        * This method enables the following syntax:
@@ -1596,7 +1596,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                     ^
        * </pre>
        */
-      def fullyMatch(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def fullyMatch(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.or(matchers.not.fullyMatch(resultOfRegexWordApplication))
 
       /**
@@ -1607,7 +1607,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                  ^
        * </pre>
        */
-      def include(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def include(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.or(matchers.not.include(resultOfRegexWordApplication))
 
       /**
@@ -1618,7 +1618,7 @@ trait Matchers extends Assertions { matchers =>
        *                                           ^
        * </pre>
        */
-      def include(expectedSubstring: String) =
+      def include(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.or(matchers.not.include(expectedSubstring))
 
       /**
@@ -1629,7 +1629,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                   ^
        * </pre>
        */
-      def startWith(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def startWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.or(matchers.not.startWith(resultOfRegexWordApplication))
 
       /**
@@ -1640,7 +1640,7 @@ trait Matchers extends Assertions { matchers =>
        *                                              ^
        * </pre>
        */
-      def startWith(expectedSubstring: String) =
+      def startWith(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.or(matchers.not.startWith(expectedSubstring))
 
       /**
@@ -1651,7 +1651,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                 ^
        * </pre>
        */
-      def endWith(resultOfRegexWordApplication: ResultOfRegexWordApplication) =
+      def endWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[T with String] =
         matchersWrapper.or(matchers.not.endWith(resultOfRegexWordApplication))
 
       /**
@@ -1662,7 +1662,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def endWith(expectedSubstring: String) =
+      def endWith(expectedSubstring: String): Matcher[T with String] =
         matchersWrapper.or(matchers.not.endWith(expectedSubstring))
 
       /**
@@ -1673,7 +1673,7 @@ trait Matchers extends Assertions { matchers =>
        *                                            ^
        * </pre>
        */
-      def contain[T](expectedElement: T) =
+      def contain[U](expectedElement: U): Matcher[T with Traversable[U]] =
         matchersWrapper.or(matchers.not.contain(expectedElement))
 
       /**
@@ -1684,7 +1684,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                    ^
        * </pre>
        */
-      def contain[T](resultOfKeyWordApplication: ResultOfKeyWordApplication[T]) =
+      def contain[U](resultOfKeyWordApplication: ResultOfKeyWordApplication[U]): Matcher[T with scala.collection.Map[U, Any]] =
         matchersWrapper.or(matchers.not.contain(resultOfKeyWordApplication))
 
       /**
@@ -1695,7 +1695,7 @@ trait Matchers extends Assertions { matchers =>
        *                                                                  ^
        * </pre>
        */
-      def contain[T](resultOfValueWordApplication: ResultOfValueWordApplication[T]) =
+      def contain[U](resultOfValueWordApplication: ResultOfValueWordApplication[U]): Matcher[T with scala.collection.Map[K, U] forSome { type K }] =
         matchersWrapper.or(matchers.not.contain(resultOfValueWordApplication))
     }
 
@@ -1831,16 +1831,16 @@ trait Matchers extends Assertions { matchers =>
    * The <code>(contain ("two"))</code> expression will result in a <code>Matcher[Traversable[String]]</code>. This
    * implicit conversion method will convert that matcher to a <code>Matcher[java.util.Collection[String]]</code>.
    */
-  implicit def convertTraversableMatcherToJavaCollectionMatcher[T](traversableMatcher: Matcher[Traversable[T]]) = 
+  implicit def convertTraversableMatcherToJavaCollectionMatcher[T](traversableMatcher: Matcher[Traversable[T]]): Matcher[java.util.Collection[T]] =
     new Matcher[java.util.Collection[T]] {
-      def apply(left: java.util.Collection[T]) = {
+      def apply(left: java.util.Collection[T]): MatchResult = {
         val traversable = new Traversable[T] {
           def foreach[U](f: (T) => U) {
             val javaIterator = left.iterator
             while (javaIterator.hasNext)
               f(javaIterator.next)
           }
-          override def toString = left.toString
+          override def toString: String = left.toString
         }
         traversableMatcher.apply(traversable)
       }
@@ -1856,9 +1856,9 @@ trait Matchers extends Assertions { matchers =>
    * The <code>(not contain ("two"))</code> expression will result in a <code>Matcher[Traversable[String]]</code>. This
    * implicit conversion method will convert that matcher to a <code>Matcher[Array[String]]</code>.
   */
-  implicit def convertTraversableMatcherToArrayMatcher[T](traversableMatcher: Matcher[Traversable[T]]) =
+  implicit def convertTraversableMatcherToArrayMatcher[T](traversableMatcher: Matcher[Traversable[T]]): Matcher[Array[T]] =
     new Matcher[Array[T]] {
-      def apply(left: Array[T]) = {
+      def apply(left: Array[T]): MatchResult = {
         val traversable = new Traversable[T] {
           def foreach[U](f: (T) => U) {
             var index = 0
@@ -1869,7 +1869,7 @@ trait Matchers extends Assertions { matchers =>
           }
           // Need to prettify the array's toString, because by the time it gets to decorateToStringValue, the array
           // has been wrapped in this Traversable and so it won't get prettified anymore by FailureMessages.decorateToStringValue.
-          override def toString = FailureMessages.prettifyArrays(left).toString
+          override def toString: String = FailureMessages.prettifyArrays(left).toString
         }
         traversableMatcher.apply(traversable)
       }
@@ -1885,16 +1885,16 @@ trait Matchers extends Assertions { matchers =>
    * The <code>(contain key ("two"))</code> expression will result in a <code>Matcher[scala.collection.Map[String, Any]]</code>. This
    * implicit conversion method will convert that matcher to a <code>Matcher[java.util.Map[String, Any]]</code>.
    */
-  implicit def convertMapMatcherToJavaMapMatcher[K, V](mapMatcher: Matcher[scala.collection.Map[K, V]]) = 
+  implicit def convertMapMatcherToJavaMapMatcher[K, V](mapMatcher: Matcher[scala.collection.Map[K, V]]): Matcher[java.util.Map[K, V]] =
     new Matcher[java.util.Map[K, V]] {
-      def apply(left: java.util.Map[K, V]) = {
+      def apply(left: java.util.Map[K, V]): MatchResult = {
         // Even though the java map is mutable I just wrap it it to a plain old Scala map, because
         // I have no intention of mutating it.
         class MapWrapper[Z](javaMap: java.util.Map[K, Z]) extends scala.collection.Map[K, Z] {
           override def size: Int = javaMap.size
           def get(key: K): Option[Z] =
             if (javaMap.containsKey(key)) Some(javaMap.get(key)) else None
-          override def iterator = new Iterator[(K, Z)] {
+          override def iterator: Iterator[(K, Z)] = new Iterator[(K, Z)] {
             private val javaIterator = javaMap.keySet.iterator
             def next: (K, Z) = {
               val nextKey = javaIterator.next
@@ -1913,7 +1913,7 @@ trait Matchers extends Assertions { matchers =>
             newJavaMap.remove(key)
             new MapWrapper[Z](newJavaMap)
           }
-          override def toString = javaMap.toString
+          override def toString: String = javaMap.toString
         }
         val scalaMap = new MapWrapper[V](left)
         mapMatcher.apply(scalaMap)
@@ -1944,7 +1944,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def apply[T](expectedElement: T): Matcher[Traversable[T]] =
       new Matcher[Traversable[T]] {
-        def apply(left: Traversable[T]) =
+        def apply(left: Traversable[T]): MatchResult =
           MatchResult(
             left.exists(_ == expectedElement), 
             FailureMessages("didNotContainExpectedElement", left, expectedElement),
@@ -1981,7 +1981,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def key[K](expectedKey: K): Matcher[scala.collection.Map[K, Any]] =
       new Matcher[scala.collection.Map[K, Any]] {
-        def apply(left: scala.collection.Map[K, Any]) =
+        def apply(left: scala.collection.Map[K, Any]): MatchResult =
           MatchResult(
             left.contains(expectedKey),
             FailureMessages("didNotContainKey", left, expectedKey),
@@ -2019,7 +2019,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def value[V](expectedValue: V): Matcher[scala.collection.Map[K, V] forSome { type K }] =
       new Matcher[scala.collection.Map[K, V] forSome { type K }] {
-        def apply(left: scala.collection.Map[K, V] forSome { type K }) =
+        def apply(left: scala.collection.Map[K, V] forSome { type K }): MatchResult =
           MatchResult(
             // left.values.contains(expectedValue), CHANGING FOR 2.8.0 RC1
             left.values.exists(expectedValue == _),
@@ -2047,7 +2047,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def apply(expectedSubstring: String): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             left.indexOf(expectedSubstring) >= 0, 
             FailureMessages("didNotIncludeSubstring", left, expectedSubstring),
@@ -2077,7 +2077,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def regex(expectedRegex: Regex): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             expectedRegex.findFirstIn(left).isDefined,
             FailureMessages("didNotIncludeRegex", left, expectedRegex),
@@ -2102,9 +2102,9 @@ trait Matchers extends Assertions { matchers =>
      *                          ^
      * </pre>
      */
-    def apply(right: String) =
+    def apply(right: String): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             left startsWith right,
             FailureMessages("didNotStartWith", left, right),
@@ -2134,7 +2134,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def regex(rightRegex: Regex): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             rightRegex.pattern.matcher(left).lookingAt,
             FailureMessages("didNotStartWithRegex", left, rightRegex),
@@ -2159,9 +2159,9 @@ trait Matchers extends Assertions { matchers =>
      *                        ^
      * </pre>
      */
-    def apply(right: String) =
+    def apply(right: String): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             left endsWith right,
             FailureMessages("didNotEndWith", left, right),
@@ -2191,7 +2191,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def regex(rightRegex: Regex): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) = {
+        def apply(left: String): MatchResult = {
           val allMatches = rightRegex.findAllIn(left)
           MatchResult(
             allMatches.hasNext && (allMatches.end == left.length),
@@ -2221,7 +2221,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def regex(rightRegexString: String): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             java.util.regex.Pattern.matches(rightRegexString, left),
             FailureMessages("didNotFullyMatchRegex", left, UnquotedString(rightRegexString)),
@@ -2240,7 +2240,7 @@ trait Matchers extends Assertions { matchers =>
      */
     def regex(rightRegex: Regex): Matcher[String] =
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             rightRegex.pattern.matcher(left).matches,
             FailureMessages("didNotFullyMatchRegex", left, rightRegex),
@@ -2286,61 +2286,61 @@ trait Matchers extends Assertions { matchers =>
    * This implicit conversion method converts an object with a <code>length</code> field of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertLengthFieldToIntLengthWrapper(o: { val length: Int }) =
+  implicit def convertLengthFieldToIntLengthWrapper(o: { val length: Int }): LengthWrapper =
     new LengthWrapper {
-      def length = o.length
+      def length: Long = o.length
     }
 
   /**
    * This implicit conversion method converts an object with a <code>length</code> method of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertLengthMethodToIntLengthWrapper(o: { def length(): Int }) =
+  implicit def convertLengthMethodToIntLengthWrapper(o: { def length(): Int }): LengthWrapper =
     new LengthWrapper {
-      def length = o.length()
+      def length: Long = o.length()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getLength</code> field of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertGetLengthFieldToIntLengthWrapper(o: { val getLength: Int }) =
+  implicit def convertGetLengthFieldToIntLengthWrapper(o: { val getLength: Int }): LengthWrapper =
     new LengthWrapper {
-      def length = o.getLength
+      def length: Long = o.getLength
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getLength</code> method of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertGetLengthMethodToIntLengthWrapper(o: { def getLength(): Int }) =
+  implicit def convertGetLengthMethodToIntLengthWrapper(o: { def getLength(): Int }): LengthWrapper =
     new LengthWrapper {
-      def length = o.getLength()
+      def length: Long = o.getLength()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>length</code> field of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertLengthFieldToLongLengthWrapper(o: { val length: Long }) =
+  implicit def convertLengthFieldToLongLengthWrapper(o: { val length: Long }): LengthWrapper =
     new LengthWrapper {
-      def length = o.length
+      def length: Long = o.length
     }
 
   /**
    * This implicit conversion method converts an object with a <code>length</code> method of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertLengthMethodToLongLengthWrapper(o: { def length(): Long }) =
+  implicit def convertLengthMethodToLongLengthWrapper(o: { def length(): Long }): LengthWrapper =
     new LengthWrapper {
-      def length = o.length()
+      def length: Long = o.length()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getLength</code> field of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertGetLengthFieldToLongLengthWrapper(o: { val getLength: Long }) =
+  implicit def convertGetLengthFieldToLongLengthWrapper(o: { val getLength: Long }): LengthWrapper =
     new LengthWrapper {
       def length = o.getLength
     }
@@ -2349,9 +2349,9 @@ trait Matchers extends Assertions { matchers =>
    * This implicit conversion method converts an object with a <code>getLength</code> method of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have length (7)</code> syntax.
    */
-  implicit def convertGetLengthMethodToLongLengthWrapper(o: { def getLength(): Long }) =
+  implicit def convertGetLengthMethodToLongLengthWrapper(o: { def getLength(): Long }): LengthWrapper =
     new LengthWrapper {
-      def length = o.getLength()
+      def length: Long = o.getLength()
     }
 
   /**
@@ -2386,72 +2386,72 @@ trait Matchers extends Assertions { matchers =>
    * This implicit conversion method converts an object with a <code>size</code> field of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertSizeFieldToIntSizeWrapper(o: { val size: Int }) =
+  implicit def convertSizeFieldToIntSizeWrapper(o: { val size: Int }): SizeWrapper =
     new SizeWrapper {
-      def size = o.size
+      def size: Long = o.size
     }
 
   /**
    * This implicit conversion method converts an object with a <code>size</code> method of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertSizeMethodToIntSizeWrapper(o: { def size(): Int }) =
+  implicit def convertSizeMethodToIntSizeWrapper(o: { def size(): Int }): SizeWrapper =
     new SizeWrapper {
-      def size = o.size()
+      def size: Long = o.size()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getSize</code> field of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertGetSizeFieldToIntSizeWrapper(o: { val getSize: Int }) =
+  implicit def convertGetSizeFieldToIntSizeWrapper(o: { val getSize: Int }): SizeWrapper =
     new SizeWrapper {
-      def size = o.getSize
+      def size: Long = o.getSize
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getSize</code> method of type <code>Int</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertGetSizeMethodToIntSizeWrapper(o: { def getSize(): Int }) =
+  implicit def convertGetSizeMethodToIntSizeWrapper(o: { def getSize(): Int }): SizeWrapper =
     new SizeWrapper {
-      def size = o.getSize()
+      def size: Long = o.getSize()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>size</code> field of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertSizeFieldToLongSizeWrapper(o: { val size: Long }) =
+  implicit def convertSizeFieldToLongSizeWrapper(o: { val size: Long }): SizeWrapper =
     new SizeWrapper {
-      def size = o.size
+      def size: Long = o.size
     }
 
   /**
    * This implicit conversion method converts an object with a <code>size</code> method of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertSizeMethodToLongSizeWrapper(o: { def size(): Long }) =
+  implicit def convertSizeMethodToLongSizeWrapper(o: { def size(): Long }): SizeWrapper =
     new SizeWrapper {
-      def size = o.size()
+      def size: Long = o.size()
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getSize</code> field of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertGetSizeFieldToLongSizeWrapper(o: { val getSize: Long }) =
+  implicit def convertGetSizeFieldToLongSizeWrapper(o: { val getSize: Long }): SizeWrapper =
     new SizeWrapper {
-      def size = o.getSize
+      def size: Long = o.getSize
     }
 
   /**
    * This implicit conversion method converts an object with a <code>getSize</code> method of type <code>Long</code> to a
    * <code>LengthWrapper</code>, to enable that object to be used with the <code>have size (7)</code> syntax.
    */
-  implicit def convertGetSizeMethodToLongSizeWrapper(o: { def getSize(): Long }) =
+  implicit def convertGetSizeMethodToLongSizeWrapper(o: { def getSize(): Long }): SizeWrapper =
     new SizeWrapper {
-      def size = o.getSize()
+      def size: Long = o.getSize()
     }
  
   // This guy is generally done through an implicit conversion from a symbol. It takes that symbol, and 
@@ -2516,7 +2516,7 @@ trait Matchers extends Assertions { matchers =>
      * book should have (convertSymbolToHavePropertyMatcherGenerator('title).apply("A Tale of Two Cities"))
      * </pre>
      */
-    def apply(expectedValue: Any) =
+    def apply(expectedValue: Any): HavePropertyMatcher[AnyRef, Any] =
       new HavePropertyMatcher[AnyRef, Any] {
 
         /**
@@ -2585,7 +2585,7 @@ trait Matchers extends Assertions { matchers =>
    * This implicit conversion method converts a <code>Symbol</code> to a
    * <code>HavePropertyMatcherGenerator</code>, to enable the symbol to be used with the <code>have ('author ("Dickens"))</code> syntax.
    */
-  implicit def convertSymbolToHavePropertyMatcherGenerator(symbol: Symbol) = new HavePropertyMatcherGenerator(symbol)
+  implicit def convertSymbolToHavePropertyMatcherGenerator(symbol: Symbol): HavePropertyMatcherGenerator = new HavePropertyMatcherGenerator(symbol)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -2617,9 +2617,9 @@ trait Matchers extends Assertions { matchers =>
      * will be used instead.) In a future ScalaTest release, this may be tightened so that all is statically checked at compile time.
      * </p>
      */
-    def length(expectedLength: Long) =
+    def length(expectedLength: Long): Matcher[AnyRef] =
       new Matcher[AnyRef] {
-        def apply(left: AnyRef) =
+        def apply(left: AnyRef): MatchResult =
           left match {
             case leftArray: Array[_] =>
               MatchResult(
@@ -2679,9 +2679,9 @@ trait Matchers extends Assertions { matchers =>
      * In a future ScalaTest release, this may be tightened so that all is statically checked at compile time.
      * </p>
      */
-    def size(expectedSize: Long) =
+    def size(expectedSize: Long): Matcher[AnyRef] =
       new Matcher[AnyRef] {
-        def apply(left: AnyRef) =
+        def apply(left: AnyRef): MatchResult =
           left match {
             case leftArray: Array[_] =>
               MatchResult(
@@ -2732,7 +2732,7 @@ trait Matchers extends Assertions { matchers =>
 
       new Matcher[T] {
 
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
 
           val results =
             for (propertyVerifier <- firstPropertyMatcher :: propertyMatchers.toList) yield
@@ -3588,7 +3588,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                   ^
      * </pre>
      */
-    def be(comparison: ResultOfTripleEqualsApplication){
+    def be(comparison: ResultOfTripleEqualsApplication) {
       if (comparison(left) != shouldBeTrue) {
         throw newTestFailedException(
           FailureMessages(
@@ -4247,7 +4247,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                                     ^
      * </pre>
      */
-    def apply(regexString: String) = new ResultOfRegexWordApplication(regexString)
+    def apply(regexString: String): ResultOfRegexWordApplication = new ResultOfRegexWordApplication(regexString)
 
     /**
      * This method enables the following syntax: 
@@ -4257,7 +4257,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                                     ^
      * </pre>
      */
-    def apply(regex: Regex) = new ResultOfRegexWordApplication(regex)
+    def apply(regex: Regex): ResultOfRegexWordApplication = new ResultOfRegexWordApplication(regex)
   }
 
   /**
@@ -4505,7 +4505,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    */
   def equal(right: Any): Matcher[Any] =
       new Matcher[Any] {
-        def apply(left: Any) = {
+        def apply(left: Any): MatchResult = {
           val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
           MatchResult(
             areEqualComparingArraysStructurally(left, right),
@@ -4623,7 +4623,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def <[T <% Ordered[T]](right: T): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             left < right,
             FailureMessages("wasNotLessThan", left, right),
@@ -4658,7 +4658,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def >[T <% Ordered[T]](right: T): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             left > right,
             FailureMessages("wasNotGreaterThan", left, right),
@@ -4693,7 +4693,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def <=[T <% Ordered[T]](right: T): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             left <= right,
             FailureMessages("wasNotLessThanOrEqualTo", left, right),
@@ -4728,7 +4728,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def >=[T <% Ordered[T]](right: T): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             left >= right,
             FailureMessages("wasNotGreaterThanOrEqualTo", left, right),
@@ -4764,7 +4764,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def ===(right: Any): Matcher[Any] =
       new Matcher[Any] {
-        def apply(left: Any) = {
+        def apply(left: Any): MatchResult = {
           val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
           MatchResult(
             areEqualComparingArraysStructurally(left, right),
@@ -4784,7 +4784,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def a[S <: AnyRef](right: Symbol): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) = matchSymbolToPredicateMethod[S](left, right, true, true)
+        def apply(left: S): MatchResult = matchSymbolToPredicateMethod[S](left, right, true, true)
       }
 
     /**
@@ -4798,7 +4798,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def a[S <: AnyRef](bePropertyMatcher: BePropertyMatcher[S]): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) = {
+        def apply(left: S): MatchResult = {
           val result = bePropertyMatcher(left)
           MatchResult(
             result.matches,
@@ -4818,7 +4818,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def an[S <: AnyRef](right: Symbol): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) = matchSymbolToPredicateMethod[S](left, right, true, false)
+        def apply(left: S): MatchResult = matchSymbolToPredicateMethod[S](left, right, true, false)
       }
 
     /**
@@ -4832,7 +4832,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def an[S <: AnyRef](bePropertyMatcher: BePropertyMatcher[S]): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) = {
+        def apply(left: S): MatchResult = {
           val result = bePropertyMatcher(left)
           MatchResult(
             result.matches,
@@ -4852,7 +4852,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(doubleTolerance: DoubleTolerance): Matcher[Double] =
       new Matcher[Double] {
-        def apply(left: Double) = {
+        def apply(left: Double): MatchResult = {
           import doubleTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4872,7 +4872,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(floatTolerance: FloatTolerance): Matcher[Float] =
       new Matcher[Float] {
-        def apply(left: Float) = {
+        def apply(left: Float): MatchResult = {
           import floatTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4892,7 +4892,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(longTolerance: LongTolerance): Matcher[Long] =
       new Matcher[Long] {
-        def apply(left: Long) = {
+        def apply(left: Long): MatchResult = {
           import longTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4912,7 +4912,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(intTolerance: IntTolerance): Matcher[Int] =
       new Matcher[Int] {
-        def apply(left: Int) = {
+        def apply(left: Int): MatchResult = {
           import intTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4932,7 +4932,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(shortTolerance: ShortTolerance): Matcher[Short] =
       new Matcher[Short] {
-        def apply(left: Short) = {
+        def apply(left: Short): MatchResult = {
           import shortTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4952,7 +4952,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(byteTolerance: ByteTolerance): Matcher[Byte] =
       new Matcher[Byte] {
-        def apply(left: Byte) = {
+        def apply(left: Byte): MatchResult = {
           import byteTolerance._
           MatchResult(
             left <= right + tolerance && left >= right - tolerance,
@@ -4972,7 +4972,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def theSameInstanceAs(right: AnyRef): Matcher[AnyRef] =
       new Matcher[AnyRef] {
-        def apply(left: AnyRef) =
+        def apply(left: AnyRef): MatchResult =
           MatchResult(
             left eq right,
             FailureMessages("wasNotSameInstanceAs", left, right),
@@ -4988,9 +4988,9 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                  ^
      * </pre>
      */
-    def apply(right: Boolean) = 
+    def apply(right: Boolean): Matcher[Boolean] = 
       new Matcher[Boolean] {
-        def apply(left: Boolean) =
+        def apply(left: Boolean): MatchResult =
           MatchResult(
             left == right,
             FailureMessages("wasNot", left, right),
@@ -5014,9 +5014,9 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                  ^
      * </pre>
      */
-    def apply(o: Null) = 
+    def apply(o: Null): Matcher[AnyRef] = 
       new Matcher[AnyRef] {
-        def apply(left: AnyRef) = {
+        def apply(left: AnyRef): MatchResult = {
           MatchResult(
             left == null,
             FailureMessages("wasNotNull", left),
@@ -5037,7 +5037,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply[S <: AnyRef](right: Symbol): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) = matchSymbolToPredicateMethod[S](left, right, false, false)
+        def apply(left: S): MatchResult = matchSymbolToPredicateMethod[S](left, right, false, false)
       }
 
     /**
@@ -5051,7 +5051,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply[T](right: BeMatcher[T]): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) = right(left)
+        def apply(left: T): MatchResult = right(left)
       }
 
     /**
@@ -5064,7 +5064,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply[T](bePropertyMatcher: BePropertyMatcher[T]): Matcher[T] =
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val result = bePropertyMatcher(left)
           MatchResult(
             result.matches,
@@ -5092,7 +5092,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def apply(right: Any): Matcher[Any] =
       new Matcher[Any] {
-        def apply(left: Any) =
+        def apply(left: Any): MatchResult =
           left match {
             case null =>
               MatchResult(
@@ -5131,9 +5131,9 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                     ^
      * </pre>
      */
-    def apply[S <: Any](matcher: Matcher[S]) =
+    def apply[S <: Any](matcher: Matcher[S]): Matcher[S] =
       new Matcher[S] {
-        def apply(left: S) =
+        def apply(left: S): MatchResult =
           matcher(left) match {
             case MatchResult(bool, s1, s2, s3, s4) => MatchResult(!bool, s2, s1, s4, s3)
           }
@@ -5166,9 +5166,9 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      * num should not be (odd)
      * </pre>
      */
-    def apply[S <: Any](beMatcher: BeMatcher[S]) =
+    def apply[S <: Any](beMatcher: BeMatcher[S]): BeMatcher[S] =
       new BeMatcher[S] {
-        def apply(left: S) =
+        def apply(left: S): MatchResult =
           beMatcher(left) match {
             case MatchResult(bool, s1, s2, s3, s4) => MatchResult(!bool, s2, s1, s4, s3)
           }
@@ -5230,7 +5230,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T](beMatcher: BeMatcher[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           beMatcher(left) match {
             case MatchResult(bool, s1, s2, s3, s4) => MatchResult(!bool, s2, s1, s4, s3)
           }
@@ -5245,9 +5245,9 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                 ^
      * </pre>
      */
-    def be(o: Null) = 
+    def be(o: Null): Matcher[AnyRef] =
       new Matcher[AnyRef] {
-        def apply(left: AnyRef) = {
+        def apply(left: AnyRef): MatchResult = {
           MatchResult(
             left != null,
             FailureMessages("wasNull"),
@@ -5269,7 +5269,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T](resultOfLessThanComparison: ResultOfLessThanComparison[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             !resultOfLessThanComparison(left),
             FailureMessages("wasLessThan", left, resultOfLessThanComparison.right),
@@ -5288,7 +5288,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T](resultOfGreaterThanComparison: ResultOfGreaterThanComparison[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             !resultOfGreaterThanComparison(left),
             FailureMessages("wasGreaterThan", left, resultOfGreaterThanComparison.right),
@@ -5307,7 +5307,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T](resultOfLessThanOrEqualToComparison: ResultOfLessThanOrEqualToComparison[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             !resultOfLessThanOrEqualToComparison(left),
             FailureMessages("wasLessThanOrEqualTo", left, resultOfLessThanOrEqualToComparison.right),
@@ -5326,7 +5326,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T](resultOfGreaterThanOrEqualToComparison: ResultOfGreaterThanOrEqualToComparison[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) =
+        def apply(left: T): MatchResult =
           MatchResult(
             !resultOfGreaterThanOrEqualToComparison(left),
             FailureMessages("wasGreaterThanOrEqualTo", left, resultOfGreaterThanOrEqualToComparison.right),
@@ -5345,7 +5345,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be(resultOfTripleEqualsApplication: ResultOfTripleEqualsApplication): Matcher[Any] = {
       new Matcher[Any] {
-        def apply(left: Any) =
+        def apply(left: Any): MatchResult =
           MatchResult(
             !resultOfTripleEqualsApplication(left),
             FailureMessages("wasEqualTo", left, resultOfTripleEqualsApplication.right),
@@ -5364,7 +5364,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](symbol: Symbol): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val positiveMatchResult = matchSymbolToPredicateMethod(left, symbol, false, false)
           MatchResult(
             !positiveMatchResult.matches,
@@ -5386,7 +5386,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](bePropertyMatcher: BePropertyMatcher[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val result = bePropertyMatcher(left)
           MatchResult(
             !result.matches,
@@ -5407,7 +5407,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](resultOfAWordApplication: ResultOfAWordToSymbolApplication): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val positiveMatchResult = matchSymbolToPredicateMethod(left, resultOfAWordApplication.symbol, true, true)
           MatchResult(
             !positiveMatchResult.matches,
@@ -5429,7 +5429,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](resultOfAWordApplication: ResultOfAWordToBePropertyMatcherApplication[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val result = resultOfAWordApplication.bePropertyMatcher(left)
           MatchResult(
             !result.matches,
@@ -5450,7 +5450,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](resultOfAnWordApplication: ResultOfAnWordToSymbolApplication): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val positiveMatchResult = matchSymbolToPredicateMethod(left, resultOfAnWordApplication.symbol, true, false)
           MatchResult(
             !positiveMatchResult.matches,
@@ -5471,7 +5471,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](resultOfAnWordApplication: ResultOfAnWordToBePropertyMatcherApplication[T]): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           val result = resultOfAnWordApplication.bePropertyMatcher(left)
           MatchResult(
             !result.matches,
@@ -5492,7 +5492,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be[T <: AnyRef](resultOfTheSameInstanceAsApplication: ResultOfTheSameInstanceAsApplication): Matcher[T] = {
       new Matcher[T] {
-        def apply(left: T) = {
+        def apply(left: T): MatchResult = {
           MatchResult(
             resultOfTheSameInstanceAsApplication.right ne left,
             FailureMessages("wasSameInstanceAs", left, resultOfTheSameInstanceAsApplication.right),
@@ -5513,7 +5513,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(doubleTolerance: DoubleTolerance): Matcher[Double] = {
       import doubleTolerance._
       new Matcher[Double] {
-        def apply(left: Double) = {
+        def apply(left: Double): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5534,7 +5534,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(floatTolerance: FloatTolerance): Matcher[Float] = {
       import floatTolerance._
       new Matcher[Float] {
-        def apply(left: Float) = {
+        def apply(left: Float): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5555,7 +5555,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(longTolerance: LongTolerance): Matcher[Long] = {
       import longTolerance._
       new Matcher[Long] {
-        def apply(left: Long) = {
+        def apply(left: Long): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5576,7 +5576,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(intTolerance: IntTolerance): Matcher[Int] = {
       import intTolerance._
       new Matcher[Int] {
-        def apply(left: Int) = {
+        def apply(left: Int): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5597,7 +5597,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(shortTolerance: ShortTolerance): Matcher[Short] = {
       import shortTolerance._
       new Matcher[Short] {
-        def apply(left: Short) = {
+        def apply(left: Short): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5618,7 +5618,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def be(byteTolerance: ByteTolerance): Matcher[Byte] = {
       import byteTolerance._
       new Matcher[Byte] {
-        def apply(left: Byte) = {
+        def apply(left: Byte): MatchResult = {
           MatchResult(
             !(left <= right + tolerance && left >= right - tolerance),
             FailureMessages("wasPlusOrMinus", left, right, tolerance),
@@ -5646,7 +5646,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def be(right: Any): Matcher[Any] = {
       new Matcher[Any] {
-        def apply(left: Any) = {
+        def apply(left: Any): MatchResult = {
           left match {
             case null =>
               MatchResult(
@@ -5678,7 +5678,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def fullyMatch(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[String] = {
       val rightRegexString = resultOfRegexWordApplication.regex.toString
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             !java.util.regex.Pattern.matches(rightRegexString, left),
             FailureMessages("fullyMatchedRegex", left, UnquotedString(rightRegexString)),
@@ -5698,7 +5698,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def include(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[String] = {
       val rightRegex = resultOfRegexWordApplication.regex
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             !rightRegex.findFirstIn(left).isDefined,
             FailureMessages("includedRegex", left, rightRegex),
@@ -5717,7 +5717,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def include(expectedSubstring: String): Matcher[String] = {
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             !(left.indexOf(expectedSubstring) >= 0), 
             FailureMessages("includedSubstring", left, expectedSubstring),
@@ -5737,7 +5737,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def startWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[String] = {
       val rightRegex = resultOfRegexWordApplication.regex
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             !rightRegex.pattern.matcher(left).lookingAt,
             FailureMessages("startedWithRegex", left, rightRegex),
@@ -5756,7 +5756,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def startWith(expectedSubstring: String): Matcher[String] = {
       new Matcher[String] {
-        def apply(left: String) =
+        def apply(left: String): MatchResult =
           MatchResult(
             left.indexOf(expectedSubstring) != 0,
             FailureMessages("startedWith", left, expectedSubstring),
@@ -5776,7 +5776,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def endWith(resultOfRegexWordApplication: ResultOfRegexWordApplication): Matcher[String] = {
       val rightRegex = resultOfRegexWordApplication.regex
       new Matcher[String] {
-        def apply(left: String) = {
+        def apply(left: String): MatchResult = {
           val allMatches = rightRegex.findAllIn(left)
           MatchResult(
             !(allMatches.hasNext && (allMatches.end == left.length)),
@@ -5797,7 +5797,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def endWith(expectedSubstring: String): Matcher[String] = {
       new Matcher[String] {
-        def apply(left: String) = {
+        def apply(left: String): MatchResult = {
           MatchResult(
             !(left endsWith expectedSubstring),
             FailureMessages("endedWith", left, expectedSubstring),
@@ -5817,7 +5817,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      */
     def contain[T](expectedElement: T): Matcher[Traversable[T]] = {
       new Matcher[Traversable[T]] {
-        def apply(left: Traversable[T]) = {
+        def apply(left: Traversable[T]): MatchResult = {
           MatchResult(
             !(left.exists(_ == expectedElement)),
             FailureMessages("containedExpectedElement", left, expectedElement),
@@ -5838,7 +5838,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def contain[K](resultOfKeyWordApplication: ResultOfKeyWordApplication[K]): Matcher[scala.collection.Map[K, Any]] = {
       val expectedKey = resultOfKeyWordApplication.expectedKey
       new Matcher[scala.collection.Map[K, Any]] {
-        def apply(left: scala.collection.Map[K, Any]) = {
+        def apply(left: scala.collection.Map[K, Any]): MatchResult = {
           MatchResult(
             !(left.contains(expectedKey)),
             FailureMessages("containedKey", left, expectedKey),
@@ -5859,7 +5859,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
     def contain[K, V](resultOfValueWordApplication: ResultOfValueWordApplication[V]): Matcher[scala.collection.Map[K, V] forSome { type K }] = {
       val expectedValue = resultOfValueWordApplication.expectedValue
       new Matcher[scala.collection.Map[K, V] forSome { type K }] {
-        def apply(left: scala.collection.Map[K, V] forSome { type K }) = {
+        def apply(left: scala.collection.Map[K, V] forSome { type K }): MatchResult = {
           MatchResult(
             !(left.values.exists(_ == expectedValue)),
             FailureMessages("containedValue", left, expectedValue),
@@ -6038,7 +6038,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                             ^
      * </pre>
      */
-    def apply(expectedLength: Long) = new ResultOfLengthWordApplication(expectedLength)
+    def apply(expectedLength: Long): ResultOfLengthWordApplication = new ResultOfLengthWordApplication(expectedLength)
   }
 
   /**
@@ -6120,7 +6120,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                          ^
      * </pre>
      */
-    def apply(expectedSize: Long) = new ResultOfSizeWordApplication(expectedSize)
+    def apply(expectedSize: Long): ResultOfSizeWordApplication = new ResultOfSizeWordApplication(expectedSize)
   }
 
   /**
@@ -6165,7 +6165,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                            ^
      * </pre>
      */
-    def apply[T](expectedKey: T) = new ResultOfKeyWordApplication(expectedKey)
+    def apply[T](expectedKey: T): ResultOfKeyWordApplication[T] = new ResultOfKeyWordApplication(expectedKey)
   }
 
   /**
@@ -6202,7 +6202,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                              ^
      * </pre>
      */
-    def apply[T](expectedValue: T) = new ResultOfValueWordApplication(expectedValue)
+    def apply[T](expectedValue: T): ResultOfValueWordApplication[T] = new ResultOfValueWordApplication(expectedValue)
   }
 
   /**
@@ -6247,7 +6247,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                         ^
      * </pre>
      */
-    def apply(symbol: Symbol) = new ResultOfAWordToSymbolApplication(symbol)
+    def apply(symbol: Symbol): ResultOfAWordToSymbolApplication = new ResultOfAWordToSymbolApplication(symbol)
 
     /**
      * This method enables the following syntax, where, for example, <code>badBook</code> is of type <code>Book</code> and <code>goodRead</code>
@@ -6258,7 +6258,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                         ^
      * </pre>
      */
-    def apply[T](beTrueMatcher: BePropertyMatcher[T]) = new ResultOfAWordToBePropertyMatcherApplication(beTrueMatcher)
+    def apply[T](beTrueMatcher: BePropertyMatcher[T]): ResultOfAWordToBePropertyMatcherApplication[T] = new ResultOfAWordToBePropertyMatcherApplication(beTrueMatcher)
   }
 
   /**
@@ -6303,7 +6303,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                          ^
      * </pre>
      */
-    def apply(symbol: Symbol) = new ResultOfAnWordToSymbolApplication(symbol)
+    def apply(symbol: Symbol): ResultOfAnWordToSymbolApplication = new ResultOfAnWordToSymbolApplication(symbol)
 
     /**
      * This method enables the following syntax, where, for example, <code>badBook</code> is of type <code>Book</code> and <code>excellentRead</code>
@@ -6314,7 +6314,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                          ^
      * </pre>
      */
-    def apply[T](beTrueMatcher: BePropertyMatcher[T]) = new ResultOfAnWordToBePropertyMatcherApplication(beTrueMatcher)
+    def apply[T](beTrueMatcher: BePropertyMatcher[T]): ResultOfAnWordToBePropertyMatcherApplication[T] = new ResultOfAnWordToBePropertyMatcherApplication(beTrueMatcher)
   }
 
   /**
@@ -6351,7 +6351,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
      *                                           ^
      * </pre>
      */
-    def apply(anyRef: AnyRef) = new ResultOfTheSameInstanceAsApplication(anyRef)
+    def apply(anyRef: AnyRef): ResultOfTheSameInstanceAsApplication = new ResultOfTheSameInstanceAsApplication(anyRef)
   }
 
   /**
@@ -6362,7 +6362,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    *                         ^
    * </pre>
    */
-  val theSameInstanceAs = new TheSameInstanceAsPhrase
+  val theSameInstanceAs: TheSameInstanceAsPhrase = new TheSameInstanceAsPhrase
 
   /**
    * This field enables the following syntax: 
@@ -6419,7 +6419,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Double</code> to a <code>DoublePlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertDoubleToPlusOrMinusWrapper(right: Double) = new DoublePlusOrMinusWrapper(right)
+  implicit def convertDoubleToPlusOrMinusWrapper(right: Double): DoublePlusOrMinusWrapper = new DoublePlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -6456,7 +6456,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Float</code> to a <code>FloatPlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertFloatToPlusOrMinusWrapper(right: Float) = new FloatPlusOrMinusWrapper(right)
+  implicit def convertFloatToPlusOrMinusWrapper(right: Float): FloatPlusOrMinusWrapper = new FloatPlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -6493,7 +6493,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Long</code> to a <code>LongPlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertLongToPlusOrMinusWrapper(right: Long) = new LongPlusOrMinusWrapper(right)
+  implicit def convertLongToPlusOrMinusWrapper(right: Long): LongPlusOrMinusWrapper = new LongPlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -6530,7 +6530,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Int</code> to a <code>IntPlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertIntToPlusOrMinusWrapper(right: Int) = new IntPlusOrMinusWrapper(right)
+  implicit def convertIntToPlusOrMinusWrapper(right: Int): IntPlusOrMinusWrapper = new IntPlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -6567,7 +6567,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Short</code> to a <code>ShortPlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertShortToPlusOrMinusWrapper(right: Short) = new ShortPlusOrMinusWrapper(right)
+  implicit def convertShortToPlusOrMinusWrapper(right: Short): ShortPlusOrMinusWrapper = new ShortPlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
@@ -6604,7 +6604,7 @@ class ResultOfHaveWordForArray[T](left: Array[T], shouldBeTrue: Boolean) {
    * Implicitly converts an object of type <code>Byte</code> to a <code>BytePlusOrMinusWrapper</code>,
    * to enable a <code>plusOrMinus</code> method to be invokable on that object.
    */
-  implicit def convertByteToPlusOrMinusWrapper(right: Byte) = new BytePlusOrMinusWrapper(right)
+  implicit def convertByteToPlusOrMinusWrapper(right: Byte): BytePlusOrMinusWrapper = new BytePlusOrMinusWrapper(right)
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="ShouldMatchers.html"><code>ShouldMatchers</code></a> or <a href="MustMatchers.html"><code>MustMatchers</code></a> for an overview of
