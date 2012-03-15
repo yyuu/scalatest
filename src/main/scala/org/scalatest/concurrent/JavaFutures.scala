@@ -27,6 +27,6 @@ trait JavaFutures extends Futures {
       def isExpired: Boolean = false // Java Futures don't support the notion of a timeout
       def isCanceled: Boolean = javaFuture.isCancelled // Two ll's in Canceled. The verbosity of Java strikes again!
       // TODO: Catch TimeoutException and wrap that in a TFE with ScalaTest's TimeoutException I think.
-      def awaitAtMost(span: Span): T = javaFuture.get(span.totalNanos, TimeUnit.NANOSECONDS)
+      // def awaitAtMost(span: Span): T = javaFuture.get(span.totalNanos, TimeUnit.NANOSECONDS)
     }
 }

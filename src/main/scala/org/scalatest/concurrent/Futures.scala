@@ -389,7 +389,10 @@ trait Futures extends TimeoutConfiguration {
      * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
      *     the specified timeout has been exceeded
      */
-    def awaitResult(implicit config: TimeoutConfig): T = {
+    def awaitResult(implicit config: TimeoutConfig): T = pollForResult(config, "awaitResult")
+
+    private[concurrent] def pollForResult(config: TimeoutConfig, methodName: String): T = {
+      
       val startNanos = System.nanoTime
 
       @tailrec
@@ -400,13 +403,13 @@ trait Futures extends TimeoutConfiguration {
           throw new TestFailedException(
             sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
             None,
-            getStackDepthFun("Futures.scala", "whenReady")
+            getStackDepthFun("Futures.scala", methodName)
           )
         if (thisFuture.isExpired)
           throw new TestFailedException(
             sde => Some(Resources("futureExpired", attempt.toString, interval.prettyString)),
             None,
-            getStackDepthFun("Futures.scala", "whenReady")
+            getStackDepthFun("Futures.scala", methodName)
           )
         thisFuture.value match {
           case Some(Right(v)) => v
@@ -421,7 +424,7 @@ trait Futures extends TimeoutConfiguration {
                   Resources("futureReturnedAnExceptionWithMessage", e.getClass.getName, e.getMessage)
               },
               Some(e),
-              getStackDepthFun("Futures.scala", "whenReady")
+              getStackDepthFun("Futures.scala", methodName)
             )
           case None =>
             val duration = System.nanoTime - startNanos
@@ -431,7 +434,7 @@ trait Futures extends TimeoutConfiguration {
               throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
                 sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
                 None,
-                getStackDepthFun("Futures.scala", "whenReady")
+                getStackDepthFun("Futures.scala", methodName)
               )
             }
 
@@ -463,7 +466,7 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  def whenReady[T, U](future: FutureConcept[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
+  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
     whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
@@ -487,7 +490,7 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  def whenReady[T, U](future: FutureConcept[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
+  final def whenReady[T, U](future: FutureConcept[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
     whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
@@ -510,7 +513,7 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  def whenReady[T, U](future: FutureConcept[T], timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
+  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
     whenReady(future)(fun)(TimeoutConfig(timeout.value, config.interval))
 
   /**
@@ -532,7 +535,7 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  def whenReady[T, U](future: FutureConcept[T], interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
+  final def whenReady[T, U](future: FutureConcept[T], interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
     whenReady(future)(fun)(TimeoutConfig(config.timeout, interval.value))
 
   /**
@@ -556,7 +559,9 @@ trait Futures extends TimeoutConfiguration {
    */
   def whenReady[T, U](future: FutureConcept[T])(fun: T => U)(implicit config: TimeoutConfig): U = {
 
-    val startNanos = System.nanoTime
+      val result = future.pollForResult(config, "whenReady")
+      fun(result)
+/*    val startNanos = System.nanoTime
 
     @tailrec
     def tryTryAgain(attempt: Int): U = {
@@ -605,7 +610,7 @@ trait Futures extends TimeoutConfiguration {
           tryTryAgain(attempt + 1)
       }
     }
-    tryTryAgain(1)
+    tryTryAgain(1)  */
   }
 }
 
