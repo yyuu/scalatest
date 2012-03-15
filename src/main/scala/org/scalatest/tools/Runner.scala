@@ -1241,32 +1241,39 @@ object Runner {
         val className = it.next
         if (!className.startsWith("-")) {
           
-          if (it.hasNext && it.head == "-t") {            
-            val testNamesBuffer = new ListBuffer[String]()
-            while (it.hasNext && it.head == "-t") {
-              it.next() // Skip the -t
-              testNamesBuffer += it.next
-            }
-            lb += SuiteParam(className, testNamesBuffer.toArray, Array.empty)
-          }
-          else if (it.hasNext && it.head == "-i") {
-            val nestedLb = new ListBuffer[NestedSuiteParam]()
-            
-            while (it.hasNext && it.head == "-i") {
-              val dashI = it.next()
-              val suiteId = it.next
-              val suiteIdTestNamesBuffer = new ListBuffer[String]()
-              
+          val testNames = 
+            if (it.hasNext && it.head == "-t") {            
+              val testNamesBuffer = new ListBuffer[String]()
               while (it.hasNext && it.head == "-t") {
                 it.next() // Skip the -t
-                suiteIdTestNamesBuffer += it.next
+                testNamesBuffer += it.next
               }
-              nestedLb += new NestedSuiteParam(suiteId, suiteIdTestNamesBuffer.toArray)
+              testNamesBuffer.toArray
             }
-            lb += SuiteParam(className, Array.empty, nestedLb.toArray)
-          }
-          else 
-            lb += SuiteParam(className, Array.empty, Array.empty)
+            else
+              Array.empty[String]
+          
+          val nestedSuites = 
+            if (it.hasNext && it.head == "-i") {
+              val nestedLb = new ListBuffer[NestedSuiteParam]()
+            
+              while (it.hasNext && it.head == "-i") {
+                val dashI = it.next()
+                val suiteId = it.next
+                val suiteIdTestNamesBuffer = new ListBuffer[String]()
+              
+                while (it.hasNext && it.head == "-t") {
+                  it.next() // Skip the -t
+                  suiteIdTestNamesBuffer += it.next
+                }
+                nestedLb += new NestedSuiteParam(suiteId, suiteIdTestNamesBuffer.toArray)
+              }
+              nestedLb.toArray
+            }
+            else
+              Array.empty[NestedSuiteParam]
+          
+          lb += SuiteParam(className, testNames, nestedSuites)
         }
         else
           throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + className)
@@ -1428,6 +1435,11 @@ object Runner {
   }
 */
 
+  private[scalatest] def mergeMap[A, B](ms: List[Map[A, B]])(f: (B, B) => B): Map[A, B] =
+    (Map[A, B]() /: (for (m <- ms; kv <- m) yield kv)) { (a, kv) =>
+    a + (if (a.contains(kv._1)) kv._1 -> f(a(kv._1), kv._2) else kv)
+  }
+  
   private[scalatest] def doRunRunRunDaDoRunRun(
     dispatch: DispatchReporter,
     suitesList: List[SuiteParam],
@@ -1522,26 +1534,31 @@ object Runner {
                   constructor.get.newInstance(clazz).asInstanceOf[Suite]
                 }
                 
-                if (suiteParam.nestedSuites.length == 0) {
-                  if (suiteParam.testNames.length == 0) // -s(X) suiteClass, no dynamic tagging required.
-                    (suiteInstance, new DynaTags(Map.empty, Map.empty), false)
-                  else { 
-                    // -s suiteClass -t testName1 -t testName2 
-                    // Nested suite will not be run
-                    // -sX suiteClass -t testName1 -t testName2 : Invalid Arg, -t should be used to select specific test, nested suites will not be included.
-                    excludeNestedSuitesBuffer += suiteInstance.suiteId
-                    (suiteInstance, new DynaTags(Map.empty, Map(suiteInstance.suiteId -> (Map() ++ suiteParam.testNames.map(tn => (tn -> Set(SELECTED_TAG)))))), true)
-                  }
-                }
+                if (suiteParam.testNames.length == 0 && suiteParam.nestedSuites.length == 0)
+                  (suiteInstance, new DynaTags(Map.empty, Map.empty), false)  // -s suiteClass, no dynamic tagging required.
                 else {
-                  // -s suiteClass -i suiteId 
-                  // -s suiteClass -i suiteId -t nestedTestName1 -t nestedTestName2
                   val nestedSuites = suiteParam.nestedSuites
-                  excludeNestedSuitesBuffer ++= nestedSuites.map(ns => ns.suiteId) // nested suite's nested suites will not be executed.
+                  if (nestedSuites.length == 0)
+                    excludeNestedSuitesBuffer += suiteInstance.suiteId
+                  
                   val (selectSuiteList, selectTestList) = nestedSuites.partition(ns => ns.testNames.length == 0)
-                  val suiteDynaTags = Map() ++ selectSuiteList.map(ns => (ns.suiteId -> Set(SELECTED_TAG)))
-                  val testDynaTags = Map() ++ selectTestList.map(ns => (ns.suiteId -> (Map() ++ ns.testNames.map(tn => (tn, Set(SELECTED_TAG))))))
-                  (suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true)                             
+                  val suiteDynaTags: Map[String, Set[String]] = Map() ++ selectSuiteList.map(ns => (ns.suiteId -> Set(SELECTED_TAG)))
+                  
+                  val suiteTestDynaTags: Map[String, Map[String, Set[String]]] = 
+                    if (suiteParam.testNames.length > 0)
+                      Map(suiteInstance.suiteId -> (Map() ++ suiteParam.testNames.map(tn => (tn -> Set(SELECTED_TAG)))))
+                    else
+                      Map.empty
+                    
+                  val nestedSuitesTestDynaTags: Map[String, Map[String, Set[String]]] 
+                    = Map() ++ selectTestList.map(ns => (ns.suiteId -> (Map() ++ ns.testNames.map(tn => (tn, Set(SELECTED_TAG))))))
+                  
+                  val testDynaTags = mergeMap[String, Map[String, Set[String]]](List(suiteTestDynaTags, nestedSuitesTestDynaTags)) { (suiteTestMap1, suiteTestMap2) => 
+                                       mergeMap[String, Set[String]](List(suiteTestMap1, suiteTestMap2)) { (tagSet1, tagSet2) =>
+                                         tagSet1 ++ tagSet2
+                                       }
+                                     }
+                  (suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true) 
                 }
               }
           

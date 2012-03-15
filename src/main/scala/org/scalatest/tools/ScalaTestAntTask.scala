@@ -250,7 +250,7 @@ class ScalaTestAntTask extends Task {
 
   private val runpath      = new ListBuffer[String]
   private val jvmArgs      = new ListBuffer[String]
-  private val suites       = new ListBuffer[String]
+  private val suites       = new ListBuffer[SuiteElement]
   private val membersonlys = new ListBuffer[String]
   private val wildcards    = new ListBuffer[String]
   private val testNGSuites = new ListBuffer[String]
@@ -389,7 +389,25 @@ class ScalaTestAntTask extends Task {
         throw new BuildException(
           "missing classname attribute for <suite> element")
       args += "-s"
-      args += suite
+      args += suite.getClassName
+      suite.getTestNames.foreach { tn => 
+        if (tn == null)
+          throw new BuildException("missing name attribute for <test> element")
+        args += "-t"
+        args += tn
+      }
+      suite.getNestedSuites.foreach { ns => 
+        if (ns.getSuiteId == null)
+          throw new BuildException("missing suiteId attribute for <nested> element")
+        args += "-i"
+        args += ns.getSuiteId
+        ns.getTestNames.foreach { tn => 
+          if (tn == null)
+            throw new BuildException("missing name attribute for <test> element")
+          args += "-t"
+          args += tn
+        }
+      }
     }
 
     for (packageName <- membersonlys) {
@@ -680,7 +698,7 @@ class ScalaTestAntTask extends Task {
   /**
    * Sets value of <code>suite</code> attribute.
    */
-  def setSuite(suite: String) {
+  def setSuite(suite: SuiteElement) {
     suites += suite
   }
 
@@ -702,7 +720,7 @@ class ScalaTestAntTask extends Task {
    * Sets value from nested element <code>suite</code>.
    */
   def addConfiguredSuite(suite: SuiteElement) {
-    suites += suite.getClassName
+    suites += suite
   }
 
   /**
@@ -805,12 +823,50 @@ class ScalaTestAntTask extends Task {
   //
   private class SuiteElement {
     private var className: String = null
-
+    private val testNamesBuffer = new ListBuffer[String]()
+    private val nestedSuitesBuffer = new ListBuffer[NestedSuiteElement]()
+    
     def setClassName(className: String) {
       this.className = className
     }
 
+    def addConfiguredTest(test: TestElement) {
+      testNamesBuffer += test.getName
+    }
+    
+    def addConfiguredNested(nestedSuite: NestedSuiteElement) {
+      nestedSuitesBuffer += nestedSuite
+    }
+    
     def getClassName = className
+    def getTestNames = testNamesBuffer.toArray
+    def getNestedSuites = nestedSuitesBuffer.toArray
+  }
+  
+  private class TestElement {
+    private var name: String = null
+    
+    def setName(name: String) {
+      this.name = name
+    }
+    
+    def getName = name
+  }
+  
+  private class NestedSuiteElement {
+    private var suiteId: String = null
+    private val testNamesBuffer = new ListBuffer[String]()
+    
+    def setSuiteId(suiteId: String) {
+      this.suiteId = suiteId
+    }
+    
+    def addConfiguredTest(test: TestElement) {
+      testNamesBuffer += test.getName
+    }
+    
+    def getSuiteId = suiteId
+    def getTestNames = testNamesBuffer.toArray
   }
 
   //
@@ -885,4 +941,3 @@ class ScalaTestAntTask extends Task {
     def getClassName = classname
     def getNumfiles  = numfiles
   }
-
