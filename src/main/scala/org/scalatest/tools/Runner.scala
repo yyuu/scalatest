@@ -1517,9 +1517,11 @@ object Runner {
         }
   
       if (!loadProblemsExist) {
+        
+        case class SuiteConfig(suite: Suite, dynaTags: DynaTags, requireSelectedTag: Boolean, excludeNestedSuites: Boolean)
+        
         try {
-          val excludeNestedSuitesBuffer = new ListBuffer[String]()
-          val namedSuiteInstances: List[(Suite, DynaTags, Boolean)] =
+          val namedSuiteInstances: List[SuiteConfig] =
             for (suiteParam <- suitesList)
               yield {
                 val suiteClassName = suiteParam.className
@@ -1539,11 +1541,9 @@ object Runner {
                 }
                 
                 if (suiteParam.testNames.length == 0 && suiteParam.nestedSuites.length == 0)
-                  (suiteInstance, new DynaTags(Map.empty, Map.empty), false)  // -s suiteClass, no dynamic tagging required.
+                  SuiteConfig(suiteInstance, new DynaTags(Map.empty, Map.empty), false, false) // -s suiteClass, no dynamic tagging required.
                 else {
                   val nestedSuites = suiteParam.nestedSuites
-                  if (nestedSuites.length == 0)
-                    excludeNestedSuitesBuffer += suiteInstance.suiteId
                   
                   val (selectSuiteList, selectTestList) = nestedSuites.partition(ns => ns.testNames.length == 0)
                   val suiteDynaTags: Map[String, Set[String]] = Map() ++ selectSuiteList.map(ns => (ns.suiteId -> Set(SELECTED_TAG)))
@@ -1562,7 +1562,9 @@ object Runner {
                                          tagSet1 ++ tagSet2
                                        }
                                      }
-                  (suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true) 
+                  // Only exclude nested suites when using -s XXX -t XXXX
+                  val excludeNestedSuites = suiteParam.testNames.length > 0 && nestedSuites.length == 0
+                  SuiteConfig(suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true, excludeNestedSuites)
                 }
               }
           
@@ -1570,13 +1572,13 @@ object Runner {
           
           val emptyDynaTags = DynaTags(Map.empty[String, Set[String]], Map.empty[String, Map[String, Set[String]]])
 
-          val junitSuiteInstances: List[(Suite, DynaTags, Boolean)] =
+          val junitSuiteInstances: List[SuiteConfig] =
             for (junitClassName <- junitsList)
-              yield (new JUnitWrapperSuite(junitClassName, loader), emptyDynaTags, false)
+              yield SuiteConfig(new JUnitWrapperSuite(junitClassName, loader), emptyDynaTags, false, true) // JUnit suite should exclude nested suites
 
-          val testNGWrapperSuiteList: List[(Suite, DynaTags, Boolean)] =
+          val testNGWrapperSuiteList: List[SuiteConfig] =
             if (!testNGList.isEmpty)
-              List((new TestNGWrapperSuite(testNGList), emptyDynaTags, false))
+              List(SuiteConfig(new TestNGWrapperSuite(testNGList), emptyDynaTags, false, true)) // TestNG suite should exclude nested suites
             else
               Nil
 
@@ -1597,32 +1599,30 @@ object Runner {
               if (membersOnlyAndWildcardListsAreEmpty && suitesList.isEmpty && junitsList.isEmpty && testNGList.isEmpty) {
                 // In this case, they didn't specify any -w, -m, -s, -j or -b on the command line, so the default
                 // is to run any accessible Suites discovered on the runpath
-                (Nil, List((new DiscoverySuite("", accessibleSuites, true, loader), emptyDynaTags, false)))
+                (Nil, List(SuiteConfig(new DiscoverySuite("", accessibleSuites, true, loader), emptyDynaTags, false, false)))
               }
               else {
                 val membersOnlyInstances =
                   for (membersOnlyName <- membersOnlyList)
-                    yield (new DiscoverySuite(membersOnlyName, accessibleSuites, false, loader), emptyDynaTags, false)
+                    yield SuiteConfig(new DiscoverySuite(membersOnlyName, accessibleSuites, false, loader), emptyDynaTags, false, false)
 
                 val wildcardInstances =
                   for (wildcardName <- wildcardList)
-                    yield (new DiscoverySuite(wildcardName, accessibleSuites, true, loader), emptyDynaTags, false)
+                    yield SuiteConfig(new DiscoverySuite(wildcardName, accessibleSuites, true, loader), emptyDynaTags, false, false)
 
                 (membersOnlyInstances, wildcardInstances)
               }
             }
           }
 
-          val suiteInstances: List[(Suite, DynaTags, Boolean)] = namedSuiteInstances ::: junitSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
+          val suiteInstances: List[SuiteConfig] = namedSuiteInstances ::: junitSuiteInstances ::: membersOnlySuiteInstances ::: wildcardSuiteInstances ::: testNGWrapperSuiteList
 
-          val excludeNestedSuites = excludeNestedSuitesBuffer.toSet
-          
           val testCountList =
-            for ((suite, dynaTags, requireSelectedTag) <- suiteInstances)
+            for (suiteConfig <- suiteInstances)
               yield { 
-              val tagsToInclude = if (requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
-              val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, excludeNestedSuites, dynaTags)
-              suite.expectedTestCount(filter)
+              val tagsToInclude = if (suiteConfig.requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
+              val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, suiteConfig.excludeNestedSuites, suiteConfig.dynaTags)
+              suiteConfig.suite.expectedTestCount(filter)
             }
   
           def sumInts(list: List[Int]): Int =
@@ -1649,20 +1649,20 @@ object Runner {
             if (System.getProperty("org.scalatest.tools.Runner.forever", "false") == "true") {
               val distributor = new ConcurrentDistributor(dispatch, stopRequested, configMap, execSvc)
               while (true) {
-                for ((suite, dynaTags, requireSelectedTag) <- suiteInstances) {
-                  val tagsToInclude = if (requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
-                  val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, excludeNestedSuites, dynaTags)
-                  distributor.apply(suite, tracker.nextTracker(), filter)
+                for (suiteConfig <- suiteInstances) {
+                  val tagsToInclude = if (suiteConfig.requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
+                  val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, suiteConfig.excludeNestedSuites, suiteConfig.dynaTags)
+                  distributor.apply(suiteConfig.suite, tracker.nextTracker(), filter)
                 }
                 distributor.waitUntilDone()
               }
             }
             else {
               val distributor = new ConcurrentDistributor(dispatch, stopRequested, configMap, execSvc)
-              for ((suite, dynaTags, requireSelectedTag) <- suiteInstances) {
-                val tagsToInclude = if (requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
-                val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, excludeNestedSuites, dynaTags)
-                distributor.apply(suite, tracker.nextTracker(), filter)
+              for (suiteConfig <- suiteInstances) {
+                val tagsToInclude = if (suiteConfig.requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
+                val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, suiteConfig.excludeNestedSuites, suiteConfig.dynaTags)
+                distributor.apply(suiteConfig.suite, tracker.nextTracker(), filter)
               }
               distributor.waitUntilDone()
             }
@@ -1672,10 +1672,10 @@ object Runner {
             }
           }
           else {
-            for ((suite, dynaTags, requireSelectedTag) <- suiteInstances) {
-              val tagsToInclude = if (requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
-              val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, excludeNestedSuites, dynaTags)
-              val suiteRunner = new SuiteRunner(suite, dispatch, stopRequested, filter,
+            for (suiteConfig <- suiteInstances) {
+              val tagsToInclude = if (suiteConfig.requireSelectedTag) tagsToIncludeSet ++ Set(SELECTED_TAG) else tagsToIncludeSet
+              val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExcludeSet, suiteConfig.excludeNestedSuites, suiteConfig.dynaTags)
+              val suiteRunner = new SuiteRunner(suiteConfig.suite, dispatch, stopRequested, filter,
                   configMap, None, tracker)
               suiteRunner.run()
             }

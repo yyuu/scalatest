@@ -23,13 +23,13 @@ import Filter.IgnoreTag
  *
  * @param tagsToInclude an optional <code>Set</code> of <code>String</code> tag names to include (<em>i.e.</em>, not filter out) when filtering tests
  * @param tagsToExclude a <code>Set</code> of <code>String</code> tag names to exclude (<em>i.e.</em>, filter out) when filtering tests
- * @param excludeNestedSuites a <code>Set</code> of suiteId that should not run nested suites
+ * @param excludeNestedSuites a <code>Boolean</code> to indicate whether to run nested suites
  * @param dynaTags dynamic tags for the filter
  *
  * @throws NullPointerException if either <code>tagsToInclude</code> or <code>tagsToExclude</code> are null
  * @throws IllegalArgumentException if <code>tagsToInclude</code> is defined, but contains an empty set
  */
-final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Set[String], val excludeNestedSuites: Set[String] = Set.empty, val dynaTags: DynaTags = DynaTags(Map.empty, Map.empty)) extends Function2[Set[String], Map[String, Set[String]], List[(String, Boolean)]] {
+final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Set[String], val excludeNestedSuites: Boolean = false, val dynaTags: DynaTags = DynaTags(Map.empty, Map.empty)) extends Function2[Set[String], Map[String, Set[String]], List[(String, Boolean)]] {
 
   if (tagsToInclude == null)
     throw new NullPointerException("tagsToInclude was null")
@@ -331,13 +331,13 @@ object Filter {
  *
  * @param tagsToInclude an optional <code>Set</code> of <code>String</code> tag names to include (<em>i.e.</em>, not filter out) when filtering tests
  * @param tagsToExclude a <code>Set</code> of <code>String</code> tag names to exclude (<em>i.e.</em>, filter out) when filtering tests
- * @param excludeNestedSuites a <code>Set</code> of suiteId that should not run nested suites
+ * @param excludeNestedSuites a <code>Boolean</code> to indicate whether to run nested suites
  * @param dynaTags dynamic tags for the filter
  *
  * @throws NullPointerException if either <code>tagsToInclude</code> or <code>tagsToExclude</code> are null
  * @throws IllegalArgumentException if <code>tagsToInclude</code> is defined, but contains an empty set
  */
-  def apply(tagsToInclude: Option[Set[String]], tagsToExclude: Set[String], excludeNestedSuites: Set[String] = Set.empty, dynaTags: DynaTags = DynaTags(Map.empty, Map.empty)) =
+  def apply(tagsToInclude: Option[Set[String]], tagsToExclude: Set[String], excludeNestedSuites: Boolean = false, dynaTags: DynaTags = DynaTags(Map.empty, Map.empty)) =
     new Filter(tagsToInclude, tagsToExclude, excludeNestedSuites, dynaTags)
 
 /**
