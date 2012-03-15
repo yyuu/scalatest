@@ -1199,8 +1199,8 @@ object Runner {
     if (args.exists(_ == null))
       throw new NullPointerException("an arg String was null")
 
-    if (dashArg != "-j" && dashArg != "-s" && dashArg != "-w" && dashArg != "-m" && dashArg != "-b")
-      throw new NullPointerException("dashArg invalid: " + dashArg)
+    if (dashArg != "-j" && dashArg != "-w" && dashArg != "-m" && dashArg != "-b")
+      throw new IllegalArgumentException("dashArg invalid: " + dashArg)
 
     val lb = new ListBuffer[String]
     val it = args.iterator
@@ -1213,7 +1213,7 @@ object Runner {
         if (!suiteName.startsWith("-"))
           lb += suiteName
         else
-          throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + suiteName)
+          throw new IllegalArgumentException("Expecting a Suite class name or package name to follow " + dashArg + ", but got: " + suiteName)
       }
       else
         throw new IllegalArgumentException("Last element must be a Suite class name or package name, not a " + dashArg + ".")
@@ -1279,7 +1279,7 @@ object Runner {
           throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + className)
       }
       else
-        throw new IllegalArgumentException("Last element must be a Suite class name or package name, not a " + dashArg + ".")
+        throw new IllegalArgumentException("Last element must be a Suite class name, not a " + dashArg + ".")
     }
     lb.toList
   }
@@ -1468,6 +1468,10 @@ object Runner {
     if (junitsList == null)
       throw new NullPointerException
     if (stopRequested == null)
+      throw new NullPointerException
+    if (tagsToIncludeSet == null)
+      throw new NullPointerException
+    if (tagsToExcludeSet == null)
       throw new NullPointerException
     if (configMap == null)
       throw new NullPointerException

@@ -19,4 +19,9 @@ package org.scalatest
  * suiteTags is a map from String suiteId to a set of tags for that suite.
  * testTags is a map from String suiteId to a map, whose keys are testnames and values the tags for that test.
  */
-case class DynaTags(suiteTags: Map[String, Set[String]], testTags: Map[String, Map[String, Set[String]]])
+case class DynaTags(suiteTags: Map[String, Set[String]], testTags: Map[String, Map[String, Set[String]]]) {
+  if (dynaTags.suiteTags == null)
+    throw new NullPointerException("suiteTags was null")
+  if (dynaTags.testTags == null)
+    throw new NullPointerException("testTags was null")
+}

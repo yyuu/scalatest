@@ -37,10 +37,6 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     throw new NullPointerException("tagsToExclude was null")
   if (dynaTags == null)
     throw new NullPointerException("dynaTags was null")
-  if (dynaTags.suiteTags == null)
-    throw new NullPointerException("dynaTags.suiteTags was null")
-  if (dynaTags.testTags == null)
-    throw new NullPointerException("dynaTags.testTags was null")
 
   tagsToInclude match {
     case Some(tagsToInclude) =>
