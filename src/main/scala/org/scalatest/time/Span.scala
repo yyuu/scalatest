@@ -28,7 +28,7 @@ import org.scalatest.Resources
  * the <code>timeLimit</code> field of trait
  * <a href="../concurrent/TimeLimitedTests.html"><code>TimeLimitedTests</code></a>, and
  * the timeouts of traits <a href="../concurrent/Eventually.html"><code>Eventually</code></a>,
- * <a href="../concurrent/WhenReady.html"><code>WhenReady</code></a>, and
+ * <a href="../concurrent/Futures.html"><code>Futures</code></a>, and
  * <a href="../concurrent/Waiter.html"><code>Waiter</code></a>. Here's an example:
  * </p>
  *

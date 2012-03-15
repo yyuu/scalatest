@@ -22,7 +22,8 @@ class FutureConceptSpec extends FunSpec with JavaFutures with SeveredStackTraces
       val future = new SuperFutureOfJava
       assert(future.isReadyWithin(Span(1, Millisecond)))
     }
-    it("can be asked to wait until readu, but limiting waiting to within a specified time span") {
+
+    it("can be asked to wait until ready, but limiting waiting to within a specified time span") {
       // isReadyWithin(Span): Boolean
       val future = new SuperFutureOfJava
       val result = future.awaitAtMost(Span(1, Millisecond))

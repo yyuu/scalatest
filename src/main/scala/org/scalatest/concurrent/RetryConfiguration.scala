@@ -29,14 +29,14 @@ import time.{Millis, Second, Span}
 /**
  * Trait providing methods and classes used to configure retries performed by the
  * the <code>eventually</code> methods of trait <a href="Eventually.html"><code>Eventually</code></a>
- * and the <code>whenReady</code> methods of trait <a href="WhenReady.html"><code>WhenReady</code></a>.
+ * and the <code>whenReady</code> methods of trait <a href="Futures.html"><code>Futures</code></a>.
  *
  * @author Bill Venners
  */
 trait RetryConfiguration {
 
   /**
-   * Configuration object for traits <code>Eventually</code> and <code>WhenReady</code>.
+   * Configuration object for traits <code>Eventually</code> and <code>Futures</code>.
    *
    * <p>
    * The default values for the parameters are:
@@ -71,11 +71,11 @@ trait RetryConfiguration {
   final case class RetryConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis))
 
   /**
-   * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>WhenReady</code>.
+   * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>Futures</code>.
    * 
    * <p>
    * The subclasses of this abstract class are used to pass configuration information to
-   * the <code>eventually</code> methods of trait <code>Eventually</code> and the <code>whenReady</code> method of trait <code>WhenReady</code>.
+   * the <code>eventually</code> methods of trait <code>Eventually</code> and the <code>whenReady</code> method of trait <code>Futures</code>.
    * </p>
    *
    * @author Bill Venners

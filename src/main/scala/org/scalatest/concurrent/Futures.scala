@@ -30,7 +30,7 @@ import scala.annotation.tailrec
  * To make <code>whenReady</code> more broadly applicable, the type of future it accepts is a <code>FutureConcept[T]</code>,
  * where <code>T</code> is the type of value promised by the future. Passing a future to <code>whenReady</code> requires
  * an implicit conversion from the type of future you wish to pass (the <em>modeled type</em>) to
- * <code>FutureConcept[T]</code>. <code>WhenReady</code> provides an implicit conversion from
+ * <code>FutureConcept[T]</code>. <code>Futures</code> provides an implicit conversion from
  * <code>java.util.concurrent.Future[T]</code> to <code>org.scalatest.concurrent.FutureConcept[T]</code>.
  * <strong>Another one for Scala actors future is likely forthcoming prior to the 1.8 release.</strong>
  * </p>
@@ -42,7 +42,7 @@ import scala.annotation.tailrec
  * <pre class="stHighlight">
  * import org.scalatest._
  * import matchers.ShouldMatchers._
- * import concurrent.WhenReady._
+ * import concurrent.Futures._
  * import java.util.concurrent._
  * 
  * val exec = Executors.newSingleThreadExecutor
@@ -120,13 +120,13 @@ import scala.annotation.tailrec
  * </table>
  *
 * <p>
- * The <code>whenReady</code> methods of trait <code>WhenReady</code> each take an <code>RetryConfig</code>
+ * The <code>whenReady</code> methods of trait <code>Futures</code> each take an <code>RetryConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
- * <code>WhenReady</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
+ * <code>Futures</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
  * configuration parameter set to its default value. 
  * If you want to set one or more configuration parameters to a different value for all invocations of
  * <code>whenReady</code> in a suite you can override this
- * val (or hide it, for example, if you are importing the members of the <code>WhenReady</code> companion object rather
+ * val (or hide it, for example, if you are importing the members of the <code>Futures</code> companion object rather
  * than mixing in the trait). For example, if
  * you always want the default <code>timeout</code> to be 2 seconds and the default <code>interval</code> to be 5 milliseconds, you
  * can override <code>retryConfig</code>, like this:
@@ -147,7 +147,7 @@ import scala.annotation.tailrec
  *
  * <p>
  * In addition to taking a <code>RetryConfig</code> object as an implicit parameter, the <code>whenReady</code> methods of trait
- * <code>WhenReady</code> include overloaded forms that take one or two <code>RetryConfigParam</code>
+ * <code>Futures</code> include overloaded forms that take one or two <code>RetryConfigParam</code>
  * objects that you can use to override the values provided by the implicit <code>RetryConfig</code> for a single <code>whenReady</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>whenReady</code> invocation,
  * you can do so like this:
@@ -189,7 +189,7 @@ import scala.annotation.tailrec
  *
  * @author Bill Venners
  */
-trait WhenReady extends RetryConfiguration {
+trait Futures extends RetryConfiguration {
 
   /**
    * Queries the passed future repeatedly until it either is ready, or a configured maximum
@@ -315,13 +315,13 @@ trait WhenReady extends RetryConfiguration {
         throw new TestFailedException(
           sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
           None,
-          getStackDepthFun("WhenReady.scala", "whenReady")
+          getStackDepthFun("Futures.scala", "whenReady")
         )
       if (future.isExpired)
         throw new TestFailedException(
           sde => Some(Resources("futureExpired", attempt.toString, interval.prettyString)),
           None,
-          getStackDepthFun("WhenReady.scala", "whenReady")
+          getStackDepthFun("Futures.scala", "whenReady")
         )
       future.value match {
         case Some(Right(v)) => fun(v)
@@ -337,7 +337,7 @@ trait WhenReady extends RetryConfiguration {
                 Resources("futureReturnedAnExceptionWithMessage", e.getClass.getName, e.getMessage)
             },
             Some(e),
-            getStackDepthFun("WhenReady.scala", "whenReady")
+            getStackDepthFun("Futures.scala", "whenReady")
           )
         case None => 
           val duration = System.nanoTime - startNanos
@@ -347,7 +347,7 @@ trait WhenReady extends RetryConfiguration {
             throw new TestFailedException(
               sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
               None,
-              getStackDepthFun("WhenReady.scala", "whenReady")
+              getStackDepthFun("Futures.scala", "whenReady")
             )
           }
 
@@ -359,8 +359,8 @@ trait WhenReady extends RetryConfiguration {
 }
 
 /**
- * Companion object that facilitates the importing of <code>WhenReady</code> members as 
- * an alternative to mixing in the trait. One use case is to import <code>WhenReady</code>'s members so you can use
+ * Companion object that facilitates the importing of <code>Futures</code> members as
+ * an alternative to mixing in the trait. One use case is to import <code>Futures</code>'s members so you can use
  * them in the Scala interpreter:
  *
  * <pre class="stREPL">
@@ -375,8 +375,8 @@ trait WhenReady extends RetryConfiguration {
  * scala&gt; import matchers.ShouldMatchers._
  * import matchers.ShouldMatchers._
  *
- * scala&gt; import concurrent.WhenReady._
- * import concurrent.WhenReady._
+ * scala&gt; import concurrent.Futures._
+ * import concurrent.Futures._
  *
  * scala&gt; import java.util.concurrent._
  * import java.util.concurrent._
@@ -394,8 +394,8 @@ trait WhenReady extends RetryConfiguration {
  * 
  * scala&gt; whenReady(exec.submit(task)) { s =&gt; s shouldBe "hi" }
  * org.scalatest.TestFailedException: The future passed to whenReady was never ready, so whenReady timed out. Queried 95 times, sleeping 10 milliseconds between each query.
- *   at org.scalatest.concurrent.WhenReady$class.tryTryAgain$1(WhenReady.scala:203)
+ *   at org.scalatest.concurrent.Futures$class.tryTryAgain$1(Futures.scala03)
  *   ...
  * </pre>
  */
-object WhenReady extends WhenReady
+object Futures extends Futures

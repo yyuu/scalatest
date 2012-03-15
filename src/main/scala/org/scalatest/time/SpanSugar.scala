@@ -27,7 +27,7 @@ package org.scalatest.time
  * <a href="../concurrent/Timeouts.html"><code>Timeouts</code></a> or the <code>timeLimit</code> field of trait
  * <a href="../concurrent/TimeLimitedTests.html"><code>TimeLimitedTests</code></a>. It can also be used to specify
  * timeouts when using traits <a href="../concurrent/Eventually.html"><code>Eventually</code></a>,
- * <a href="../concurrent/WhenReady.html"><code>WhenReady</code></a>,
+ * <a href="../concurrent/Futures.html"><code>Futures</code></a>,
  * <a href="../concurrent/Waiter.html"><code>Waiter</code></a>. Here are examples of each unit enabled by this trait:
  * </p>
  *

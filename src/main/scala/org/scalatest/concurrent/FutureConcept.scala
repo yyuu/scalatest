@@ -19,7 +19,7 @@ import org.scalatest.time.Span
 
 /**
  * Concept trait for futures, instances of which are passed to the <code>whenReady</code>
- * methods of trait <code>WhenReady</code>.
+ * methods of trait <code>Futures</code>.
  *
  * @author Bill Venners
  */

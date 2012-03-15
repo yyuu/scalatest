@@ -209,10 +209,10 @@ class Waiter {
       throw thrown.get
     else if (timedOut)
       throw new TestFailedException(Resources("awaitTimedOut"), 1)
-  } // This has an interval and a timeout, just like Eventually and WhenReady. Hmm...
+  } // This has an interval and a timeout, just like Eventually and Futures. Hmm...
   // I think it makes sense. Have overloaded await calls? Or just use nulls? And take
   // a RetryConfig. Dismissals default can be 1. But that means I need the timeout and interval methods,
-  // just like Eventually and WhenReady, and I need a dismissals method to make it consistent.
+  // just like Eventually and Futures, and I need a dismissals method to make it consistent.
   
   /**
    * Increases the dismissal count by one. 

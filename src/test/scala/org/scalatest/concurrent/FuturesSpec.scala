@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import org.scalatest._
 import time.{Milliseconds, Millisecond, Millis, Span}
 
-class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with WhenReady with JavaFutures with SeveredStackTraces {
+class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Futures with JavaFutures with SeveredStackTraces {
 
   describe("The whenReady construct") {
 
@@ -63,7 +63,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
         } should produce [TestFailedException]
       caught.message.value should be ("\"h[i]\" did not equal \"h[o]\"")
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
-      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
 
     it("should, if the function arg completes abruptly with a non-stack depth exception, complete abruptly with the same exception") {
@@ -120,7 +120,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
       } should produce [TestFailedException]
       caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
-      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
     
     it("should throw TFE with appropriate detail message if the future expires") {
@@ -138,7 +138,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
       } should produce [TestFailedException]
       caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
-      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
 
     it("should eventually blow up with a TFE if the future is never ready") {
@@ -159,7 +159,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
 
       caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
-      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
     
     val neverReadyFuture =
@@ -172,25 +172,25 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
         whenReady(neverReadyFuture, timeout(Span(100, Millis)), interval(Span(1, Millisecond))) { s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught1.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught1.failedCodeFileName.value should be ("FuturesSpec.scala")
      
       val caught2 = evaluating {
         whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(100, Millis))) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught2.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught2.failedCodeFileName.value should be ("FuturesSpec.scala")
       
       val caught3 = evaluating {
        whenReady(neverReadyFuture, timeout(Span(100, Millis))) {  s => s should equal ("hi") }
       } should produce [TestFailedException]
       caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught3.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught3.failedCodeFileName.value should be ("FuturesSpec.scala")
      
       val caught4 = evaluating {
         whenReady(neverReadyFuture, interval(Span(1, Millisecond))) { s => s should equal ("hi")  }
       } should produce [TestFailedException]
       caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught4.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught4.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
 
     it("should by default query a never-ready future for at least 1 second") {
@@ -265,7 +265,7 @@ class WhenReadySpec extends FunSpec with ShouldMatchers with OptionValues with W
           }
         }
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
-      caught.failedCodeFileName.value should be ("WhenReadySpec.scala")
+      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
       assert(caught.cause.value.isInstanceOf[RuntimeException])
       caught.cause.value.getMessage should be ("oops")
     }
