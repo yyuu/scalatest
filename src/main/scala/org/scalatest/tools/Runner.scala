@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutorService
 import scala.collection.mutable.ArrayBuffer
 import SuiteDiscoveryHelper._
 
-private[tools] case class SuiteParam(className: String, testNames: Array[String], nestedSuites: Array[NestedSuiteParam])
+private[tools] case class SuiteParam(className: String, testNames: Array[String], nestedSuitesMap: Map[String, NestedSuiteParam])
 private[tools] case class NestedSuiteParam(suiteId: String, testNames: Array[String])
 
 /**
@@ -1273,7 +1273,7 @@ object Runner {
             else
               Array.empty[NestedSuiteParam]
           
-          lb += SuiteParam(className, testNames, nestedSuites)
+          lb += SuiteParam(className, testNames, Map() ++ nestedSuites.map(ns => (ns.suiteId, ns)))
         }
         else
           throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + className)
@@ -1518,7 +1518,7 @@ object Runner {
   
       if (!loadProblemsExist) {
         
-        case class SuiteConfig(suite: Suite, dynaTags: DynaTags, requireSelectedTag: Boolean, excludeNestedSuites: Boolean)
+        case class SuiteConfig(suite: Suite, dynaTags: Map[String, Map[String, Set[String]]], requireSelectedTag: Boolean, excludeNestedSuites: Boolean)
         
         try {
           val namedSuiteInstances: List[SuiteConfig] =
@@ -1540,37 +1540,49 @@ object Runner {
                   constructor.get.newInstance(clazz).asInstanceOf[Suite]
                 }
                 
-                if (suiteParam.testNames.length == 0 && suiteParam.nestedSuites.length == 0)
-                  SuiteConfig(suiteInstance, new DynaTags(Map.empty, Map.empty), false, false) // -s suiteClass, no dynamic tagging required.
+                if (suiteParam.testNames.length == 0 && suiteParam.nestedSuitesMap.size == 0)
+                  SuiteConfig(suiteInstance, Map.empty, false, false) // -s suiteClass, no dynamic tagging required.
                 else {
-                  val nestedSuites = suiteParam.nestedSuites
-                  
-                  val (selectSuiteList, selectTestList) = nestedSuites.partition(ns => ns.testNames.length == 0)
-                  val suiteDynaTags: Map[String, Set[String]] = Map() ++ selectSuiteList.map(ns => (ns.suiteId -> Set(SELECTED_TAG)))
-                  
+                  // Dynamic tag selected test names with @Selected
                   val suiteTestDynaTags: Map[String, Map[String, Set[String]]] = 
                     if (suiteParam.testNames.length > 0)
                       Map(suiteInstance.suiteId -> (Map() ++ suiteParam.testNames.map(tn => (tn -> Set(SELECTED_TAG)))))
                     else
                       Map.empty
-                    
-                  val nestedSuitesTestDynaTags: Map[String, Map[String, Set[String]]] 
-                    = Map() ++ selectTestList.map(ns => (ns.suiteId -> (Map() ++ ns.testNames.map(tn => (tn, Set(SELECTED_TAG))))))
                   
-                  val testDynaTags = mergeMap[String, Map[String, Set[String]]](List(suiteTestDynaTags, nestedSuitesTestDynaTags)) { (suiteTestMap1, suiteTestMap2) => 
+                  // Now let's dynamic tag nested suites
+                  val nestedSuites = suiteInstance.nestedSuites
+                  val nestedSuitesParamMap = suiteParam.nestedSuitesMap 
+                  val nestedDynaTags: Map[String, Map[String, Set[String]]] = 
+                    Map() ++ nestedSuites
+                               .filter(ns => nestedSuitesParamMap.isDefinedAt(ns.suiteId))
+                               .map { ns => 
+                                  val nsParam = nestedSuitesParamMap(ns.suiteId)
+                                  if (nsParam.testNames.length == 0) {
+                                    // Tag all test names in the nested suite
+                                    val nsTestNames = ns.testNames
+                                    (nsParam.suiteId, Map() ++ nsTestNames.map(tn => (tn, Set(SELECTED_TAG))))
+                                  }
+                                  else // Tag only selected test names in the nested suite
+                                    (nsParam.suiteId, Map() ++ nsParam.testNames.map(tn => (tn, Set(SELECTED_TAG))))
+                                }
+                  
+                  // Now combine all of them.
+                  val testDynaTags = mergeMap[String, Map[String, Set[String]]](List(suiteTestDynaTags, nestedDynaTags)) { (suiteTestMap1, suiteTestMap2) => 
                                        mergeMap[String, Set[String]](List(suiteTestMap1, suiteTestMap2)) { (tagSet1, tagSet2) =>
                                          tagSet1 ++ tagSet2
                                        }
-                                     }
+                                     }  
+                  
                   // Only exclude nested suites when using -s XXX -t XXXX
                   val excludeNestedSuites = suiteParam.testNames.length > 0 && nestedSuites.length == 0
-                  SuiteConfig(suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true, excludeNestedSuites)
+                  SuiteConfig(suiteInstance, testDynaTags, true, excludeNestedSuites)
                 }
               }
           
           val requireSelectedTag = suitesList.find(suiteParam => suiteParam.testNames.length > 0)
           
-          val emptyDynaTags = DynaTags(Map.empty[String, Set[String]], Map.empty[String, Map[String, Set[String]]])
+          val emptyDynaTags = Map.empty[String, Map[String, Set[String]]]
 
           val junitSuiteInstances: List[SuiteConfig] =
             for (junitClassName <- junitsList)

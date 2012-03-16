@@ -631,19 +631,19 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     assert(case3.length === 1)
     assert(case3(0).className === "suite1")
     assert(case3(0).testNames.length === 0)
-    assert(case3(0).nestedSuites.length === 1)
-    assert(case3(0).nestedSuites(0).suiteId === "nested1")
-    assert(case3(0).nestedSuites(0).testNames.length === 0)
+    assert(case3(0).nestedSuitesMap.size === 1)
+    assert(case3(0).nestedSuitesMap("nested1").suiteId === "nested1")
+    assert(case3(0).nestedSuitesMap("nested1").testNames.length === 0)
     
     val case4 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-t", "test1", "-t", "test2"), "-s")
     assert(case4.length === 1)
     assert(case4(0).className === "suite1")
     assert(case4(0).testNames.length === 0)
-    assert(case4(0).nestedSuites.length === 1)
-    assert(case4(0).nestedSuites(0).suiteId === "nested1")
-    assert(case4(0).nestedSuites(0).testNames.length === 2)
-    assert(case4(0).nestedSuites(0).testNames(0) === "test1")
-    assert(case4(0).nestedSuites(0).testNames(1) === "test2")
+    assert(case4(0).nestedSuitesMap.size === 1)
+    assert(case4(0).nestedSuitesMap("nested1").suiteId === "nested1")
+    assert(case4(0).nestedSuitesMap("nested1").testNames.length === 2)
+    assert(case4(0).nestedSuitesMap("nested1").testNames(0) === "test1")
+    assert(case4(0).nestedSuitesMap("nested1").testNames(1) === "test2")
   }
 
 /*

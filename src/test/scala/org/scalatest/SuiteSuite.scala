@@ -491,12 +491,12 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
     val excludeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(excludeReporter, new Stopper {}, excludeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(excludeReporter.suiteStartingEventsReceived.size === 3)
+    assert(excludeReporter.suiteStartingEventsReceived.size === 4) // For suite marked with @Ignore, still receive suite starting, but no test will be run
     assert(excludeReporter.testIgnoredEventsReceived.size === 3)
     val excludeReporterDist = new EventRecordingReporter
     val excludeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
-    assert(excludeDistributor.count === 3)
+    assert(excludeDistributor.count === 4) // For suite marked with @Ignore, the suite get suite starting and completed event, but no test will be run.
   }
   
   def testExpectedTestCount() {

@@ -2245,7 +2245,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     testName match {
 
       case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, testTags, this)
+        val (filterTest, ignoreTest) = filter(tn, testTags, suiteId, suiteTags)
         if (!filterTest) {
           if (ignoreTest)
             reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2254,7 +2254,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         }
 
       case None =>
-        for ((tn, ignoreTest) <- filter(testNames, testTags, this)) {
+        for ((tn, ignoreTest) <- filter(testNames, testTags, suiteId, suiteTags)) {
           if (!stopRequested()) {
             if (ignoreTest)
               reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2461,16 +2461,15 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     }
     
     if (!filter.excludeNestedSuites) {
-      val filteredNestedSuites = filter(nestedSuites)
       distributor match {
         case None =>
-          val nestedSuitesArray = filteredNestedSuites.toArray
-          for ((nestedSuite, ignored) <- nestedSuitesArray) {
+          val nestedSuitesArray = nestedSuites.toArray
+          for (nestedSuite <- nestedSuitesArray) {
             if (!stopRequested()) 
               callExecuteOnSuite(nestedSuite)
           }
         case Some(distribute) =>
-          for ((nestedSuite, ignored) <- filteredNestedSuites) 
+          for (nestedSuite <- nestedSuites) 
             distribute(nestedSuite, tracker.nextTracker(), filter)
       }
     }
@@ -2630,14 +2629,10 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
       nestedSuites match {
         case List() => 0
         case nestedSuite :: nestedSuites => 
-          val (filtered, ignore) = filter(nestedSuite)
-          if (!filtered && !ignore)
-            nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
-          else
-            countNestedSuiteTests(nestedSuites, filter)
+          nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
     }
 
-    filter.runnableTestCount(testNames, testTags, this) + countNestedSuiteTests(nestedSuites, filter)
+    filter.runnableTestCount(testNames, testTags, suiteId, suiteTags) + countNestedSuiteTests(nestedSuites, filter)
   }
 
   // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,
