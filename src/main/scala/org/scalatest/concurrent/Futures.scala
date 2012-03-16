@@ -391,7 +391,24 @@ trait Futures extends TimeoutConfiguration {
      */
     def awaitResult(implicit config: TimeoutConfig): T = {
 
-      val methodName = "awaitResult" // Kludge
+      val st = Thread.currentThread.getStackTrace
+      val callerStackFrame = 
+        if (!st(2).getMethodName.contains("awaitResult"))
+         st(2)
+        else
+         st(3)
+      
+      val methodName = 
+        if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "whenReady")
+          "whenReady"
+        else
+          "awaitResult"
+          
+      val adjustment = 
+        if (methodName == "whenReady")
+          3
+        else
+          0  
 
       val startNanos = System.nanoTime
 
@@ -403,13 +420,13 @@ trait Futures extends TimeoutConfiguration {
           throw new TestFailedException(
             sde => Some(Resources("futureWasCanceled")),
             None,
-            getStackDepthFun("Futures.scala", methodName)
+            getStackDepthFun("Futures.scala", methodName, adjustment)
           )
         if (thisFuture.isExpired)
           throw new TestFailedException(
             sde => Some(Resources("futureExpired", attempt.toString, interval.prettyString)),
             None,
-            getStackDepthFun("Futures.scala", methodName)
+            getStackDepthFun("Futures.scala", methodName, adjustment)
           )
         thisFuture.value match {
           case Some(Right(v)) => v
@@ -424,7 +441,7 @@ trait Futures extends TimeoutConfiguration {
                   Resources("futureReturnedAnExceptionWithMessage", e.getClass.getName, e.getMessage)
               },
               Some(e),
-              getStackDepthFun("Futures.scala", methodName)
+              getStackDepthFun("Futures.scala", methodName, adjustment)
             )
           case None =>
             val duration = System.nanoTime - startNanos
@@ -432,9 +449,9 @@ trait Futures extends TimeoutConfiguration {
               Thread.sleep(interval.millisPart, interval.nanosPart)
             else {
               throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
-                sde => Some(Resources("wasNeverReady")),
+                sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
                 None,
-                getStackDepthFun("Futures.scala", methodName)
+                getStackDepthFun("Futures.scala", methodName, adjustment)
               )
             }
 
