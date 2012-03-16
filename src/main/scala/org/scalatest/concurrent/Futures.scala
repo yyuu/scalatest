@@ -401,7 +401,7 @@ trait Futures extends TimeoutConfiguration {
         val interval = config.interval
         if (thisFuture.isCanceled)
           throw new TestFailedException(
-            sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
+            sde => Some(Resources("futureWasCanceled")),
             None,
             getStackDepthFun("Futures.scala", methodName)
           )
@@ -432,7 +432,7 @@ trait Futures extends TimeoutConfiguration {
               Thread.sleep(interval.millisPart, interval.nanosPart)
             else {
               throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
-                sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
+                sde => Some(Resources("wasNeverReady")),
                 None,
                 getStackDepthFun("Futures.scala", methodName)
               )
@@ -569,7 +569,7 @@ trait Futures extends TimeoutConfiguration {
       val interval = config.interval
       if (future.isCanceled)
         throw new TestFailedException(
-          sde => Some(Resources("futureWasCanceled", attempt.toString, interval.prettyString)),
+          sde => Some(Resources("futureWasCanceled")),
           None,
           getStackDepthFun("Futures.scala", "whenReady")
         )

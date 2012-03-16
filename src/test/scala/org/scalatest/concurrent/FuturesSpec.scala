@@ -24,7 +24,19 @@ import java.util.concurrent.TimeUnit
 import org.scalatest._
 import time.{Milliseconds, Millisecond, Millis, Span}
 
-class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with JavaFutures with SeveredStackTraces {
+class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Futures with SeveredStackTraces {
+
+  implicit def convertJavaFuture[T](javaFuture: FutureOfJava[T]): FutureConcept[T] =
+    new FutureConcept[T] {
+      def value: Option[Either[Throwable, T]] =
+        if (javaFuture.isDone())
+          Some(Right(javaFuture.get))
+        else
+          None
+      def isExpired: Boolean = false // Java Futures don't support the notion of a timeout
+      def isCanceled: Boolean = javaFuture.isCancelled // Two ll's in Canceled. The verbosity of Java strikes again!
+      // This one doesn't override awaitResult, so that I can test the polling code
+    }
 
   describe("A Future") {
 
