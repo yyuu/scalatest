@@ -2,8 +2,9 @@ package org.scalatest.concurrent
 
 import org.scalatest.time.Span
 import java.util.concurrent.{TimeUnit, Future => FutureOfJava}
-import org.scalatest.{TestFailedException, Resources}
 import org.scalatest.StackDepthExceptionHelper.getStackDepthFun
+import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
+import org.scalatest.{TestPendingException, TestFailedException, Resources}
 
 /**
  * Provides an implicit conversion from <code>java.util.concurrent.Future[T]</code> to
@@ -16,6 +17,9 @@ trait JavaFutures extends Futures {
    * <code>FutureConcept[T]</code>, allowing you to invoke the methods
    * defined on <code>FutureConcept</code> on a Java <code>Future</code>, as well as to pass a Java future
    * to the <code>whenReady</code> methods of supertrait <code>Futures</code>.
+   *
+   * // TODO: Document that for ExecutionException, we pull the cause out and wrap that
+   * // in a TFE. So we drop the EE.
    *
    * @param javaFuture a <code>java.util.concurrent.Future[T]</code> to convert
    */
@@ -45,6 +49,22 @@ trait JavaFutures extends Futures {
             throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
               sde => Some(Resources("wasNeverReady")),
               None,
+              getStackDepthFun("JavaFutures.scala", "awaitResult")
+            )
+          case e: java.util.concurrent.ExecutionException =>
+            val cause = e.getCause
+            val exToReport = if (cause == null) e else cause // TODO: in 2.0 add TestCanceledException here
+            if (anErrorThatShouldCauseAnAbort(exToReport) || exToReport.isInstanceOf[TestPendingException]) {
+              throw exToReport
+            }
+            throw new TestFailedException(
+              sde => Some {
+                if (exToReport.getMessage == null)
+                  Resources("futureReturnedAnException", exToReport.getClass.getName)
+                else
+                  Resources("futureReturnedAnExceptionWithMessage", exToReport.getClass.getName, exToReport.getMessage)
+              },
+              Some(exToReport),
               getStackDepthFun("JavaFutures.scala", "awaitResult")
             )
         }

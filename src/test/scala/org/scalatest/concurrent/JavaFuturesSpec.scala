@@ -19,8 +19,8 @@ package org.scalatest.concurrent
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.SharedHelpers.thisLineNumber
 import org.scalatest._
-import java.util.concurrent.{Callable, ExecutorService, Executors, Future => FutureOfJava, TimeUnit, FutureTask}
 import time._
+import java.util.concurrent.{ExecutionException, Callable, ExecutorService, Executors, Future => FutureOfJava, TimeUnit, FutureTask}
 
 class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with JavaFutures with SeveredStackTraces {
 
@@ -32,6 +32,12 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
     class Sleeper(napTime: Span) extends Callable[String] {
       def call(): String = {
         Thread.sleep(napTime.millisPart, napTime.nanosPart)
+        "hi"
+      }
+    }
+    class Sleeper2(napTime: Long) extends Callable[String] {
+      def call(): String = {
+        Thread.sleep(napTime)
         "hi"
       }
     }
@@ -157,66 +163,36 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
       }
     }
 
-    ignore("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+    it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
 
-/*      val vmeCallable = new Callable[String] {
-        def call(): String = {
-          throw new RuntimeException("oops")
+      val task = new ThrowingTask(new RuntimeException("oops"))
+      val caught =
+        intercept[TestFailedException] {
+          task.awaitResult
         }
-      }  */
-
-      val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
-      try {
-        val task = new ThrowingTask(new RuntimeException("oops"))
-        val vmeFuture = execSvc.submit(task)
-        val caught =
-          intercept[TestFailedException] {
-            vmeFuture.awaitResult
-          }
-        caught.failedCodeLineNumber.value should equal(thisLineNumber - 2)
-        caught.failedCodeFileName.value should be("JavaFuturesSpec.scala")
-        assert(caught.cause.value.isInstanceOf[RuntimeException])
-        caught.cause.value.getMessage should be("oops")
-      }
-      finally {
-        execSvc.shutdown()
-      }
+      caught.failedCodeLineNumber.value should equal(thisLineNumber - 2)
+      caught.failedCodeFileName.value should be("JavaFuturesSpec.scala")
+      assert(caught.cause.value.isInstanceOf[RuntimeException])
+      caught.cause.value.getMessage should be("oops")
     }
 
-    /*
     it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
-
-      val vmeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
-
-          def isExpired: Boolean = false
-
-          def isCanceled: Boolean = false
-
-          def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
+      // Wrong, should just go up
+      val task = new ThrowingTask(new VirtualMachineError {})
+      val caught =
+        intercept[VirtualMachineError] {
+          task.awaitResult
         }
-      intercept[VirtualMachineError] {
-        vmeFuture.awaitResult
-      }
     }
 
     // Same thing here and in 2.0 need to add a test for TestCanceledException
     it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
-      val tpeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
-
-          def isExpired: Boolean = false
-
-          def isCanceled: Boolean = false
-
-          def awaitAtMost(span: Span): String = throw new TestPendingException
+      val task = new ThrowingTask(new TestPendingException)
+        intercept[TestPendingException] {
+          task.awaitResult
         }
-      intercept[TestPendingException] {
-        tpeFuture.awaitResult
-      }
     }
+    /*
   }
 
   describe("The whenReady construct") {
