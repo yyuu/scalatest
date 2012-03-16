@@ -60,8 +60,14 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
           execSvc.shutdown()
         }
       }
+        /*  TODO: See if you can come up with a way to do this here
+      it("should query a never-ready future by at least the specified timeout") {
+        var startTime = System.currentTimeMillis
+        neverReadyFuture.isReadyWithin(Span(1250, Milliseconds)) should be (false)
+        (System.currentTimeMillis - startTime).toInt should be >= (1250)
+      }  */
 
-      ignore("should throw TFE from isReadyWithin with appropriate detail message if the future is canceled") {
+      it("should throw TFE from isReadyWithin with appropriate detail message if the future is canceled") {
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {
           val task = new CallableTask(new Sleeper(Span(1, Second)))
@@ -80,16 +86,76 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
           execSvc.shutdown()
         }
       }
+      it("should eventually blow up with a TFE if the future is never ready") {
+
+        val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
+        try {
+          val task = new CallableTask(new Sleeper(Span(2, Seconds)))
+          val neverReadyFuture = execSvc.submit(task)
+          val caught = evaluating {
+            neverReadyFuture.isReadyWithin(Span(1, Millisecond))
+          } should produce[TestFailedException]
+
+          caught.message.value should be(Resources("wasNeverReady"))
+          caught.failedCodeLineNumber.value should equal(thisLineNumber - 4)
+          caught.failedCodeFileName.value should be("JavaFuturesSpec.scala")
+        }
+        finally {
+          execSvc.shutdown()
+        }
+      }
+
+      it("should provide correct stack depth") {
+
+        val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
+        try {
+          val task = new CallableTask(new Sleeper(Span(2, Seconds)))
+          def neverReadyFuture = execSvc.submit(task)
+          val caught1 = evaluating {
+            neverReadyFuture.isReadyWithin(Span(100, Millis))
+          } should produce[TestFailedException]
+          caught1.failedCodeLineNumber.value should equal(thisLineNumber - 2)
+          caught1.failedCodeFileName.value should be("JavaFuturesSpec.scala")
+        }
+        finally {
+          execSvc.shutdown()
+        }
+      }
+
+      it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+
+        val task = new ThrowingTask(new RuntimeException("oops"))
+        val caught =
+          intercept[TestFailedException] {
+            task.isReadyWithin(Span(1, Millisecond))
+          }
+        caught.failedCodeLineNumber.value should equal(thisLineNumber - 2)
+        caught.failedCodeFileName.value should be("JavaFuturesSpec.scala")
+        assert(caught.cause.value.isInstanceOf[RuntimeException])
+        caught.cause.value.getMessage should be("oops")
+      }
+
+      it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
+        // Wrong, should just go up
+        val task = new ThrowingTask(new VirtualMachineError {})
+        val caught =
+          intercept[VirtualMachineError] {
+            task.isReadyWithin(Span(1, Millisecond))
+          }
+      }
+
+      // Same thing here and in 2.0 need to add a test for TestCanceledException
+      it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
+        val task = new ThrowingTask(new TestPendingException)
+        intercept[TestPendingException] {
+          task.isReadyWithin(Span(1, Millisecond))
+        }
+      }
     }
-/*
-  it("can be asked to wait until ready, but limiting waiting to within a specified time span") {
-    // isReadyWithin(Span): Boolean
-    val future = new SuperFutureOfJava
-    val result = future.awaitAtMost(Span(1, Millisecond))
-    assert(result === "hi")
-  }  */
+
     describe("when using the awaitResult method") {
-      it("should just return if the function arg returns normally") {
+
+      it("should just return the result if the future completes normally") {
 
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {

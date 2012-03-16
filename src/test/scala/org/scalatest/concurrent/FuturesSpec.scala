@@ -22,7 +22,7 @@ import org.scalatest.FunSpec
 import java.util.concurrent.{Future => FutureOfJava}
 import java.util.concurrent.TimeUnit
 import org.scalatest._
-import time.{Milliseconds, Millisecond, Millis, Span}
+import time._
 
 class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Futures with SeveredStackTraces {
 
@@ -38,7 +38,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       // This one doesn't override awaitResult, so that I can test the polling code
     }
 
-  describe("A Future") {
+  describe("A FutureConcept") {
 
     class SuperFutureOfJava extends FutureOfJava[String] {
       def cancel(mayInterruptIfRunning: Boolean): Boolean = false
@@ -47,474 +47,560 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       def isCancelled: Boolean = false
       def isDone: Boolean = true
     }
-   /*
-    it("can be queried to make sure it is ready within a certain time span") {
-      // isReadyWithin(Span): Boolean
-      val future = new SuperFutureOfJava
-      assert(future.isReadyWithin(Span(1, Millisecond)))
-    }
 
-    it("can be asked to wait until ready, but limiting waiting to within a specified time span") {
-      // isReadyWithin(Span): Boolean
-      val future = new SuperFutureOfJava
-      val result = future.awaitAtMost(Span(1, Millisecond))
-      assert(result === "hi")
-    }  */
-    it("should just return if the function arg returns normally") {
-      val futureIsNow = new SuperFutureOfJava
-      futureIsNow.awaitResult should equal ("hi")
-    }
-
-    // TODO: tests for isDropped and isExpired
-    it("should throw TFE with appropriate detail message if the future is canceled") {
-      val canceledFuture =
-        new SuperFutureOfJava {
-          override def isCancelled = true
-        }
-      val caught = evaluating {
-        canceledFuture.awaitResult
-      } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
-      withClue(caught.getStackTraceString) {
-        caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+    describe("when using the isReadyWithin method") {
+      it("should just return the result if the future completes normally") {
+        val futureIsNow = new SuperFutureOfJava
+        futureIsNow.isReadyWithin(Span(1, Second)) should be (true)
       }
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
 
-    it("should throw TFE with appropriate detail message if the future expires") {
-      val expiredFuture =
-        new FutureConcept[Int] {
-          def value = Some(Right(99))
-          def isCanceled = false
-          def isExpired = true
-          def awaitAtMost(span: Span) = 99
-        }
-      val caught = evaluating {
-        expiredFuture.awaitResult
-      } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 3)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-
-    it("should eventually blow up with a TFE if the future is never ready") {
-
-      var count = 0
-      val neverReadyCountingFuture =
-        new SuperFutureOfJava {
-          override def isDone = {
-            count += 1
-            false
+      it("should throw TFE with appropriate detail message if the future is canceled") {
+        val canceledFuture =
+          new SuperFutureOfJava {
+            override def isCancelled = true
           }
+        val caught = evaluating {
+          canceledFuture.isReadyWithin(Span(1, Second))
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
+        withClue(caught.getStackTraceString) {
+          caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
         }
-      val caught = evaluating {
-        neverReadyCountingFuture.awaitResult
-      } should produce [TestFailedException]
-
-      caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-
-    val neverReadyFuture =
-      new SuperFutureOfJava {
-        override def isDone = false
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
       }
 
-    it("should provides correct stack depth") {
-      val caught1 = evaluating {
-        neverReadyFuture.awaitResult(timeout(Span(100, Millis)), interval(Span(1, Millisecond)))
-      } should produce [TestFailedException]
-      caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught1.failedCodeFileName.value should be ("FuturesSpec.scala")
+      it("should throw TFE with appropriate detail message if the future expires") {
+        val expiredFuture =
+          new FutureConcept[Int] {
+            def value = Some(Right(99))
+            def isCanceled = false
+            def isExpired = true
+            def awaitAtMost(span: Span) = 99
+          }
+        val caught = evaluating {
+          expiredFuture.isReadyWithin(Span(1, Second))
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 3)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
 
-      val caught2 = evaluating {
-        neverReadyFuture.awaitResult(interval(Span(1, Millisecond)), timeout(Span(100, Millis)))
-      } should produce [TestFailedException]
-      caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught2.failedCodeFileName.value should be ("FuturesSpec.scala")
-
-      val caught3 = evaluating {
-        neverReadyFuture.awaitResult(timeout(Span(100, Millis)))
-      } should produce [TestFailedException]
-      caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught3.failedCodeFileName.value should be ("FuturesSpec.scala")
-
-      val caught4 = evaluating {
-        neverReadyFuture.awaitResult(interval(Span(1, Millisecond)))
-      } should produce [TestFailedException]
-      caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught4.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-
-    it("should by default query a never-ready future for at least 1 second") {
-      var startTime = System.currentTimeMillis
-      evaluating {
-        neverReadyFuture.awaitResult
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1000)
-    }
-
-    it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-      implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
-
-      var startTime = System.currentTimeMillis
-      evaluating {
-        neverReadyFuture.awaitResult
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1500)
-    }
-
-    it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
-      var startTime = System.currentTimeMillis
-      evaluating {
-        neverReadyFuture.awaitResult(timeout(Span(1250, Milliseconds)))
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1250)
-    }
-
-    it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-      implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
-
-      var startTime = System.currentTimeMillis
-      evaluating {
-        neverReadyFuture.awaitResult(timeout(Span(1388, Millis)), interval(Span(1, Millisecond)))
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1388)
-    }
-
-    it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-      implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
-
-      var startTime = System.currentTimeMillis
-      evaluating {
-        neverReadyFuture.awaitResult(interval(Span(1, Millisecond)), timeout(Span(1388, Millis)))
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1388)
-    }
-
-    it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
-
-      val vmeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
+      val neverReadyFuture =
+        new SuperFutureOfJava {
+          override def isDone = false
         }
-      val caught =
-        intercept[TestFailedException] {
+
+      it("should query a never-ready future by at least the specified timeout") {
+        var startTime = System.currentTimeMillis
+        neverReadyFuture.isReadyWithin(Span(1250, Milliseconds)) should be (false)
+        (System.currentTimeMillis - startTime).toInt should be >= (1250)
+      }
+
+      it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
+          }
+        val caught =
+          intercept[TestFailedException] {
+            vmeFuture.isReadyWithin(Span(1, Millisecond))
+          }
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+        assert(caught.cause.value.isInstanceOf[RuntimeException])
+        caught.cause.value.getMessage should be ("oops")
+      }
+
+      it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
+          }
+        intercept[VirtualMachineError] {
+          vmeFuture.isReadyWithin(Span(1, Millisecond))
+        }
+      }
+
+      // Same thing here and in 2.0 need to add a test for TestCanceledException
+      it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
+        val tpeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new TestPendingException
+          }
+        intercept[TestPendingException] {
+          tpeFuture.isReadyWithin(Span(1, Millisecond))
+        }
+      }
+    }
+
+    describe("when using the awaitResult method") {
+
+      it("should just return the result if the future completes normally") {
+        val futureIsNow = new SuperFutureOfJava
+        futureIsNow.awaitResult should equal ("hi")
+      }
+
+      it("should throw TFE with appropriate detail message if the future is canceled") {
+        val canceledFuture =
+          new SuperFutureOfJava {
+            override def isCancelled = true
+          }
+        val caught = evaluating {
+          canceledFuture.awaitResult
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
+        withClue(caught.getStackTraceString) {
+          caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+        }
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      it("should throw TFE with appropriate detail message if the future expires") {
+        val expiredFuture =
+          new FutureConcept[Int] {
+            def value = Some(Right(99))
+            def isCanceled = false
+            def isExpired = true
+            def awaitAtMost(span: Span) = 99
+          }
+        val caught = evaluating {
+          expiredFuture.awaitResult
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 3)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      it("should eventually blow up with a TFE if the future is never ready") {
+
+        var count = 0
+        val neverReadyCountingFuture =
+          new SuperFutureOfJava {
+            override def isDone = {
+              count += 1
+              false
+            }
+          }
+        val caught = evaluating {
+          neverReadyCountingFuture.awaitResult
+        } should produce [TestFailedException]
+
+        caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      val neverReadyFuture =
+        new SuperFutureOfJava {
+          override def isDone = false
+        }
+
+      it("should provides correct stack depth") {
+        val caught1 = evaluating {
+          neverReadyFuture.awaitResult(timeout(Span(100, Millis)), interval(Span(1, Millisecond)))
+        } should produce [TestFailedException]
+        caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught1.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught2 = evaluating {
+          neverReadyFuture.awaitResult(interval(Span(1, Millisecond)), timeout(Span(100, Millis)))
+        } should produce [TestFailedException]
+        caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught2.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught3 = evaluating {
+          neverReadyFuture.awaitResult(timeout(Span(100, Millis)))
+        } should produce [TestFailedException]
+        caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught3.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught4 = evaluating {
+          neverReadyFuture.awaitResult(interval(Span(1, Millisecond)))
+        } should produce [TestFailedException]
+        caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught4.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      it("should by default query a never-ready future for at least 1 second") {
+        var startTime = System.currentTimeMillis
+        evaluating {
+          neverReadyFuture.awaitResult
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1000)
+      }
+
+      it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
+        implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
+
+        var startTime = System.currentTimeMillis
+        evaluating {
+          neverReadyFuture.awaitResult
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1500)
+      }
+
+      it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
+        var startTime = System.currentTimeMillis
+        evaluating {
+          neverReadyFuture.awaitResult(timeout(Span(1250, Milliseconds)))
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1250)
+      }
+
+      it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
+        implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
+
+        var startTime = System.currentTimeMillis
+        evaluating {
+          neverReadyFuture.awaitResult(timeout(Span(1388, Millis)), interval(Span(1, Millisecond)))
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1388)
+      }
+
+      it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
+        implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
+
+        var startTime = System.currentTimeMillis
+        evaluating {
+          neverReadyFuture.awaitResult(interval(Span(1, Millisecond)), timeout(Span(1388, Millis)))
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1388)
+      }
+
+      it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
+          }
+        val caught =
+          intercept[TestFailedException] {
+            vmeFuture.awaitResult
+          }
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+        assert(caught.cause.value.isInstanceOf[RuntimeException])
+        caught.cause.value.getMessage should be ("oops")
+      }
+
+      it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
+          }
+        intercept[VirtualMachineError] {
           vmeFuture.awaitResult
         }
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-      assert(caught.cause.value.isInstanceOf[RuntimeException])
-      caught.cause.value.getMessage should be ("oops")
-    }
+      }
 
-    it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
-
-      val vmeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
+      // Same thing here and in 2.0 need to add a test for TestCanceledException
+      it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
+        val tpeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new TestPendingException
+          }
+        intercept[TestPendingException] {
+          tpeFuture.awaitResult
         }
-      intercept[VirtualMachineError] {
-        vmeFuture.awaitResult
       }
     }
 
-    // Same thing here and in 2.0 need to add a test for TestCanceledException
-    it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
-      val tpeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new TestPendingException
+    describe("when using the whenReady construct") {
+
+      class SuperFutureOfJava extends FutureOfJava[String] {
+          def cancel(mayInterruptIfRunning: Boolean): Boolean = false
+          def get: String = "hi"
+          def get(timeout: Long, unit: TimeUnit): String = "hi"
+          def isCancelled: Boolean = false
+          def isDone: Boolean = true
         }
-      intercept[TestPendingException] {
-        tpeFuture.awaitResult
-      }
-    }
-  }
 
-  describe("The whenReady construct") {
-
-    class SuperFutureOfJava extends FutureOfJava[String] {
-        def cancel(mayInterruptIfRunning: Boolean): Boolean = false
-        def get: String = "hi"
-        def get(timeout: Long, unit: TimeUnit): String = "hi"
-        def isCancelled: Boolean = false
-        def isDone: Boolean = true
-      }
-
-    it("should just return if the function arg returns normally") {
-      val futureIsNow = new SuperFutureOfJava
-      whenReady(futureIsNow) { s =>
-        s should equal ("hi")
-      }
-    }
-
-    it("should return the last value if the function arg returns normally") {
-      val futureIsNow = new SuperFutureOfJava
-      val result =
+      it("should just return if the function arg returns normally") {
+        val futureIsNow = new SuperFutureOfJava
         whenReady(futureIsNow) { s =>
           s should equal ("hi")
-          99
         }
-      result should equal (99)
-    }
+      }
 
-    it("should, if the function arg completes abruptly with a TFE, complete abruptly with the same exception") {
-      val futureIsNow = new SuperFutureOfJava
-      val caught =
-        evaluating {
-          whenReady(futureIsNow) { s =>
-            s should equal ("ho")
-          }
-        } should produce [TestFailedException]
-      caught.message.value should be ("\"h[i]\" did not equal \"h[o]\"")
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-
-    it("should, if the function arg completes abruptly with a non-stack depth exception, complete abruptly with the same exception") {
-      val futureIsNow = new SuperFutureOfJava
-      val caught =
-        evaluating {
+      it("should return the last value if the function arg returns normally") {
+        val futureIsNow = new SuperFutureOfJava
+        val result =
           whenReady(futureIsNow) { s =>
             s should equal ("hi")
-            throw new RuntimeException("oops")
+            99
           }
-        } should produce [RuntimeException]
-      caught.getMessage should be ("oops")
-    }
+        result should equal (99)
+      }
 
-    it("should query the future just once if the future is ready the first time") {
-      var count = 0
-      val countingFuture =
-        new SuperFutureOfJava {
-          override def isDone = {
-            count += 1
-            true
-          }
+      it("should, if the function arg completes abruptly with a TFE, complete abruptly with the same exception") {
+        val futureIsNow = new SuperFutureOfJava
+        val caught =
+          evaluating {
+            whenReady(futureIsNow) { s =>
+              s should equal ("ho")
+            }
+          } should produce [TestFailedException]
+        caught.message.value should be ("\"h[i]\" did not equal \"h[o]\"")
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
       }
-      whenReady(countingFuture) { s =>
-        s should equal ("hi")
-      }
-      count should equal (1)
-    }
 
-    it("should query the future five times if the future is not ready four times before finally being ready the fifth time") {
-      var count = 0
-      val countingFuture =
-        new SuperFutureOfJava {
-          override def isDone = {
-            count += 1
-            count >= 5
-          }
+      it("should, if the function arg completes abruptly with a non-stack depth exception, complete abruptly with the same exception") {
+        val futureIsNow = new SuperFutureOfJava
+        val caught =
+          evaluating {
+            whenReady(futureIsNow) { s =>
+              s should equal ("hi")
+              throw new RuntimeException("oops")
+            }
+          } should produce [RuntimeException]
+        caught.getMessage should be ("oops")
       }
-      whenReady(countingFuture) { s =>
-        s should equal ("hi")
-      }
-      count should equal (5)
-    }
-// TODO: tests for isDropped and isExpired
-    it("should throw TFE with appropriate detail message if the future is canceled") {
-      val canceledFuture =
-        new SuperFutureOfJava {
-          override def isCancelled = true
+
+      it("should query the future just once if the future is ready the first time") {
+        var count = 0
+        val countingFuture =
+          new SuperFutureOfJava {
+            override def isDone = {
+              count += 1
+              true
+            }
         }
-      val caught = evaluating {
-        whenReady(canceledFuture) { s =>
+        whenReady(countingFuture) { s =>
           s should equal ("hi")
         }
-      } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
-      withClue(caught.getStackTraceString) {
+        count should equal (1)
+      }
+
+      it("should query the future five times if the future is not ready four times before finally being ready the fifth time") {
+        var count = 0
+        val countingFuture =
+          new SuperFutureOfJava {
+            override def isDone = {
+              count += 1
+              count >= 5
+            }
+        }
+        whenReady(countingFuture) { s =>
+          s should equal ("hi")
+        }
+        count should equal (5)
+      }
+  // TODO: tests for isDropped and isExpired
+      it("should throw TFE with appropriate detail message if the future is canceled") {
+        val canceledFuture =
+          new SuperFutureOfJava {
+            override def isCancelled = true
+          }
+        val caught = evaluating {
+          whenReady(canceledFuture) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
+        withClue(caught.getStackTraceString) {
+          caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
+        }
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      it("should throw TFE with appropriate detail message if the future expires") {
+        val expiredFuture =
+          new FutureConcept[Int] {
+            def value = Some(Right(99))
+            def isCanceled = false
+            def isExpired = true
+            def awaitAtMost(span: Span) = 99
+          }
+        val caught = evaluating {
+          whenReady(expiredFuture) { s =>
+            s should equal (99)
+          }
+        } should produce [TestFailedException]
+        caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+      }
+
+      it("should eventually blow up with a TFE if the future is never ready") {
+
+        var count = 0
+        val neverReadyCountingFuture =
+          new SuperFutureOfJava {
+            override def isDone = {
+              count += 1
+              false
+            }
+          }
+        val caught = evaluating {
+          whenReady(neverReadyCountingFuture) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+
+        caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
         caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
       }
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-    
-    it("should throw TFE with appropriate detail message if the future expires") {
-      val expiredFuture =
-        new FutureConcept[Int] {
-          def value = Some(Right(99))
-          def isCanceled = false
-          def isExpired = true
-          def awaitAtMost(span: Span) = 99
-        }
-      val caught = evaluating {
-        whenReady(expiredFuture) { s =>
-          s should equal (99)
-        }
-      } should produce [TestFailedException]
-      caught.message.value should be (Resources("futureExpired", "1", "10 milliseconds"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
 
-    it("should eventually blow up with a TFE if the future is never ready") {
-
-      var count = 0
-      val neverReadyCountingFuture =
+      val neverReadyFuture =
         new SuperFutureOfJava {
-          override def isDone = {
-            count += 1
-            false
-          }
+          override def isDone = false
         }
-      val caught = evaluating {
-        whenReady(neverReadyCountingFuture) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
-    
-    val neverReadyFuture =
-      new SuperFutureOfJava {
-        override def isDone = false
+      it("should provides correct stack depth") {
+        val caught1 = evaluating {
+          whenReady(neverReadyFuture, timeout(Span(100, Millis)), interval(Span(1, Millisecond))) { s => s should equal ("hi") }
+        } should produce [TestFailedException]
+        caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught1.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught2 = evaluating {
+          whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(100, Millis))) { s => s should equal ("hi")  }
+        } should produce [TestFailedException]
+        caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught2.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught3 = evaluating {
+         whenReady(neverReadyFuture, timeout(Span(100, Millis))) {  s => s should equal ("hi") }
+        } should produce [TestFailedException]
+        caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught3.failedCodeFileName.value should be ("FuturesSpec.scala")
+
+        val caught4 = evaluating {
+          whenReady(neverReadyFuture, interval(Span(1, Millisecond))) { s => s should equal ("hi")  }
+        } should produce [TestFailedException]
+        caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
+        caught4.failedCodeFileName.value should be ("FuturesSpec.scala")
       }
 
-    it("should provides correct stack depth") {
-      val caught1 = evaluating {
-        whenReady(neverReadyFuture, timeout(Span(100, Millis)), interval(Span(1, Millisecond))) { s => s should equal ("hi") }
-      } should produce [TestFailedException]
-      caught1.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught1.failedCodeFileName.value should be ("FuturesSpec.scala")
-     
-      val caught2 = evaluating {
-        whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(100, Millis))) { s => s should equal ("hi")  }
-      } should produce [TestFailedException]
-      caught2.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught2.failedCodeFileName.value should be ("FuturesSpec.scala")
-      
-      val caught3 = evaluating {
-       whenReady(neverReadyFuture, timeout(Span(100, Millis))) {  s => s should equal ("hi") }
-      } should produce [TestFailedException]
-      caught3.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught3.failedCodeFileName.value should be ("FuturesSpec.scala")
-     
-      val caught4 = evaluating {
-        whenReady(neverReadyFuture, interval(Span(1, Millisecond))) { s => s should equal ("hi")  }
-      } should produce [TestFailedException]
-      caught4.failedCodeLineNumber.value should equal (thisLineNumber - 2)
-      caught4.failedCodeFileName.value should be ("FuturesSpec.scala")
-    }
+      it("should by default query a never-ready future for at least 1 second") {
+        var startTime = System.currentTimeMillis
+        evaluating {
+          whenReady(neverReadyFuture) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1000)
+      }
 
-    it("should by default query a never-ready future for at least 1 second") {
-      var startTime = System.currentTimeMillis
-      evaluating {
-        whenReady(neverReadyFuture) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1000)
-    }
+      it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
+        implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
 
-    it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-      implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
+        var startTime = System.currentTimeMillis
+        evaluating {
+          whenReady(neverReadyFuture) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1500)
+      }
 
-      var startTime = System.currentTimeMillis
-      evaluating {
-        whenReady(neverReadyFuture) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1500)
-    }
+      it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
+        var startTime = System.currentTimeMillis
+        evaluating {
+          whenReady(neverReadyFuture, timeout(Span(1250, Milliseconds))) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1250)
+      }
 
-    it("should, if an alternate explicit timeout is provided, query a never-ready future by at least the specified timeout") {
-      var startTime = System.currentTimeMillis
-      evaluating {
-        whenReady(neverReadyFuture, timeout(Span(1250, Milliseconds))) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1250)
-    }
+      it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
+        implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
 
-    it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-      implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
-      
-      var startTime = System.currentTimeMillis
-      evaluating {
-        whenReady(neverReadyFuture, timeout(Span(1388, Millis)), interval(Span(1, Millisecond))) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1388)
-    }
-    
-    it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-      implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
-      
-      var startTime = System.currentTimeMillis
-      evaluating {
-        whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(1388, Millis))) { s =>
-          s should equal ("hi")
-        }
-      } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime).toInt should be >= (1388)
-    }
+        var startTime = System.currentTimeMillis
+        evaluating {
+          whenReady(neverReadyFuture, timeout(Span(1388, Millis)), interval(Span(1, Millisecond))) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1388)
+      }
 
-    it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+      it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
+        implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
 
-      val vmeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
-        }
-      val caught =
-        intercept[TestFailedException] {
+        var startTime = System.currentTimeMillis
+        evaluating {
+          whenReady(neverReadyFuture, interval(Span(1, Millisecond)), timeout(Span(1388, Millis))) { s =>
+            s should equal ("hi")
+          }
+        } should produce [TestFailedException]
+        (System.currentTimeMillis - startTime).toInt should be >= (1388)
+      }
+
+      it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new RuntimeException("oops")))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new RuntimeException("oops")
+          }
+        val caught =
+          intercept[TestFailedException] {
+            whenReady(vmeFuture) { s =>
+              s should equal ("hi")
+            }
+          }
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
+        caught.failedCodeFileName.value should be ("FuturesSpec.scala")
+        assert(caught.cause.value.isInstanceOf[RuntimeException])
+        caught.cause.value.getMessage should be ("oops")
+      }
+
+      it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
+
+        val vmeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
+          }
+        intercept[VirtualMachineError] {
           whenReady(vmeFuture) { s =>
             s should equal ("hi")
           }
         }
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
-      caught.failedCodeFileName.value should be ("FuturesSpec.scala")
-      assert(caught.cause.value.isInstanceOf[RuntimeException])
-      caught.cause.value.getMessage should be ("oops")
-    }
-    
-    it("should allow errors that do not normally cause a test to fail to propagate back without being wrapped in a TFE") {
-
-      val vmeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new VirtualMachineError {}))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new VirtualMachineError {}
-        }
-      intercept[VirtualMachineError] {
-        whenReady(vmeFuture) { s =>
-          s should equal ("hi")
-        }
       }
-    }
-    
-    // Same thing here and in 2.0 need to add a test for TestCanceledException
-    it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
-      val tpeFuture =
-        new FutureConcept[String] {
-          def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
-          def isExpired: Boolean = false
-          def isCanceled: Boolean = false
-          def awaitAtMost(span: Span): String = throw new TestPendingException
-        }
-      intercept[TestPendingException] {
-        whenReady(tpeFuture) { s =>
-          s should equal ("hi")
+
+      // Same thing here and in 2.0 need to add a test for TestCanceledException
+      it("should allow TestPendingException, which does not normally cause a test to fail, through immediately when thrown") {
+        val tpeFuture =
+          new FutureConcept[String] {
+            def value: Option[Either[Throwable, String]] = Some(Left(new TestPendingException))
+            def isExpired: Boolean = false
+            def isCanceled: Boolean = false
+            def awaitAtMost(span: Span): String = throw new TestPendingException
+          }
+        intercept[TestPendingException] {
+          whenReady(tpeFuture) { s =>
+            s should equal ("hi")
+          }
         }
       }
     }

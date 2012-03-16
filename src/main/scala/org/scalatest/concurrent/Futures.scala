@@ -228,9 +228,14 @@ trait Futures extends TimeoutConfiguration {
      */
     def isCanceled: Boolean
 
-    def isReadyWithin(timeout: Span)(implicit config: TimeoutConfig): Boolean = {
-      awaitResult(TimeoutConfig(timeout, config.interval))
-      true
+    final def isReadyWithin(timeout: Span)(implicit config: TimeoutConfig): Boolean = {
+      try {
+        awaitResult(TimeoutConfig(timeout, config.interval))
+        true
+      }
+      catch {
+        case e: TimeoutException => false
+      }
     }
 
     /**
@@ -400,14 +405,17 @@ trait Futures extends TimeoutConfiguration {
       val methodName = 
         if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "whenReady")
           "whenReady"
+        else if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "isReadyWithin")
+          "isReadyWithin"
         else
           "awaitResult"
           
-      val adjustment = 
-        if (methodName == "whenReady")
-          3
-        else
-          0  
+      val adjustment =
+        methodName match {
+          case "whenReady" => 3
+          case "isReadyWithin" => 3
+          case _ => 0
+        }
 
       val startNanos = System.nanoTime
 
@@ -447,11 +455,13 @@ trait Futures extends TimeoutConfiguration {
             if (duration < timeout.totalNanos)
               Thread.sleep(interval.millisPart, interval.nanosPart)
             else {
-              throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
+              throw new TestFailedException(
                 sde => Some(Resources("wasNeverReady", attempt.toString, interval.prettyString)),
                 None,
                 getStackDepthFun("Futures.scala", methodName, adjustment)
-              )
+              ) with TimeoutException {
+                def timeout: Span = config.timeout
+              }
             }
 
             tryTryAgain(attempt + 1)

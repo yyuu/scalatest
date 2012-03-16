@@ -45,6 +45,8 @@ trait JavaFutures extends Futures {
         val methodName =
           if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "whenReady")
             "whenReady"
+          else if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "isReadyWithin")
+            "isReadyWithin"
           else
             "awaitResult"
 
