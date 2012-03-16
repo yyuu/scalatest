@@ -111,7 +111,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
         neverReadyCountingFuture.awaitResult
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("wasNeverReady", count.toString, "10 milliseconds"))
+      caught.message.value should be (Resources("wasNeverReady"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 4)
       caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }
@@ -335,7 +335,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       } should produce [TestFailedException]
       caught.message.value should be (Resources("futureWasCanceled", "1", "10 milliseconds"))
       withClue(caught.getStackTraceString) {
-        caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
+        caught.failedCodeLineNumber.value should equal (thisLineNumber - 6)
       }
       caught.failedCodeFileName.value should be ("FuturesSpec.scala")
     }

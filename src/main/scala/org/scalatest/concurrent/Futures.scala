@@ -389,10 +389,10 @@ trait Futures extends TimeoutConfiguration {
      * @throws TestFailedException if the future is cancelled, expires, or is still not ready after
      *     the specified timeout has been exceeded
      */
-    def awaitResult(implicit config: TimeoutConfig): T = pollForResult(config, "awaitResult")
+    def awaitResult(implicit config: TimeoutConfig): T = {
 
-    private[concurrent] def pollForResult(config: TimeoutConfig, methodName: String): T = {
-      
+      val methodName = "awaitResult" // Kludge
+
       val startNanos = System.nanoTime
 
       @tailrec
@@ -466,8 +466,11 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
-    whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
+  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout, interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U = {
+    val result = future.awaitResult(TimeoutConfig(timeout.value, interval.value))
+    fun(result)
+  }
+    // whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
    * Queries the passed future repeatedly until it either is ready, or a configured maximum
@@ -490,8 +493,11 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  final def whenReady[T, U](future: FutureConcept[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
-    whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
+  final def whenReady[T, U](future: FutureConcept[T], interval: Interval, timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U = {
+    val result = future.awaitResult(TimeoutConfig(timeout.value, interval.value))
+    fun(result)
+  }
+    // whenReady(future)(fun)(TimeoutConfig(timeout.value, interval.value))
 
   /**
    * Queries the passed future repeatedly until it either is ready, or a configured maximum
@@ -513,8 +519,11 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U =
-    whenReady(future)(fun)(TimeoutConfig(timeout.value, config.interval))
+  final def whenReady[T, U](future: FutureConcept[T], timeout: Timeout)(fun: T => U)(implicit config: TimeoutConfig): U = {
+    val result = future.awaitResult(TimeoutConfig(timeout.value, config.interval))
+    fun(result)
+  }
+    // whenReady(future)(fun)(TimeoutConfig(timeout.value, config.interval))
 
   /**
    * Queries the passed future repeatedly until it either is ready, or a configured maximum
@@ -535,8 +544,11 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  final def whenReady[T, U](future: FutureConcept[T], interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U =
-    whenReady(future)(fun)(TimeoutConfig(config.timeout, interval.value))
+  final def whenReady[T, U](future: FutureConcept[T], interval: Interval)(fun: T => U)(implicit config: TimeoutConfig): U = {
+    val result = future.awaitResult(TimeoutConfig(config.timeout, interval.value))
+    fun(result)
+  }
+    // whenReady(future)(fun)(TimeoutConfig(config.timeout, interval.value))
 
   /**
    * Queries the passed future repeatedly until it either is ready, or a configured maximum
@@ -557,9 +569,9 @@ trait Futures extends TimeoutConfiguration {
    *          <code>interval</code> parameters that are unused by this method
    * @return the result of invoking the <code>fun</code> parameter
    */
-  def whenReady[T, U](future: FutureConcept[T])(fun: T => U)(implicit config: TimeoutConfig): U = {
+  final def whenReady[T, U](future: FutureConcept[T])(fun: T => U)(implicit config: TimeoutConfig): U = {
 
-      val result = future.pollForResult(config, "whenReady")
+      val result = future.awaitResult(config)
       fun(result)
 /*    val startNanos = System.nanoTime
 
