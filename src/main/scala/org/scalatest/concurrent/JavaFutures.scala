@@ -67,11 +67,13 @@ trait JavaFutures extends Futures {
         }
         catch {
           case e: java.util.concurrent.TimeoutException =>
-            throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
+            throw new TestFailedException(
               sde => Some(Resources("wasNeverReady")),
               None,
               getStackDepthFun("JavaFutures.scala", methodName, adjustment)
-            )
+            ) with TimeoutException {
+              def timeout: Span = config.timeout
+            }
           case e: java.util.concurrent.ExecutionException =>
             val cause = e.getCause
             val exToReport = if (cause == null) e else cause // TODO: in 2.0 add TestCanceledException here

@@ -60,12 +60,6 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
           execSvc.shutdown()
         }
       }
-        /*  TODO: See if you can come up with a way to do this here
-      it("should query a never-ready future by at least the specified timeout") {
-        var startTime = System.currentTimeMillis
-        neverReadyFuture.isReadyWithin(Span(1250, Milliseconds)) should be (false)
-        (System.currentTimeMillis - startTime).toInt should be >= (1250)
-      }  */
 
       it("should throw TFE from isReadyWithin with appropriate detail message if the future is canceled") {
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
@@ -86,36 +80,13 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
           execSvc.shutdown()
         }
       }
-      it("should eventually blow up with a TFE if the future is never ready") {
+      it("should eventually return false if the future is never ready") {
 
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {
           val task = new CallableTask(new Sleeper(Span(2, Seconds)))
           val neverReadyFuture = execSvc.submit(task)
-          val caught = evaluating {
-            neverReadyFuture.isReadyWithin(Span(1, Millisecond))
-          } should produce[TestFailedException]
-
-          caught.message.value should be(Resources("wasNeverReady"))
-          caught.failedCodeLineNumber.value should equal(thisLineNumber - 4)
-          caught.failedCodeFileName.value should be("JavaFuturesSpec.scala")
-        }
-        finally {
-          execSvc.shutdown()
-        }
-      }
-
-      it("should provide correct stack depth") {
-
-        val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
-        try {
-          val task = new CallableTask(new Sleeper(Span(2, Seconds)))
-          def neverReadyFuture = execSvc.submit(task)
-          val caught1 = evaluating {
-            neverReadyFuture.isReadyWithin(Span(100, Millis))
-          } should produce[TestFailedException]
-          caught1.failedCodeLineNumber.value should equal(thisLineNumber - 2)
-          caught1.failedCodeFileName.value should be("JavaFuturesSpec.scala")
+          neverReadyFuture.isReadyWithin(Span(1, Millisecond)) should be (false)
         }
         finally {
           execSvc.shutdown()
