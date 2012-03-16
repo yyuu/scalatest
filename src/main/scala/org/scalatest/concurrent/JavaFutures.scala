@@ -35,11 +35,30 @@ trait JavaFutures extends Futures {
       // TODO: Catch TimeoutException and wrap that in a TFE with ScalaTest's TimeoutException I think.
       // def awaitAtMost(span: Span): T = javaFuture.get(span.totalNanos, TimeUnit.NANOSECONDS)
       override def awaitResult(implicit config: TimeoutConfig): T = {
+        val st = Thread.currentThread.getStackTrace
+        val callerStackFrame =
+          if (!st(2).getMethodName.contains("awaitResult"))
+            st(2)
+          else
+            st(3)
+
+        val methodName =
+          if (callerStackFrame.getFileName == "Futures.scala" && callerStackFrame.getMethodName == "whenReady")
+            "whenReady"
+          else
+            "awaitResult"
+
+        val adjustment =
+          if (methodName == "whenReady")
+            3
+          else
+            0
+
         if (javaFuture.isCanceled)
           throw new TestFailedException(
             sde => Some(Resources("futureWasCanceled")),
             None,
-            getStackDepthFun("JavaFutures.scala", "awaitResult")
+            getStackDepthFun("JavaFutures.scala", methodName, adjustment)
           )
         try {
           javaFuture.get(config.timeout.totalNanos, TimeUnit.NANOSECONDS)
@@ -49,7 +68,7 @@ trait JavaFutures extends Futures {
             throw new TestFailedException(  // Shouldn't this mix in TimeoutException?
               sde => Some(Resources("wasNeverReady")),
               None,
-              getStackDepthFun("JavaFutures.scala", "awaitResult")
+              getStackDepthFun("JavaFutures.scala", methodName, adjustment)
             )
           case e: java.util.concurrent.ExecutionException =>
             val cause = e.getCause
@@ -65,7 +84,7 @@ trait JavaFutures extends Futures {
                   Resources("futureReturnedAnExceptionWithMessage", exToReport.getClass.getName, exToReport.getMessage)
               },
               Some(exToReport),
-              getStackDepthFun("JavaFutures.scala", "awaitResult")
+              getStackDepthFun("JavaFutures.scala", methodName, adjustment)
             )
         }
       }

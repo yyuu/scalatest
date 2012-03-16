@@ -227,12 +227,11 @@ trait Futures extends TimeoutConfiguration {
      * </p>
      */
     def isCanceled: Boolean
-  /*
-    def isReadyWithin(span: Span): Boolean = {
-      awaitAtMost(span)
+
+    def isReadyWithin(timeout: Span)(implicit config: TimeoutConfig): Boolean = {
+      awaitResult(TimeoutConfig(timeout, config.interval))
       true
     }
-  */
 
     /**
      * Returns the result of this <code>FutureConcept</code>, once it is ready, or throws either the
