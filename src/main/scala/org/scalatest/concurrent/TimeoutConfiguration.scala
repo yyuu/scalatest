@@ -123,7 +123,7 @@ trait TimeoutConfiguration {
    * <code>TimeoutConfig</code> containing your desired default configuration values.
    * </p>
    */
-  implicit val retryConfig = TimeoutConfig()
+  implicit val timeoutConfig = TimeoutConfig()
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which

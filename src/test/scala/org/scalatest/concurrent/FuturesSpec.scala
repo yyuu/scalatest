@@ -241,7 +241,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-        implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
+        implicit val timeoutConfig = TimeoutConfig(timeout = Span(1500, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {
@@ -259,7 +259,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-        implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
+        implicit val timeoutConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {
@@ -269,7 +269,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-        implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
+        implicit val timeoutConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {
@@ -506,7 +506,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate implicit Timeout is provided, query a never-ready by at least the specified timeout") {
-        implicit val retryConfig = TimeoutConfig(timeout = Span(1500, Millis))
+        implicit val timeoutConfig = TimeoutConfig(timeout = Span(1500, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {
@@ -528,7 +528,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided") {
-        implicit val retryConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
+        implicit val timeoutConfig = TimeoutConfig(timeout = Span(500, Millis), interval = Span(2, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {
@@ -540,7 +540,7 @@ class FuturesSpec extends FunSpec with ShouldMatchers with OptionValues with Fut
       }
 
       it("should, if an alternate explicit timeout is provided along with an explicit interval, query a never-ready future by at least the specified timeout, even if a different implicit is provided, with timeout specified second") {
-        implicit val retryConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
+        implicit val timeoutConfig = TimeoutConfig(interval = Span(2, Millis), timeout = Span(500, Millis))
 
         var startTime = System.currentTimeMillis
         evaluating {

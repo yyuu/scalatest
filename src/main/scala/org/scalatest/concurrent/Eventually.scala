@@ -233,7 +233,7 @@ trait Eventually extends TimeoutConfiguration {
    */
   def eventually[T](interval: Interval, timeout: Timeout)(fun: => T)(implicit config: TimeoutConfig): T =
     eventually(fun)(TimeoutConfig(timeout.value, interval.value))
-
+  // TODO: Drop the implicit parameter in this and the next one, becuase it is not used
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
    * amount of time has passed, sleeping a configured interval between attempts.

@@ -22,7 +22,45 @@ import scala.annotation.tailrec
 import org.scalatest.time.Span
 
 /**
- * Trait that provides the <code>whenReady</code> construct, which periodically queries the passed
+ * Trait that facilitates testing with futures.
+ *
+ * <p>
+ * This trait defines a <a href="Futures$FutureConcept.html"><code>FutureConcept</code></a> trait that can be used to implicitly wrap
+ * different kinds of futures, thereby providing a uniform testing API for futures.
+ * The three ways this trait enables you to test futures are:
+ * </p>
+ *
+ * <p>
+ * 1. Invoking <code>isReadyWithin</code>, to assert that a future is ready within a a specified time period.
+ * Here's an example:
+ * </p>
+ * 
+ * <pre class="stHighlight">
+ * assert(future.isReadyWithin(100 millis))
+ * </pre>
+ * 
+ * <p>
+ * 2. Invoking <code>awaitResult</code>, to obtain a futures result within a specified or implicit time period,
+ * like this:
+ * </p>
+ * 
+ * <pre class="stHighlight">
+ * val result = future.awaitResult
+ * assert(result === 7)
+ * </pre>
+ * 
+ * <p>
+ * 3. Passing the future to <code>whenReady</code>, and performing assertions on the result value passed
+ * to the given function, as in:
+ * </p>
+ * 
+ * <pre class="stHighlight">
+ * whenReady(future) { s =&gt;
+ *   s should be ("hello")
+ * }
+ * </pre>
+ * 
+the <code>whenReady</code> construct, which periodically queries the passed
  * future, until it is ready or the configured timeout has been surpassed, and when ready, passes the future's
  * value to the specified function.
  *
@@ -188,7 +226,7 @@ import org.scalatest.time.Span
  *
  * @author Bill Venners
  */
-trait Futures extends TimeoutConfiguration {
+private[scalatest] trait Futures extends TimeoutConfiguration {
 
   /**
    * Concept trait for futures, instances of which are passed to the <code>whenReady</code>
@@ -692,4 +730,4 @@ trait Futures extends TimeoutConfiguration {
  *   ...
  * </pre>
  */
-object Futures extends Futures
+private[scalatest] object Futures extends Futures

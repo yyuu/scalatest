@@ -1,5 +1,3 @@
-package org.scalatest.concurrent
-
 /*
  * Copyright 2001-2012 Artima, Inc.
  *
@@ -15,6 +13,7 @@ package org.scalatest.concurrent
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.scalatest.concurrent
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.SharedHelpers.thisLineNumber
