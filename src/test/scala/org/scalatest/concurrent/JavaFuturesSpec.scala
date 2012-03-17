@@ -276,7 +276,7 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
       }
 
       // Note: Can't test isExpired, because the Java future does not have an expiration concept
-      it("should throw TFE with appropriate detail message if the future is canceled") {
+      ignore("should throw TFE with appropriate detail message if the future is canceled") {
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {
           val task = new CallableTask(new Sleeper(Span(1, Second)))
@@ -298,7 +298,7 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
         }
       }
 
-      it("should eventually blow up with a TFE if the future is never ready") {
+      ignore("should eventually blow up with a TFE if the future is never ready") {
 
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {
@@ -319,7 +319,7 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
         }
       }
 
-      it("should provide correct stack depth") {
+      ignore("should provide correct stack depth") {
 
         val execSvc: ExecutorService = Executors.newFixedThreadPool(1)
         try {
@@ -379,7 +379,7 @@ class JavaFuturesSpec extends FunSpec with ShouldMatchers with OptionValues with
         }
       }
 
-      it("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
+      ignore("should wrap any exception that normally causes a test to fail to propagate back wrapped in a TFE") {
 
         val task = new ThrowingTask(new RuntimeException("oops"))
         val caught =
