@@ -687,7 +687,6 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
       assert(d.expectedTestCount(Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 1)
       assert(d.expectedTestCount(Filter()) === 3)
 
-      println("got here")
       class EFunSpec extends PathFunSpec {
         it("test this", mytags.FastAsLight, mytags.SlowAsMolasses) {}
         it("test that", mytags.SlowAsMolasses) {}
