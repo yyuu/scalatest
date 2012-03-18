@@ -120,6 +120,15 @@ class ShouldMatchersForJUnitWordSpec extends WordSpec with ShouldMatchersForJUni
        11 should (be > (0) and be <= (10))
       }
     }
+
+    "including as its cause an unexpected exception" in {
+      val wrongException = new RuntimeException("oops!")
+      val caught =
+        intercept[AssertionFailedError] {
+          evaluating { throw wrongException } should produce [IllegalArgumentException]
+        }
+      assert(caught.getCause eq wrongException)
+    }
   }
 }
 

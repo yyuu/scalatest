@@ -142,12 +142,17 @@ import Helper.accessProperty
  */
 trait Matchers extends Assertions { matchers =>
 
-  private[scalatest] def newTestFailedException(message: String): Throwable = {
+  // TODO: Can probably rewrite this with a Thread.currentStackTrace or whatever the method is. No need
+  // to create the temporary RuntimeException
+  private[scalatest] def newTestFailedException(message: String, optionalCause: Option[Throwable] = None): Throwable = {
     val fileNames = List("Matchers.scala", "ShouldMatchers.scala", "MustMatchers.scala")
     val temp = new RuntimeException
     val stackDepth = temp.getStackTrace.takeWhile(stackTraceElement => fileNames.exists(_ == stackTraceElement.getFileName) || stackTraceElement.getMethodName == "newTestFailedException").length
     // if (stackDepth != 4) throw new OutOfMemoryError("stackDepth in Matchers.scala is: " + stackDepth)
-    new TestFailedException(message, stackDepth)
+    optionalCause match {
+      case Some(cause) => new TestFailedException(message, cause, stackDepth)
+      case None => new TestFailedException(message, stackDepth)
+    }
   }
 
   private def matchSymbolToPredicateMethod[S <: AnyRef](left: S, right: Symbol, hasArticle: Boolean, articleIsA: Boolean): MatchResult = {

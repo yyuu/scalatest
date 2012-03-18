@@ -1979,8 +1979,8 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
          case u: Throwable => {
            if (!clazz.isAssignableFrom(u.getClass)) {
              val s = Resources("wrongException", clazz.getName, u.getClass.getName)
-             throw newTestFailedException(s)
-             // throw new TestFailedException(s, u, 3)
+             throw newTestFailedException(s, Some(u))
+             // throw new TestFailedException(s, u, 3)   XXX
            }
            else {
              Some(u)
