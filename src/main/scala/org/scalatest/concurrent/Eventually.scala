@@ -140,7 +140,7 @@ import scala.annotation.tailrec
  *
  * <p>
  * In addition to taking a <code>TimeoutConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
- * <code>Eventually</code> include overloaded forms that take one or two <code>RetryConfigParam</code>
+ * <code>Eventually</code> include overloaded forms that take one or two <code>TimeoutConfigParam</code>
  * objects that you can use to override the values provided by the implicit <code>TimeoutConfig</code> for a single <code>eventually</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>eventually</code> invocation,
  * you can do so like this:

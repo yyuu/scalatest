@@ -184,7 +184,7 @@ the <code>whenReady</code> construct, which periodically queries the passed
  *
  * <p>
  * In addition to taking a <code>TimeoutConfig</code> object as an implicit parameter, the <code>whenReady</code> methods of trait
- * <code>Futures</code> include overloaded forms that take one or two <code>RetryConfigParam</code>
+ * <code>Futures</code> include overloaded forms that take one or two <code>TimeoutConfigParam</code>
  * objects that you can use to override the values provided by the implicit <code>TimeoutConfig</code> for a single <code>whenReady</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>whenReady</code> invocation,
  * you can do so like this:

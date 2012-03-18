@@ -88,10 +88,10 @@ trait TimeoutConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  sealed abstract class RetryConfigParam
+  sealed abstract class TimeoutConfigParam
 
   /**
-   * A <code>RetryConfigParam</code> that specifies the maximum amount of time to allow retries: either invocations of the
+   * A <code>TimeoutConfigParam</code> that specifies the maximum amount of time to allow retries: either invocations of the
    * by-name parameter passed to <code>eventually</code> that give an unsuccessful result, or futures passed to <code>whenReady</code> that
    * are canceled, or expired, or not ready.
    *
@@ -101,10 +101,10 @@ trait TimeoutConfiguration {
    *
    * @author Bill Venners
    */
-  case class Timeout(value: Span) extends RetryConfigParam
+  case class Timeout(value: Span) extends TimeoutConfigParam
 
   /**
-   * A <code>RetryConfigParam</code> that specifies the amount of time to sleep after
+   * A <code>TimeoutConfigParam</code> that specifies the amount of time to sleep after
    * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code> or
    * each query of a future passed to <code>whenReady</code>.
    *
@@ -113,7 +113,7 @@ trait TimeoutConfiguration {
    *
    * @author Bill Venners
    */
-  case class Interval(value: Span) extends RetryConfigParam
+  case class Interval(value: Span) extends TimeoutConfigParam
 
   /**
    * Implicit <code>TimeoutConfig</code> value providing default configuration values.
