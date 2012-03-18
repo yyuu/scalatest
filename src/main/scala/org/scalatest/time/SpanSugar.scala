@@ -273,7 +273,46 @@ package org.scalatest.time
  * If you already have implicit conversions in scope that provide a similar syntax sugar for expression
  * time spans, you can use that by providing an implicit conversion from the result of those expressions
  * to <code>Span</code>. For example, here's how you might use the <code>Duration</code> class from Akka:
- * </p>  // TODO: Write up the example
+ * </p>
+ *
+ * <pre class="stREPL">
+ * $ scala -cp scalatest-1.8-for-scala-2.9.jar:akka-actor-2.0.jar
+ * Welcome to Scala version 2.9.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_29).
+ * Type in expressions to have them evaluated.
+ * Type :help for more information.
+ *
+ * scala> import org.scalatest.time._
+ * import org.scalatest.time.time._
+ *
+ * scala> import org.scalatest.concurrent.Eventually._
+ * import org.scalatest.concurrent.Eventually._
+ * * scala> import org.scalatest.matchers.ShouldMatchers._
+ * import org.scalatest.matchers.ShouldMatchers._
+ *
+ * scala> import akka.util.Duration
+ * import akka.util.Duration
+ *
+ * scala> implicit def convertAkkaDuration(akkaDuration: Duration): Span =
+ *      |   if (akkaDuration.isFinite) Span(akkaDuration.toNanos, Nanoseconds) else Span.max
+ * convertAkkaDuration: (akkaDuration: akka.util.Duration)org.scalatest.time.Span
+ *
+ * scala> eventually(timeout(Duration(100, "millis"))) { 1 + 1 should equal (3) }
+ * org.scalatest.TestFailedException: The code passed to eventually never returned normally. Attempted 6 times, sleeping 10 milliseconds between each attempt. Last failure message: 2 did not equal 3.
+ *     at org.scalatest.concurrent.Eventually$class.tryTryAgain$1(Eventually.scala:346)
+ *     at org.scalatest.concurrent.Eventually$class.eventually(Eventually.scala:356)
+ *     at org.scalatest.concurrent.Eventually$.eventually(Eventually.scala:396)
+ *     ...
+ *
+ * scala> import akka.util.duration._ // Use Akka's syntax sugar for expressing time spans, not ScalaTest's
+ * import akka.util.duration._
+ *
+ * scala> eventually(timeout(100 millis)) { 1 + 1 should equal (3) }
+ * org.scalatest.TestFailedException: The code passed to eventually never returned normally. Attempted 7 times, sleeping 10 milliseconds between each attempt. Last failure message: 2 did not equal 3.
+ *     at org.scalatest.concurrent.Eventually$class.tryTryAgain$1(Eventually.scala:346)
+ *     at org.scalatest.concurrent.Eventually$class.eventually(Eventually.scala:356)
+ *     at org.scalatest.concurrent.Eventually$.eventually(Eventually.scala:396)
+ *     ...
+ * </pre>
  */
 trait SpanSugar {
 
