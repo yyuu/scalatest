@@ -27,7 +27,7 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     }
     assert(a.expectedTestCount(Filter()) === 1)
     val tnResult: Set[String] = a.testNames
-    val gResult: Map[String, Set[String]] = a.testTags
+    val gResult: Map[String, Set[String]] = a.tags
     assert(tnResult.size === 1)
     assert(gResult.keySet.size === 0)
   }
@@ -37,7 +37,7 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     val a = new Suite {
       def testNotInAGroup() = ()
     }
-    assert(a.testTags.keySet.size === 0)
+    assert(a.tags.keySet.size === 0)
   }
 
   def testThatTestMethodsThatReturnNonUnitAreDiscovered() {
@@ -47,7 +47,7 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     }
     assert(a.expectedTestCount(Filter()) === 2)
     assert(a.testNames.size === 2)
-    assert(a.testTags.keySet.size === 0)
+    assert(a.tags.keySet.size === 0)
   }
 
   def testThatOverloadedTestMethodsAreDiscovered() {
@@ -57,7 +57,7 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     }
     assert(a.expectedTestCount(Filter()) === 2)
     assert(a.testNames.size === 2)
-    assert(a.testTags.keySet.size === 0)
+    assert(a.tags.keySet.size === 0)
   }
 
   def testThatInterceptCatchesSubtypes() {
@@ -408,25 +408,13 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     }
   }
   
-  def testSuiteTags() {
-    class NoTagSuite extends Suite {}
-    @SlowAsMolasses
-    class TagSuite extends Suite {}
-    
-    val noTagSuite = new NoTagSuite
-    assert(noTagSuite.suiteTags == Set.empty)
-    val tagSuite = new TagSuite
-    assert(tagSuite.suiteTags.size == 1)
-    assert(tagSuite.suiteTags.toList(0) == classOf[SlowAsMolasses].getName)
-  }
-  
   def testTestTags() {
     class TagSuite extends Suite {  
       def testNoTagMethod() {}
       @SlowAsMolasses
       def testTagMethod() {}
     }
-    val testTags = new TagSuite().testTags
+    val testTags = new TagSuite().tags
     assert(testTags.size === 1)
     val tagSet = testTags.getOrElse("testTagMethod", null)
     assert(tagSet != null)
@@ -481,22 +469,22 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     val includeFilter = new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)
     val includeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(includeReporter, new Stopper {}, includeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(includeReporter.suiteStartingEventsReceived.size === 4) // Filter.apply(Suite) does not look at tagsToInclude
-    assert(includeReporter.testIgnoredEventsReceived.size === 0) // Filter.apply(Test) does look at tagsToInclude
+    assert(includeReporter.suiteStartingEventsReceived.size === 4) 
+    assert(includeReporter.testIgnoredEventsReceived.size === 0) 
     val includeReporterDist = new EventRecordingReporter
     val includeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(includeReporterDist, new Stopper {}, includeFilter, Map.empty, Some(includeDistributor), new Tracker(new Ordinal(99)))
-    assert(includeDistributor.count === 4) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeDistributor.count === 4) 
     
     val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
     val excludeReporter = new EventRecordingReporter
     masterSuite.runNestedSuites(excludeReporter, new Stopper {}, excludeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
-    assert(excludeReporter.suiteStartingEventsReceived.size === 3)
+    assert(excludeReporter.suiteStartingEventsReceived.size === 4)
     assert(excludeReporter.testIgnoredEventsReceived.size === 3)
     val excludeReporterDist = new EventRecordingReporter
     val excludeDistributor = new CounterDistributor
     masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
-    assert(excludeDistributor.count === 3)
+    assert(excludeDistributor.count === 4)
   }
   
   def testExpectedTestCount() {
