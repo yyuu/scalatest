@@ -691,7 +691,7 @@ private[scalatest] class DashboardReporter(directory: String,
         val duration = endEvent.timeStamp - startEvent.timeStamp
         "\n" +
         "<suite index=\"" + nextIndex()                   + "\" " +
-        "id=\""           + startEvent.suiteID            + "\" " +
+        "id=\""           + startEvent.suiteId            + "\" " +
         "result=\""       + result                        + "\" " +
         "name=\""         + escape(startEvent.suiteName)  + "\" " +
         "duration=\""     + duration                      + "\" " +

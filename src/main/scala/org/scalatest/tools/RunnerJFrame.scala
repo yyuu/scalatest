@@ -74,11 +74,11 @@ import EventToPresent.eventToEventToPresent
  * @author Bill Venners
  */                 
 private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresent],
-    reporterConfigurations: ReporterConfigurations, suitesList: List[String], junitsList: List[String], runpathList: List[String], filter: Filter,
-    propertiesMap: Map[String, String], concurrent: Boolean, memberOfList: List[String], beginsWithList: List[String],
-    testNGList: List[String], passFailReporter: Option[Reporter], numThreads: Int, suffixes: Option[Pattern]) extends
-    JFrame(Resources("ScalaTestTitle")) with RunDoneListener with RunnerGUI {
-
+    reporterConfigurations: ReporterConfigurations, suitesList: List[SuiteParam], junitsList: List[String], runpathList: List[String], 
+    tagsToIncludeSet: Set[String], tagsToExcludeSet: Set[String], propertiesMap: Map[String, String], concurrent: Boolean, memberOfList: List[String], 
+    beginsWithList: List[String], testNGList: List[String], passFailReporter: Option[Reporter], numThreads: Int, suffixes: Option[Pattern]) 
+    extends JFrame(Resources("ScalaTestTitle")) with RunDoneListener with RunnerGUI {
+  
   // This should only be updated by the event handler thread.
   private var currentState: RunnerGUIState = RunningState
 
@@ -1238,8 +1238,22 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
     val holder: EventHolder = eventsJList.getSelectedValue().asInstanceOf[EventHolder]
     if (holder == null)
       None
-    else
-      holder.rerunner
+    else {
+      holder.rerunner match {
+        case Some(rerunner) => 
+          holder.event match {
+            case e: TestStarting => Some(new TestRerunner(rerunner, e.testName))
+            case e: TestSucceeded => Some(new TestRerunner(rerunner, e.testName))
+            case e: TestFailed => Some(new TestRerunner(rerunner, e.testName))
+            case e: SuiteStarting => Some(new SuiteRerunner(rerunner))
+            case e: SuiteCompleted => Some(new SuiteRerunner(rerunner))
+            case e: SuiteAborted => Some(new SuiteRerunner(rerunner))
+            case _ => None
+          }
+        case None =>
+          None
+      }
+    }
   }
 
   private class GraphicRerunReporter extends Reporter {
@@ -1411,7 +1425,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
       withClassLoaderAndDispatchReporter(runpathList, reporterConfigurations, Some(graphicRunReporter), passFailReporter) {
         (loader, dispatchReporter) => {
           try {
-            Runner.doRunRunRunDaDoRunRun(dispatchReporter, suitesList, junitsList, stopper, filter,
+            Runner.doRunRunRunDaDoRunRun(dispatchReporter, suitesList, junitsList, stopper, tagsToIncludeSet, tagsToExcludeSet,
                 propertiesMap, concurrent, memberOfList, beginsWithList, testNGList, runpathList, loader, RunnerJFrame.this, nextRunStamp, numThreads, suffixes) 
           }
           finally {
@@ -1437,6 +1451,7 @@ private[scalatest] class RunnerJFrame(val eventTypesToCollect: Set[EventToPresen
       withClassLoaderAndDispatchReporter(runpathList, reporterConfigurations, Some(graphicRerunReporter), None) {
         (loader, dispatchReporter) => {
           try {
+            val filter = Filter(if (tagsToIncludeSet.isEmpty) None else Some(tagsToIncludeSet), tagsToExcludeSet)
             rerun(dispatchReporter, stopper, filter, propertiesMap,
                 distributor, tracker, loader)
           }

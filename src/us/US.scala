@@ -92,17 +92,17 @@ trait StateSuite extends Suite {
     if(decoded == name) None else Some(decoded)
   }
 
-  private def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName: Option[String], rerunnable: Option[Rerunner], location: Option[Location]) {
+  private def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName: Option[String], suiteRerunner: Option[String], location: Option[Location]) {
     report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), getDecodedName(theSuite.suiteName), testName, testText, decodedTestName, Some(MotionToSuppress),
-      location, rerunnable))
+      location, suiteRerunner))
   }
 
  private def reportTestFailed(theSuite: Suite, report: Reporter, throwable: Throwable, testName: String, testText: String, decodedTestName: Option[String],
-      rerunnable: Option[Rerunner], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean, location: Option[Location]) {
+      suiteRerunner: Option[String], tracker: Tracker, duration: Long, level: Int, includeIcon: Boolean, location: Option[Location]) {
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testText, level, includeIcon)
-    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), getDecodedName(theSuite.suiteName), testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, rerunnable))
+    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), getDecodedName(theSuite.suiteName), testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, suiteRerunner))
   }
 
   private def reportTestCanceled(theSuite: Suite, report: Reporter, throwable: Throwable, testName: String, testText: String,
@@ -113,9 +113,9 @@ trait StateSuite extends Suite {
     report(TestCanceled(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), getDecodedName(theSuite.suiteName), testName, testText, getDecodedName(testName), Some(throwable), Some(duration), Some(formatter), location, rerunnable))
   }
 
-  private def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName: Option[String], duration: Long, formatter: Formatter, rerunnable: Option[Rerunner], location: Option[Location]) {
+  private def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName: Option[String], duration: Long, formatter: Formatter, suiteRerunner: Option[String], location: Option[Location]) {
     report(TestSucceeded(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), getDecodedName(theSuite.suiteName), testName, testText, decodedTestName, Some(duration), Some(formatter),
-      location, rerunnable))
+      location, suiteRerunner))
   }
 
   private def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName: Option[String], duration: Long, formatter: Formatter, location: Option[Location]) {

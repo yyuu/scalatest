@@ -103,7 +103,7 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that is starting, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is starting
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that is starting
@@ -112,8 +112,8 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that is starting (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that is starting. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -124,7 +124,7 @@ sealed abstract class Event extends Ordered[Event] with java.io.Serializable {
 final case class TestStarting (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -132,7 +132,7 @@ final case class TestStarting (
   decodedTestName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -142,8 +142,8 @@ final case class TestStarting (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -193,7 +193,7 @@ final case class TestStarting (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that has succeeded, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has succeeded
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that has succeeded
@@ -203,8 +203,8 @@ final case class TestStarting (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has succeeded (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that has succeeded. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestSucceeded</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -215,7 +215,7 @@ final case class TestStarting (
 final case class TestSucceeded (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String], 
   testName: String,
@@ -224,7 +224,7 @@ final case class TestSucceeded (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -234,8 +234,8 @@ final case class TestSucceeded (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -287,7 +287,7 @@ final case class TestSucceeded (
  *        other events reported during the same run
  * @param message a localized message suitable for presenting to the user
  * @param suiteName a localized name identifying the suite containing the test that has failed, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that has failed
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that has failed
@@ -299,8 +299,8 @@ final case class TestSucceeded (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the test that has failed (if <code>None</code>
- *        is passed, the test cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the test that has failed. (If <code>None</code>
+ *        is passed, the test cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>TestFailed</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -312,7 +312,7 @@ final case class TestFailed (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -322,7 +322,7 @@ final case class TestFailed (
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -334,8 +334,8 @@ final case class TestFailed (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -389,7 +389,7 @@ final case class TestFailed (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that was ignored, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was ignored
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that was ignored
@@ -408,7 +408,7 @@ final case class TestFailed (
 final case class TestIgnored (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -425,8 +425,8 @@ final case class TestIgnored (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -468,7 +468,7 @@ final case class TestIgnored (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that is pending, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that is pending
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that is pending
@@ -488,7 +488,7 @@ final case class TestIgnored (
 final case class TestPending (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -506,8 +506,8 @@ final case class TestPending (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -551,7 +551,7 @@ final case class TestPending (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite containing the test that was canceled, suitable for presenting to the user
- * @param suiteID a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite containing the test that is starting, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the test that was canceled
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param testName the name of the test that was canceled
@@ -575,7 +575,7 @@ final case class TestCanceled (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   testName: String,
@@ -596,8 +596,8 @@ final case class TestCanceled (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (testName == null)
@@ -650,14 +650,14 @@ final case class TestCanceled (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite that is starting, suitable for presenting to the user
- * @param suiteID a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
+ * @param suiteId a string ID for the suite that is starting, intended to be unique across all suites in a run XXX 
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name of the suite that is starting
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that is starting (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that is starting. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteStarting</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -668,12 +668,12 @@ final case class TestCanceled (
 final case class SuiteStarting (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -683,8 +683,8 @@ final case class SuiteStarting (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (formatter == null)
@@ -730,15 +730,15 @@ final case class SuiteStarting (
  * @param ordinal an <code>Ordinal</code> that can be used to place this event in order in the context of
  *        other events reported during the same run
  * @param suiteName a localized name identifying the suite that has completed, suitable for presenting to the user
- * @param suiteID a string ID for the suite that has completed, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite that has completed, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has completed
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param duration an optional amount of time, in milliseconds, that was required to execute the suite that has completed
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has completed (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that has completed. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteCompleted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -749,13 +749,13 @@ final case class SuiteStarting (
 final case class SuiteCompleted (
   ordinal: Ordinal,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String],
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -765,8 +765,8 @@ final case class SuiteCompleted (
     throw new NullPointerException("ordinal was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (duration == null)
@@ -818,7 +818,7 @@ final case class SuiteCompleted (
  *        suite name, suitable for presenting to the user
  * @param message a localized message suitable for presenting to the user
  * @param suiteName a localized name identifying the suite that has aborted, suitable for presenting to the user
- * @param suiteID a string ID for the suite that has aborted, intended to be unique across all suites in a run
+ * @param suiteId a string ID for the suite that has aborted, intended to be unique across all suites in a run
  * @param suiteClassName an optional fully qualifed <code>Suite</code> class name containing the suite that has aborted
  * @param decodedSuiteName the decoded suite name, in case the suite name is put between backticks.  None if it is same as suiteName.
  * @param throwable an optional <code>Throwable</code> that, if a <code>Some</code>, indicates why the suite has aborted,
@@ -827,8 +827,8 @@ final case class SuiteCompleted (
  * @param formatter an optional formatter that provides extra information that can be used by reporters in determining
  *        how to present this event to the user
  * @param location An optional location that provides information indicating where in the source code an event originated.
- * @param rerunner an optional <code>Rerunner</code> that can be used to rerun the suite that has aborted (if <code>None</code>
- *        is passed, the suite cannot be rerun)
+ * @param rerunner an optional <code>String</code> giving the fully qualified name of the class that can be used to rerun the suite that has aborted. (If <code>None</code>
+ *        is passed, the suite cannot be rerun.)
  * @param payload an optional object that can be used to pass custom information to the reporter about the <code>SuiteAborted</code> event
  * @param threadName a name for the <code>Thread</code> about whose activity this event was reported
  * @param timeStamp a <code>Long</code> indicating the time this event was reported, expressed in terms of the
@@ -840,14 +840,14 @@ final case class SuiteAborted (
   ordinal: Ordinal,
   message: String,
   suiteName: String,
-  suiteID: String,
+  suiteId: String,
   suiteClassName: Option[String],
   decodedSuiteName: Option[String], 
   throwable: Option[Throwable] = None,
   duration: Option[Long] = None,
   formatter: Option[Formatter] = None,
   location: Option[Location] = None,
-  rerunner: Option[Rerunner] = None,
+  rerunner: Option[String] = None,
   payload: Option[Any] = None,
   threadName: String = Thread.currentThread.getName,
   timeStamp: Long = (new Date).getTime
@@ -859,8 +859,8 @@ final case class SuiteAborted (
     throw new NullPointerException("message was null")
   if (suiteName == null)
     throw new NullPointerException("suiteName was null")
-  if (suiteID == null)
-    throw new NullPointerException("suiteID was null")
+  if (suiteId == null)
+    throw new NullPointerException("suiteId was null")
   if (suiteClassName == null)
     throw new NullPointerException("suiteClassName was null")
   if (throwable == null)
@@ -1649,7 +1649,7 @@ object DeprecatedTestStarting {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestStarting = {
-    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1678,7 +1678,7 @@ object DeprecatedTestStarting {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestStarting = {
-    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1780,7 +1780,7 @@ object DeprecatedTestSucceeded {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestSucceeded = {
-    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1811,7 +1811,7 @@ object DeprecatedTestSucceeded {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestSucceeded = {
-    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestSucceeded(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1946,7 +1946,7 @@ object DeprecatedTestFailed {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): TestFailed = {
-    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -1982,7 +1982,7 @@ object DeprecatedTestFailed {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): TestFailed = {
-    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    TestFailed(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, testName, testName, None, throwable, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2316,7 +2316,7 @@ object DeprecatedSuiteStarting {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteStarting = {
-    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2344,7 +2344,7 @@ object DeprecatedSuiteStarting {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteStarting = {
-    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteStarting(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2442,7 +2442,7 @@ object DeprecatedSuiteCompleted {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteCompleted = {
-    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2471,7 +2471,7 @@ object DeprecatedSuiteCompleted {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteCompleted = {
-    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteCompleted(ordinal, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2602,7 +2602,7 @@ object DeprecatedSuiteAborted {
     rerunner: Option[Rerunner],
     payload: Option[Any]
   ): SuiteAborted = {
-    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, rerunner, payload, Thread.currentThread.getName, (new Date).getTime)
+    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, suiteClassName, payload, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**
@@ -2636,7 +2636,7 @@ object DeprecatedSuiteAborted {
     formatter: Option[Formatter],
     rerunner: Option[Rerunner]
   ): SuiteAborted = {
-    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, rerunner, None, Thread.currentThread.getName, (new Date).getTime)
+    SuiteAborted(ordinal, message, suiteName, suiteClassName getOrElse suiteName, suiteClassName, None, throwable, duration, formatter, None, suiteClassName, None, Thread.currentThread.getName, (new Date).getTime)
   }
 
   /**

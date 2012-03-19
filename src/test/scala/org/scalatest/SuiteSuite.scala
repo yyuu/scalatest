@@ -419,6 +419,136 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     assert(tagSuite.suiteTags.size == 1)
     assert(tagSuite.suiteTags.toList(0) == classOf[SlowAsMolasses].getName)
   }
+  
+  def testTestTags() {
+    class TagSuite extends Suite {  
+      def testNoTagMethod() {}
+      @SlowAsMolasses
+      def testTagMethod() {}
+    }
+    val testTags = new TagSuite().testTags
+    assert(testTags.size === 1)
+    val tagSet = testTags.getOrElse("testTagMethod", null)
+    assert(tagSet != null)
+    assert(tagSet.size === 1)
+    assert(tagSet.toList(0) === classOf[SlowAsMolasses].getName)
+  }
+  
+  def testRunNestedSuite() {
+    
+    class NoTagSuite extends Suite
+    @Ignore
+    class IgnoreSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @SlowAsMolasses
+    class SlowAsMolassesSuite extends Suite
+    @FastAsLight
+    class FastAsLightSuite extends Suite
+    
+    class MasterSuite extends Suite {
+      override def nestedSuites = List(new NoTagSuite(), new IgnoreSuite(), new SlowAsMolassesSuite(), new FastAsLightSuite())
+      override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
+                                configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+        super.runNestedSuites(reporter, stopper, filter, configMap, distributor, tracker)
+      }
+    }
+    
+    class CounterDistributor extends Distributor {
+      var count = 0
+      def apply(suite: Suite, tracker: Tracker, filter: Filter) {
+        count += 1
+      }
+      def apply(suite: Suite, tracker: Tracker) {
+        throw new UnsupportedOperationException("ConcurrentDistributor does not support this operation, please use apply(suite: Suite, tracker: Tracker, filter: Filter) instead.")
+      }
+    }
+    
+    val masterSuite = new MasterSuite()
+    
+    val defaultFilter = new Filter(None, Set.empty)
+    val defaultReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(defaultReporter, new Stopper {}, defaultFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(defaultReporter.suiteStartingEventsReceived.size === 4)
+    assert(defaultReporter.testIgnoredEventsReceived.size === 3)
+    val defaultReporterDist = new EventRecordingReporter
+    val defaultDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(defaultReporterDist, new Stopper {}, defaultFilter, Map.empty, Some(defaultDistributor), new Tracker(new Ordinal(99)))
+    assert(defaultDistributor.count === 4)
+    
+    val includeFilter = new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)
+    val includeReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(includeReporter, new Stopper {}, includeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(includeReporter.suiteStartingEventsReceived.size === 4) // Filter.apply(Suite) does not look at tagsToInclude
+    assert(includeReporter.testIgnoredEventsReceived.size === 0) // Filter.apply(Test) does look at tagsToInclude
+    val includeReporterDist = new EventRecordingReporter
+    val includeDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(includeReporterDist, new Stopper {}, includeFilter, Map.empty, Some(includeDistributor), new Tracker(new Ordinal(99)))
+    assert(includeDistributor.count === 4) // Filter.apply(Suite) does not look at tagsToInclude
+    
+    val excludeFilter = new Filter(None, Set("org.scalatest.SlowAsMolasses"))
+    val excludeReporter = new EventRecordingReporter
+    masterSuite.runNestedSuites(excludeReporter, new Stopper {}, excludeFilter, Map.empty, None, new Tracker(new Ordinal(99)))
+    assert(excludeReporter.suiteStartingEventsReceived.size === 3)
+    assert(excludeReporter.testIgnoredEventsReceived.size === 3)
+    val excludeReporterDist = new EventRecordingReporter
+    val excludeDistributor = new CounterDistributor
+    masterSuite.runNestedSuites(excludeReporterDist, new Stopper {}, excludeFilter, Map.empty, Some(excludeDistributor), new Tracker(new Ordinal(99)))
+    assert(excludeDistributor.count === 3)
+  }
+  
+  def testExpectedTestCount() {
+    class NoTagSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @Ignore
+    class IgnoreSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @SlowAsMolasses
+    class SlowAsMolassesSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    @FastAsLight
+    class FastAsLightSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    
+    class MasterSuite extends Suite {
+      override def nestedSuites = List(new NoTagSuite(), new IgnoreSuite(), new SlowAsMolassesSuite(), new FastAsLightSuite())
+      override def runNestedSuites(reporter: Reporter, stopper: Stopper, filter: Filter,
+                                configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+        super.runNestedSuites(reporter, stopper, filter, configMap, distributor, tracker)
+      }
+    }
+    
+    val masterSuite = new MasterSuite()
+    assert(masterSuite.expectedTestCount(new Filter(None, Set.empty)) === 9)
+    assert(masterSuite.expectedTestCount(new Filter(Some(Set("org.scalatest.FastAsLight")), Set.empty)) === 3)
+    assert(masterSuite.expectedTestCount(new Filter(None, Set("org.scalatest.FastAsLight"))) === 6)
+    assert(masterSuite.expectedTestCount(new Filter(Some(Set("org.scalatest.SlowAsMolasses")), Set.empty)) === 3)
+    assert(masterSuite.expectedTestCount(new Filter(None, Set("org.scalatest.SlowAsMolasses"))) === 6)
+  }
+  
+  def testSuiteRunner() {
+    assert(new NormalSuite().rerunner.get === classOf[NormalSuite].getName)
+    assert(new WrappedSuite(Map.empty).rerunner.get === classOf[WrappedSuite].getName)
+    assert(new NotAccessibleSuite("test").rerunner === None)
+  }
 }
 
 class `My Test` extends Suite {}
+class NormalSuite extends Suite
+@WrapWith(classOf[ConfigMapWrapperSuite]) 
+class WrappedSuite(configMap: Map[_, _]) extends Suite
+class NotAccessibleSuite(name: String) extends Suite

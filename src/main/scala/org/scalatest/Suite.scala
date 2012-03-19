@@ -53,6 +53,7 @@ import Suite.reportTestPending
 import Suite.reportTestCanceled
 import Suite.reportInfoProvided
 import scala.reflect.NameTransformer
+import tools.SuiteDiscoveryHelper
 
 /**
  * A suite of tests. A <code>Suite</code> instance encapsulates a conceptual
@@ -2244,7 +2245,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     testName match {
 
       case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, testTags)
+        val (filterTest, ignoreTest) = filter(tn, testTags, this)
         if (!filterTest) {
           if (ignoreTest)
             reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2253,7 +2254,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         }
 
       case None =>
-        for ((tn, ignoreTest) <- filter(testNames, testTags)) {
+        for ((tn, ignoreTest) <- filter(testNames, testTags, this)) {
           if (!stopRequested()) {
             if (ignoreTest)
               reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2364,7 +2365,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testName, 1, true)
-    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteId, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), Some(throwable), Some(duration), Some(formatter), Some(SeeStackDepthException), rerunnable))
+    report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.suiteId, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), Some(throwable), Some(duration), Some(formatter), Some(SeeStackDepthException), rerunner))
   }
 
   /**
@@ -2429,18 +2430,12 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         // Create a Rerunner if the Suite has a no-arg constructor 
         val hasPublicNoArgConstructor = Suite.checkForPublicNoArgConstructor(nestedSuite.getClass)
 
-        val rerunnable =
-          if (hasPublicNoArgConstructor)
-            Some(new SuiteRerunner(nestedSuite.getClass.getName))
-          else
-            None
-
         val rawString = Resources("suiteExecutionStarting")
         val formatter = formatterForSuiteStarting(nestedSuite)
 
         val suiteStartTime = System.currentTimeMillis
 
-        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName)), rerunnable))
+        report(SuiteStarting(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.rerunner))
 
         try {
           // Same thread, so OK to send same tracker
@@ -2450,7 +2445,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
           val formatter = formatterForSuiteCompleted(nestedSuite)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(nestedSuite.getClass.getName)), rerunnable))
+          report(SuiteCompleted(tracker.nextOrdinal(), nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(duration), formatter, Some(TopOfClass(nestedSuite.getClass.getName)), nestedSuite.rerunner))
         }
         catch {       
           case e: RuntimeException => {
@@ -2459,24 +2454,24 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
             val formatter = formatterForSuiteAborted(nestedSuite, rawString)
 
             val duration = System.currentTimeMillis - suiteStartTime
-            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(e), Some(duration), formatter, Some(SeeStackDepthException), rerunnable))
+            report(SuiteAborted(tracker.nextOrdinal(), rawString, nestedSuite.suiteName, nestedSuite.suiteId, Some(nestedSuite.getClass.getName), nestedSuite.decodedSuiteName, Some(e), Some(duration), formatter, Some(SeeStackDepthException), nestedSuite.rerunner))
           }
         }
       }
     }
     
-    if (filter.includeNestedSuites) {
+    if (!filter.excludeNestedSuites) {
+      val filteredNestedSuites = filter(nestedSuites)
       distributor match {
         case None =>
-          val nestedSuitesArray = nestedSuites.toArray
-          for (i <- 0 until nestedSuitesArray.length) {
-            if (!stopRequested()) {
-              callExecuteOnSuite(nestedSuitesArray(i))
-            }
+          val nestedSuitesArray = filteredNestedSuites.toArray
+          for ((nestedSuite, ignored) <- nestedSuitesArray) {
+            if (!stopRequested()) 
+              callExecuteOnSuite(nestedSuite)
           }
         case Some(distribute) =>
-          for (nestedSuite <- nestedSuites)
-            distribute(nestedSuite, tracker.nextTracker())
+          for ((nestedSuite, ignored) <- filteredNestedSuites) 
+            distribute(nestedSuite, tracker.nextTracker(), filter)
       }
     }
   }
@@ -2634,11 +2629,15 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     def countNestedSuiteTests(nestedSuites: List[Suite], filter: Filter): Int =
       nestedSuites match {
         case List() => 0
-        case nestedSuite :: nestedSuites => nestedSuite.expectedTestCount(filter) +
+        case nestedSuite :: nestedSuites => 
+          val (filtered, ignore) = filter(nestedSuite)
+          if (!filtered && !ignore)
+            nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
+          else
             countNestedSuiteTests(nestedSuites, filter)
     }
 
-    filter.runnableTestCount(testNames, testTags) + countNestedSuiteTests(nestedSuites, filter)
+    filter.runnableTestCount(testNames, testTags, this) + countNestedSuiteTests(nestedSuites, filter)
   }
 
   // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,
@@ -2648,6 +2647,21 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     case dr: DispatchReporter => dr
     case cr: CatchReporter => cr
     case _ => new CatchReporter(reporter)
+  }
+  
+  /**
+   * The fully qualified class name of the rerunner to rerun this suite.  This implementation will look at this.getClass and see if it is
+   * either an accessible Suite, or it has a WrapWith annotation. If so, it returns the fully qualified class name wrapped in a Some, 
+   * or else it returns None.
+   */
+  def rerunner: Option[String] = {
+    val suiteClass = getClass
+    val isAccessible = SuiteDiscoveryHelper.isAccessibleSuite(suiteClass)
+    val hasWrapWithAnnotation = suiteClass.getAnnotation(classOf[WrapWith]) != null
+    if (isAccessible || hasWrapWithAnnotation)
+      Some(suiteClass.getName)
+    else
+      None
   }
   
   private[scalatest] def getTopOfClass = TopOfClass(this.getClass.getName)
@@ -2954,14 +2968,14 @@ used for test events like succeeded/failed, etc.
 
     val message = getMessageForException(throwable)
     val formatter = getIndentedText(testText, level, includeIcon)
-    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName),theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, rerunnable))
+    report(TestFailed(tracker.nextOrdinal(), message, theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName),theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(throwable), Some(duration), Some(formatter), location, theSuite.rerunner))
   }
 
   // TODO: Possibly separate these out from method tests and function tests, because locations are different
   // Update: Doesn't seems to need separation, to be confirmed with Bill.
   def reportTestStarting(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], rerunnable: Option[Rerunner], location: Option[Location]) {
     report(TestStarting(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(MotionToSuppress),
-      location, rerunnable))
+      location, theSuite.rerunner))
   }
 
   def reportTestPending(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], duration: Long, formatter: Formatter, location: Option[Location]) {
@@ -2987,7 +3001,7 @@ used for test events like succeeded/failed, etc.
 
   def reportTestSucceeded(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], duration: Long, formatter: Formatter, rerunnable: Option[Rerunner], location: Option[Location]) {
     report(TestSucceeded(tracker.nextOrdinal(), theSuite.suiteName, theSuite.suiteId, Some(theSuite.getClass.getName), theSuite.decodedSuiteName, testName, testText, decodedTestName, Some(duration), Some(formatter),
-      location, rerunnable))
+      location, theSuite.rerunner))
   }
 
   def reportTestIgnored(theSuite: Suite, report: Reporter, tracker: Tracker, testName: String, testText: String, decodedTestName:Option[String], level: Int, location: Option[Location]) {

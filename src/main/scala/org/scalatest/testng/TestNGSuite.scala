@@ -16,8 +16,6 @@
 package org.scalatest.testng
 
 import org.scalatest._
-import org.scalatest.Suite
-import org.scalatest.TestRerunner
 import org.scalatest.events._
 import Suite.getIndentedText
 import Suite.formatterForSuiteAborted
@@ -259,7 +257,7 @@ trait TestNGSuite extends Suite { thisSuite =>
      */
     override def onTestStart(result: ITestResult) = {
       report(TestStarting(tracker.nextOrdinal(), thisSuite.suiteName, thisSuite.getClass.getName, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, result.getName + params(result), result.getName + params(result),
-             getDecodedName(result.getName + params(result)), Some(MotionToSuppress), getTopOfMethod(thisSuite.getClass.getName, result.getName), Some(new TestRerunner(className, result.getName))))
+             getDecodedName(result.getName + params(result)), Some(MotionToSuppress), getTopOfMethod(thisSuite.getClass.getName, result.getName), Some(className)))
     }
 
     /**
@@ -270,7 +268,7 @@ trait TestNGSuite extends Suite { thisSuite =>
       val testName = result.getName + params(result)
       val formatter = getIndentedText(testName, 1, true)
       report(TestSucceeded(tracker.nextOrdinal(), thisSuite.suiteName, thisSuite.getClass.getName, thisSuite.decodedSuiteName, Some(thisSuite.getClass.getName), testName, testName, 
-          getDecodedName(testName), None, Some(formatter), getTopOfMethod(thisSuite.getClass.getName, result.getName), Some(new TestRerunner(className, result.getName)))) // Can I add a duration?
+          getDecodedName(testName), None, Some(formatter), getTopOfMethod(thisSuite.getClass.getName, result.getName), Some(className))) // Can I add a duration?
     }
 
     /**
@@ -292,7 +290,7 @@ trait TestNGSuite extends Suite { thisSuite =>
       val message = if (throwableOrNull != null && throwableOrNull.getMessage != null) throwableOrNull.getMessage else Resources("testNGConfigFailed")
       val testName = result.getName + params(result)
       val formatter = getIndentedText(testName, 1, true)
-      report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.getClass.getName, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), throwable, None, Some(formatter), Some(SeeStackDepthException), Some(new TestRerunner(className, result.getName)))) // Can I add a duration?
+      report(TestFailed(tracker.nextOrdinal(), message, thisSuite.suiteName, thisSuite.getClass.getName, Some(thisSuite.getClass.getName), thisSuite.decodedSuiteName, testName, testName, getDecodedName(testName), throwable, None, Some(formatter), Some(SeeStackDepthException), Some(className))) // Can I add a duration?
     }
 
     /**
