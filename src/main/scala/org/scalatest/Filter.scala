@@ -81,44 +81,22 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     mergedTags.toMap
   }
   
-  private[scalatest] def mergeTestDynamicTags(testTags: Map[String, Set[String]], suite: Suite): Map[String, Set[String]] = {
+  private[scalatest] def mergeTestDynamicTags(tags: Map[String, Set[String]], suiteId: String, testNames: Set[String]): Map[String, Set[String]] = {
     val dynaTestTags = 
-      if (dynaTags.testTags.isDefinedAt(suite.suiteId))
-        dynaTags.testTags(suite.suiteId)
+      if (dynaTags.testTags.isDefinedAt(suiteId))
+        dynaTags.testTags(suiteId)
       else
         Map.empty[String, Set[String]]
     
-    val suiteTags = mergeSuiteDynamicTags(suite.suiteTags, suite.suiteId)
-    
-    val includeTestTags = 
-      tagsToInclude match {
-        case Some(tagsToInclude) => 
-          val includeIntersectSet = suiteTags intersect tagsToInclude
-          if (includeIntersectSet.size > 0)
-            Map() ++ suite.testNames.map(tn => (tn, includeIntersectSet))
-          else
-            Map.empty[String, Set[String]]
-        case None =>
-          Map.empty[String, Set[String]]
+    val dynaSuiteTags = 
+      if (dynaTags.suiteTags.isDefinedAt(suiteId)) {
+        val suiteTags = dynaTags.suiteTags(suiteId)
+        Map() ++ testNames.map(tn => (tn, suiteTags))
       }
-    
-    val excludeIntersectSet = suiteTags intersect (tagsToExclude + "org.scalatest.Ignore") 
-    val excludeTestTags = 
-      if (excludeIntersectSet.size > 0)
-        Map() ++ suite.testNames.map(tn => (tn, excludeIntersectSet))
       else
         Map.empty[String, Set[String]]
-      
-    mergeTestTags(List(testTags, dynaTestTags, includeTestTags, excludeTestTags))
-  }
-  
-  private def mergeSuiteDynamicTags(suiteTags: Set[String], suiteId: String): Set[String] = {
-    if (dynaTags.suiteTags.isDefinedAt(suiteId)) {
-      val dynaSuiteTags = dynaTags.suiteTags(suiteId)
-      suiteTags ++ dynaSuiteTags
-    }
-    else
-      suiteTags
+     
+    mergeTestTags(List(tags, dynaTestTags, dynaSuiteTags))
   }
 
   /**
@@ -167,18 +145,18 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     filtered
   }
   
-  def apply(testNames: Set[String], testTags: Map[String, Set[String]], suite: Suite): List[(String, Boolean)] = {
-    val tags: Map[String, Set[String]] = mergeTestDynamicTags(testTags, suite)
-    verifyPreconditionsForMethods(testNames, tags)
+  def apply(testNames: Set[String], tags: Map[String, Set[String]], suiteId: String): List[(String, Boolean)] = {
+    val testTags: Map[String, Set[String]] = mergeTestDynamicTags(tags, suiteId, testNames)
+    verifyPreconditionsForMethods(testNames, testTags)
 
     val testNamesAsList = testNames.toList // to preserve the order
     val filtered =
       for {
-        testName <- includedTestNames(testNamesAsList, tags)
-        if !tags.contains(testName) ||
-                (tags(testName).contains(IgnoreTag) && (tags(testName) intersect (tagsToExclude + "org.scalatest.Ignore")).size == 1) ||
-                (tags(testName) intersect tagsToExclude).size == 0
-      } yield (testName, tags.contains(testName) && tags(testName).contains(IgnoreTag))
+        testName <- includedTestNames(testNamesAsList, testTags)
+        if !testTags.contains(testName) ||
+                (testTags(testName).contains(IgnoreTag) && (testTags(testName) intersect (tagsToExclude + "org.scalatest.Ignore")).size == 1) ||
+                (testTags(testName) intersect tagsToExclude).size == 0
+      } yield (testName, testTags.contains(testName) && testTags(testName).contains(IgnoreTag))
 
     filtered
   }
@@ -223,9 +201,9 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
       (false, list.head._2)
   }
   
-  def apply(testName: String, testTags: Map[String, Set[String]], suite: Suite): (Boolean, Boolean) = {
-    val tags: Map[String, Set[String]] = mergeTestDynamicTags(testTags, suite)
-    val list = apply(Set(testName), tags)
+  def apply(testName: String, tags: Map[String, Set[String]], suiteId: String): (Boolean, Boolean) = {
+    val testTags: Map[String, Set[String]] = mergeTestDynamicTags(tags, suiteId, Set(testName))
+    val list = apply(Set(testName), testTags)
     if (list.isEmpty)
       (true, false)
     else
@@ -263,8 +241,8 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
     runnableTests.size
   }
 
-  def runnableTestCount(testNames: Set[String], testTags: Map[String, Set[String]], suite: Suite): Int = {
-    val tags: Map[String, Set[String]] = mergeTestDynamicTags(testTags, suite)
+  def runnableTestCount(testNames: Set[String], testTags: Map[String, Set[String]], suiteId: String): Int = {
+    val tags: Map[String, Set[String]] = mergeTestDynamicTags(testTags, suiteId, testNames)
     verifyPreconditionsForMethods(testNames, tags)
 
     val testNamesAsList = testNames.toList // to preserve the order
@@ -275,50 +253,6 @@ final class Filter(val tagsToInclude: Option[Set[String]], val tagsToExclude: Se
       } yield testName
 
     runnableTests.size
-  }
-
-  // pair._1 is filterSuite and pair._1 is ignoreSuite
-   /**
-   * <pre class="stHighlight">
-   * val (filterSuite, ignoreSuite) = filter(suite)
-   * if (!filterSuite)
-   *   if (ignoreSuite)
-   *     // ignore the Suite
-   *     fireSuiteIgnored(suite, ...
-   *   else
-   *     // execute the Suite
-   *     suite.run(...
-   * </pre>
-   */
-  def apply(suite: Suite): (Boolean, Boolean) = {
-    val list = apply(List(suite))
-    if (list.isEmpty)
-      (true, false)
-    else
-      (false, list.head._2)
-  }
-
-  // The boolean is ignoreSuite
-  /*
-   * <pre class="stHighlight">
-   * for ((suite, ignoreSuite) <- filter(nestedSuites))
-   *   if (ignoreSuite)
-   *     // ignore the Suite
-   *     fireSuiteIgnored(...
-   *   else
-   *     // execute the Suite
-   *     suite.run(...
-   * </pre>
-   */
-  def apply(suites: List[Suite]): List[(Suite, Boolean)] = {
-    val filtered = for {
-      suite <- suites
-      tags = mergeSuiteDynamicTags(suite.suiteTags, suite.suiteId)
-      if (tags.contains(IgnoreTag) && (tags intersect (tagsToExclude + "org.scalatest.Ignore")).size == 1) ||
-         (tags intersect tagsToExclude).size == 0
-    } yield (suite, tags.contains(IgnoreTag))
-    
-    filtered
   }
 }
 

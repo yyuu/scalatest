@@ -54,6 +54,7 @@ import Suite.reportTestCanceled
 import Suite.reportInfoProvided
 import scala.reflect.NameTransformer
 import tools.SuiteDiscoveryHelper
+import tools.Runner
 
 /**
  * A suite of tests. A <code>Suite</code> instance encapsulates a conceptual
@@ -1837,23 +1838,6 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
   }
 
   /**
-   * This method has been deprecated and will be removed in a future version of ScalaTest.
-   *
-   * <p>
-   * Please use <code>testTags</code> instead. Subclasses overriding <code>tags</code> in earlier versions
-   * of ScalaTest must override <code>testTags</code> instead.
-   * </p>
-   * 
-   * <p>
-   * This method implementation simplye invokes <code>testTags</code> and returns its result.
-   * </p>
-   */
-  @deprecated("Please use testTags instead")
-  final def tags: Map[String, Set[String]] = {
-    testTags
-  }
-  
-  /**
    * A <code>Map</code> whose keys are <code>String</code> tag names with which tests in this <code>Suite</code> are marked, and
    * whose values are the <code>Set</code> of test names marked with each tag.  If this <code>Suite</code> contains no tags, this
    * method returns an empty <code>Map</code>.
@@ -1872,8 +1856,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
    * returned <code>Map</code>.
    * </p>
    */
-  def testTags: Map[String, Set[String]] = {
-    
+  def tags: Map[String, Set[String]] = {
     def getTags(testName: String) =
       for {
         a <- getMethodForTestName(testName).getDeclaredAnnotations
@@ -1881,38 +1864,25 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
       } yield annotationClass.getName
 
-    val elements =
-      for (testName <- testNames; if !getTags(testName).isEmpty)
-        yield testName -> (Set() ++ getTags(testName))
+    val testNameList = testNames
+      
+    val testTags = Map() ++ 
+      (for (testName <- testNameList; if !getTags(testName).isEmpty)
+        yield testName -> (Set() ++ getTags(testName)))
 
-    Map() ++ elements
-    
-  }
-  
-  /**
-   * A <code>Set</code> of tags with which this <code>Suite</code> is marked. If this <code>Suite</code> is marked with no tags, this
-   * method returns an empty <code>Set</code>.
-   *
-   * <p>
-   * This trait's implementation of this method uses Java reflection to discover any Java annotations attached to its class. The
-   * fully qualified name of each unique annotation that extends <code>TagAnnotation</code> is considered a tag. This trait's
-   * implementation of this method, therefore, places one element into to the
-   * <code>Set</code> for each unique tag annotation name discovered through reflection.
-   * </p>
-   *
-   * <p>
-   * Subclasses may override this method to define and/or discover tags in a custom manner.
-   * </p>
-   */
-  def suiteTags: Set[String] = {
-    
-    val elements = for { 
+    val suiteTags = for { 
       a <- getClass.getDeclaredAnnotations
       annotationClass = a.annotationType
       if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
     } yield annotationClass.getName
     
-    Set() ++ elements
+    val autoTestTags = 
+      if (suiteTags.size > 0)
+        Map() ++ testNameList.map(tn => (tn, suiteTags.toSet))
+      else
+        Map.empty[String, Set[String]]
+    
+    Runner.mergeMap[String, Set[String]](List(testTags, autoTestTags)) ( _ ++ _ ) 
   }
 
   /**
@@ -2245,7 +2215,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     testName match {
 
       case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, testTags, this)
+        val (filterTest, ignoreTest) = filter(tn, tags, suiteId)
         if (!filterTest) {
           if (ignoreTest)
             reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2254,7 +2224,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
         }
 
       case None =>
-        for ((tn, ignoreTest) <- filter(testNames, testTags, this)) {
+        for ((tn, ignoreTest) <- filter(testNames, tags, suiteId)) {
           if (!stopRequested()) {
             if (ignoreTest)
               reportTestIgnored(thisSuite, report, tracker, tn, tn, getDecodedName(tn), 1, Some(getTopOfMethod(tn)))
@@ -2461,16 +2431,15 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     }
     
     if (!filter.excludeNestedSuites) {
-      val filteredNestedSuites = filter(nestedSuites)
+      val nestedSuitesArray = nestedSuites.toArray
       distributor match {
         case None =>
-          val nestedSuitesArray = filteredNestedSuites.toArray
-          for ((nestedSuite, ignored) <- nestedSuitesArray) {
+          for (nestedSuite <- nestedSuitesArray) {
             if (!stopRequested()) 
               callExecuteOnSuite(nestedSuite)
           }
         case Some(distribute) =>
-          for ((nestedSuite, ignored) <- filteredNestedSuites) 
+          for (nestedSuite <- nestedSuitesArray) 
             distribute(nestedSuite, tracker.nextTracker(), filter)
       }
     }
@@ -2630,14 +2599,10 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
       nestedSuites match {
         case List() => 0
         case nestedSuite :: nestedSuites => 
-          val (filtered, ignore) = filter(nestedSuite)
-          if (!filtered && !ignore)
-            nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
-          else
-            countNestedSuiteTests(nestedSuites, filter)
+          nestedSuite.expectedTestCount(filter) + countNestedSuiteTests(nestedSuites, filter)
     }
 
-    filter.runnableTestCount(testNames, testTags, this) + countNestedSuiteTests(nestedSuites, filter)
+    filter.runnableTestCount(testNames, tags, suiteId) + countNestedSuiteTests(nestedSuites, filter)
   }
 
   // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,

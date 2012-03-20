@@ -82,7 +82,7 @@ class JUnit3SuiteSpec extends FunSpec with SharedHelpers {
         def testThat(info: Informer) = ()
       }
 
-      assert(a.testTags.isEmpty)
+      assert(a.tags.isEmpty)
 
       val b = new JUnit3Suite {
         def testThis() = ()
@@ -90,7 +90,7 @@ class JUnit3SuiteSpec extends FunSpec with SharedHelpers {
         def testThat(info: Informer) = ()
       }
 
-      assert(b.testTags.isEmpty)
+      assert(b.tags.isEmpty)
 
       val c = new JUnit3Suite {
         @Ignore
@@ -99,7 +99,7 @@ class JUnit3SuiteSpec extends FunSpec with SharedHelpers {
         def testThat(info: Informer) = ()
       }
 
-      assert(c.testTags.isEmpty)
+      assert(c.tags.isEmpty)
 
       val d = new JUnit3Suite {
         @SlowAsMolasses
@@ -109,10 +109,10 @@ class JUnit3SuiteSpec extends FunSpec with SharedHelpers {
         def testThat(info: Informer) = ()
       }
 
-      assert(d.testTags.isEmpty)
+      assert(d.tags.isEmpty)
 
       val e = new JUnit3Suite {}
-      assert(e.testTags.isEmpty)
+      assert(e.tags.isEmpty)
     }
 
     it("should execute all tests when run is called with testName None") {

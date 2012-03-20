@@ -131,16 +131,9 @@ println("&&&&&&&&&&&")
       case Markup(text) => 
         reportMarkupProvided(thisDoc, reporter, tracker, None, trimMarkup(stripMargin(text)), 0, None, true, None, None)
       case IncludedSuite(suite) =>
-        val (filtered, ignored) = filter(suite)
-        if (!filtered) {
-          if (!ignored) {
-            println("Send SuiteStarting ... ")
-            suite.run(None, reporter, stopper, filter, configMap, distributor, tracker) // Do the usual thing here
-            println("Send SuiteCompleted or Aborted ...")
-          }
-          else
-            println("Sending SuiteIgnored")
-        }
+        println("Send SuiteStarting ... ")
+        suite.run(None, reporter, stopper, filter, configMap, distributor, tracker) // Do the usual thing here
+        println("Send SuiteCompleted or Aborted ...")
     }
   }
 
