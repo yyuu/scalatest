@@ -492,7 +492,15 @@ object Runner {
    * Runs a suite of tests, with optional GUI. See the main documentation for this singleton object for the details.
    */
   def main(args: Array[String]) {
-    val result = runOptionallyWithPassFailReporter(args, true)
+    val result = 
+      if (args.contains("-v") || args.contains("--version")) {
+        val version = Resources("AppVersion")
+        val scalaVersion = Resources("ScalaVersion")
+        println("ScalaTest " + version + " (Built for Scala " + scalaVersion + ")")
+        runOptionallyWithPassFailReporter(args.filter(arg => arg != "-v" && arg != "--version"), true)
+      }
+      else
+        runOptionallyWithPassFailReporter(args, true)
 
     if (result)
       exit(0)
