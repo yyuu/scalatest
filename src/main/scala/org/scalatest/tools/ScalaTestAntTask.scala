@@ -305,7 +305,7 @@ class ScalaTestAntTask extends Task {
   //
   private def addRunpathArgs(args: ListBuffer[String]) {
     if (runpath.size > 0) {
-      args += "-p"
+      args += "-P"
       args += getSpacedOutPathStr(runpath.toList)
     }
   }
@@ -323,7 +323,7 @@ class ScalaTestAntTask extends Task {
   //
   private def addParallelArg(args: ListBuffer[String]) {
     if (parallel) {
-      args += "-c" + (if (numthreads > 0) ("" + numthreads) else "")
+      args += "-C" + (if (numthreads > 0) ("" + numthreads) else "")
     }
   }
 
@@ -504,7 +504,7 @@ class ScalaTestAntTask extends Task {
   private def addReporterClass(args: ListBuffer[String],
                                reporter: ReporterElement)
   {
-    addReporterOption(args, reporter, "-r")
+    addReporterOption(args, reporter, "-R")
 
     if (reporter.getClassName == null)
       throw new BuildException(
