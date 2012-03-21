@@ -46,6 +46,15 @@ class ScalaTestFrameworkSuite extends FunSuite{
     assert(runner.testLoader == currentThread.getContextClassLoader)
     assert(runner.loggers === loggers)
   }
+  
+  test("ignores 'sequential' argument") {
+    val framework = new ScalaTestFramework
+    import framework.ScalaTestRunner
+
+    val loggers: Array[Logger] = Array(new TestLogger)
+    val runner = framework.testRunner(currentThread.getContextClassLoader, loggers).asInstanceOf[ScalaTestRunner]
+    runner.parsePropsAndTags(Array("sequential"))
+  }
 
   class TestLogger extends Logger{
     def trace(t:Throwable){}

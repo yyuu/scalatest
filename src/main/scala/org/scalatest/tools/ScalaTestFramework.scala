@@ -276,6 +276,9 @@ write a sbt plugin to deploy the task.
         else if (s.startsWith("-o")) {
           repoArgs += s
         }
+        else if (s == "sequential") {
+          // To skip as it is passed in from Play 2.0 as arg to specs2.
+        }
         //      else if (s.startsWith("-t")) {
         //
         //        testNGXMLFiles += s
