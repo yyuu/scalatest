@@ -300,7 +300,7 @@ class ScalaTestAntTask extends Task {
   }
 
   //
-  // Adds '-p runpath' arg pair to args list if a runpath
+  // Adds '-P runpath' arg pair to args list if a runpath
   // element or attribute was specified for task.
   //
   private def addRunpathArgs(args: ListBuffer[String]) {
@@ -318,7 +318,7 @@ class ScalaTestAntTask extends Task {
   }
   
   //
-  // Adds '-c' arg to args list if 'parallel' attribute was
+  // Adds '-C' arg to args list if 'parallel' attribute was
   // specified true for task.
   //
   private def addParallelArg(args: ListBuffer[String]) {
@@ -496,9 +496,9 @@ class ScalaTestAntTask extends Task {
   }
 
   //
-  // Adds '-r' reporter class option to args.  Appends
+  // Adds '-R' reporter class option to args.  Appends
   // reporter config string to option if specified.  Adds
-  // reporter's classname as additional argument, e.g. "-rFAB",
+  // reporter's classname as additional argument, e.g. "-RFAB",
   // "my.ReporterClass".
   //
   private def addReporterClass(args: ListBuffer[String],
