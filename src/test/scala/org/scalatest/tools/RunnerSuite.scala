@@ -571,7 +571,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     expect(None) {
       Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite"))
     }
-    assert(Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-z", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite")) != None)
+    assert(Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-k", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite")) != None)
     expect(None) {
       Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-p", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-c"))
     }
@@ -644,6 +644,50 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     assert(case4(0).nestedSuites(0).testNames.length === 2)
     assert(case4(0).nestedSuites(0).testNames(0) === "test1")
     assert(case4(0).nestedSuites(0).testNames(1) === "test2")
+    
+    val case5 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-z", "test1", "-z", "test2", "-s", "suite2"), "-s")
+    assert(case5.length === 2)
+    assert(case5(0).className === "suite1")
+    assert(case5(0).testNames.length === 0)
+    assert(case5(0).wildcardTestNames.length === 2)
+    assert(case5(0).wildcardTestNames(0) === "test1")
+    assert(case5(0).wildcardTestNames(1) === "test2")
+    assert(case5(1).className === "suite2")
+    assert(case5(1).wildcardTestNames.length === 0)
+    assert(case5(1).testNames.length === 0)
+    
+    val case6 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-t", "test1", "-z", "test2", "-s", "suite2"), "-s")
+    assert(case6.length === 2)
+    assert(case6(0).className === "suite1")
+    assert(case6(0).testNames.length === 1)
+    assert(case6(0).testNames(0) === "test1")
+    assert(case6(0).wildcardTestNames.length === 1)
+    assert(case6(0).wildcardTestNames(0) === "test2")
+    assert(case6(1).className === "suite2")
+    assert(case6(1).wildcardTestNames.length === 0)
+    assert(case6(1).testNames.length === 0)
+    
+    val case7 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-z", "test1", "-z", "test2"), "-s")
+    assert(case7.length === 1)
+    assert(case7(0).className === "suite1")
+    assert(case7(0).testNames.length === 0)
+    assert(case7(0).nestedSuites.length === 1)
+    assert(case7(0).nestedSuites(0).suiteId === "nested1")
+    assert(case7(0).nestedSuites(0).testNames.length === 0)
+    assert(case7(0).nestedSuites(0).wildcardTestNames.length === 2)
+    assert(case7(0).nestedSuites(0).wildcardTestNames(0) === "test1")
+    assert(case7(0).nestedSuites(0).wildcardTestNames(1) === "test2")
+    
+    val case8 = Runner.parseSuiteArgsIntoSuiteParam(List("-s", "suite1", "-i", "nested1", "-t", "test1", "-z", "test2"), "-s")
+    assert(case8.length === 1)
+    assert(case8(0).className === "suite1")
+    assert(case8(0).testNames.length === 0)
+    assert(case8(0).nestedSuites.length === 1)
+    assert(case8(0).nestedSuites(0).suiteId === "nested1")
+    assert(case8(0).nestedSuites(0).testNames.length === 1)
+    assert(case8(0).nestedSuites(0).testNames(0) === "test1")
+    assert(case8(0).nestedSuites(0).wildcardTestNames.length === 1)
+    assert(case8(0).nestedSuites(0).wildcardTestNames(0) === "test2")
   }
 
 /*

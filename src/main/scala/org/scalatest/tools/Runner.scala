@@ -36,8 +36,8 @@ import java.util.concurrent.ExecutorService
 import scala.collection.mutable.ArrayBuffer
 import SuiteDiscoveryHelper._
 
-private[tools] case class SuiteParam(className: String, testNames: Array[String], nestedSuites: Array[NestedSuiteParam])
-private[tools] case class NestedSuiteParam(suiteId: String, testNames: Array[String])
+private[tools] case class SuiteParam(className: String, testNames: Array[String], wildcardTestNames: Array[String], nestedSuites: Array[NestedSuiteParam])
+private[tools] case class NestedSuiteParam(suiteId: String, testNames: Array[String], wildcardTestNames: Array[String])
 
 /**
  * <p>
@@ -664,7 +664,7 @@ object Runner {
       // Style advice
       // If it is multiple else ifs, then make it symetrical. If one needs an open curly brace, put it on all
       // If an if just has another if, a compound statement, go ahead and put the open curly brace's around the outer one
-      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-d") || s.startsWith("-a") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-n") || /* s.startsWith("-x") || */ s.startsWith("-l") || s.startsWith("-s") || s.startsWith("-i") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-t") || s.startsWith("-q") || s.startsWith("-Q")) {
+      if (s.startsWith("-p") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-d") || s.startsWith("-a") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-n") || /* s.startsWith("-x") || */ s.startsWith("-l") || s.startsWith("-s") || s.startsWith("-i") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-t") || s.startsWith("-z") || s.startsWith("-q") || s.startsWith("-Q")) {
         if (it.hasNext)
           it.next
       }
@@ -805,6 +805,12 @@ object Runner {
           suites += it.next
       }
       else if (s.startsWith("-t")) {
+
+        suites += s
+        if (it.hasNext)
+          suites += it.next
+      }
+      else if (s.startsWith("-z")) {
 
         suites += s
         if (it.hasNext)
@@ -1241,17 +1247,21 @@ object Runner {
         val className = it.next
         if (!className.startsWith("-")) {
           
-          val testNames = 
-            if (it.hasNext && it.head == "-t") {            
+          val (testNames, wildcardTestNames) = 
+            if (it.hasNext && (it.head == "-t" || it.head == "-z")) {            
               val testNamesBuffer = new ListBuffer[String]()
-              while (it.hasNext && it.head == "-t") {
-                it.next() // Skip the -t
-                testNamesBuffer += it.next
+              val wildcardTestNamesBuffer = new ListBuffer[String]()
+              while (it.hasNext && (it.head == "-t" || it.head == "-z")) {
+                val dashTest = it.next
+                if (dashTest == "-t")
+                  testNamesBuffer += it.next
+                else
+                  wildcardTestNamesBuffer += it.next
               }
-              testNamesBuffer.toArray
+              (testNamesBuffer.toArray, wildcardTestNamesBuffer.toArray)
             }
             else
-              Array.empty[String]
+              (Array.empty[String], Array.empty[String])
           
           val nestedSuites = 
             if (it.hasNext && it.head == "-i") {
@@ -1261,19 +1271,23 @@ object Runner {
                 val dashI = it.next()
                 val suiteId = it.next
                 val suiteIdTestNamesBuffer = new ListBuffer[String]()
+                val suiteIdWildcardTestNamesBuffer = new ListBuffer[String]()
               
-                while (it.hasNext && it.head == "-t") {
-                  it.next() // Skip the -t
-                  suiteIdTestNamesBuffer += it.next
+                while (it.hasNext && (it.head == "-t" || it.head == "-z")) {
+                  val dashTest = it.next
+                  if (dashTest == "-t")
+                    suiteIdTestNamesBuffer += it.next
+                  else
+                    suiteIdWildcardTestNamesBuffer += it.next
                 }
-                nestedLb += new NestedSuiteParam(suiteId, suiteIdTestNamesBuffer.toArray)
+                nestedLb += new NestedSuiteParam(suiteId, suiteIdTestNamesBuffer.toArray, suiteIdWildcardTestNamesBuffer.toArray)
               }
               nestedLb.toArray
             }
             else
               Array.empty[NestedSuiteParam]
           
-          lb += SuiteParam(className, testNames, nestedSuites)
+          lb += SuiteParam(className, testNames, wildcardTestNames, nestedSuites)
         }
         else
           throw new IllegalArgumentException("Expecting a Suite class name to follow " + dashArg + ", but got: " + className)
@@ -1540,29 +1554,50 @@ object Runner {
                   constructor.get.newInstance(clazz).asInstanceOf[Suite]
                 }
                 
-                if (suiteParam.testNames.length == 0 && suiteParam.nestedSuites.length == 0)
+                if (suiteParam.testNames.length == 0 && suiteParam.wildcardTestNames.length == 0 && suiteParam.nestedSuites.length == 0)
                   SuiteConfig(suiteInstance, new DynaTags(Map.empty, Map.empty), false, false) // -s suiteClass, no dynamic tagging required.
                 else {
                   val nestedSuites = suiteParam.nestedSuites
                   
-                  val (selectSuiteList, selectTestList) = nestedSuites.partition(ns => ns.testNames.length == 0)
+                  val (selectSuiteList, selectTestList) = nestedSuites.partition(ns => ns.testNames.length == 0 || ns.wildcardTestNames.length == 0)
                   val suiteDynaTags: Map[String, Set[String]] = Map() ++ selectSuiteList.map(ns => (ns.suiteId -> Set(SELECTED_TAG)))
                   
-                  val suiteTestDynaTags: Map[String, Map[String, Set[String]]] = 
-                    if (suiteParam.testNames.length > 0)
+                  val suiteExactTestDynaTags: Map[String, Map[String, Set[String]]] = 
+                    if (suiteParam.testNames.length > 0) 
                       Map(suiteInstance.suiteId -> (Map() ++ suiteParam.testNames.map(tn => (tn -> Set(SELECTED_TAG)))))
+                    else 
+                      Map.empty
+                  
+                  val suiteWildcardTestDynaTags: Map[String, Map[String, Set[String]]] = 
+                    if (suiteParam.wildcardTestNames.length > 0) {
+                      val wildcardTestNames = suiteParam.wildcardTestNames
+                      val allTestNames = suiteInstance.testNames
+                      val wildcardTestTags = Map() ++ allTestNames.filter(tn => wildcardTestNames.find(wc => tn.contains(wc)).isDefined)
+                                                          .map(tn => (tn -> Set(SELECTED_TAG)))
+                      Map(suiteInstance.suiteId -> wildcardTestTags)
+                    }
                     else
                       Map.empty
-                    
-                  val nestedSuitesTestDynaTags: Map[String, Map[String, Set[String]]] 
-                    = Map() ++ selectTestList.map(ns => (ns.suiteId -> (Map() ++ ns.testNames.map(tn => (tn, Set(SELECTED_TAG))))))
+                      
+                  def getNestedSuiteSelectedTestNames(nestedSuite: NestedSuiteParam): Array[String] = {
+                    if (nestedSuite.wildcardTestNames.length == 0)
+                      nestedSuite.testNames
+                    else {
+                      val wildcardTestNames = nestedSuite.wildcardTestNames
+                      val allTestNames = suiteInstance.testNames
+                      nestedSuite.testNames ++ allTestNames.filter(tn => wildcardTestNames.find(wc => tn.contains(wc)).isDefined)
+                    }
+                  }
                   
-                  val testDynaTags = mergeMap[String, Map[String, Set[String]]](List(suiteTestDynaTags, nestedSuitesTestDynaTags)) { (suiteTestMap1, suiteTestMap2) => 
+                  val nestedSuitesTestDynaTags: Map[String, Map[String, Set[String]]] 
+                    = Map() ++ selectTestList.map(ns => (ns.suiteId -> (Map() ++ getNestedSuiteSelectedTestNames(ns).map(tn => (tn, Set(SELECTED_TAG))))))
+                    
+                  val testDynaTags = mergeMap[String, Map[String, Set[String]]](List(suiteExactTestDynaTags, suiteWildcardTestDynaTags, nestedSuitesTestDynaTags)) { (suiteTestMap1, suiteTestMap2) => 
                                        mergeMap[String, Set[String]](List(suiteTestMap1, suiteTestMap2)) { (tagSet1, tagSet2) =>
                                          tagSet1 ++ tagSet2
                                        }
                                      }
-                  // Only exclude nested suites when using -s XXX -t XXXX
+                  // Only exclude nested suites when using -s XXX -t XXXX, or -s XXX -z XXX
                   val excludeNestedSuites = suiteParam.testNames.length > 0 && nestedSuites.length == 0
                   SuiteConfig(suiteInstance, new DynaTags(suiteDynaTags, testDynaTags), true, excludeNestedSuites)
                 }
