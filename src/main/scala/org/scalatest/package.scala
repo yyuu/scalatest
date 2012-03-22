@@ -77,7 +77,9 @@ package object scalatest {
    * <code>fullStacksPassed</code>, and <code>statsPassed</code>).
    * </p>
    */
+/*
   def run(suite: Suite, testName: String = null, configMap: Map[String, Any] = Map()) {
     defaultShell.run(suite, testName, configMap)
   }
+*/
 }

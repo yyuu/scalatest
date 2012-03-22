@@ -278,16 +278,16 @@ path&gt; [...]]
  * </ul>
  * </p>
  *
- * <h2>Specifying suffixes to include</h2>
+ * <h2>Specifying suffixes to discover</h2>
  *
  * <p>
- * You can specify suffixes of Suite names to include in a run. To specify suffixes to include,
- * use <code>-q</code> followed by a vertical-bar-separated list of suffixes to include, surrounded by
+ * You can specify suffixes of <code>Suite</code> names to discover. To specify suffixes to discover,
+ * use <code>-q</code> followed by a vertical-bar-separated list of suffixes to discover, surrounded by
  * double quotes. (The double quotes are not needed if specifying just one suffix.)  Or you can specify
  * them individually using multiple -q's.
- * If suffixes to include is not specified, then all suffixes are allowed.
+ * If suffixes to discover is not specified, then all suffixes are considered.
  * If suffixes is specified, then only those Suites whose class names end in one of the specified suffixes
- * will be executed. Here are some examples:
+ * will be considered during discovery. Here are some examples:
  * </p>
  *
  * <p>
@@ -299,11 +299,14 @@ path&gt; [...]]
  * </p>
  *
  * <p>
- * Option -Q can be used to specify a default set of suffixes "Spec|Suite|Tests".
+ * Option -Q can be used to specify a default set of suffixes "Spec|Suite". If you specify both -Q and -q, you'll get Spec
+ * and Suite in addition to the other suffix or suffixes you specify with -q.
  * </p>
  *
  * <p>
- * Specifying suffixes can speed up the discovery process when running tests.
+ * Specifying suffixes can speed up the discovery process because class files with names not ending the specified suffixes
+ * can be immediately disqualified, without needing to load and inspect them to see if they either extend <code>Suite</code>
+ * and declare a public, no-arg constructor, or are annotated with <code>WrapWith</code>. 
  * </p>
  *
  * <h2>Executing <code>Suite</code>s in parallel</h2>
@@ -796,7 +799,7 @@ object Runner {
           suffixes += it.next()
       }
       else if (s.startsWith("-Q")) {
-        suffixes += "Spec|Suite|Tests"
+        suffixes += "Spec|Suite"
       }
       else {
         throw new IllegalArgumentException("Unrecognized argument: " + s)
