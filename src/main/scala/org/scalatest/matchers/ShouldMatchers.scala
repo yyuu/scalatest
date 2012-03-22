@@ -921,21 +921,6 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      * </pre>
      */
     def should(notWord: NotWord) = new ResultOfNotWord[T](left, false)
-
-    /**
-     * This method enables syntax such as the following:
-     *
-     * <pre class="stHighlight">
-     * result shouldBe 3
-     *        ^
-     * </pre>
-     */
-    def shouldBe(right: Any) {
-      if (!areEqualComparingArraysStructurally(left, right)) {
-        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
-        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
-      }
-    }
   }
 
   // I think the type hasn't been converted yet here. It is just a pass-through. It finally gets
@@ -1228,6 +1213,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     def should(notWord: NotWord): ResultOfNotWordForDouble = {
       new ResultOfNotWordForDouble(left, false)
     }
+    
+    def shouldBe(right: Double) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Double]) {
+      beMatcher.apply(left).matches
+    }
   }
 
   /**
@@ -1265,6 +1261,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      */
     def should(notWord: NotWord): ResultOfNotWordForFloat = {
       new ResultOfNotWordForFloat(left, false)
+    }
+    
+    def shouldBe(right: Float) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Float]) {
+      beMatcher.apply(left).matches
     }
   }
 
@@ -1304,6 +1311,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     def should(notWord: NotWord): ResultOfNotWordForLong = {
       new ResultOfNotWordForLong(left, false)
     }
+    
+    def shouldBe(right: Long) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Long]) {
+      beMatcher.apply(left).matches
+    }
   }
 
   /**
@@ -1341,6 +1359,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      */
     def should(notWord: NotWord): ResultOfNotWordForInt = {
       new ResultOfNotWordForInt(left, false)
+    }
+    
+    def shouldBe(right: Int) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Int]) {
+      beMatcher.apply(left).matches
     }
   }
 
@@ -1380,6 +1409,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     def should(notWord: NotWord): ResultOfNotWordForShort = {
       new ResultOfNotWordForShort(left, false)
     }
+    
+    def shouldBe(right: Short) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Short]) {
+      beMatcher.apply(left).matches
+    }
   }
 
   /**
@@ -1417,6 +1457,17 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      */
     def should(notWord: NotWord): ResultOfNotWordForByte = {
       new ResultOfNotWordForByte(left, false)
+    }
+    
+    def shouldBe(right: Byte) {
+      if (left != right) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
+    
+    def shouldBe(beMatcher: BeMatcher[Byte]) {
+      beMatcher.apply(left).matches
     }
   }
 
@@ -1490,6 +1541,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     def should(notWord: NotWord): ResultOfNotWordForMap[K, V] = {
       new ResultOfNotWordForMap(left, false)
     }
+
   }
 
   /**
@@ -1537,6 +1589,63 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      * </pre>
      */
     def should(beWord: BeWord): ResultOfBeWordForAnyRef[T] = new ResultOfBeWordForAnyRef(left, true)
+    
+    def shouldBe = new ResultOfBeWordForAnyRef(left, true)
+    
+    def shouldBe(right: AnyRef) {
+      
+      def shouldBeEqual(right: AnyRef): Boolean = {
+        if (right.isInstanceOf[ResultOfAWordToBePropertyMatcherApplication[AnyRef]]) {
+          // need to put in if because NoSuchMethodError when pattern match ResultOfAWordToBePropertyMatcherApplication
+          val app = right.asInstanceOf[ResultOfAWordToBePropertyMatcherApplication[AnyRef]]
+          app.bePropertyMatcher.apply(left).matches
+        }
+        else if (right.isInstanceOf[ResultOfAnWordToBePropertyMatcherApplication[AnyRef]]) {
+          val app = right.asInstanceOf[ResultOfAnWordToBePropertyMatcherApplication[AnyRef]]
+          app.bePropertyMatcher.apply(left).matches
+        }
+        else {
+          val beWord = new BeWord
+          right match {
+            case rightSymbol: ResultOfAWordToSymbolApplication => 
+              beWord.a[AnyRef](rightSymbol.symbol)(left).matches
+            case rightSymbol: ResultOfAnWordToSymbolApplication => 
+              beWord.an[AnyRef](rightSymbol.symbol)(left).matches
+            case beMatcher: BeMatcher[AnyRef] => 
+              beMatcher.apply(left).matches
+            case bePropertyMatcher: BePropertyMatcher[AnyRef] => 
+              bePropertyMatcher.apply(left).matches
+            case _ => 
+              left == right
+          }
+        }
+      }
+      
+      if (!shouldBeEqual(right)) {
+        val (resourceName, leftee, rightee) = 
+          if (right.isInstanceOf[ResultOfAWordToBePropertyMatcherApplication[AnyRef]]) {
+            val app = right.asInstanceOf[ResultOfAWordToBePropertyMatcherApplication[AnyRef]]
+            val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, UnquotedString(app.bePropertyMatcher.apply(left).propertyName))
+            ("wasNotA", leftee, rightee)
+          }
+          else if (right.isInstanceOf[ResultOfAnWordToBePropertyMatcherApplication[AnyRef]]) {
+            val app = right.asInstanceOf[ResultOfAnWordToBePropertyMatcherApplication[AnyRef]]
+            val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, UnquotedString(app.bePropertyMatcher.apply(left).propertyName))
+            ("wasNotAn", leftee, rightee)
+          }
+          else {
+            right match {
+              case bePropertyMatcher: BePropertyMatcher[AnyRef] => 
+                val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, UnquotedString(bePropertyMatcher.apply(left).propertyName))
+                ("wasNot", leftee, rightee)
+              case _ => 
+                val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+                ("wasNotEqualTo", leftee, rightee)
+            }
+          }
+        throw newTestFailedException(FailureMessages(resourceName, leftee, rightee))
+      }
+    }
   }
 
   /**
@@ -1836,6 +1945,13 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      */
     def should(notWord: NotWord): ResultOfNotWordForArray[T] =
       new ResultOfNotWordForArray(left, false)
+    
+    def shouldBe(right: Array[T]) {
+      if (!left.deep.equals(right.deep)) {
+        val (leftee, rightee) = Suite.getObjectsForFailureMessage(left, right)
+        throw newTestFailedException(FailureMessages("wasNotEqualTo", leftee, rightee))
+      }
+    }
   }
   // Note, no should(beWord) is needed here because a different implicit conversion will be used
   // on "array shoudl be ..." because this one doesn't solve the type error.
@@ -1896,6 +2012,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
      */
     def should(notWord: NotWord): ResultOfNotWordForSeq[T, List[T]] =
       new ResultOfNotWordForSeq(left, false)
+    
   }
 
   /**
@@ -1946,6 +2063,7 @@ trait ShouldMatchers extends Matchers with ShouldVerb {
     def should(notWord: NotWord): ResultOfNotWordForJavaList[T, java.util.List[T]] = {
       new ResultOfNotWordForJavaList(left, false)
     }
+    
   }
 
   /**

@@ -57,6 +57,10 @@ class ShouldBePropertyMatcherSpec extends FunSpec with ShouldMatchers with Check
       book should be (goodRead)
       book should be a (goodRead)
       book should be an (goodRead)
+      
+      book shouldBe goodRead
+      book shouldBe a (goodRead)
+      book shouldBe an (goodRead)
     }
 
     it("should throw TestFailedException if the property is false") {
@@ -75,6 +79,22 @@ class ShouldBePropertyMatcherSpec extends FunSpec with ShouldMatchers with Check
         badBook should be an (goodRead)
       }
       assert(caught3.getMessage === "Book(A Tale of Two Cities,Dickens,1859,45,false) was not an goodRead")
+      
+      val caught4 = intercept[TestFailedException] {
+        badBook shouldBe goodRead
+      }
+      assert(caught4.getMessage === "Book(A Tale of Two Cities,Dickens,1859,45,false) was not goodRead")
+
+      val caught5 = intercept[TestFailedException] {
+        badBook shouldBe a (goodRead)
+      }
+      assert(caught5.getMessage === "Book(A Tale of Two Cities,Dickens,1859,45,false) was not a goodRead")
+
+      val caught6 = intercept[TestFailedException] {
+        badBook shouldBe an (goodRead)
+      }
+      assert(caught6.getMessage === "Book(A Tale of Two Cities,Dickens,1859,45,false) was not an goodRead")
+      
     }
 
     it("should do nothing if the property is false, when used with not") {
@@ -654,6 +674,8 @@ class ShouldBePropertyMatcherSpec extends FunSpec with ShouldMatchers with Check
       val filledWithGoodReads = goodRead compose { (lib: Library) => lib.books.head }
       goodLibrary should be (filledWithGoodReads)
       badLibrary should not be (filledWithGoodReads)
+      
+      goodLibrary shouldBe filledWithGoodReads
     }
   }
   describe("A factory method on BePropertyMatcher's companion object") {
@@ -665,6 +687,8 @@ class ShouldBePropertyMatcherSpec extends FunSpec with ShouldMatchers with Check
       "xx" should not be (empty)
       "xxx" should not be (empty)
       "xxxx" should not be (empty)
+      
+      "" shouldBe empty
     }
   }
 }

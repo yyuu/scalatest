@@ -32,11 +32,12 @@ class ShouldBeAnySpec extends FunSpec with ShouldMatchers with Checkers with Ret
 
     it("should do nothing when equal") {
       1 should be (1)
+      1 shouldBe 1
 
       // objects should equal themselves
       check((s: String) => returnsNormally(s should be (s)))
       check((i: Int) => returnsNormally(i should be (i)))
-
+      
       // a string should equal another string with the same value
       check((s: String) => returnsNormally(s should be (new String(s))))
     }
@@ -203,6 +204,10 @@ class ShouldBeAnySpec extends FunSpec with ShouldMatchers with Checkers with Ret
       val s = "hi"
       s shouldBe s
       s shouldBe (new String("hi"))
+      
+      check((s: String) => returnsNormally(s shouldBe s))
+      check((i: Int) => returnsNormally(i shouldBe i))
+      check((s: String) => returnsNormally(s shouldBe new String(s)))
     }
     it("should put string differences in square bracket") {
       val caught1 = intercept[TestFailedException] { "dummy" shouldBe "dunny" }
@@ -212,7 +217,7 @@ class ShouldBeAnySpec extends FunSpec with ShouldMatchers with Checkers with Ret
       val npe = new NullPointerException
       npe.getMessage shouldBe null
     }
-
+    
     it("should compare arrays structurally") {
       val a1 = Array(1, 2, 3)
       val a2 = Array(1, 2, 3)
@@ -222,6 +227,7 @@ class ShouldBeAnySpec extends FunSpec with ShouldMatchers with Checkers with Ret
       intercept[TestFailedException] {
         a1 shouldBe a3
       }
+      Array(1, 2) should be (Array(1, 2))
     }
 
     it("should compare arrays deeply") {
@@ -260,12 +266,25 @@ class ShouldBeAnySpec extends FunSpec with ShouldMatchers with Checkers with Ret
         "hi" shouldBe n1
       }
       val a1 = Array(1, 2, 3)
-      intercept[TestFailedException] {
-        n1 shouldBe a1
-      }
-      intercept[TestFailedException] {
-        a1 shouldBe n1
-      }
     }
+    
+    
+    
+    it("should throw an assertion error when not equal") {
+      val caught1 = intercept[TestFailedException] {
+        1 shouldBe 2
+      }
+      assert(caught1.getMessage === "1 was not equal to 2")
+
+      // unequal objects used with "a should equal (b)" should throw an TestFailedException
+      check((s: String, t: String) => s != t ==> throwsTestFailedException(s shouldBe t))
+
+      val s: String = null
+      val caught3 = intercept[TestFailedException] {
+        s shouldBe "hi"
+      }
+      assert(caught3.getMessage === "null was not equal to \"hi\"")
+    }
+
   }
 }
