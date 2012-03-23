@@ -314,7 +314,7 @@ class ScalaTestAntTask extends Task {
 
   private def addTestNGSuiteArgs(args: ListBuffer[String]) {
     if (testNGSuites.size > 0) {
-      args += "-t"
+      args += "-b"
       args += getSpacedOutPathStr(testNGSuites.toList)
     }
   }

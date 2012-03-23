@@ -280,7 +280,7 @@ write a sbt plugin to deploy the task.
           // To skip as it is passed in from Play 2.0 as arg to specs2.
           println("Warning: \"sequential\" is ignored by ScalaTest. To get rid of this warning, please add \"testOptions in Test := Nil\" in main defintion of your project build file.")
         }
-        //      else if (s.startsWith("-t")) {
+        //      else if (s.startsWith("-b")) {
         //
         //        testNGXMLFiles += s
         //        if (it.hasNext)
