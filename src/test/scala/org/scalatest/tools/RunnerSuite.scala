@@ -37,7 +37,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       expectedMemberOfList: List[String],
       expectedBeginsWithList: List[String],
       expectedTestNGList: List[String],
-      expectedSuffixes: Option[Pattern]
+      expectedSuffixes: Option[Pattern], 
+      expectedChosenStyleList: List[String]
     ) = {
 
       val (
@@ -52,7 +53,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
         memberOfList,
         beginsWithList,
         testNGList,
-        suffixes
+        suffixes, 
+        chosenStyleList
       ) = Runner.parseArgs(args)
 
       assert(runpathList === expectedRunpathList)
@@ -66,6 +68,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       assert(memberOfList === expectedMemberOfList)
       assert(beginsWithList === expectedBeginsWithList)
       assert(testNGList === expectedTestNGList)
+      assert(chosenStyleList === expectedChosenStyleList)
       if (expectedSuffixes.isEmpty) {
         assert(suffixes.isEmpty)
       } else {
@@ -88,7 +91,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -106,7 +110,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -122,7 +127,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -140,7 +146,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -158,7 +165,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -176,7 +184,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -195,7 +204,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       Nil,
-      None
+      None, 
+      Nil
     )
     // Try a TestNGSuite
     verify(
@@ -214,7 +224,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Try a junit Suite
     verify(
@@ -233,7 +244,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Test -u option
     verify(
@@ -252,7 +264,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Test -q option
     verify(
@@ -271,7 +284,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite)$"))
+      Some(Pattern.compile(".*(Spec|Suite)$")), 
+      Nil
     )
     // Test -q option
     verify(
@@ -290,7 +304,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite)$"))
+      Some(Pattern.compile(".*(Spec|Suite)$")), 
+      Nil
     )
     // Test -Q option
     verify(
@@ -309,7 +324,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite|Tests|foo)$"))
+      Some(Pattern.compile(".*(Spec|Suite|Tests|foo)$")), 
+      Nil
     )
   }
   
@@ -330,7 +346,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       expectedMemberOfList: List[String],
       expectedBeginsWithList: List[String],
       expectedTestNGList: List[String],
-      expectedSuffixes: Option[Pattern]
+      expectedSuffixes: Option[Pattern], 
+      expectedChosenStyleList: List[String]
     ) = {
 
       val (
@@ -345,7 +362,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
         memberOfList,
         beginsWithList,
         testNGList,
-        suffixes
+        suffixes, 
+        chosenStyleList
       ) = Runner.parseArgs(args)
 
       assert(runpathList === expectedRunpathList)
@@ -359,6 +377,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       assert(memberOfList === expectedMemberOfList)
       assert(beginsWithList === expectedBeginsWithList)
       assert(testNGList === expectedTestNGList)
+      assert(chosenStyleList === expectedChosenStyleList)
       if (expectedSuffixes.isEmpty) {
         assert(suffixes.isEmpty)
       } else {
@@ -381,7 +400,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -399,7 +419,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -415,7 +436,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -433,7 +455,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -451,7 +474,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -469,7 +493,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Nil,
       Nil,
       Nil,
-      None
+      None, 
+      Nil
     )
 
     verify(
@@ -488,7 +513,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       Nil,
-      None
+      None, 
+      Nil
     )
     // Try a TestNGSuite
     verify(
@@ -507,7 +533,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Try a junit Suite
     verify(
@@ -526,7 +553,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Test -u option
     verify(
@@ -545,7 +573,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      None
+      None, 
+      Nil
     )
     // Test -q option
     verify(
@@ -564,7 +593,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite)$"))
+      Some(Pattern.compile(".*(Spec|Suite)$")), 
+      Nil
     )
     // Test -q option
     verify(
@@ -583,7 +613,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite)$"))
+      Some(Pattern.compile(".*(Spec|Suite)$")), 
+      Nil
     )
     // Test -Q option
     verify(
@@ -602,7 +633,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       List("-m", "com.example.webapp"),
       List("-w", "com.example.root"),
       List("-t", "some/path/file.xml"),
-      Some(Pattern.compile(".*(Spec|Suite|Tests|foo)$"))
+      Some(Pattern.compile(".*(Spec|Suite|Tests|foo)$")), 
+      Nil
     )
   }
 
@@ -884,6 +916,28 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     expect(None) {
       Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-P", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-C"))
     }
+  }
+  
+  def testParseChosenStylesIntoChosenStyleSet {
+    intercept[IllegalArgumentException] {
+      Runner.parseChosenStylesIntoChosenStyleSet(List("-a", "aStyle"), "-y")
+    }
+    intercept[IllegalArgumentException] {
+      Runner.parseChosenStylesIntoChosenStyleSet(List("-y"), "-y")
+    }
+    intercept[IllegalArgumentException] {
+      Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle", "-y"), "-y")
+    }
+    val singleStyle = Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle"), "-y")
+    assert(singleStyle.size === 2)
+    assert(singleStyle.contains("aStyle"))
+    assert(singleStyle.contains("org.scalatest.DefaultIncludedStyle"))
+    val multiStyle = Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle", "-y", "bStyle", "-y", "cStyle"), "-y")
+    assert(multiStyle.size === 4)
+    assert(multiStyle.contains("aStyle"))
+    assert(multiStyle.contains("bStyle"))
+    assert(multiStyle.contains("cStyle"))
+    assert(multiStyle.contains("org.scalatest.DefaultIncludedStyle"))
   }
 
 /*

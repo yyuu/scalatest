@@ -1779,4 +1779,9 @@ trait FeatureSpec extends Suite { thisSuite =>
    * </p>
    */
   protected def scenariosFor(unit: Unit) {}
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "FeatureSpec"
 }

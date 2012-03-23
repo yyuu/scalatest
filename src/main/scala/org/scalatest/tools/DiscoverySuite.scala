@@ -55,6 +55,8 @@ private[scalatest] class DiscoverySuite(path: String, accessibleSuites: Set[Stri
           }
         }
       }
+  
+  final override def styleName: String = "org.scalatest.DefaultIncludedStyle"
 }
 
 private[scalatest] object DiscoverySuite {

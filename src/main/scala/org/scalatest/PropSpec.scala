@@ -518,4 +518,9 @@ trait PropSpec extends Suite { thisSuite =>
    * </p>
    */
   protected def propertiesFor(unit: Unit) {}
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "PropSpec"
 }

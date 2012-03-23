@@ -430,4 +430,8 @@ trait TestNGSuite extends Suite { thisSuite =>
         throw new UnsupportedOperationException
   }
 
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "TestNGSuite"
 }

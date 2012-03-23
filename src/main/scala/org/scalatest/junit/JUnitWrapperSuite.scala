@@ -219,4 +219,9 @@ class JUnitWrapperSuite(junitClassName: String, loader: ClassLoader) extends Sui
 
         throw new UnsupportedOperationException
   }
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "JUnitWrapperSuite"
 }

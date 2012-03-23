@@ -246,6 +246,7 @@ class ScalaTestAntTask extends Task {
   private val membersonlys = new ListBuffer[String]
   private val wildcards    = new ListBuffer[String]
   private val testNGSuites = new ListBuffer[String]
+  private val chosenStyles = new ListBuffer[String]
 
   private val reporters  = new ListBuffer[ReporterElement]
   private val properties = new ListBuffer[NameValuePair]
@@ -265,6 +266,7 @@ class ScalaTestAntTask extends Task {
     addTestNGSuiteArgs(args)
     addParallelArg(args)
     addSuffixesArg(args)
+    addChosenStyles(args)
 
     val argsArray = args.toArray
 
@@ -314,6 +316,13 @@ class ScalaTestAntTask extends Task {
     if (testNGSuites.size > 0) {
       args += "-t"
       args += getSpacedOutPathStr(testNGSuites.toList)
+    }
+  }
+  
+  private def addChosenStyles(args: ListBuffer[String]) {
+    chosenStyles.foreach { style => 
+      args += "-y"
+      args += style
     }
   }
   
@@ -654,6 +663,13 @@ class ScalaTestAntTask extends Task {
   def setWildcard(packageName: String) {
     wildcards += packageName
   }
+  
+  /**
+   * Sets value of <code>style</code> attribute.
+   */
+  def setStyle(style: String) {
+    chosenStyles += style
+  }
 
   /**
    * Sets value from nested element <code>suite</code>.
@@ -688,6 +704,10 @@ class ScalaTestAntTask extends Task {
    */
   def addConfiguredTagsToInclude(tagsToInclude: TextElement) {
     this.includes = tagsToInclude.getText
+  }
+  
+  def addConfiguredStyle(style: StyleElement) {
+    this.chosenStyles += style.getName
   }
 
   /**
@@ -743,6 +763,19 @@ class ScalaTestAntTask extends Task {
     str.trim.replaceAll("\\s+", " ")
   }
 }
+
+  //
+  // Class to hold data from <style> elements.
+  //
+  private class StyleElement {
+    private var name: String = null
+    
+    def setName(name: String) {
+      this.name = name
+    }
+    
+    def getName = name
+  }
 
   //
   // Class to hold data from <membersonly> and <wildcard> elements.

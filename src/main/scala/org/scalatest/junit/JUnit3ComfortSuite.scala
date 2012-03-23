@@ -627,6 +627,11 @@ private [junit] class JUnit3ComfortSuite extends Suite with OneInstancePerTest {
   def assertNotSame(expected: AnyRef, actual: AnyRef) {
     Assert.assertNotSame(expected, actual)
   }
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "JUnit3ComfortSuite"
 }
 
 /*

@@ -59,6 +59,8 @@ class Suites(suitesToNest: Suite*) extends Suite {
    * the order they were passed.
    */
   override val nestedSuites = suitesToNest.toList
+  
+  final override def styleName: String = "org.scalatest.DefaultIncludedStyle"
 }
 
 /**

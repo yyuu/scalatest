@@ -321,6 +321,11 @@ class JUnit3Suite extends TestCase with Suite with AssertionsForJUnit {
       }
     }
   }
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "JUnit3Suite"
 }
 
 private[scalatest] class MyTestListener(report: Reporter, tracker: Tracker) extends TestListener {

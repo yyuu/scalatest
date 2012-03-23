@@ -179,4 +179,9 @@ trait AbstractSuite { this: Suite =>
    * @param filter a <code>Filter</code> with which to filter tests to count based on their tags
    */
   def expectedTestCount(filter: Filter): Int
+  
+  /**
+   * Suite style name.
+   */
+  def styleName: String
 }

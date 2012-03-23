@@ -2556,6 +2556,11 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     case cr: CatchReporter => cr
     case _ => new CatchReporter(reporter)
   }
+  
+  /**
+   * Suite style name.
+   */
+  def styleName: String = "Suite"
 }
 
 private[scalatest] object Suite {

@@ -22,4 +22,6 @@ private[scalatest] class DistributedTestRunnerSuite(suite: ParallelTestExecution
           configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
     suite.runOneTest(testName, reporter, stopper, configMap, tracker)
   }
+  
+  final override def styleName: String = "org.scalatest.DefaultIncludedStyle"
 }
