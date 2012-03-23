@@ -387,8 +387,8 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     }
 
     verify(
-      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
-            "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out", "-P"),
+      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
+            "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out", "-R"),
       List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-p"),
       List("-g", "-g", "-f", "file.out"),
       Nil,
@@ -405,7 +405,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
 
     verify(
-      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
             "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
             "-s", "SuiteOne", "-s", "SuiteTwo"),
       List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\""),
@@ -441,7 +441,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
 
     verify(
-      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
             "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
             "-n", "JustOne", "-s", "SuiteOne", "-s", "SuiteTwo"),
       List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\""),
@@ -460,7 +460,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
 
     verify(
-      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
             "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
             "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-s", "SuiteTwo"),
       List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\""),
@@ -479,7 +479,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
 
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
             "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
             "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-s", "SuiteTwo"),
       List("-p", "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\""),
@@ -498,7 +498,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
 
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-s", "SuiteTwo", "-m", "com.example.webapp",
           "-w", "com.example.root"),
@@ -518,7 +518,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Try a TestNGSuite
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-s", "SuiteTwo", "-m", "com.example.webapp",
           "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -538,7 +538,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Try a junit Suite
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-f", "file.out",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-j", "junitTest", "-j", "junitTest2",
           "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -558,7 +558,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Test -u option
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-u", "directory/",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne",
           "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -578,7 +578,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Test -q option
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-u", "directory/",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-q", "Spec|Suite",
           "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -598,7 +598,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Test -q option
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-u", "directory/",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-q", "Spec", "-q", "Suite",
           "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -618,7 +618,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
     )
     // Test -Q option
     verify(
-      Array("-C", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-P",
+      Array("-P", "-g", "-Dincredible=whatshername", "-Ddbname=testdb", "-Dserver=192.168.1.188", "-R",
           "\"serviceuitest-1.1beta4.jar myjini http://myhost:9998/myfile.jar\"", "-g", "-u", "directory/",
           "-n", "One Two Three", "-l", "SlowTests", "-s", "SuiteOne", "-Q", "-q", "foo",
           "-m", "com.example.webapp", "-w", "com.example.root", "-t", "some/path/file.xml"),
@@ -765,7 +765,7 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Runner.parseReporterArgsIntoConfigurations(List("-r")) // Can't have -r last, because need a reporter class
     }
     intercept[IllegalArgumentException] {
-      Runner.parseReporterArgsIntoConfigurations(List("-R")) // Can't have -R last, because need a reporter class
+      Runner.parseReporterArgsIntoConfigurations(List("-C")) // Can't have -C last, because need a reporter class
     }
     expect(new ReporterConfigurations(None, Nil, Nil, None, None, Nil, Nil)) {
       Runner.parseReporterArgsIntoConfigurations(Nil)
@@ -910,11 +910,11 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Runner.checkArgsForValidity(null)
     }
     expect(None) {
-      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-P", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite"))
+      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-R", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite"))
     }
     assert(Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-z", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite")) != None)
     expect(None) {
-      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-P", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-C"))
+      Runner.checkArgsForValidity(Array("-Ddbname=testdb", "-Dserver=192.168.1.188", "-R", "serviceuitest-1.1beta4.jar", "-g", "-eFBA", "-s", "MySuite", "-P"))
     }
   }
   

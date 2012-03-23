@@ -649,11 +649,11 @@ object Runner {
       // Style advice
       // If it is multiple else ifs, then make it symetrical. If one needs an open curly brace, put it on all
       // If an if just has another if, a compound statement, go ahead and put the open curly brace's around the outer one
-      if (s.startsWith("-p") || s.startsWith("-P") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-R") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-l") || s.startsWith("-q") || s.startsWith("-Q") || s.startsWith("-s") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-t") || s.startsWith("-y")) {
+      if (s.startsWith("-p") || s.startsWith("-R") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-C") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-l") || s.startsWith("-q") || s.startsWith("-Q") || s.startsWith("-s") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-t") || s.startsWith("-y")) {
         if (it.hasNext)
           it.next
       }
-      else if (!s.startsWith("-D") && !s.startsWith("-g") && !s.startsWith("-o") && !s.startsWith("-e") && !s.startsWith("-c") && !s.startsWith("-C")) {
+      else if (!s.startsWith("-D") && !s.startsWith("-g") && !s.startsWith("-o") && !s.startsWith("-e") && !s.startsWith("-c") && !s.startsWith("-P")) {
         lb += s
       }
     }
@@ -719,12 +719,12 @@ object Runner {
          props += s
       }
       else if (s.startsWith("-p")) {
-        println("WARNING: -p has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -p to -P.")
+        println("WARNING: -p has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -p to -R.")
         runpath += s
         if (it.hasNext)
           runpath += it.next
       }
-      else if (s.startsWith("-P")) {
+      else if (s.startsWith("-R")) {
         runpath += "-p" + s.substring(2)
         if (it.hasNext)
           runpath += it.next
@@ -770,12 +770,12 @@ object Runner {
           excludes += it.next
       }
       else if (s.startsWith("-r")) {
-        println("WARNING: -r has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -r to -R.")
+        println("WARNING: -r has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -r to -C.")
         reporters += s
         if (it.hasNext)
           reporters += it.next
       }
-      else if (s.startsWith("-R")) {
+      else if (s.startsWith("-C")) {
 
         reporters += "-r" + s.substring(2)
         if (it.hasNext)
@@ -806,10 +806,10 @@ object Runner {
           wildcard += it.next
       }
       else if (s.startsWith("-c")) {
-        println("WARNING: -c has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -c to -C.")
+        println("WARNING: -c has been deprecated and will be reused for a different (but still very cool) purpose in ScalaTest 2.0. Please change all uses of -c to -P.")
         concurrent += s
       }
-      else if (s.startsWith("-C")) {
+      else if (s.startsWith("-P")) {
 
         concurrent += "-c" + s.substring(2)
       }
