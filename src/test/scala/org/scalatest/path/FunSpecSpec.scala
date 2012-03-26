@@ -793,6 +793,99 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
         assert(event.aboutAPendingTest.isDefined && !event.aboutAPendingTest.get)
       }
     }
+    
+    "should return the test names in registration order from testNames, when using 'they' in place of 'it'" in {
+
+      class AFunSpec extends PathFunSpec {
+        they("should test this") {}
+        they("should test that") {}
+        override def newInstance = new AFunSpec
+      }
+      val a = new AFunSpec
+
+      expect(List("should test this", "should test that")) {
+        a.testNames.iterator.toList
+      }
+
+      val b = new PathFunSpec {}
+
+      expect(List[String]()) {
+        b.testNames.iterator.toList
+      }
+
+      class CFunSpec extends PathFunSpec {
+        they("should test that") {}
+        they("should test this") {}
+        override def newInstance = new CFunSpec
+      }
+      val c = new CFunSpec
+
+      expect(List("should test that", "should test this")) {
+        c.testNames.iterator.toList
+      }
+
+      class DFunSpec extends PathFunSpec {
+        describe("Testers") {
+          they("should test that") {}
+          they("should test this") {}
+        }
+        override def newInstance = new DFunSpec
+      }
+      val d = new DFunSpec
+
+      expect(List("Testers should test that", "Testers should test this")) {
+        d.testNames.iterator.toList
+      }
+
+      class EFunSpec extends PathFunSpec {
+        describe("Testers") {
+          they("should test this") {}
+          they("should test that") {}
+        }
+        override def newInstance = new EFunSpec
+      }
+      val e = new EFunSpec
+
+      expect(List("Testers should test this", "Testers should test that")) {
+        e.testNames.iterator.toList
+      }
+    }
+
+    "should throw DuplicateTestNameException if a duplicate test name registration is attempted, when using 'they' in place of 'it'" in {
+      
+      intercept[DuplicateTestNameException] {
+        class AFunSpec extends PathFunSpec {
+          they("should test this") {}
+          they("should test this") {}
+          override def newInstance = new AFunSpec
+        }
+        (new AFunSpec).tags // Must call a method to get it to attempt to register the second test
+      }
+      intercept[DuplicateTestNameException] {
+        class AFunSpec extends PathFunSpec {
+          they("should test this") {}
+          ignore("should test this") {}
+          override def newInstance = new AFunSpec
+        }
+        (new AFunSpec).tags
+      }
+      intercept[DuplicateTestNameException] {
+        class AFunSpec extends PathFunSpec {
+          ignore("should test this") {}
+          ignore("should test this") {}
+          override def newInstance = new AFunSpec
+        }
+        (new AFunSpec).tags
+      }
+      intercept[DuplicateTestNameException] {
+        class AFunSpec extends PathFunSpec {
+          ignore("should test this") {}
+          they("should test this") {}
+          override def newInstance = new AFunSpec
+        }
+        (new AFunSpec).tags
+      }
+    }
   }
 }
 

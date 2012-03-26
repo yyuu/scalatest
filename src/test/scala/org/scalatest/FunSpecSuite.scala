@@ -1449,5 +1449,58 @@ class FunSpecSuite extends FunSuite with SharedHelpers {
     mySuite.run(None, myReporter, new Stopper {}, Filter(), Map(), None, new Tracker(new Ordinal(99)))
     assert(myReporter.testPendingWasFired)
   }
+  
+  test("'they' word could be used in place of 'it'.") {
+    class MySpec extends FunSpec with ShouldMatchers {
+      var example1WasInvoked = false
+      var example2WasInvokedAfterExample1 = false
+      var example3WasInvokedAfterExample2 = false
+      they("should get invoked") {
+        example1WasInvoked = true
+      }
+      describe("Stack") {
+        they("should also get invoked") {
+          if (example1WasInvoked)
+            example2WasInvokedAfterExample1 = true
+        }
+        they("should also also get invoked") {
+          if (example2WasInvokedAfterExample1)
+            example3WasInvokedAfterExample2 = true
+        }
+      }
+    }
+    val a = new MySpec
+    a.execute()
+    assert(a.example1WasInvoked)
+    assert(a.example2WasInvokedAfterExample1)
+    assert(a.example3WasInvokedAfterExample2)
+    assert(a.testNames.size === 3)
+    assert(a.testNames.iterator.toList(0) === "should get invoked")
+    assert(a.testNames.iterator.toList(1) === "Stack should also get invoked")
+    assert(a.testNames.iterator.toList(2) === "Stack should also also get invoked")
+    
+    class MySpec2 extends FunSpec with ShouldMatchers {
+      they("should get invoked") {}
+      they("should get invoked") {}
+    }
+    
+    val caught1 = intercept[DuplicateTestNameException] {
+      new MySpec2
+    }
+    assert(Resources("duplicateTestName", "should get invoked") === caught1.getMessage)
+    
+    class MySpec3 extends FunSpec with ShouldMatchers {
+      they("should get invoked") {}
+      describe("Stack") {
+        they("should also get invoked") {}
+        they("should also get invoked") {}
+      }
+    }
+    
+    val caught2 = intercept[DuplicateTestNameException] {
+      new MySpec3
+    }
+    assert(Resources("duplicateTestName", "Stack should also get invoked") === caught2.getMessage)    
+  }
 }
 

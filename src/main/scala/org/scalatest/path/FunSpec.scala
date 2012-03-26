@@ -817,6 +817,118 @@ trait FunSpec extends org.scalatest.Suite with OneInstancePerTest { thisSuite =>
   protected val it = new ItWord
 
   /**
+   * Class that, via an instance referenced from the <code>they</code> field,
+   * supports test (and shared test) registration in <code>FunSpec</code>s.
+   *
+   * <p>
+   * This class supports syntax such as the following test registration:
+   * </p>
+   *
+   * <pre class="stExamples">
+   * they("should be empty")
+   * ^
+   * </pre>
+   *
+   * <p>
+   * and the following shared test registration:
+   * </p>
+   *
+   * <pre class="stExamples">
+   * they should behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre>
+   *
+   * <p>
+   * For more information and examples, see the <a href="FunSpec.html">main documentation for <code>path.FunSpec</code></a>.
+   * </p>
+   */
+  protected class TheyWord {
+
+    /**
+     * Supports test registration.
+     *
+     * <p>
+     * This trait's implementation of this method will decide whether to register the text and invoke the passed function
+     * based on whether or not this is part of the current "test path." For the details on this process, see
+     * the <a href="#howItExecutes">How it executes</a> section of the main documentation for
+     * trait <code>org.scalatest.path.FunSpec</code>.
+     * </p>
+     *
+     * @param testText the test text, which will be combined with the descText of any surrounding describers
+     * to form the test name
+     * @param testTags the optional list of tags for this test
+     * @param testFun the test function
+     * @throws DuplicateTestNameException if a test with the same name has been registered previously
+     * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
+     * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
+     */
+    def apply(testText: String, testTags: Tag*)(testFun: => Unit) {
+      handleTest(thisSuite, testText, testFun _, "theyCannotAppearInsideAnotherThey", "FunSpec.scala", "apply", testTags: _*)
+    }
+    
+    /**
+     * Supports the registration of shared tests.
+     *
+     * <p>
+     * This method supports syntax such as the following:
+     * </p>
+     *
+     * <pre class="stExamples">
+     * they should behave like nonFullStack(stackWithOneItem)
+     *      ^
+     * </pre>
+     *
+     * <p>
+     * For examples of shared tests, see the <a href="../FunSpec.html#SharedTests">Shared tests section</a>
+     * in the main documentation for trait <code>org.scalatest.FunSpec</code>.
+     * </p>
+     */
+    def should(behaveWord: BehaveWord) = behaveWord
+
+    /**
+     * Supports the registration of shared tests.
+     *
+     * <p>
+     * This method supports syntax such as the following:
+     * </p>
+     *
+     * <pre class="stExamples">
+     * they must behave like nonFullStack(stackWithOneItem)
+     *      ^
+     * </pre>
+     *
+     * <p>
+     * For examples of shared tests, see the <a href="../FunSpec.html#SharedTests">Shared tests section</a>
+     * in the main documentation for trait <code>org.scalatest.FunSpec</code>.
+     * </p>
+     */
+    def must(behaveWord: BehaveWord) = behaveWord
+  }
+
+  /**
+   * Supports test (and shared test) registration in <code>FunSpec</code>s.
+   *
+   * <p>
+   * This field supports syntax such as the following:
+   * </p>
+   *
+   * <pre class="stExamples">
+   * it("should be empty")
+   * ^
+   * </pre>
+   *
+   * <pre> class="stExamples"
+   * it should behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre>
+   *
+   * <p>
+   * For more information and examples of the use of the <code>it</code> field, see the main documentation for this trait.
+   * </p>
+   */
+  protected val they = new TheyWord
+  
+  /**
    * Supports registration of a test to ignore.
    *
    * <p>

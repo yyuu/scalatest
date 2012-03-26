@@ -59,7 +59,7 @@ class FunSpecSpec extends org.scalatest.FunSpec with PrivateMethodTester with Sh
       }
     }
 
-    it("should throw NotAllowedException if a duplicate test name registration is attempted") {
+    it("should throw DuplicateTestNameException if a duplicate test name registration is attempted") {
 
       intercept[DuplicateTestNameException] {
         new FunSpec {
@@ -886,6 +886,87 @@ class FunSpecSpec extends org.scalatest.FunSpec with PrivateMethodTester with Sh
 
         val spec = new MySpec
         ensureTestFailedEventReceived(spec, "should blow up")
+      }
+    }
+    
+    it("should return the test names in order of registration from testNames, when 'they' is used in place of 'it'") {
+      val a = new FunSpec {
+        type FixtureParam = String
+        def withFixture(test: OneArgTest) {}
+        they("should do that") { fixture =>
+        }
+        they("should do this") { fixture =>
+        }
+      }
+
+      expect(List("should do that", "should do this")) {
+        a.testNames.iterator.toList
+      }
+
+      val b = new FunSpec {
+        type FixtureParam = String
+        def withFixture(test: OneArgTest) {}
+      }
+
+      expect(List[String]()) {
+        b.testNames.iterator.toList
+      }
+
+      val c = new FunSpec {
+        type FixtureParam = String
+        def withFixture(test: OneArgTest) {}
+        they("should do this") { fixture =>
+        }
+        they("should do that") { fixture =>
+        }
+      }
+
+      expect(List("should do this", "should do that")) {
+        c.testNames.iterator.toList
+      }
+    }
+
+    it("should throw DuplicateTestNameException if a duplicate test name registration is attempted, when 'they' is used in place of 'it'") {
+
+      intercept[DuplicateTestNameException] {
+        new FunSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          they("test this") { fixture =>
+          }
+          they("test this") { fixture =>
+          }
+        }
+      }
+      intercept[DuplicateTestNameException] {
+        new FunSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          they("test this") { fixture =>
+          }
+          ignore("test this") { fixture =>
+          }
+        }
+      }
+      intercept[DuplicateTestNameException] {
+        new FunSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          ignore("test this") { fixture =>
+          }
+          ignore("test this") { fixture =>
+          }
+        }
+      }
+      intercept[DuplicateTestNameException] {
+        new FunSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          ignore("test this") { fixture =>
+          }
+          they("test this") { fixture =>
+          }
+        }
       }
     }
   }

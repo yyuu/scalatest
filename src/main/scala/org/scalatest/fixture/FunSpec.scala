@@ -509,6 +509,115 @@ trait FunSpec extends Suite { thisSuite =>
    * </p>
    */
   protected val it = new ItWord
+  
+  /**
+   * Class that, via an instance referenced from the <code>they</code> field,
+   * supports test (and shared test) registration in <code>FunSpec</code>s.
+   *
+   * <p>
+   * This class supports syntax such as the following:
+   * </p>
+   *
+   * <pre class="stHighlight">
+   * they("should be empty")
+   * ^
+   * </pre>
+   *
+   * <pre class="stHighlight">
+   * they should behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre>
+   *
+   * <p>
+   * For more information and examples, see the <a href="../FunSpec.html">main documentation for <code>FunSpec</code></a>.
+   * </p>
+   */
+  protected final class TheyWord {
+
+    /**
+     * Register a test with the given spec text, optional tags, and test function value that takes no arguments.
+     * An invocation of this method is called an &#8220;example.&#8221;
+     *
+     * This method will register the test for later execution via an invocation of one of the <code>execute</code>
+     * methods. The name of the test will be a concatenation of the text of all surrounding describers,
+     * from outside in, and the passed spec text, with one space placed between each item. (See the documenation
+     * for <code>testNames</code> for an example.) The resulting test name must not have been registered previously on
+     * this <code>FunSpec</code> instance.
+     *
+     * @param specText the specification text, which will be combined with the descText of any surrounding describers
+     * to form the test name
+     * @param testTags the optional list of tags for this test
+     * @param testFun the test function
+     * @throws DuplicateTestNameException if a test with the same name has been registered previously
+     * @throws TestRegistrationClosedException if invoked after <code>run</code> has been invoked on this suite
+     * @throws NullPointerException if <code>specText</code> or any passed test tag is <code>null</code>
+     */
+    def apply(specText: String, testTags: Tag*)(testFun: FixtureParam => Any) {
+      registerTest(specText, testFun, "theyCannotAppearInsideAnotherThey", sourceFileName, "apply", None, None, testTags: _*)
+    }
+
+    /**
+     * Supports the registration of shared tests.
+     *
+     * <p>
+     * This method supports syntax such as the following:
+     * </p>
+     *
+     * <pre class="stHighlight">
+     * they should behave like nonFullStack(stackWithOneItem)
+     *      ^
+     * </pre>
+     *
+     * <p>
+     * For examples of shared tests, see the <a href="../Spec.html#SharedTests">Shared tests section</a>
+     * in the main documentation for trait <code>FunSpec</code>.
+     * </p>
+     */
+    def should(behaveWord: BehaveWord) = behaveWord
+
+    /**
+     * Supports the registration of shared tests.
+     *
+     * <p>
+     * This method supports syntax such as the following:
+     * </p>
+     *
+     * <pre class="stHighlight">
+     * they must behave like nonFullStack(stackWithOneItem)
+     *      ^
+     * </pre>
+     *
+     * <p>
+     * For examples of shared tests, see the <a href="../Spec.html#SharedTests">Shared tests section</a>
+     * in the main documentation for trait <code>FunSpec</code>.
+     * </p>
+     */
+    def must(behaveWord: BehaveWord) = behaveWord
+  }
+
+  /**
+   * Supports test (and shared test) registration in <code>FunSpec</code>s.
+   *
+   * <p>
+   * This field supports syntax such as the following:
+   * </p>
+   *
+   * <pre class="stHighlight">
+   * they("should be empty")
+   * ^
+   * </pre>
+   *
+   * <pre class="stHighlight">
+   * they should behave like nonFullStack(stackWithOneItem)
+   * ^
+   * </pre>
+   *
+   * <p>
+   * For more information and examples of the use of the <code>it</code> field, see
+   * the <a href="../FunSpec.html">main documentation for <code>FunSpec</code></a>.
+   * </p>
+   */
+  protected val they = new TheyWord
 
   /**
    * Register a test to ignore, which has the given spec text, optional tags, and test function value that takes no arguments.
