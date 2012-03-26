@@ -1125,5 +1125,89 @@ class FlatSpecSpec extends org.scalatest.FunSpec with PrivateMethodTester with S
         ensureTestFailedEventReceived(spec, "should blow up")
       }
     }
+
+    describe("when using 'they should' in place of 'it should'") {
+      
+      it("A fixture.Spec should return the test names in order of registration from testNames") {
+        val a = new FlatSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          "Something" should "do that" in { fixture =>
+          }
+          they should "do this" in { fixture =>
+          }
+        }
+
+        expect(List("Something should do that", "Something should do this")) {
+          a.testNames.iterator.toList
+        }
+
+        val b = new FlatSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+        }
+
+        expect(List[String]()) {
+          b.testNames.iterator.toList
+        }
+
+        val c = new FlatSpec {
+          type FixtureParam = String
+          def withFixture(test: OneArgTest) {}
+          "Something" should "do this" in { fixture =>
+          }
+          they should "do that" in { fixture =>
+          }
+        }
+
+        expect(List("Something should do this", "Something should do that")) {
+          c.testNames.iterator.toList
+        }
+      }
+      
+      it("should throw DuplicateTestNameException if a duplicate test name registration is attempted") {
+
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            type FixtureParam = String
+            def withFixture(test: OneArgTest) {}
+            they should "test this" in { fixture => }
+            they should "test this" in { fixture => }
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            type FixtureParam = String
+            def withFixture(test: OneArgTest) {}
+            they should "test this" in { fixture => }
+            they should "test this" taggedAs(SlowTest) ignore { fixture => }
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            type FixtureParam = String
+            def withFixture(test: OneArgTest) {}
+            they should "test this" in { fixture => }
+            they should "test this" taggedAs(Tag("SlowTest")) ignore { fixture => }
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            type FixtureParam = String
+            def withFixture(test: OneArgTest) {}
+            ignore should "test this" in { fixture => }
+            they should "test this" ignore { fixture => }
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            type FixtureParam = String
+            def withFixture(test: OneArgTest) {}
+            ignore should "test this" in { fixture => }
+            they should "test this" in { fixture => }
+          }
+        }
+      }
+    }
   }
 }

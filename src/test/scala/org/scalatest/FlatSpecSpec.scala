@@ -987,6 +987,85 @@ class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen with Sh
         expect("FlatSpecSpec.scala")(trce.failedCodeFileName.get)
         expect(thisLineNumber - 26)(trce.failedCodeLineNumber.get)
     }
+    
+    describe("when using 'they should' in place of 'it should'") {
+      it("should return the test names in registration order from testNames") {
+
+        val a = new FlatSpec {
+          they should "test this" in {}
+          they should "test that" in {}
+        }
+
+        expect(List("should test this", "should test that")) {
+          a.testNames.iterator.toList
+        }
+
+        val b = new FlatSpec {}
+
+        expect(List[String]()) {
+          b.testNames.iterator.toList
+        }
+
+        val c = new FlatSpec {
+          they should "test that" in {}
+          they should "test this" in {}
+        }
+
+        expect(List("should test that", "should test this")) {
+          c.testNames.iterator.toList
+        }
+
+        val d = new FlatSpec {
+          behavior of "Testers"
+          they should "test that" in {}
+          they should "test this" in {}
+        }
+
+        expect(List("Testers should test that", "Testers should test this")) {
+          d.testNames.iterator.toList
+        }
+
+        val e = new FlatSpec {
+          behavior of "Testers"
+          they should "test this" in {}
+          they should "test that" in {}
+        }
+
+        expect(List("Testers should test this", "Testers should test that")) {
+          e.testNames.iterator.toList
+        }
+      }
+
+      it("should throw DuplicateTestNameException if a duplicate test name registration is attempted") {
+      
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            they should "test this" in {}
+            they should "test this" in {}
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            they should "test this" in {}
+            ignore should "test this" in {}
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            ignore should "test this" in {}
+            they should "test this" ignore {}
+          }
+        }
+        intercept[DuplicateTestNameException] {
+          new FlatSpec {
+            ignore should "test this" in {}
+            they should "test this" in {}
+          }
+        }
+      }
+    }
+    
+    
   }
 }
 
