@@ -1171,10 +1171,6 @@ object Runner {
       else
         throw new IllegalArgumentException("Last element must be a style name, not a " + dashArg + ".")
     }
-    if (lb.size > 0) {
-      // org.scalatest.DefaultIncludedStyle will be included by default, when user provide style name(s) to use.
-      lb += "org.scalatest.DefaultIncludedStyle"
-    }
     lb.toSet
   }
 

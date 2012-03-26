@@ -328,5 +328,20 @@ class SuiteSuite extends Suite with PrivateMethodTester with SharedHelpers {
     assert(!s6.theTestThisConfigMapWasEmpty)
     assert(s6.theTestThatConfigMapWasEmpty)
   }
+  
+  def testCheckChosenStyles() {
+    class SimpleSuite extends Suite {
+      def testMethod1() {}
+      def testMethod2() {}
+      def testMethod3() {}
+    }
+    
+    val simpleSuite = new SimpleSuite()
+    simpleSuite.checkChosenStyles(Map.empty)
+    simpleSuite.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("Suite")))
+    intercept[NotAllowedException] {
+      simpleSuite.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("FunSpec")))
+    }
+  }
 }
 

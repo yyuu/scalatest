@@ -860,4 +860,9 @@ trait FreeSpec extends Suite { thisSuite =>
    * </p>
    */
   protected val behave = new BehaveWord
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "FreeSpec"
 }

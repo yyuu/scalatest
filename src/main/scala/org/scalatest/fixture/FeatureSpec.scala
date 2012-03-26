@@ -621,5 +621,10 @@ trait FeatureSpec extends Suite { thisSuite =>
    */
   protected implicit def convertNoArgToFixtureFunction(fun: () => Any): (FixtureParam => Any) =
     new NoArgTestWrapper(fun)
+  
+  /**
+   * Suite style name.
+   */
+  final override def styleName: String = "FeatureSpec"
 }
 

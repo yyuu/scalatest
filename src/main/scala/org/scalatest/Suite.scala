@@ -49,6 +49,7 @@ import Suite.reportTestIgnored
 import Suite.reportTestSucceeded
 import Suite.reportTestPending
 import Suite.reportInfoProvided
+import StackDepthExceptionHelper.getStackDepthFun
 
 /**
  * A suite of tests. A <code>Suite</code> instance encapsulates a conceptual
@@ -2086,6 +2087,17 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
       informerForThisTest.fireRecordedMessages(testWasPending)
     }
   }
+  
+  private[scalatest] def checkChosenStyles(configMap: Map[String, Any]) {
+    val chosenStyleSet = 
+        if (configMap.isDefinedAt("org.scalatest.ChosenStyles"))
+          configMap("org.scalatest.ChosenStyles").asInstanceOf[Set[String]]
+        else
+          Set.empty[String]
+    
+    if (chosenStyleSet.size > 0 && !chosenStyleSet.contains(styleName)) 
+      throw new NotAllowedException(Resources("suiteNotChosenAborted", styleName, chosenStyleSet.mkString(", ")), getStackDepthFun("Scala.scala", "checkChosenStyles"))
+  }
 
   /**
    * Run zero to many of this <code>Suite</code>'s tests.
@@ -2175,6 +2187,8 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
       throw new NullPointerException("distributor was null")
     if (tracker == null)
       throw new NullPointerException("tracker was null")
+    
+    checkChosenStyles(configMap)
 
     val stopRequested = stopper
 

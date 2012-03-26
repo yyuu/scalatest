@@ -24,6 +24,7 @@ import org.scalatest.Suite._
 import fixture.NoArgTestWrapper
 import scala.annotation.tailrec
 import org.scalatest.PathEngine.isInTargetPath
+import org.scalatest.events.SuiteAborted
 
 // T will be () => Unit for FunSuite and FixtureParam => Any for fixture.FunSuite
 private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResourceName: String, simpleClassName: String)  {
@@ -280,26 +281,40 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
       throw new NullPointerException("distributor was null")
     if (tracker == null)
       throw new NullPointerException("tracker was null")
+    
+    val chosenStyleSet = 
+        if (configMap.isDefinedAt("org.scalatest.ChosenStyles"))
+          configMap("org.scalatest.ChosenStyles").asInstanceOf[Set[String]]
+        else
+          Set.empty[String]
+    
+    if (chosenStyleSet.size > 0 && !chosenStyleSet.contains(theSuite.styleName)) {
+      //val message = Resources("suiteNotChosenAborted", theSuite.suiteName, chosenStyleSet.mkString(", "))
+      //val formatter = Suite.formatterForSuiteAborted(theSuite, message)
+      //reporter(SuiteAborted(tracker.nextOrdinal(), message, theSuite.suiteName, Some(theSuite.getClass.getName), None, None, formatter, None))
+      throw new NotAllowedException(Resources("suiteNotChosenAborted", theSuite.suiteName, chosenStyleSet.mkString(", ")), getStackDepthFun("Engine.scala", "runTestsImpl"))
+    }
+    else {
+      val stopRequested = stopper
 
-    val stopRequested = stopper
+      // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,
+      // so that exceptions are caught and transformed
+      // into error messages on the standard error stream.
+      val report = theSuite.wrapReporterIfNecessary(reporter)
 
-    // Wrap any non-DispatchReporter, non-CatchReporter in a CatchReporter,
-    // so that exceptions are caught and transformed
-    // into error messages on the standard error stream.
-    val report = theSuite.wrapReporterIfNecessary(reporter)
-
-    // If a testName is passed to run, just run that, else run the tests returned
-    // by testNames.
-    testName match {
-      case Some(tn) =>
-        val (filterTest, ignoreTest) = filter(tn, theSuite.tags)
-        if (!filterTest) {
-          if (ignoreTest)
-            reportTestIgnored(theSuite, report, tracker, tn, tn, 1)
-          else
-            runTest(tn, report, stopRequested, configMap, tracker)
-        }
-      case None => runTestsInBranch(theSuite, Trunk, report, stopRequested, filter, configMap, tracker, includeIcon, runTest)
+      // If a testName is passed to run, just run that, else run the tests returned
+      // by testNames.
+      testName match {
+        case Some(tn) =>
+          val (filterTest, ignoreTest) = filter(tn, theSuite.tags)
+          if (!filterTest) {
+            if (ignoreTest)
+              reportTestIgnored(theSuite, report, tracker, tn, tn, 1)
+            else
+              runTest(tn, report, stopRequested, configMap, tracker)
+          }
+        case None => runTestsInBranch(theSuite, Trunk, report, stopRequested, filter, configMap, tracker, includeIcon, runTest)
+      }
     }
   }
 
@@ -520,7 +535,7 @@ private[scalatest] class Engine(concurrentBundleModResourceName: String, simpleC
 private[scalatest] class FixtureEngine[FixtureParam](concurrentBundleModResourceName: String, simpleClassName: String)
     extends SuperEngine[FixtureParam => Any](concurrentBundleModResourceName, simpleClassName)
 
-import scala.collection.mutable
+
 
 private[scalatest] class PathEngine(concurrentBundleModResourceName: String, simpleClassName: String)
     extends Engine(concurrentBundleModResourceName, simpleClassName) { thisEngine =>

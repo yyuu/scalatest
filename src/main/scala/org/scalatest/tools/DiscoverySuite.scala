@@ -56,7 +56,29 @@ private[scalatest] class DiscoverySuite(path: String, accessibleSuites: Set[Stri
         }
       }
   
-  final override def styleName: String = "org.scalatest.DefaultIncludedStyle"
+  override private[scalatest] def checkChosenStyles(configMap: Map[String, Any]) {
+    // Do nothing for this suite.
+  }
+  
+  override protected def runTests(testName: Option[String], reporter: Reporter, stopper: Stopper, filter: Filter,
+                             configMap: Map[String, Any], distributor: Option[Distributor], tracker: Tracker) {
+    if (testName == null)
+      throw new NullPointerException("testName was null")
+    if (reporter == null)
+      throw new NullPointerException("reporter was null")
+    if (stopper == null)
+      throw new NullPointerException("stopper was null")
+    if (filter == null)
+      throw new NullPointerException("filter was null")
+    if (configMap == null)
+      throw new NullPointerException("configMap was null")
+    if (distributor == null)
+      throw new NullPointerException("distributor was null")
+    if (tracker == null)
+      throw new NullPointerException("tracker was null")
+    
+    
+  }
 }
 
 private[scalatest] object DiscoverySuite {

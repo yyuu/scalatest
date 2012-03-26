@@ -37,6 +37,22 @@ class SuitesSpec extends FunSpec {
         new Suites(aNull: _*)
       }
     }
+    it("should check for chosen styles in checkChosenStyles when testNames is not empty") {
+      val f = new Suites(a, b, c, d, e)
+      f.checkChosenStyles(Map.empty)
+      f.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("FunSuite")))
+      
+      class SuitesWithTest(suitesToNest: Suite*) extends Suites(suitesToNest.toList: _*) {
+        def testMethod1() {}
+      }
+      
+      val g = new SuitesWithTest(a, b, c, d, e)
+      g.checkChosenStyles(Map.empty)
+      g.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("Suites")))
+      intercept[NotAllowedException] {
+        g.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("FunSuite")))
+      }
+    }
   }
   describe("Specs") {
     it("should return the passed suites from nestedSuites") {
@@ -50,6 +66,22 @@ class SuitesSpec extends FunSpec {
       intercept[NullPointerException] {
         val aNull: Array[Suite] = null
         new Specs(aNull: _*)
+      }
+    }
+    it("should check for chosen styles in checkChosenStyles when testNames is not empty") {
+      val f = new Specs(a, b, c, d, e)
+      f.checkChosenStyles(Map.empty)
+      f.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("FunSuite")))
+      
+      class SpecssWithTest(suitesToNest: Suite*) extends Specs(suitesToNest.toList: _*) {
+        def testMethod1() {}
+      }
+      
+      val g = new SpecssWithTest(a, b, c, d, e)
+      g.checkChosenStyles(Map.empty)
+      g.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("Specs")))
+      intercept[NotAllowedException] {
+        g.checkChosenStyles(Map("org.scalatest.ChosenStyles" -> Set("FunSuite")))
       }
     }
   }

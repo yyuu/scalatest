@@ -55,40 +55,29 @@ private[scalatest] class SuiteRunner(suite: Suite, dispatch: DispatchReporter, s
       if (!suite.isInstanceOf[DistributedTestRunnerSuite])
         dispatch(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, Some(suite.getClass.getName), formatter, rerunnable))
         
-      val chosenStyleSet = 
-        if (propertiesMap.isDefinedAt("org.scalatest.ChosenStyles"))
-          propertiesMap("org.scalatest.ChosenStyles").asInstanceOf[Set[String]]
-        else
-          Set.empty[String]
-      
-      if (chosenStyleSet.size > 0 && !chosenStyleSet.contains(suite.styleName)) {
-        val formatter = Suite.formatterForSuiteCompleted(suite)
-        val message = Resources("suiteNotChosenAborted", suite.suiteName, chosenStyleSet.mkString(", "))
-        dispatch(SuiteAborted(tracker.nextOrdinal(), message, suite.suiteName, Some(suite.getClass.getName), None, None, formatter, rerunnable))
-      }
-      else {
-        try {
-          suite.run(None, dispatch, stopRequested, filter, propertiesMap, distributor, tracker)
+      try {
+        suite.run(None, dispatch, stopRequested, filter, propertiesMap, distributor, tracker)
   
-          val rawString2 = Resources("suiteCompletedNormally")
-          val formatter = formatterForSuiteCompleted(suite)
+        val rawString2 = Resources("suiteCompletedNormally")
+        val formatter = formatterForSuiteCompleted(suite)
+
+        val duration = System.currentTimeMillis - suiteStartTime
+        if (!suite.isInstanceOf[DistributedTestRunnerSuite])
+          dispatch(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, Some(suite.getClass.getName), Some(duration), formatter, rerunnable))
+      }
+      catch {
+        case e: NotAllowedException =>
+          val formatter = Suite.formatterForSuiteAborted(suite, e.getMessage)
+          dispatch(SuiteAborted(tracker.nextOrdinal(), e.getMessage, suite.suiteName, Some(suite.getClass.getName), None, None, formatter, rerunnable))
+        case e: RuntimeException => { // Do fire SuiteAborted even if a DistributedTestRunnerSuite 
+
+          val rawString3 = Resources("executeException")
+          val formatter3 = formatterForSuiteAborted(suite, rawString3)
 
           val duration = System.currentTimeMillis - suiteStartTime
-          if (!suite.isInstanceOf[DistributedTestRunnerSuite])
-            dispatch(SuiteCompleted(tracker.nextOrdinal(), suite.suiteName, Some(suite.getClass.getName), Some(duration), formatter, rerunnable))
-        }
-        catch {
-          case e: RuntimeException => { // Do fire SuiteAborted even if a DistributedTestRunnerSuite 
-
-            val rawString3 = Resources("executeException")
-            val formatter3 = formatterForSuiteAborted(suite, rawString3)
-
-            val duration = System.currentTimeMillis - suiteStartTime
-            dispatch(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, Some(suite.getClass.getName), Some(e), Some(duration), formatter3, rerunnable))
-          }
+          dispatch(SuiteAborted(tracker.nextOrdinal(), rawString3, suite.suiteName, Some(suite.getClass.getName), Some(e), Some(duration), formatter3, rerunnable))
         }
       }
-      
     }
   }
 }

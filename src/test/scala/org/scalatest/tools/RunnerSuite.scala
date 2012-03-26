@@ -929,15 +929,13 @@ class RunnerSuite() extends Suite with PrivateMethodTester {
       Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle", "-y"), "-y")
     }
     val singleStyle = Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle"), "-y")
-    assert(singleStyle.size === 2)
+    assert(singleStyle.size === 1)
     assert(singleStyle.contains("aStyle"))
-    assert(singleStyle.contains("org.scalatest.DefaultIncludedStyle"))
     val multiStyle = Runner.parseChosenStylesIntoChosenStyleSet(List("-y", "aStyle", "-y", "bStyle", "-y", "cStyle"), "-y")
-    assert(multiStyle.size === 4)
+    assert(multiStyle.size === 3)
     assert(multiStyle.contains("aStyle"))
     assert(multiStyle.contains("bStyle"))
     assert(multiStyle.contains("cStyle"))
-    assert(multiStyle.contains("org.scalatest.DefaultIncludedStyle"))
   }
 
 /*
